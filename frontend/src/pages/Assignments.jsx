@@ -175,6 +175,7 @@ const Assignments = () => {
   const [classesList, setClassesList] = useState([]);
   const [activeClassId, setActiveClassId] = useState('np-10t8');
 
+  const [isCloudSynced, setIsCloudSynced] = useState(false);
   const [assignments, setAssignments] = useState(() => {
     try {
       const saved = localStorage.getItem(ASSIGNMENTS_STORAGE_KEY);
@@ -309,7 +310,6 @@ const Assignments = () => {
   // Modal tạo / chỉnh sửa bài tập
   const [showSubmissionDetail, setShowSubmissionDetail] = useState(false);
   const [selectedSubmissions, setSelectedSubmissions] = useState([]);
-  const [isCloudSynced, setIsCloudSynced] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingAssignmentId, setEditingAssignmentId] = useState(null);
   const [expandedProgressId, setExpandedProgressId] = useState(null);
