@@ -177,7 +177,7 @@ const Dashboard = () => {
     setShowNoticeModal(true);
   };
 
-  const handleSaveNotice = (e) => {
+  const handleSaveNotice = async (e) => {
     e.preventDefault();
     if (!noticeForm.title.trim() || !noticeForm.content.trim()) return;
     hasLocalChangesRef.current = true;
@@ -185,9 +185,10 @@ const Dashboard = () => {
     let updatedNotices;
     const now = new Date();
     const formattedDate = `Hôm nay lúc ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const tempId = editingNotice ? editingNotice.id : `local-${Date.now()}`;
 
     if (editingNotice) {
-      updatedNotices = notices.map(n => n.id === editingNotice.id ? {
+      updatedNotices = notices.map(n => n.id === tempId ? {
         ...n,
         title: noticeForm.title.trim(),
         content: noticeForm.content.trim(),
@@ -197,7 +198,7 @@ const Dashboard = () => {
       } : n);
     } else {
       const newNotice = {
-        id: Date.now(),
+        id: tempId,
         title: noticeForm.title.trim(),
         content: noticeForm.content.trim(),
         author: 'Thầy Lê Công Chức',
@@ -210,8 +211,20 @@ const Dashboard = () => {
 
     setNotices(updatedNotices);
     localStorage.setItem('edumanager_notices', JSON.stringify(updatedNotices));
-    saveNotice({ ...noticeForm, id: editingNotice?.id });
     setShowNoticeModal(false);
+
+    try {
+      const res = await saveNotice({ ...noticeForm, id: editingNotice?.id });
+      if (res.success && res.notice) {
+        setNotices(prev => {
+          const finalNotices = prev.map(n => n.id === tempId ? { ...n, id: res.notice.id } : n);
+          localStorage.setItem('edumanager_notices', JSON.stringify(finalNotices));
+          return finalNotices;
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDeleteNotice = (id) => {
