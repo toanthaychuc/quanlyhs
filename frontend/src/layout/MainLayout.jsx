@@ -27,6 +27,7 @@ import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import WelcomeLandingModal from '../components/WelcomeLandingModal';
 import SettingsModal from '../components/SettingsModal';
 import StudentName from '../components/StudentName';
+import { getClasses } from '../services/classService';
 import './MainLayout.css';
 
 const MainLayout = () => {
@@ -72,19 +73,16 @@ const MainLayout = () => {
   const [emailInput, setEmailInput] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  // Lấy danh sách lớp và học sinh để hiển thị thông tin học sinh hiện tại
+  // Lấy danh sách lớp và học sinh từ Supabase để học sinh chọn đúng lớp
   const [classesData, setClassesData] = useState([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('edumanager_classes_data');
-    if (saved) {
-      try {
-        setClassesData(JSON.parse(saved));
-      } catch (e) {
-        console.error(e);
+    getClasses().then(data => {
+      if (data && data.length > 0) {
+        setClassesData(data);
       }
-    }
-  }, [role]);
+    }).catch(err => console.error('MainLayout getClasses error:', err));
+  }, [role, hasEnteredApp]);
 
   const handleOpenLogin = () => {
     setEmailInput(currentUserEmail || '');

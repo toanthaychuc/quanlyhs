@@ -43,10 +43,19 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
   const [teacherError, setTeacherError] = useState('');
   const [teacherSuccess, setTeacherSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedClassId, setSelectedClassId] = useState('np-10t8');
+  const [selectedClassId, setSelectedClassId] = useState(() => classesData[0]?.id || 'np-10t8');
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [studentCodeInput, setStudentCodeInput] = useState('');
   const [studentError, setStudentError] = useState('');
+
+  // Tự động chọn lớp hợp lệ khi classesData được tải về từ Supabase
+  React.useEffect(() => {
+    if (classesData && classesData.length > 0) {
+      if (!selectedClassId || !classesData.some(c => c.id === selectedClassId)) {
+        setSelectedClassId(classesData[0].id);
+      }
+    }
+  }, [classesData, selectedClassId]);
 
   if (!isOpen) return null;
 
