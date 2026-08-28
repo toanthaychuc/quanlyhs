@@ -5,9 +5,9 @@ import { getSetting, saveSetting } from '../services/settingService';
 import './Forum.css';
 
 const DEFAULT_LINKS = {
-  zalo: 'https://zalo.me/0123456789',
-  facebook: 'https://facebook.com/thaycongchuc',
-  youtube: 'https://youtube.com/@thaycongchuc',
+  zalo: 'https://zalo.me/0859679132',
+  facebook: 'https://facebook.com/lchwcs37',
+  youtube: 'https://youtube.com/@toanthaychuc',
   email: 'mailto:lecongchuc02@gmail.com'
 };
 
@@ -102,11 +102,11 @@ const Forum = () => {
           <div className="social-info">
             <h3>Zalo</h3>
             {editing && isTeacher ? (
-              <input 
-                type="text" 
-                className="input" 
+              <input
+                type="text"
+                className="input"
                 value={tempLinks.zalo}
-                onChange={e => setTempLinks({...tempLinks, zalo: e.target.value})}
+                onChange={e => setTempLinks({ ...tempLinks, zalo: e.target.value })}
                 placeholder="Nhập link Zalo (vd: https://zalo.me/...)"
               />
             ) : (
@@ -125,11 +125,11 @@ const Forum = () => {
           <div className="social-info">
             <h3>Facebook</h3>
             {editing && isTeacher ? (
-              <input 
-                type="text" 
-                className="input" 
+              <input
+                type="text"
+                className="input"
                 value={tempLinks.facebook}
-                onChange={e => setTempLinks({...tempLinks, facebook: e.target.value})}
+                onChange={e => setTempLinks({ ...tempLinks, facebook: e.target.value })}
                 placeholder="Nhập link Facebook"
               />
             ) : (
@@ -148,11 +148,11 @@ const Forum = () => {
           <div className="social-info">
             <h3>YouTube</h3>
             {editing && isTeacher ? (
-              <input 
-                type="text" 
-                className="input" 
+              <input
+                type="text"
+                className="input"
                 value={tempLinks.youtube}
-                onChange={e => setTempLinks({...tempLinks, youtube: e.target.value})}
+                onChange={e => setTempLinks({ ...tempLinks, youtube: e.target.value })}
                 placeholder="Nhập link YouTube"
               />
             ) : (
@@ -171,11 +171,11 @@ const Forum = () => {
           <div className="social-info">
             <h3>Email</h3>
             {editing && isTeacher ? (
-              <input 
-                type="text" 
-                className="input" 
+              <input
+                type="text"
+                className="input"
                 value={tempLinks.email}
-                onChange={e => setTempLinks({...tempLinks, email: e.target.value})}
+                onChange={e => setTempLinks({ ...tempLinks, email: e.target.value })}
                 placeholder="Nhập Email (vd: mailto:...)"
               />
             ) : (

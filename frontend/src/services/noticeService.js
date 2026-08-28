@@ -9,6 +9,14 @@ const LOCAL_KEY = 'edumanager_notices';
 const isSupabaseReady = () =>
   Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
 
+function getNoticesFromLocal() {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+  } catch (_) {
+    return [];
+  }
+}
+
 export async function getNotices(forceSync = false) {
   if (!forceSync) {
     const local = getNoticesFromLocal();
