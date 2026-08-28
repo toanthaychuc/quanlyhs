@@ -185,10 +185,10 @@ const Dashboard = () => {
     let updatedNotices;
     const now = new Date();
     const formattedDate = `Hôm nay lúc ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const tempId = editingNotice ? editingNotice.id : `local-${Date.now()}`;
+    const noticeId = editingNotice ? editingNotice.id : crypto.randomUUID();
 
     if (editingNotice) {
-      updatedNotices = notices.map(n => n.id === tempId ? {
+      updatedNotices = notices.map(n => n.id === noticeId ? {
         ...n,
         title: noticeForm.title.trim(),
         content: noticeForm.content.trim(),
@@ -198,7 +198,7 @@ const Dashboard = () => {
       } : n);
     } else {
       const newNotice = {
-        id: tempId,
+        id: noticeId,
         title: noticeForm.title.trim(),
         content: noticeForm.content.trim(),
         author: 'Thầy Lê Công Chức',
@@ -214,14 +214,7 @@ const Dashboard = () => {
     setShowNoticeModal(false);
 
     try {
-      const res = await saveNotice({ ...noticeForm, id: editingNotice?.id });
-      if (res.success && res.notice) {
-        setNotices(prev => {
-          const finalNotices = prev.map(n => n.id === tempId ? { ...n, id: res.notice.id } : n);
-          localStorage.setItem('edumanager_notices', JSON.stringify(finalNotices));
-          return finalNotices;
-        });
-      }
+      await saveNotice({ ...noticeForm, id: noticeId });
     } catch (err) {
       console.error(err);
     }
