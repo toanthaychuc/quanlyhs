@@ -106,14 +106,14 @@ const SettingsModal = ({ isOpen, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="modal-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
+        <div className="modal-header" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
           <div className="flex items-center gap-2.5">
             <div 
               style={{ 
                 width: '36px', 
                 height: '36px', 
                 borderRadius: '10px', 
-                background: 'linear-gradient(135deg, #4f46e5, #06b6d4)', 
+                background: 'linear-gradient(135deg, var(--primary-color), #06b6d4)', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
@@ -124,8 +124,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
               <Sliders size={19} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>Cấu Hình Hệ Thống & Đồng Bộ</h3>
-              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Quản lý đồng bộ Đám mây Supabase, AI Key & Preamble LaTeX</span>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-primary)' }}>Cấu Hình Hệ Thống & Đồng Bộ</h3>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Quản lý đồng bộ Đám mây Supabase, AI Key & Preamble LaTeX</span>
             </div>
           </div>
           <button className="btn-icon" onClick={onClose} title="Đóng">
@@ -134,7 +134,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Tab Navigation */}
-        <div style={{ display: 'flex', gap: '0.5rem', padding: '0.85rem 1.5rem 0', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', padding: '0.85rem 1.5rem 0', background: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)' }}>
           <button
             type="button"
             onClick={() => setActiveTab('cloud')}
@@ -145,8 +145,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
               padding: '0.55rem 1rem',
               border: 'none',
               background: 'transparent',
-              borderBottom: activeTab === 'cloud' ? '2.5px solid #4f46e5' : '2.5px solid transparent',
-              color: activeTab === 'cloud' ? '#4f46e5' : '#64748b',
+              borderBottom: activeTab === 'cloud' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
+              color: activeTab === 'cloud' ? 'var(--primary-color)' : 'var(--text-secondary)',
               fontWeight: activeTab === 'cloud' ? 700 : 500,
               fontSize: '0.88rem',
               cursor: 'pointer'
@@ -165,8 +165,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
               padding: '0.55rem 1rem',
               border: 'none',
               background: 'transparent',
-              borderBottom: activeTab === 'latex' ? '2.5px solid #4f46e5' : '2.5px solid transparent',
-              color: activeTab === 'latex' ? '#4f46e5' : '#64748b',
+              borderBottom: activeTab === 'latex' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
+              color: activeTab === 'latex' ? 'var(--primary-color)' : 'var(--text-secondary)',
               fontWeight: activeTab === 'latex' ? 700 : 500,
               fontSize: '0.88rem',
               cursor: 'pointer'
@@ -186,8 +186,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
               padding: '0.55rem 1rem',
               border: 'none',
               background: 'transparent',
-              borderBottom: activeTab === 'ai' ? '2.5px solid #4f46e5' : '2.5px solid transparent',
-              color: activeTab === 'ai' ? '#4f46e5' : '#64748b',
+              borderBottom: activeTab === 'ai' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
+              color: activeTab === 'ai' ? 'var(--primary-color)' : 'var(--text-secondary)',
               fontWeight: activeTab === 'ai' ? 700 : 500,
               fontSize: '0.88rem',
               cursor: 'pointer'
@@ -202,11 +202,11 @@ const SettingsModal = ({ isOpen, onClose }) => {
         <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
           {activeTab === 'cloud' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '1rem' }}>
-                <h4 style={{ margin: '0 0 0.4rem 0', color: '#1d4ed8', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1rem' }}>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--primary-color)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span>☁️</span> Trung Tâm Đồng Bộ Đám Mây (Supabase)
                 </h4>
-                <p style={{ margin: 0, fontSize: '0.825rem', color: '#3b82f6', lineHeight: 1.5 }}>
+                <p style={{ margin: 0, fontSize: '0.825rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   Mọi dữ liệu (Danh sách lớp, Học sinh, Điểm số, Đề thi thử, Bài tập, Tài liệu, Thông báo) đều được lưu trữ trực tiếp trên đám mây để học sinh và thầy luôn thấy thông tin mới nhất.
                 </p>
               </div>
