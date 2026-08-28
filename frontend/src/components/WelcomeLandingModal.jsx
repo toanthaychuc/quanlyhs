@@ -286,7 +286,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
                 >
                   {classesData.map(cls => (
                     <option key={cls.id} value={cls.id}>
-                      {cls.name} - {cls.schoolFullName} ({cls.students?.length || 0} HS)
+                      {cls.name} - {cls.schoolFullName}
                     </option>
                   ))}
                 </select>
