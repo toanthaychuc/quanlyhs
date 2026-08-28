@@ -195,9 +195,18 @@ const Assignments = () => {
       if (Array.isArray(data) && data.length > 0) setAssignments(data);
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getAssignments(true).then(freshData => {
-        if (Array.isArray(freshData)) setAssignments(freshData);
-      }).catch(err => console.error('Background sync assignments error:', err));
-    }).catch(err => console.error('Local assignments error:', err));
+        if (Array.isArray(freshData)) {
+          setAssignments(freshData);
+        }
+        setIsCloudSynced(true);
+      }).catch(err => {
+        console.error('Background sync assignments error:', err);
+        setIsCloudSynced(true);
+      });
+    }).catch(err => {
+      console.error('Local assignments error:', err);
+      setIsCloudSynced(true);
+    });
   }, []);
 
   // Tải danh sách lớp (Stale-While-Revalidate)
@@ -223,6 +232,10 @@ const Assignments = () => {
   const asgSaveTimeoutRef = useRef(null);
   useEffect(() => {
     localStorage.setItem(ASSIGNMENTS_STORAGE_KEY, JSON.stringify(assignments));
+    
+    // BẢO VỆ DỮ LIỆU: Chỉ push lên cloud nếu đã kéo xong data mới nhất từ cloud
+    if (!isCloudSynced) return;
+
     if (asgSaveTimeoutRef.current) clearTimeout(asgSaveTimeoutRef.current);
     asgSaveTimeoutRef.current = setTimeout(() => {
       saveAllAssignments(assignments);
@@ -230,7 +243,7 @@ const Assignments = () => {
     return () => {
       if (asgSaveTimeoutRef.current) clearTimeout(asgSaveTimeoutRef.current);
     };
-  }, [assignments]);
+  }, [assignments, isCloudSynced]);
 
 
 
@@ -294,6 +307,9 @@ const Assignments = () => {
   });
 
   // Modal tạo / chỉnh sửa bài tập
+  const [showSubmissionDetail, setShowSubmissionDetail] = useState(false);
+  const [selectedSubmissions, setSelectedSubmissions] = useState([]);
+  const [isCloudSynced, setIsCloudSynced] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingAssignmentId, setEditingAssignmentId] = useState(null);
   const [expandedProgressId, setExpandedProgressId] = useState(null);

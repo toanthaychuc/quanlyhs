@@ -55,7 +55,11 @@ const Classes = () => {
     return [];
   });
 
-  // Tải dữ liệu từ Supabase khi component mount
+  // Tab active: classes, docs, homework, ranks (Mobile)
+  const [activeTab, setActiveTab] = useState('classes');
+
+  const [isCloudSynced, setIsCloudSynced] = useState(false);
+
   // Tải dữ liệu từ Supabase (Stale-While-Revalidate)
   useEffect(() => {
     // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
@@ -68,9 +72,14 @@ const Classes = () => {
         if (Array.isArray(freshData)) {
           setClasses(freshData.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
         }
-      }).catch(err => console.error('Background sync getClasses error:', err));
+        setIsCloudSynced(true);
+      }).catch(err => {
+        console.error('Background sync getClasses error:', err);
+        setIsCloudSynced(true);
+      });
     }).catch(err => {
       console.error('Local getClasses error:', err);
+      setIsCloudSynced(true);
     });
   }, []);
 
@@ -79,11 +88,12 @@ const Classes = () => {
   useEffect(() => {
     if (classes && classes.length > 0) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(classes));
+      if (!isCloudSynced) return;
       saveAllClasses(classes).catch(err => console.error('Auto-sync error:', err));
     } else if (classes && classes.length === 0) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(classes));
     }
-  }, [classes]);
+  }, [classes, isCloudSynced]);
 
   // Tìm lớp của học sinh đang đăng nhập
   const myEnrolledClass = classes.find(cls => 

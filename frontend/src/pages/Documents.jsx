@@ -30,6 +30,7 @@ const Documents = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
   const [pasteSuccess, setPasteSuccess] = useState(false);
+  const [isCloudSynced, setIsCloudSynced] = useState(false);
 
   // Đọc dữ liệu từ localStorage/Supabase
   const [documents, setDocuments] = useState(() => {
@@ -51,14 +52,23 @@ const Documents = () => {
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getDocuments(true).then(freshData => {
         if (freshData && freshData.length > 0) setDocuments(freshData);
-      }).catch(err => console.error('Background sync documents error:', err));
-    }).catch(err => console.error('Local documents error:', err));
+        setIsCloudSynced(true);
+      }).catch(err => {
+        console.error('Background sync documents error:', err);
+        setIsCloudSynced(true);
+      });
+    }).catch(err => {
+      console.error('Local documents error:', err);
+      setIsCloudSynced(true);
+    });
   }, []);
 
   // Tự động đồng bộ lên Supabase (debounced)
   const docSaveTimeoutRef = useRef(null);
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+    if (!isCloudSynced) return;
+    
     if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);
     docSaveTimeoutRef.current = setTimeout(() => {
       saveAllDocuments(documents);
@@ -66,7 +76,7 @@ const Documents = () => {
     return () => {
       if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);
     };
-  }, [documents]);
+  }, [documents, isCloudSynced]);
 
   const [newDoc, setNewDoc] = useState({
     title: '',
