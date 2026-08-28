@@ -953,7 +953,7 @@ const Exams = () => {
           <div className="exam-title-box">
             <h3 className="exam-live-title">{currentExam.title}</h3>
             <span className="exam-question-progress">
-              Câu {currentQuestionIndex + 1} / {currentExam.questions.length} • {getQuestionTypeBadge(q.questionType)}
+              {Object.keys(userAnswers).length} / {currentExam.questions.length} câu đã làm
             </span>
           </div>
 
@@ -970,131 +970,121 @@ const Exams = () => {
         </div>
 
         <div className="exam-taking-body">
-          <div className="question-display-card card">
-            <div className="question-card-header">
-              <div className="question-number-badge">
-                Câu {currentQuestionIndex + 1} {getQuestionTypeBadge(q.questionType)}
-              </div>
-              <button 
-                className={`btn-flag ${isFlagged ? 'flagged' : ''}`}
-                onClick={() => toggleFlagQuestion(q.id)}
-                title="Đánh dấu câu này để kiểm tra lại sau"
-              >
-                <Flag size={16} /> {isFlagged ? 'Đã đánh dấu' : 'Đánh dấu xem lại'}
-              </button>
-            </div>
+          <div className="exam-questions-list" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto', paddingRight: '10px' }}>
+            {currentExam.questions.map((q, index) => {
+              const currentAnswer = userAnswers[q.id];
+              const isFlagged = !!flaggedQuestions[q.id];
 
-            <div className="question-math-content">
-              <MathView text={q.content} />
-            </div>
-
-            {/* Render phương án theo dạng câu hỏi */}
-            {q.questionType === 'true_false' && (
-              <div className="tf-options-taking-table">
-                <div className="tf-table-header">
-                  <span>Mệnh đề phát biểu</span>
-                  <div className="tf-col-actions">
-                    <span>Đúng</span>
-                    <span>Sai</span>
-                  </div>
-                </div>
-                {(q.options || []).map(opt => {
-                  const userChoice = currentAnswer?.[opt.key];
-                  return (
-                    <div key={opt.key} className="tf-taking-row">
-                      <div className="tf-statement-text">
-                        <strong>{opt.key})</strong> <MathView text={opt.text} />
-                      </div>
-                      <div className="tf-btn-group">
-                        <button
-                          type="button"
-                          className={`tf-pick-btn btn-true ${userChoice === 'T' ? 'selected' : ''}`}
-                          onClick={() => handleSelectTrueFalse(q.id, opt.key, 'T')}
-                        >
-                          Đúng
-                        </button>
-                        <button
-                          type="button"
-                          className={`tf-pick-btn btn-false ${userChoice === 'F' ? 'selected' : ''}`}
-                          onClick={() => handleSelectTrueFalse(q.id, opt.key, 'F')}
-                        >
-                          Sai
-                        </button>
-                      </div>
+              return (
+                <div key={q.id} id={`question-${index}`} className="question-display-card card" style={{ scrollMarginTop: '20px' }}>
+                  <div className="question-card-header">
+                    <div className="question-number-badge">
+                      Câu {index + 1} {getQuestionTypeBadge(q.questionType)}
                     </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {q.questionType === 'short_answer' && (
-              <div className="short-ans-taking-box">
-                <label className="sa-input-label">Trả lời:</label>
-                <div className="sa-input-wrap">
-                  <input 
-                    type="text"
-                    className="input sa-taking-input"
-                    placeholder="VD: 59 hoặc -2.5"
-                    maxLength={4}
-                    value={currentAnswer || ''}
-                    onChange={(e) => handleInputShortAns(q.id, e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {q.questionType === 'essay' && (
-              <div className="essay-taking-box">
-                <p className="essay-taking-hint">
-                  📝 Đây là câu hỏi tự luận. Bạn hãy làm ra giấy nháp trước, sau khi nộp bài hệ thống sẽ cung cấp lời giải và biểu điểm chi tiết.
-                </p>
-                <textarea 
-                  className="input textarea-input" 
-                  rows="4" 
-                  placeholder="Ghi chú câu trả lời hoặc tóm tắt lời giải của bạn..."
-                  value={currentAnswer || ''}
-                  onChange={(e) => setUserAnswers({ ...userAnswers, [q.id]: e.target.value })}
-                />
-              </div>
-            )}
-
-            {(!q.questionType || q.questionType === 'multiple_choice') && (
-              <div className="options-grid">
-                {q.options.map((opt) => {
-                  const isSelected = currentAnswer === opt.key;
-                  return (
-                    <div 
-                      key={opt.key} 
-                      className={`option-choice-item ${isSelected ? 'selected' : ''}`}
-                      onClick={() => handleSelectOption(q.id, opt.key)}
+                    <button 
+                      className={`btn-flag ${isFlagged ? 'flagged' : ''}`}
+                      onClick={() => toggleFlagQuestion(q.id)}
+                      title="Đánh dấu câu này để kiểm tra lại sau"
                     >
-                      <div className="option-key-circle">{opt.key}</div>
-                      <div className="option-text">
-                        <MathView text={opt.text} />
+                      <Flag size={16} /> {isFlagged ? 'Đã đánh dấu' : 'Đánh dấu xem lại'}
+                    </button>
+                  </div>
+
+                  <div className="question-math-content">
+                    <MathView text={q.content} />
+                  </div>
+
+                  {q.questionType === 'true_false' && (
+                    <div className="tf-options-taking-table">
+                      <div className="tf-table-header">
+                        <span>Mệnh đề phát biểu</span>
+                        <div className="tf-col-actions">
+                          <span>Đúng</span>
+                          <span>Sai</span>
+                        </div>
+                      </div>
+                      {(q.options || []).map(opt => {
+                        const userChoice = currentAnswer?.[opt.key];
+                        return (
+                          <div key={opt.key} className="tf-taking-row">
+                            <div className="tf-statement-text">
+                              <strong>{opt.key})</strong> <MathView text={opt.text} />
+                            </div>
+                            <div className="tf-btn-group">
+                              <button
+                                type="button"
+                                className={`tf-pick-btn btn-true ${userChoice === 'T' ? 'selected' : ''}`}
+                                onClick={() => handleSelectTrueFalse(q.id, opt.key, 'T')}
+                              >
+                                Đúng
+                              </button>
+                              <button
+                                type="button"
+                                className={`tf-pick-btn btn-false ${userChoice === 'F' ? 'selected' : ''}`}
+                                onClick={() => handleSelectTrueFalse(q.id, opt.key, 'F')}
+                              >
+                                Sai
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {q.questionType === 'short_answer' && (
+                    <div className="short-ans-taking-box">
+                      <label className="sa-input-label">Trả lời:</label>
+                      <div className="sa-input-wrap">
+                        <input 
+                          type="text"
+                          className="input sa-taking-input"
+                          placeholder="VD: 59 hoặc -2.5"
+                          maxLength={4}
+                          value={currentAnswer || ''}
+                          onChange={(e) => handleInputShortAns(q.id, e.target.value)}
+                        />
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  )}
 
-            <div className="question-nav-footer">
-              <button 
-                className="btn btn-outline"
-                disabled={currentQuestionIndex === 0}
-                onClick={() => setCurrentQuestionIndex(prev => prev - 1)}
-              >
-                <ArrowLeft size={16} /> Câu trước
-              </button>
-              
-              <button 
-                className="btn btn-primary"
-                disabled={currentQuestionIndex === currentExam.questions.length - 1}
-                onClick={() => setCurrentQuestionIndex(prev => prev + 1)}
-              >
-                Câu tiếp theo <ArrowRight size={16} />
-              </button>
-            </div>
+                  {q.questionType === 'essay' && (
+                    <div className="essay-taking-box">
+                      <p className="essay-taking-hint">
+                        📝 Đây là câu hỏi tự luận. Bạn hãy làm ra giấy nháp trước, sau khi nộp bài hệ thống sẽ cung cấp lời giải và biểu điểm chi tiết.
+                      </p>
+                      <textarea 
+                        className="input textarea-input" 
+                        rows="4" 
+                        placeholder="Ghi chú câu trả lời hoặc tóm tắt lời giải của bạn..."
+                        value={currentAnswer || ''}
+                        onChange={(e) => setUserAnswers({ ...userAnswers, [q.id]: e.target.value })}
+                      />
+                    </div>
+                  )}
+
+                  {(!q.questionType || q.questionType === 'multiple_choice') && (
+                    <div className="options-grid">
+                      {q.options.map((opt) => {
+                        const isSelected = currentAnswer === opt.key;
+                        return (
+                          <div 
+                            key={opt.key} 
+                            className={`option-choice-item ${isSelected ? 'selected' : ''}`}
+                            onClick={() => handleSelectOption(q.id, opt.key)}
+                          >
+                            <div className="option-key-circle">{opt.key}</div>
+                            <div className="option-text">
+                              <MathView text={opt.text} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <div className="questions-palette-sidebar card">
@@ -1103,10 +1093,8 @@ const Exams = () => {
               {currentExam.questions.map((item, idx) => {
                 const answered = !!userAnswers[item.id];
                 const flagged = !!flaggedQuestions[item.id];
-                const isCurrent = idx === currentQuestionIndex;
 
                 let btnClass = 'palette-num-btn';
-                if (isCurrent) btnClass += ' current';
                 if (answered) btnClass += ' answered';
                 if (flagged) btnClass += ' flagged';
 
@@ -1114,7 +1102,10 @@ const Exams = () => {
                   <button 
                     key={item.id} 
                     className={btnClass}
-                    onClick={() => setCurrentQuestionIndex(idx)}
+                    onClick={() => {
+                      const el = document.getElementById(`question-${idx}`);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
                   >
                     {idx + 1}
                     {flagged && <span className="flag-dot"></span>}
@@ -1124,7 +1115,6 @@ const Exams = () => {
             </div>
 
             <div className="palette-legend">
-              <div className="legend-item"><span className="dot current"></span> Đang xem</div>
               <div className="legend-item"><span className="dot answered"></span> Đã làm</div>
               <div className="legend-item"><span className="dot unanswered"></span> Chưa làm</div>
               <div className="legend-item"><span className="dot flagged"></span> Đánh dấu</div>
