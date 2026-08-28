@@ -5,7 +5,7 @@ import {
   Lock, Eye
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
-import { getDocuments, saveAllDocuments } from '../services/documentService';
+import { getDocuments, saveAllDocuments, deleteDocument } from '../services/documentService';
 import './Documents.css';
 
 const CATEGORIES = [
@@ -130,11 +130,17 @@ const Documents = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteDocument = (e, id) => {
+  const handleDeleteDocument = async (e, id) => {
     e.preventDefault();
     if (!isTeacher) return;
     if (window.confirm('Bạn có chắc chắn muốn xóa tài liệu này?')) {
-      setDocuments(documents.filter(doc => doc.id !== id));
+      try {
+        await deleteDocument(id);
+        setDocuments(documents.filter(doc => doc.id !== id));
+      } catch (err) {
+        console.error('Lỗi khi xóa tài liệu:', err);
+        alert('Không thể xóa tài liệu. Vui lòng thử lại.');
+      }
     }
   };
 
