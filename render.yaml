@@ -1,18 +1,12 @@
 services:
   - type: web
     name: tikz-compiler-backend
-    runtime: node
+    env: docker
     region: singapore   # Chọn Singapore cho latency thấp từ Việt Nam
     plan: free
     rootDir: backend
-    buildCommand: npm install
-    startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
-    # NOTE: pdflatex và pdftocairo cần được cài sẵn trên Render.
-    # Render Free Plan dùng Ubuntu - hai gói này CÓ SẴN.
-    # Nếu không, thêm buildCommand:
-    #   apt-get install -y texlive-full poppler-utils && npm install
