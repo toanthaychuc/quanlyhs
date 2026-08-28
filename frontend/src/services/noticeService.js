@@ -66,14 +66,19 @@ export async function saveNotice(notice) {
       }),
       created_by: notice.createdBy || null,
     };
-    if (notice.id && /^[0-9a-f-]{36}$/.test(notice.id)) row.id = notice.id;
+    let queryResult;
+    if (notice.id && /^[0-9a-f-]{36}$/.test(notice.id)) {
+      row.id = notice.id;
+      queryResult = await supabase.from('notices').upsert(row, { onConflict: 'id' }).select().single();
+    } else {
+      queryResult = await supabase.from('notices').insert(row).select().single();
+    }
 
-    const { data, error } = await supabase
-      .from('notices')
-      .upsert(row, { onConflict: 'id' })
-      .select()
-      .single();
-    if (error) throw error;
+    const { data, error } = queryResult;
+    if (error) {
+      console.error('[noticeService] Supabase Error:', error);
+      throw error;
+    }
     return { success: true, notice: { id: data.id, ...notice } };
   } catch (err) {
     console.error('[noticeService] saveNotice error:', err);

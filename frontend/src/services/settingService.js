@@ -47,8 +47,10 @@ export async function saveSetting(key, value) {
     const { error } = await supabase
       .from('system_settings')
       .upsert({ key, value }, { onConflict: 'key' });
-
-    if (error) throw error;
+    if (error) {
+      console.error('[settingService] Supabase Error:', error);
+      throw error;
+    }
     return { success: true };
   } catch (err) {
     console.error(`[settingService] saveSetting(${key}) error:`, err);
