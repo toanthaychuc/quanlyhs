@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, Globe, MonitorPlay, Mail, Edit2, Save, X, ExternalLink } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { getSetting, saveSetting } from '../services/settingService';
@@ -19,23 +19,38 @@ const Forum = () => {
   });
 
   const [editing, setEditing] = useState(false);
+  const isEditingRef = useRef(false);
   const [tempLinks, setTempLinks] = useState({ ...links });
 
-  // Tải liên kết mới nhất từ Supabase khi mở trang
+  // Tải liên kết mới nhất từ Supabase (Stale-While-Revalidate)
   useEffect(() => {
-    getSetting('social_links', DEFAULT_LINKS).then(remoteLinks => {
-      if (remoteLinks) {
-        setLinks(remoteLinks);
-        setTempLinks(remoteLinks);
-        localStorage.setItem('edumanager_social_links', JSON.stringify(remoteLinks));
+    // 1. Local
+    getSetting('social_links', DEFAULT_LINKS, false).then(localLinks => {
+      if (localLinks) {
+        setLinks(localLinks);
+        setTempLinks(localLinks);
       }
-    }).catch(err => console.error('getSetting social_links error:', err));
+      // 2. Cloud
+      getSetting('social_links', DEFAULT_LINKS, true).then(remoteLinks => {
+        if (remoteLinks && !isEditingRef.current) {
+          setLinks(remoteLinks);
+          setTempLinks(remoteLinks);
+          localStorage.setItem('edumanager_social_links', JSON.stringify(remoteLinks));
+        }
+      }).catch(err => console.error('getSetting cloud error:', err));
+    }).catch(err => console.error('getSetting local error:', err));
   }, []);
+
+  const handleEdit = () => {
+    setEditing(true);
+    isEditingRef.current = true;
+  };
 
   const handleSave = async () => {
     setLinks(tempLinks);
     localStorage.setItem('edumanager_social_links', JSON.stringify(tempLinks));
     setEditing(false);
+    isEditingRef.current = false;
     try {
       await saveSetting('social_links', tempLinks);
     } catch (err) {
@@ -46,6 +61,7 @@ const Forum = () => {
   const handleCancel = () => {
     setTempLinks({ ...links });
     setEditing(false);
+    isEditingRef.current = false;
   };
 
   return (
@@ -61,7 +77,7 @@ const Forum = () => {
           </p>
         </div>
         {isTeacher && !editing && (
-          <button className="btn btn-primary" onClick={() => setEditing(true)}>
+          <button className="btn btn-primary" onClick={handleEdit}>
             <Edit2 size={16} /> Chỉnh sửa liên kết
           </button>
         )}
