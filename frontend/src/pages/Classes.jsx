@@ -139,6 +139,8 @@ const Classes = () => {
   const [importError, setImportError] = useState('');
   const [importSuccess, setImportSuccess] = useState('');
   const [importMode, setImportMode] = useState('merge');
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
 
 
   // State Thêm / Sửa Lớp Học Mới
