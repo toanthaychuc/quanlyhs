@@ -101,8 +101,9 @@ const Classes = () => {
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
 
-  // State Thêm Lớp Học Mới
+  // State Thêm / Sửa Lớp Học Mới
   const [showAddClassModal, setShowAddClassModal] = useState(false);
+  const [editingClassId, setEditingClassId] = useState(null);
   const [newClassForm, setNewClassForm] = useState({
     name: '',
     school: 'NP',
@@ -112,103 +113,39 @@ const Classes = () => {
     color: '#4f46e5'
   });
 
-  // Form add/edit student state (bao gồm cả điểm)
-  const [studentForm, setStudentForm] = useState({
-    id: '',
-    name: '',
-    gender: 'Nam',
-    dob: '',
-    phone: '',
-    email: '',
-    address: '',
-    note: '',
-    scores: { regular1: '', regular2: '', midterm: '', final: '', avg: '' }
-  });
-
-  // Import Excel state
-  const [importFile, setImportFile] = useState(null);
-  const [importPreview, setImportPreview] = useState([]);
-  const [importError, setImportError] = useState('');
-  const [importSuccess, setImportSuccess] = useState('');
-  const [importMode, setImportMode] = useState('merge'); // 'merge' or 'replace'
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const [showScoreConfigModal, setShowScoreConfigModal] = useState(false);
-  const [tempScoreColumns, setTempScoreColumns] = useState([]);
-  const [newScoreColumnsFromExcel, setNewScoreColumnsFromExcel] = useState([]);
-  
-  // Attendance state
-  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
-  const [attendanceDate, setAttendanceDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [attendanceData, setAttendanceData] = useState({}); // { studentId: 'present' | 'absent' | 'excused' }
-
-  // Đồng bộ lên Supabase khi classes thay đổi (debounced để tránh gọi quá nhiều)
-  const saveTimeoutRef = useRef(null);
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(classes));
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = setTimeout(() => {
-      saveAllClasses(classes);
-    }, 1500);
-    return () => {
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    };
-  }, [classes]);
-
-  // Reset selected checkboxes khi chuyển lớp
-  useEffect(() => {
-    setSelectedStudentIds([]);
-  }, [activeClassId]);
-
-  // Lớp hiện tại
-  const currentClass = isStudent 
-    ? myEnrolledClass 
-    : (classes.find(c => c.id === activeClassId) || classes[0]);
-
-  // Lọc danh sách lớp theo trường (chỉ áp dụng cho Giáo viên, Học sinh chỉ thấy lớp của mình)
-  const filteredClasses = isStudent 
-    ? (myEnrolledClass ? [myEnrolledClass] : [])
-    : classes.filter(cls => {
-        if (selectedSchool === 'ALL') return true;
-        return cls.school === selectedSchool;
-      });
-
-  // Lọc học sinh trong lớp theo ô tìm kiếm
-  const filteredStudents = (currentClass?.students || []).filter(student => {
-    const term = searchTerm.toLowerCase();
-    return (
-      student.name?.toLowerCase().includes(term) ||
-      student.id?.toLowerCase().includes(term) ||
-      student.phone?.includes(term) ||
-      student.email?.toLowerCase().includes(term) ||
-      student.note?.toLowerCase().includes(term)
-    );
-  });
-
-  // Handler: Di chuyển thứ tự lớp học
-  const handleMoveClass = (classId, direction, e) => {
+  // Handler: Mở modal sửa lớp học
+  const handleOpenEditClass = (cls, e) => {
     e?.stopPropagation();
-    const index = classes.findIndex(c => c.id === classId);
-    if (index === -1) return;
-    const targetIndex = direction === 'left' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= classes.length) return;
-
-    const newClasses = [...classes];
-    const temp = newClasses[index];
-    newClasses[index] = newClasses[targetIndex];
-    newClasses[targetIndex] = temp;
-
-    setClasses(newClasses);
+    setEditingClassId(cls.id);
+    const isStandardSchool = ['NP', 'THTH'].includes(cls.school);
+    setNewClassForm({
+      name: cls.name,
+      school: isStandardSchool ? cls.school : 'OTHER',
+      customSchool: isStandardSchool ? '' : (cls.schoolFullName || cls.school),
+      grade: String(cls.grade || '10'),
+      academicYear: cls.academicYear || '2025 - 2026',
+      color: cls.color || '#4f46e5'
+    });
+    setShowAddClassModal(true);
   };
 
-  // Handler: Xóa lớp học
+  // Handler: Mở modal thêm lớp học
+  const handleOpenAddClass = () => {
+    setEditingClassId(null);
+    setNewClassForm({
+      name: '',
+      school: 'NP',
+      customSchool: '',
+      grade: '10',
+      academicYear: '2025 - 2026',
+      color: '#4f46e5'
+    });
+    setShowAddClassModal(true);
+  };
+
+  // Handler: Xóa lớp học (Cho phép xóa sạch toàn bộ các lớp)
   const handleDeleteClass = async (classId, className, e) => {
     e?.stopPropagation();
-    if (classes.length <= 1) {
-      alert('Không thể xóa vì hệ thống cần ít nhất 1 lớp học!');
-      return;
-    }
     if (window.confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn xóa lớp "${className}" cùng toàn bộ dữ liệu học sinh của lớp này?`)) {
       try {
         await deleteClass(classId);
@@ -224,7 +161,7 @@ const Classes = () => {
     }
   };
 
-  // Handler: Thêm lớp học mới
+  // Handler: Thêm hoặc Cập nhật lớp học
   const handleSaveNewClass = (e) => {
     e.preventDefault();
     if (!newClassForm.name.trim()) return;
@@ -239,23 +176,42 @@ const Classes = () => {
         ? 'Trường Trung học Thực hành (THTH)' 
         : (newClassForm.customSchool.trim() || 'Trường học');
 
-    const newClassObj = {
-      id: `cls_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-      name: newClassForm.name.trim(),
-      school: schoolCode,
-      schoolFullName: schoolFullName,
-      grade: newClassForm.grade,
-      academicYear: newClassForm.academicYear || '2025 - 2026',
-      teacher: 'Thầy Lê Công Chức',
-      subject: 'Toán học',
-      color: newClassForm.color || '#4f46e5',
-      scoreColumns: DEFAULT_SCORE_COLUMNS,
-      students: []
-    };
+    if (editingClassId) {
+      // Cập nhật lớp đã có
+      setClasses(prev => prev.map(c => {
+        if (c.id !== editingClassId) return c;
+        return {
+          ...c,
+          name: newClassForm.name.trim(),
+          school: schoolCode,
+          schoolFullName: schoolFullName,
+          grade: newClassForm.grade,
+          academicYear: newClassForm.academicYear || '2025 - 2026',
+          color: newClassForm.color || c.color || '#4f46e5',
+        };
+      }));
+    } else {
+      // Thêm lớp mới
+      const newClassObj = {
+        id: `cls_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        name: newClassForm.name.trim(),
+        school: schoolCode,
+        schoolFullName: schoolFullName,
+        grade: newClassForm.grade,
+        academicYear: newClassForm.academicYear || '2025 - 2026',
+        teacher: 'Thầy Lê Công Chức',
+        subject: 'Toán học',
+        color: newClassForm.color || '#4f46e5',
+        scoreColumns: DEFAULT_SCORE_COLUMNS,
+        students: []
+      };
 
-    setClasses(prev => [...prev, newClassObj]);
-    setActiveClassId(newClassObj.id);
+      setClasses(prev => [...prev, newClassObj]);
+      setActiveClassId(newClassObj.id);
+    }
+
     setShowAddClassModal(false);
+    setEditingClassId(null);
     setNewClassForm({
       name: '',
       school: 'NP',
@@ -581,7 +537,7 @@ const Classes = () => {
             <button 
               className="btn btn-primary flex items-center gap-1.5"
               style={{ padding: '0.55rem 1.15rem', borderRadius: 'var(--radius-md)', fontWeight: 600 }}
-              onClick={() => setShowAddClassModal(true)}
+              onClick={handleOpenAddClass}
             >
               <Plus size={16} /> Thêm Lớp Học Mới
             </button>
@@ -626,7 +582,7 @@ const Classes = () => {
                 </div>
               </div>
 
-              {/* Điều chỉnh thứ tự lớp & Xóa lớp (Dành cho Giáo viên) */}
+              {/* Điều chỉnh thứ tự lớp, Sửa lớp & Xóa lớp (Dành cho Giáo viên) */}
               {isTeacher && (
                 <div className="class-card-actions" onClick={(e) => e.stopPropagation()}>
                   <button 
@@ -649,8 +605,16 @@ const Classes = () => {
                   </button>
                   <button 
                     type="button" 
+                    className="class-action-btn"
+                    style={{ marginLeft: 'auto', marginRight: '0.25rem', color: '#4f46e5' }}
+                    title={`Chỉnh sửa thông tin lớp ${cls.name}`}
+                    onClick={(e) => handleOpenEditClass(cls, e)}
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button 
+                    type="button" 
                     className="class-action-btn btn-delete"
-                    style={{ marginLeft: 'auto' }}
                     title={`Xóa lớp ${cls.name}`}
                     onClick={(e) => handleDeleteClass(cls.id, cls.name, e)}
                   >
@@ -1615,14 +1579,14 @@ const Classes = () => {
         </div>
       )}
 
-      {/* Modal Thêm Lớp Học Mới */}
+      {/* Modal Thêm / Chỉnh Sửa Lớp Học */}
       {showAddClassModal && (
         <div className="modal-overlay" onClick={() => setShowAddClassModal(false)}>
           <div className="modal-content" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="flex items-center gap-2">
                 <School size={22} color="var(--primary-color)" />
-                <h3>Thêm Lớp Học Mới</h3>
+                <h3>{editingClassId ? 'Chỉnh Sửa Thông Tin Lớp Học' : 'Thêm Lớp Học Mới'}</h3>
               </div>
               <button className="btn-icon" onClick={() => setShowAddClassModal(false)}>
                 <X size={18} />
@@ -1703,7 +1667,8 @@ const Classes = () => {
                   Hủy Bỏ
                 </button>
                 <button type="submit" className="btn btn-primary flex items-center gap-1.5">
-                  <Plus size={16} /> Tạo Lớp Học
+                  {editingClassId ? <CheckCircle2 size={16} /> : <Plus size={16} />}
+                  <span>{editingClassId ? 'Lưu Thay Đổi' : 'Tạo Lớp Học'}</span>
                 </button>
               </div>
             </form>
