@@ -49,7 +49,7 @@ export async function getDocuments(forceSync = false) {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    if (data && data.length > 0) {
+    if (Array.isArray(data)) {
       const formatted = data.map(rowToDoc);
       localStorage.setItem(LOCAL_KEY, JSON.stringify(formatted));
       return formatted;
