@@ -101,7 +101,7 @@ export const RoleProvider = ({ children }) => {
   const handleSetRole = (newRole) => {
     if (newRole === 'teacher') {
       if (currentUserEmail.trim().toLowerCase() !== TEACHER_EMAIL.toLowerCase()) {
-        alert(`⛔ Quyền truy cập bị từ chối!\nChỉ tài khoản email "${TEACHER_EMAIL}" mới được phép vào chế độ Giáo viên.`);
+        alert('⛔ Quyền truy cập bị từ chối!\nBạn không có quyền truy cập vào chế độ Giáo viên.');
         return false;
       }
     }
