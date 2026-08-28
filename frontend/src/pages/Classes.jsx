@@ -66,6 +66,14 @@ const Classes = () => {
     });
   }, []);
 
+  // Tự động lưu cache vào localStorage mỗi khi có thay đổi ở classes
+  // Giúp dữ liệu không bị mất khi F5 (reset trang) trước khi bấm Sync Lên Mây
+  useEffect(() => {
+    if (classes) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(classes));
+    }
+  }, [classes]);
+
   // Tìm lớp của học sinh đang đăng nhập
   const myEnrolledClass = classes.find(cls => 
     (cls.students || []).some(s => s.id === currentStudentId)
