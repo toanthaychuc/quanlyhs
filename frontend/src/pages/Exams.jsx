@@ -1,0 +1,1848 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { 
+  GraduationCap, Clock, HelpCircle, CheckCircle, XCircle, X,
+  Award, Play, RotateCcw, ArrowLeft, ArrowRight, Plus, 
+  Trash2, Edit, Save, FileText, Check, AlertTriangle, Sparkles, 
+  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, CheckSquare, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2
+} from 'lucide-react';
+import { useRole } from '../context/RoleContext';
+import { useLocation, useNavigate } from 'react-router-dom';
+import MathView from '../components/MathView';
+import { stripLatexComments, normalizeLatexString, extractBracedBlocks, parseImminiBlock, cleanQuestionObj } from '../utils/latexUtils';
+import { GRADE_10_CURRICULUM } from '../data/grade10Curriculum';
+import { GRADE_11_CURRICULUM } from '../data/grade11Curriculum';
+import { GRADE_12_CURRICULUM } from '../data/grade12Curriculum';
+import './Exams.css';
+import {
+  getExams, saveExam, deleteExam,
+  submitExamSession, getStudentHistory,
+  updateGamification, getGamification,
+  saveUnfinishedExam, getUnfinishedExam, clearUnfinishedExam
+} from '../services/examService';
+
+const EXAMS_STORAGE_KEY = 'edumanager_exams_data_v7';
+
+const ALL_CURRICULA = {
+  'grade-10': { label: 'Khối 10', data: GRADE_10_CURRICULUM },
+  'grade-11': { label: 'Khối 11', data: GRADE_11_CURRICULUM },
+  'grade-12': { label: 'Khối 12', data: GRADE_12_CURRICULUM },
+  'grade-thptqg': { label: 'THPTQG', data: null },
+  'grade-vact': { label: 'VACT', data: null }
+};
+
+// Chuyển danh sách câu hỏi thành chuỗi mã LaTeX chuẩn theo 4 dạng
+const questionsToLatexString = (questions) => {
+  if (!questions || questions.length === 0) return '';
+  return questions.map((q) => {
+    let str = `\\begin{ex}\n\t${q.content}\n`;
+    
+    if (q.questionType === 'true_false') {
+      str += `\t\\choiceTF\n`;
+      (q.options || []).forEach(opt => {
+        if (opt.isCorrectTrue) {
+          str += `\t{\\True ${opt.text}}\n`;
+        } else {
+          str += `\t{${opt.text}}\n`;
+        }
+      });
+    } else if (q.questionType === 'short_answer') {
+      const cleanAns = String(q.correctAnswer || '').replace(/\{,\}/g, ',').replace(/\$/g, '').trim();
+      str += `\t\\shortans{${cleanAns}}\n`;
+    } else if (q.questionType === 'multiple_choice') {
+      str += `\t\\choice\n`;
+      (q.options || []).forEach(opt => {
+        if (opt.key === q.correctAnswer) {
+          str += `\t{\\True ${opt.text}}\n`;
+        } else {
+          str += `\t{${opt.text}}\n`;
+        }
+      });
+    }
+
+    if (q.explanation) {
+      str += `\t\\loigiai{\n\t\t${q.explanation}\n\t}\n`;
+    }
+    str += `\\end{ex}\n`;
+    return str;
+  }).join('\n');
+};
+
+// Phân tích mã nguồn LaTeX đa năng hỗ trợ 4 dạng câu hỏi chuẩn Bộ GD&ĐT
+const parseLatexStringToQuestions = (rawText) => {
+  if (!rawText || !rawText.trim()) return [];
+
+  try {
+    // Loại bỏ tất cả comment % trước khi bóc tách
+    const cleanSource = stripLatexComments(rawText);
+
+    let blocks = [];
+
+    const envRegex = /\\begin\s*\{\s*(?:ex|bt|vd|cau)\s*\}(?:\[[^\]]*\])*([\s\S]*?)\\end\s*\{\s*(?:ex|bt|vd|cau)\s*\}/gi;
+    let match;
+    while ((match = envRegex.exec(cleanSource)) !== null) {
+      blocks.push(match[1]);
+    }
+
+  // Nếu không tìm thấy môi trường ex|bt|vd, thử tách theo Câu 1: / Câu 2:...
+  if (blocks.length === 0) {
+    blocks = cleanSource.split(/(?:^|\n)(?:Câu\s*\d+[:.]|Bài\s*\d+[:.])/i).filter(b => b.trim().length > 0);
+  }
+
+  if (blocks.length === 0) {
+    blocks = [cleanSource];
+  }
+
+  return blocks.map((rawBlock, index) => {
+    let block = rawBlock.trim();
+    // Bỏ qua các tag phân loại câu hỏi dạng [thm], [2D1B1-1] ở đầu khối nếu còn sót
+    block = block.replace(/^\s*(?:\[[^\]]*\]\s*)+/g, '').trim();
+    block = block.replace(/\\par\s*(?=\\shortans)/gi, '').trim();
+
+    // 0. Nếu \choice / \choiceTF / \shortans bị lồng bên trong khối thứ nhất của \immini, tự động tách ra ngoài
+    const imData = parseImminiBlock(block);
+    if (imData) {
+      const { isLeftMode, leftPart, rightPart, beforeText, afterText } = imData;
+      const choiceMatch = leftPart.match(/\\(?:choice|haicot|boncot|motcot|choiceTF|shortans)\b/i);
+      if (choiceMatch) {
+        const pureText = leftPart.slice(0, choiceMatch.index).trim();
+        const choicesPart = leftPart.slice(choiceMatch.index).trim();
+        const macro = isLeftMode ? '\\imminiL' : '\\immini';
+        block = `${beforeText}\n${macro}{${pureText}}{\n${rightPart}\n}\n${choicesPart}\n${afterText}`.trim();
+      }
+    }
+
+    // 1. Tách lời giải (\loigiai{...} hoặc \begin{loigiai}...\end{loigiai})
+    let explanation = '';
+    const loigiaiEnvMatch = block.match(/\\begin\{loigiai\}([\s\S]*?)\\end\{loigiai\}/i);
+    if (loigiaiEnvMatch) {
+      explanation = loigiaiEnvMatch[1].trim();
+      block = block.replace(loigiaiEnvMatch[0], '');
+    } else {
+      const loigiaiIdx = block.indexOf('\\loigiai');
+      if (loigiaiIdx !== -1) {
+        const afterLoigiai = block.slice(loigiaiIdx + 8).trim();
+        const braced = extractBracedBlocks(afterLoigiai);
+        if (braced.length > 0) {
+          explanation = braced[0].trim();
+        } else {
+          explanation = afterLoigiai;
+        }
+        block = block.slice(0, loigiaiIdx).trim();
+      } else {
+        const matchExp = block.match(/(?:Lời giải|HD|Hướng dẫn)[:\s]*([\s\S]+)/i);
+        if (matchExp) {
+          explanation = matchExp[1].trim();
+          block = block.replace(matchExp[0], '').trim();
+        }
+      }
+    }
+
+    let questionType = 'multiple_choice'; // 'multiple_choice' | 'true_false' | 'short_answer' | 'essay'
+    let options = [];
+    let correctAnswer = 'A';
+    let questionContent = block;
+
+    // 2. Kiểm tra dạng: TRẮC NGHIỆM ĐÚNG SAI (\choiceTF)
+    const choiceTFMatch = block.match(/\\choiceTF/i);
+    if (choiceTFMatch) {
+      questionType = 'true_false';
+      const tfIndex = choiceTFMatch.index;
+      questionContent = block.slice(0, tfIndex).trim();
+      const choicesPart = block.slice(tfIndex + choiceTFMatch[0].length).trim();
+      const rawChoices = extractBracedBlocks(choicesPart);
+
+      const keys = ['a', 'b', 'c', 'd'];
+      rawChoices.slice(0, 4).forEach((cText, optIdx) => {
+        const key = keys[optIdx] || `ý ${optIdx + 1}`;
+        const isTrue = /\\True/i.test(cText);
+        const cleanedText = cText.replace(/\\True/gi, '').trim();
+        options.push({
+          key,
+          text: cleanedText,
+          isCorrectTrue: isTrue
+        });
+      });
+    } 
+    // 3. Kiểm tra dạng: TRẮC NGHIỆM TRẢ LỜI NGẮN (\shortans{...})
+    else if (/\\shortans/i.test(block)) {
+      questionType = 'short_answer';
+      const shortansIdx = block.indexOf('\\shortans');
+      questionContent = block.slice(0, shortansIdx).trim();
+      if (questionContent.endsWith('\\par')) {
+        questionContent = questionContent.slice(0, -4).trim();
+      }
+      const afterShortans = block.slice(shortansIdx + 9).trim();
+      const braced = extractBracedBlocks(afterShortans);
+      if (braced.length > 0) {
+        correctAnswer = braced[0].replace(/\{,\}/g, ',').replace(/\$/g, '').trim();
+      } else {
+        const simpleMatch = afterShortans.match(/^\{?([^{}\n]+)\}?/);
+        correctAnswer = simpleMatch ? simpleMatch[1].replace(/\{,\}/g, ',').replace(/\$/g, '').trim() : '';
+      }
+    } 
+    // 4. Kiểm tra dạng: TRẮC NGHIỆM 4 PHƯƠNG ÁN (\choice, \haicot, \boncot, \motcot)
+    else if (/\\(?:choice|haicot|boncot|motcot)/i.test(block)) {
+      questionType = 'multiple_choice';
+      const choiceMatch = block.match(/\\(?:choice|haicot|boncot|motcot)/i);
+      const choiceIndex = choiceMatch.index;
+      questionContent = block.slice(0, choiceIndex).trim();
+      const choicesPart = block.slice(choiceIndex + choiceMatch[0].length).trim();
+      const rawChoices = extractBracedBlocks(choicesPart);
+
+      const keys = ['A', 'B', 'C', 'D'];
+      rawChoices.slice(0, 4).forEach((cText, optIdx) => {
+        const key = keys[optIdx] || 'A';
+        const hasTrue = /\\True/i.test(cText);
+        if (hasTrue) {
+          correctAnswer = key;
+        }
+        const cleanedText = cText.replace(/\\True/gi, '').trim();
+        options.push({
+          key,
+          text: cleanedText
+        });
+      });
+    } 
+    // 5. Kiểm tra dạng truyền thống A. ... B. ... C. ... D. ...
+    else if (/[A-D][.]\s+/.test(block)) {
+      questionType = 'multiple_choice';
+      questionContent = block.split(/(?:[A-D][.]|\{[A-D]\}|Đáp án|Lời giải)/)[0].trim();
+
+      const matchA = block.match(/A[.\s]+([^\nB-D]+)/);
+      const matchB = block.match(/B[.\s]+([^\nC-D]+)/);
+      const matchC = block.match(/C[.\s]+([^\nD\n]+)/);
+      const matchD = block.match(/D[.\s]+([^\n]+)/);
+
+      const matchAns = block.match(/(?:Đáp án|ĐA|Key)[:\s]*([A-D])/i);
+      if (matchAns) {
+        correctAnswer = matchAns[1].toUpperCase();
+      }
+
+      options = [
+        { key: 'A', text: matchA ? matchA[1].trim() : 'Đáp án A' },
+        { key: 'B', text: matchB ? matchB[1].trim() : 'Đáp án B' },
+        { key: 'C', text: matchC ? matchC[1].trim() : 'Đáp án C' },
+        { key: 'D', text: matchD ? matchD[1].trim() : 'Đáp án D' }
+      ];
+    } 
+    // 6. CÂU HỎI TỰ LUẬN (Không có choice / shortans)
+    else {
+      questionType = 'essay';
+      correctAnswer = 'Xem lời giải chi tiết';
+    }
+
+    // Đảm bảo đủ 4 lựa chọn nếu là multiple_choice
+    if (questionType === 'multiple_choice') {
+      const defaultKeys = ['A', 'B', 'C', 'D'];
+      while (options.length < 4) {
+        const nextKey = defaultKeys[options.length];
+        options.push({ key: nextKey, text: `Đáp án ${nextKey}` });
+      }
+    }
+
+      return cleanQuestionObj({
+        id: 'q_' + Date.now() + '_' + index,
+        questionType,
+        content: questionContent || `Câu hỏi ${index + 1}`,
+        options,
+        correctAnswer,
+        explanation: explanation || 'Xem lại kiến thức lý thuyết và phương pháp giải.'
+      });
+    });
+  } catch (err) {
+    console.error('Error parsing LaTeX questions:', err);
+    return [];
+  }
+};
+
+// Helper tạo danh sách đề thi ban đầu
+const getInitialExams = () => {
+  const list = [];
+
+  ['grade-10', 'grade-11', 'grade-12'].forEach(gradeKey => {
+    const cur = ALL_CURRICULA[gradeKey].data;
+    if (cur) {
+      cur.forEach(chap => {
+        chap.items.forEach(item => {
+          list.push({
+            id: item.id,
+            curriculumId: item.id,
+            chapterId: chap.chapterId,
+            chapterName: chap.chapterName,
+            title: item.name,
+            grade: gradeKey,
+            gradeLabel: ALL_CURRICULA[gradeKey].label,
+            duration: item.duration || 15,
+            questions: item.defaultQuestions || []
+          });
+        });
+      });
+    }
+  });
+
+  // Đề mẫu THPTQG
+  list.push({
+    id: 'thptqg-de-01',
+    title: 'Đề thi thử THPT Quốc Gia môn Toán 2026 - Đề số 01 (Chuẩn cấu trúc Bộ GD&ĐT)',
+    grade: 'grade-thptqg',
+    gradeLabel: 'THPTQG',
+    duration: 90,
+    questions: [
+      {
+        id: 'q_thpt_1',
+        questionType: 'multiple_choice',
+        content: 'Cho hàm số $y = \\frac{2x - 1}{x + 1}$. Tiệm cận ngang của đồ thị hàm số là đường thẳng:',
+        options: [
+          { key: 'A', text: '$y = 2$' },
+          { key: 'B', text: '$x = -1$' },
+          { key: 'C', text: '$y = -1$' },
+          { key: 'D', text: '$x = 2$' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Ta có $\\lim_{x \\to \\pm\\infty} \\frac{2x-1}{x+1} = 2 \\Rightarrow$ Tiệm cận ngang là $y = 2$.'
+      },
+      {
+        id: 'q_thpt_2',
+        questionType: 'short_answer',
+        content: 'Tìm giá trị lớn nhất của hàm số $f(x) = -x^2 + 4x + 1$ trên đoạn $[0; 3]$.',
+        options: [],
+        correctAnswer: '5',
+        explanation: 'Ta có $f\'(x) = -2x + 4 = 0 \\Leftrightarrow x = 2 \\in [0; 3]$. $f(0) = 1, f(2) = 5, f(3) = 4 \\Rightarrow \\max f(x) = 5$.'
+      }
+    ]
+  });
+
+  // Đề mẫu VACT
+  list.push({
+    id: 'vact-de-01',
+    title: 'Đề thi thử Đánh giá năng lực V-ACT (Toán học & Tư duy logic) - Đề 01',
+    grade: 'grade-vact',
+    gradeLabel: 'VACT',
+    duration: 60,
+    questions: [
+      {
+        id: 'q_vact_1',
+        questionType: 'multiple_choice',
+        content: 'Trong không gian $Oxyz$, cho mặt cầu $(S): (x-1)^2 + (y+2)^2 + (z-3)^2 = 16$. Tọa độ tâm $I$ và bán kính $R$ là:',
+        options: [
+          { key: 'A', text: '$I(1; -2; 3), R = 4$' },
+          { key: 'B', text: '$I(-1; 2; -3), R = 4$' },
+          { key: 'C', text: '$I(1; -2; 3), R = 16$' },
+          { key: 'D', text: '$I(-1; 2; -3), R = 16$' }
+        ],
+        correctAnswer: 'A',
+        explanation: 'Phương trình mặt cầu $(x-a)^2 + (y-b)^2 + (z-c)^2 = R^2 \\Rightarrow I(1; -2; 3), R = \\sqrt{16} = 4$.'
+      }
+    ]
+  });
+
+  return list;
+};
+
+const Exams = () => {
+  const { isTeacher, isStudent, currentStudentId } = useRole();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Xác định khối của học sinh hiện tại nếu đang ở chế độ Student
+  const [studentGradeKey, setStudentGradeKey] = useState(null);
+
+  useEffect(() => {
+    if (isStudent) {
+      const saved = localStorage.getItem('edumanager_classes_data');
+      if (saved) {
+        try {
+          const classes = JSON.parse(saved);
+          for (const cls of classes) {
+            const found = cls.students?.find(s => s.id === currentStudentId);
+            if (found) {
+              const gradeKey = `grade-${cls.grade || '10'}`;
+              setStudentGradeKey(gradeKey);
+              setActiveGradeFilter(gradeKey);
+              break;
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    } else {
+      setStudentGradeKey(null);
+    }
+  }, [isStudent, currentStudentId]);
+
+  const [activeGradeFilter, setActiveGradeFilter] = useState('grade-12');
+  const [searchLessonQuery, setSearchLessonQuery] = useState('');
+  const [expandedChapters, setExpandedChapters] = useState({});
+  const texFileInputRef = useRef(null);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+
+  const [exams, setExams] = useState(() => {
+    try {
+      const saved = localStorage.getItem(EXAMS_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return getInitialExams();
+  });
+
+  // Tải đề thi từ Supabase khi component mount
+  useEffect(() => {
+    getExams().then(data => {
+      if (data && data.length > 0) setExams(data);
+    }).catch(err => console.error('getExams error:', err));
+  }, []);
+
+  // Lưu cache localStorage khi exams thay đổi (đồng bộ Supabase xảy ra trong từng action)
+  useEffect(() => {
+    localStorage.setItem(EXAMS_STORAGE_KEY, JSON.stringify(exams));
+  }, [exams]);
+
+  const currentCurriculum = ALL_CURRICULA[activeGradeFilter]?.data || null;
+
+  useEffect(() => {
+    if (currentCurriculum) {
+      const initialExpanded = {};
+      currentCurriculum.forEach(c => { initialExpanded[c.chapterId] = true; });
+      setExpandedChapters(initialExpanded);
+    }
+  }, [activeGradeFilter]);
+
+  const toggleChapterExpand = (chapterId) => {
+    setExpandedChapters(prev => ({ ...prev, [chapterId]: !prev[chapterId] }));
+  };
+
+  const scrollToChapter = (chapterId) => {
+    setExpandedChapters(prev => ({ ...prev, [chapterId]: true }));
+    setTimeout(() => {
+      const el = document.getElementById(`chapter-${chapterId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add('highlight-flash');
+        setTimeout(() => {
+          el.classList.remove('highlight-flash');
+        }, 1600);
+      }
+    }, 80);
+  };
+
+  // Trạng thái làm bài thi
+  const [currentExam, setCurrentExam] = useState(null);
+  const [examMode, setExamMode] = useState('list'); // 'list' | 'taking' | 'result'
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState({});
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [examResult, setExamResult] = useState(null);
+  const timerRef = useRef(null);
+
+  // Modal Soạn đề LaTeX
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editorQuestions, setEditorQuestions] = useState([]);
+  const [editingExamId, setEditingExamId] = useState(null);
+  const [examFormData, setExamFormData] = useState({
+    grade: 'grade-12',
+    chapterId: '',
+    itemId: '',
+    title: '',
+    duration: 15,
+    latexBulkCode: ''
+  });
+
+  // Auto-resume from Dashboard
+  useEffect(() => {
+    if (location.state?.resumeExamId && isStudent && currentStudentId && exams.length > 0) {
+      const raw = getUnfinishedExam(currentStudentId);
+      if (raw) {
+        const entry = raw.examId === location.state.resumeExamId ? raw : null;
+        if (entry) {
+          const ex = exams.find(e => e.id === entry.examId);
+          if (ex) {
+            setCurrentExam(ex);
+            setUserAnswers(entry.answers || {});
+            setFlaggedQuestions(entry.flagged || {});
+            setTimeLeft(entry.timeLeft || (ex.duration * 60));
+            setExamMode('taking');
+            setCurrentQuestionIndex(0);
+            
+            navigate(location.pathname, { replace: true });
+          }
+        }
+      }
+    }
+  }, [location.state, isStudent, currentStudentId, exams, navigate, location.pathname]);
+
+  // Bắt đầu làm bài thi
+  const handleStartExam = (exam) => {
+    if (!exam.questions || exam.questions.length === 0) {
+      if (isTeacher) {
+        handleOpenEditCurriculumExam({ id: exam.id, name: exam.title, duration: exam.duration }, { chapterId: exam.chapterId }, exam.grade);
+      } else {
+        alert('Bài kiểm tra này đang được giáo viên cập nhật đề. Vui lòng quay lại sau!');
+      }
+      return;
+    }
+
+    setCurrentExam(exam);
+    setCurrentQuestionIndex(0);
+    setUserAnswers({});
+    setFlaggedQuestions({});
+    setTimeLeft(exam.duration * 60);
+    setExamMode('taking');
+  };
+
+  // Đồng hồ đếm ngược
+  useEffect(() => {
+    if (examMode === 'taking' && timeLeft > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current);
+            handleSubmitExam(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [examMode, timeLeft]);
+
+  // Tự động lưu tiến độ làm bài (debounced 2 giây)
+  const unfinishedSaveRef = useRef(null);
+  useEffect(() => {
+    if (examMode !== 'taking' || !currentExam || !isStudent || !currentStudentId) return;
+    if (unfinishedSaveRef.current) clearTimeout(unfinishedSaveRef.current);
+    unfinishedSaveRef.current = setTimeout(() => {
+      saveUnfinishedExam(currentStudentId, currentExam.id, {
+        answers: userAnswers,
+        flagged: flaggedQuestions,
+        timeLeft,
+      });
+    }, 2000);
+    return () => {
+      if (unfinishedSaveRef.current) clearTimeout(unfinishedSaveRef.current);
+    };
+  }, [userAnswers, flaggedQuestions, examMode, currentExam, isStudent, currentStudentId]);
+
+  // Nộp bài thi
+  const handleSubmitExam = async (autoSubmit = false) => {
+    if (!currentExam) return;
+
+    if (!autoSubmit) {
+      const answeredCount = Object.keys(userAnswers).length;
+      const totalCount = currentExam.questions.length;
+      if (answeredCount < totalCount) {
+        if (!window.confirm(`Bạn mới làm ${answeredCount}/${totalCount} câu. Bạn có chắc chắn muốn nộp bài không?`)) {
+          return;
+        }
+      } else {
+        if (!window.confirm('Bạn có chắc chắn muốn nộp bài thi không?')) {
+          return;
+        }
+      }
+    }
+
+    clearInterval(timerRef.current);
+
+    let correctCount = 0;
+    currentExam.questions.forEach((q) => {
+      const uAns = userAnswers[q.id];
+      if (q.questionType === 'true_false') {
+        // Đối với đúng sai, kiểm tra cả 4 ý
+        let allMatched = true;
+        (q.options || []).forEach(opt => {
+          const userPick = uAns?.[opt.key];
+          const expected = opt.isCorrectTrue ? 'T' : 'F';
+          if (userPick !== expected) allMatched = false;
+        });
+        if (allMatched && uAns) correctCount += 1;
+      } else if (q.questionType === 'short_answer') {
+        // So sánh chuỗi trả lời ngắn (bỏ khoảng trắng và dấu phẩy)
+        const cleanUser = String(uAns || '').trim().replace(/,/g, '.');
+        const cleanTarget = String(q.correctAnswer || '').trim().replace(/,/g, '.');
+        if (cleanUser === cleanTarget) correctCount += 1;
+      } else {
+        // Trắc nghiệm 4 phương án
+        if (uAns === q.correctAnswer) {
+          correctCount += 1;
+        }
+      }
+    });
+
+    const totalQuestions = currentExam.questions.length;
+    const score = totalQuestions > 0 ? ((correctCount / totalQuestions) * 10).toFixed(1) : 0;
+    const timeSpentSeconds = (currentExam.duration * 60) - timeLeft;
+
+    setExamResult({
+      score,
+      correctCount,
+      totalQuestions,
+      timeSpentSeconds,
+      submittedAt: new Date().toLocaleTimeString('vi-VN')
+    });
+
+    // Lưu kết quả lên Supabase và cập nhật gamification
+    try {
+      // 1. Lưu phiên thi
+      if (isStudent && currentStudentId) {
+        await submitExamSession({
+          examId: currentExam.id,
+          studentId: currentStudentId,
+          classId: null,
+          answers: userAnswers,
+          flagged: flaggedQuestions,
+          score: Number(score),
+          correctCount,
+          totalQuestions,
+          timeSpent: timeSpentSeconds,
+        });
+      }
+
+      // 2. Gamification (XP, Streak, Badges)
+      if (isStudent && currentStudentId) {
+        const myGami = await getGamification(currentStudentId);
+        const today = new Date().toLocaleDateString('en-CA');
+
+        // Cập nhật Streak
+        if (myGami.lastActiveDate !== today) {
+          if (!myGami.lastActiveDate) {
+            myGami.streak = 1;
+          } else {
+            const lastDate = new Date(myGami.lastActiveDate);
+            const currentDate = new Date(today);
+            const diffDays = Math.ceil(Math.abs(currentDate - lastDate) / (1000 * 60 * 60 * 24));
+            myGami.streak = diffDays === 1 ? (myGami.streak || 0) + 1 : 1;
+          }
+          myGami.lastActiveDate = today;
+        }
+
+        // Tính XP
+        let gainedXP = Math.floor(Number(score) * 10);
+        let isSpeedster = false;
+        if (timeSpentSeconds <= (currentExam.duration * 60) * 0.5) {
+          gainedXP += 50;
+          isSpeedster = true;
+        }
+        myGami.xp = (myGami.xp || 0) + gainedXP;
+
+        // Huy hiệu
+        const currentBadges = new Set(myGami.badges || []);
+        if (Number(score) === 10) currentBadges.add('Điểm Tuyệt Đối');
+        if (isSpeedster)           currentBadges.add('Tốc Độ');
+        if (myGami.streak >= 3)    currentBadges.add('Chăm Chỉ');
+        myGami.badges = Array.from(currentBadges);
+
+        await updateGamification(currentStudentId, myGami);
+      }
+
+      // 3. Xóa trạng thái làm dở
+      if (isStudent && currentStudentId) {
+        clearUnfinishedExam(currentStudentId);
+      }
+    } catch (e) {
+      console.error('Lỗi khi lưu kết quả thi:', e);
+    }
+
+    setExamMode('result');
+  };
+
+  const handleSelectOption = (questionId, optionKey) => {
+    setUserAnswers({ ...userAnswers, [questionId]: optionKey });
+  };
+
+  const handleSelectTrueFalse = (questionId, subKey, val) => {
+    const currentTF = userAnswers[questionId] || {};
+    setUserAnswers({
+      ...userAnswers,
+      [questionId]: {
+        ...currentTF,
+        [subKey]: val
+      }
+    });
+  };
+
+  const handleInputShortAns = (questionId, textVal) => {
+    setUserAnswers({ ...userAnswers, [questionId]: textVal });
+  };
+
+  const toggleFlagQuestion = (questionId) => {
+    setFlaggedQuestions({ ...flaggedQuestions, [questionId]: !flaggedQuestions[questionId] });
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // ===================== CRUD GIÁO VIÊN (SOẠN ĐỀ LATEX) =====================
+  const handleOpenAddExam = () => {
+    const defaultGrade = activeGradeFilter;
+    const cur = ALL_CURRICULA[defaultGrade]?.data;
+    const firstChap = cur ? cur[0] : null;
+    const firstItem = firstChap ? firstChap.items[0] : null;
+
+    setEditingExamId(null);
+    setExamFormData({
+      grade: defaultGrade,
+      chapterId: firstChap?.chapterId || '',
+      itemId: firstItem?.id || '',
+      title: defaultGrade === 'grade-thptqg' ? 'Đề thi thử THPT Quốc Gia mới' : (defaultGrade === 'grade-vact' ? 'Đề thi thử VACT mới' : (firstItem?.name ? `${firstItem.name} (Đề mới)` : 'Bài kiểm tra mới')),
+      duration: defaultGrade === 'grade-thptqg' ? 90 : (defaultGrade === 'grade-vact' ? 60 : 15),
+      latexBulkCode: '' // Để trống để hiển thị placeholder mờ gợi ý
+    });
+    setEditorQuestions([]);
+    setIsEditorOpen(true);
+  };
+
+  const handleOpenAddNewExamToLesson = (item, chapter, gradeKey) => {
+    const existingList = getExamsByCurriculumId(item.id);
+    const newIndex = existingList.length + 1;
+
+    setEditingExamId(null); // Tạo đề mới độc lập
+    setExamFormData({
+      grade: gradeKey,
+      chapterId: chapter?.chapterId || '',
+      itemId: item.id,
+      title: `${item.name} - Đề số ${newIndex}`,
+      duration: item.duration || 15,
+      latexBulkCode: ''
+    });
+    setEditorQuestions([]);
+    setIsEditorOpen(true);
+  };
+
+  const handleOpenEditSpecificExam = (exam, item, chapter, gradeKey) => {
+    try {
+      const qs = exam.questions || [];
+      const hasExistingQs = qs.length > 0;
+      const latexStr = hasExistingQs ? questionsToLatexString(qs) : '';
+
+      setEditingExamId(exam.id);
+      setExamFormData({
+        grade: exam.grade || gradeKey,
+        chapterId: exam.chapterId || chapter?.chapterId || '',
+        itemId: exam.curriculumId || item?.id || exam.id,
+        title: exam.title,
+        duration: exam.duration || 15,
+        latexBulkCode: latexStr
+      });
+      setEditorQuestions(hasExistingQs ? qs.map(cleanQuestionObj) : []);
+      setIsEditorOpen(true);
+    } catch (e) {
+      alert("Error in handleOpenEditSpecificExam: " + e.message);
+      console.error(e);
+    }
+  };
+
+  const handleDeleteSpecificExam = (examId, examTitle) => {
+    if (window.confirm(`Bạn có chắc chắn muốn xóa đề thi "${examTitle}" không?`)) {
+      setExams(prev => prev.filter(e => e.id !== examId));
+    }
+  };
+
+  const handleOpenEditFreeformExam = (exam) => {
+    const qs = exam.questions || [];
+    const hasExistingQs = qs.length > 0;
+    const latexStr = hasExistingQs ? questionsToLatexString(qs) : '';
+
+    setEditingExamId(exam.id);
+    setExamFormData({
+      grade: exam.grade,
+      chapterId: '',
+      itemId: exam.curriculumId || exam.id,
+      title: exam.title,
+      duration: exam.duration || 60,
+      latexBulkCode: latexStr
+    });
+    setEditorQuestions(hasExistingQs ? qs.map(cleanQuestionObj) : []);
+    setIsEditorOpen(true);
+  };
+
+  const handleDeleteFreeformExam = (examId, examTitle) => {
+    if (window.confirm(`Bạn có chắc chắn muốn xóa đề thi "${examTitle}" không?`)) {
+      setExams(exams.filter(e => e.id !== examId));
+    }
+  };
+
+  const handleToggleHideExam = (examId) => {
+    setExams(prev => prev.map(ex => ex.id === examId ? { ...ex, isHidden: !ex.isHidden } : ex));
+  };
+
+  const handleGradeChangeInModal = (newGrade) => {
+    const cur = ALL_CURRICULA[newGrade]?.data;
+    const firstChap = cur ? cur[0] : null;
+    const firstItem = firstChap ? firstChap.items[0] : null;
+
+    setExamFormData(prev => ({
+      ...prev,
+      grade: newGrade,
+      chapterId: firstChap?.chapterId || '',
+      itemId: firstItem?.id || '',
+      title: newGrade === 'grade-thptqg' ? 'Đề thi THPT Quốc Gia mới' : (newGrade === 'grade-vact' ? 'Đề thi ĐGNL VACT mới' : (firstItem?.name || prev.title)),
+      duration: newGrade === 'grade-thptqg' ? 90 : (newGrade === 'grade-vact' ? 60 : 15)
+    }));
+  };
+
+  const handleChapterChangeInModal = (newChapId) => {
+    const cur = ALL_CURRICULA[examFormData.grade]?.data;
+    const targetChap = cur?.find(c => c.chapterId === newChapId);
+    const firstItem = targetChap?.items[0];
+
+    setExamFormData(prev => ({
+      ...prev,
+      chapterId: newChapId,
+      itemId: firstItem?.id || '',
+      title: firstItem?.name || prev.title
+    }));
+  };
+
+  const handleItemChangeInModal = (newItemId) => {
+    const cur = ALL_CURRICULA[examFormData.grade]?.data;
+    const targetChap = cur?.find(c => c.chapterId === examFormData.chapterId);
+    const targetItem = targetChap?.items.find(i => i.id === newItemId);
+
+    setExamFormData(prev => ({
+      ...prev,
+      itemId: newItemId,
+      title: targetItem?.name || prev.title,
+      duration: targetItem?.duration || prev.duration
+    }));
+  };
+
+  const processUploadedFile = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target.result;
+      setExamFormData(prev => ({ ...prev, latexBulkCode: content }));
+      const parsed = parseLatexStringToQuestions(content);
+      if (parsed.length > 0) {
+        setEditorQuestions(parsed);
+        alert(`Đã nhận diện thành công ${parsed.length} câu hỏi từ tệp "${file.name}"!`);
+      } else {
+        alert(`Đã tải nội dung file "${file.name}". Vui lòng kiểm tra lại cấu trúc LaTeX!`);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleUploadTexFile = (e) => {
+    const file = e.target.files?.[0];
+    processUploadedFile(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) {
+      processUploadedFile(file);
+    }
+  };
+
+  const handleParseLatexInput = () => {
+    const parsed = parseLatexStringToQuestions(examFormData.latexBulkCode);
+    if (parsed.length > 0) {
+      setEditorQuestions(parsed);
+      alert(`Đã nhận diện thành công ${parsed.length} câu hỏi chuẩn LaTeX!`);
+    } else {
+      alert('Không nhận diện được định dạng câu hỏi. Vui lòng kiểm tra lại mã (VD: \\begin{ex}...\\choice{...}{\\True ...}\\loigiai{...}\\end{ex})');
+    }
+  };
+
+  const handleSaveExam = (e) => {
+    e.preventDefault();
+    
+    let finalQuestions = editorQuestions;
+    const parsed = parseLatexStringToQuestions(examFormData.latexBulkCode);
+    if (parsed.length > 0) {
+      finalQuestions = parsed;
+    }
+
+    if (finalQuestions.length === 0) {
+      alert('Vui lòng nhập nội dung đề thi với ít nhất 1 câu hỏi!');
+      return;
+    }
+
+    const examId = editingExamId || ('exam_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5));
+
+    const newExamObj = {
+      id: examId,
+      curriculumId: examFormData.itemId,
+      chapterId: examFormData.chapterId,
+      title: examFormData.title || 'Bài kiểm tra',
+      grade: examFormData.grade,
+      gradeLabel: ALL_CURRICULA[examFormData.grade]?.label || 'Toán học',
+      duration: parseInt(examFormData.duration, 10) || 15,
+      questions: finalQuestions
+    };
+
+    if (editingExamId) {
+      setExams(prev => prev.map(e => e.id === editingExamId ? newExamObj : e));
+    } else {
+      setExams(prev => [newExamObj, ...prev]);
+    }
+
+    setIsEditorOpen(false);
+    alert(`Đã lưu thành công bài kiểm tra: "${newExamObj.title}" với ${finalQuestions.length} câu hỏi!`);
+  };
+
+  const getExamsByCurriculumId = (currId) => {
+    return exams.filter(e => (e.curriculumId === currId || e.id === currId) && e.questions?.length > 0);
+  };
+
+  const getCurriculumStatText = () => {
+    if (activeGradeFilter === 'grade-10') return '9 Chương • 27 Bài học • 5 Kỳ thi định kỳ';
+    if (activeGradeFilter === 'grade-11') return '9 Chương • 33 Bài học • 5 Kỳ thi định kỳ';
+    if (activeGradeFilter === 'grade-12') return '6 Chương • 19 Bài học • 4 Kỳ thi định kỳ';
+    return 'Kho đề thi';
+  };
+
+  // Helper trả về nhãn loại câu hỏi
+  const getQuestionTypeBadge = (type) => {
+    if (type === 'true_false') return <span className="qtype-pill is-tf">Trắc nghiệm Đúng / Sai</span>;
+    if (type === 'short_answer') return <span className="qtype-pill is-sa">Trả lời ngắn</span>;
+    if (type === 'essay') return <span className="qtype-pill is-essay">Tự luận</span>;
+    return <span className="qtype-pill is-mc">Trắc nghiệm 4 lựa chọn</span>;
+  };
+
+  // ===================== RENDER: GIAO DIỆN LÀM BÀI THI =====================
+  if (examMode === 'taking' && currentExam) {
+    const q = currentExam.questions[currentQuestionIndex];
+    const isFlagged = !!flaggedQuestions[q.id];
+    const currentAnswer = userAnswers[q.id];
+
+    return (
+      <div className="exam-taking-view">
+        <div className="exam-taking-header glass">
+          <div className="exam-title-box">
+            <h3 className="exam-live-title">{currentExam.title}</h3>
+            <span className="exam-question-progress">
+              Câu {currentQuestionIndex + 1} / {currentExam.questions.length} • {getQuestionTypeBadge(q.questionType)}
+            </span>
+          </div>
+
+          <div className="exam-timer-box">
+            <Clock size={20} className={timeLeft < 180 ? 'timer-icon-warning' : ''} />
+            <span className={`timer-text ${timeLeft < 180 ? 'timer-warning' : ''}`}>
+              {formatTime(timeLeft)}
+            </span>
+          </div>
+
+          <button className="btn btn-submit-exam" onClick={() => handleSubmitExam(false)}>
+            <CheckCircle size={18} /> Nộp bài thi
+          </button>
+        </div>
+
+        <div className="exam-taking-body">
+          <div className="question-display-card card">
+            <div className="question-card-header">
+              <div className="question-number-badge">
+                Câu {currentQuestionIndex + 1} {getQuestionTypeBadge(q.questionType)}
+              </div>
+              <button 
+                className={`btn-flag ${isFlagged ? 'flagged' : ''}`}
+                onClick={() => toggleFlagQuestion(q.id)}
+                title="Đánh dấu câu này để kiểm tra lại sau"
+              >
+                <Flag size={16} /> {isFlagged ? 'Đã đánh dấu' : 'Đánh dấu xem lại'}
+              </button>
+            </div>
+
+            <div className="question-math-content">
+              <MathView text={q.content} />
+            </div>
+
+            {/* Render phương án theo dạng câu hỏi */}
+            {q.questionType === 'true_false' && (
+              <div className="tf-options-taking-table">
+                <div className="tf-table-header">
+                  <span>Mệnh đề phát biểu</span>
+                  <div className="tf-col-actions">
+                    <span>Đúng</span>
+                    <span>Sai</span>
+                  </div>
+                </div>
+                {(q.options || []).map(opt => {
+                  const userChoice = currentAnswer?.[opt.key];
+                  return (
+                    <div key={opt.key} className="tf-taking-row">
+                      <div className="tf-statement-text">
+                        <strong>{opt.key})</strong> <MathView text={opt.text} />
+                      </div>
+                      <div className="tf-btn-group">
+                        <button
+                          type="button"
+                          className={`tf-pick-btn btn-true ${userChoice === 'T' ? 'selected' : ''}`}
+                          onClick={() => handleSelectTrueFalse(q.id, opt.key, 'T')}
+                        >
+                          Đúng
+                        </button>
+                        <button
+                          type="button"
+                          className={`tf-pick-btn btn-false ${userChoice === 'F' ? 'selected' : ''}`}
+                          onClick={() => handleSelectTrueFalse(q.id, opt.key, 'F')}
+                        >
+                          Sai
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {q.questionType === 'short_answer' && (
+              <div className="short-ans-taking-box">
+                <label className="sa-input-label">Trả lời:</label>
+                <div className="sa-input-wrap">
+                  <input 
+                    type="text"
+                    className="input sa-taking-input"
+                    placeholder="VD: 59 hoặc -2.5"
+                    maxLength={4}
+                    value={currentAnswer || ''}
+                    onChange={(e) => handleInputShortAns(q.id, e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {q.questionType === 'essay' && (
+              <div className="essay-taking-box">
+                <p className="essay-taking-hint">
+                  📝 Đây là câu hỏi tự luận. Bạn hãy làm ra giấy nháp trước, sau khi nộp bài hệ thống sẽ cung cấp lời giải và biểu điểm chi tiết.
+                </p>
+                <textarea 
+                  className="input textarea-input" 
+                  rows="4" 
+                  placeholder="Ghi chú câu trả lời hoặc tóm tắt lời giải của bạn..."
+                  value={currentAnswer || ''}
+                  onChange={(e) => setUserAnswers({ ...userAnswers, [q.id]: e.target.value })}
+                />
+              </div>
+            )}
+
+            {(!q.questionType || q.questionType === 'multiple_choice') && (
+              <div className="options-grid">
+                {q.options.map((opt) => {
+                  const isSelected = currentAnswer === opt.key;
+                  return (
+                    <div 
+                      key={opt.key} 
+                      className={`option-choice-item ${isSelected ? 'selected' : ''}`}
+                      onClick={() => handleSelectOption(q.id, opt.key)}
+                    >
+                      <div className="option-key-circle">{opt.key}</div>
+                      <div className="option-text">
+                        <MathView text={opt.text} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="question-nav-footer">
+              <button 
+                className="btn btn-outline"
+                disabled={currentQuestionIndex === 0}
+                onClick={() => setCurrentQuestionIndex(prev => prev - 1)}
+              >
+                <ArrowLeft size={16} /> Câu trước
+              </button>
+              
+              <button 
+                className="btn btn-primary"
+                disabled={currentQuestionIndex === currentExam.questions.length - 1}
+                onClick={() => setCurrentQuestionIndex(prev => prev + 1)}
+              >
+                Câu tiếp theo <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
+
+          <div className="questions-palette-sidebar card">
+            <h4 className="palette-title">Danh sách câu hỏi</h4>
+            <div className="palette-grid">
+              {currentExam.questions.map((item, idx) => {
+                const answered = !!userAnswers[item.id];
+                const flagged = !!flaggedQuestions[item.id];
+                const isCurrent = idx === currentQuestionIndex;
+
+                let btnClass = 'palette-num-btn';
+                if (isCurrent) btnClass += ' current';
+                if (answered) btnClass += ' answered';
+                if (flagged) btnClass += ' flagged';
+
+                return (
+                  <button 
+                    key={item.id} 
+                    className={btnClass}
+                    onClick={() => setCurrentQuestionIndex(idx)}
+                  >
+                    {idx + 1}
+                    {flagged && <span className="flag-dot"></span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="palette-legend">
+              <div className="legend-item"><span className="dot current"></span> Đang xem</div>
+              <div className="legend-item"><span className="dot answered"></span> Đã làm</div>
+              <div className="legend-item"><span className="dot unanswered"></span> Chưa làm</div>
+              <div className="legend-item"><span className="dot flagged"></span> Đánh dấu</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ===================== RENDER: KẾT QUẢ THI =====================
+  if (examMode === 'result' && currentExam && examResult) {
+    return (
+      <div className="exam-result-view">
+        <div className="result-score-card card glass">
+          <div className="score-badge-circle">
+            <span className="score-number">{examResult.score}</span>
+            <span className="score-max">/ 10</span>
+          </div>
+
+          <div className="score-summary-info">
+            <h2>Kết quả làm bài thi</h2>
+            <p className="result-exam-name">{currentExam.title}</p>
+            
+            <div className="result-stats-row">
+              <div className="stat-pill">
+                <CheckCircle size={18} className="text-emerald" />
+                <span>Số câu đúng: <strong>{examResult.correctCount} / {examResult.totalQuestions}</strong></span>
+              </div>
+              <div className="stat-pill">
+                <Clock size={18} className="text-indigo" />
+                <span>Thời gian: <strong>{formatTime(examResult.timeSpentSeconds)}</strong></span>
+              </div>
+              <div className="stat-pill">
+                <Award size={18} className="text-amber" />
+                <span>Chính xác: <strong>{examResult.totalQuestions > 0 ? Math.round((examResult.correctCount / examResult.totalQuestions) * 100) : 0}%</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div className="result-actions">
+            <button className="btn btn-primary" onClick={() => handleStartExam(currentExam)}>
+              <RotateCcw size={16} /> Làm lại đề này
+            </button>
+            <button className="btn btn-outline" onClick={() => setExamMode('list')}>
+              <ArrowLeft size={16} /> Về danh sách đề
+            </button>
+          </div>
+        </div>
+
+        <div className="review-questions-list">
+          <h3 className="section-heading">Chi tiết bài làm & Lời giải</h3>
+
+          {currentExam.questions.map((q, idx) => {
+            const userChoice = userAnswers[q.id];
+
+            return (
+              <div key={q.id} className="review-question-card card">
+                <div className="review-card-header">
+                  <span className="review-q-num">Câu {idx + 1} {getQuestionTypeBadge(q.questionType)}</span>
+                </div>
+
+                <div className="review-question-content">
+                  <MathView text={q.content} />
+                </div>
+
+                {/* Đúng sai review */}
+                {q.questionType === 'true_false' && (
+                  <div className="tf-review-table">
+                    {(q.options || []).map(opt => {
+                      const userPick = userChoice?.[opt.key];
+                      const correctPick = opt.isCorrectTrue ? 'T' : 'F';
+                      const isSubCorrect = userPick === correctPick;
+
+                      return (
+                        <div key={opt.key} className={`tf-review-row ${isSubCorrect ? 'is-sub-correct' : 'is-sub-wrong'}`}>
+                          <div className="tf-statement-text">
+                            <strong>{opt.key})</strong> <MathView text={opt.text} />
+                          </div>
+                          <div className="tf-status-pills">
+                            <span className="badge-expected">Đáp án: <strong>{opt.isCorrectTrue ? 'Đúng' : 'Sai'}</strong></span>
+                            <span className={isSubCorrect ? 'badge-user-ok' : 'badge-user-bad'}>
+                              Bạn chọn: {userPick === 'T' ? 'Đúng' : (userPick === 'F' ? 'Sai' : 'Chưa làm')}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Trả lời ngắn review */}
+                {q.questionType === 'short_answer' && (
+                  <div className="sa-review-box">
+                    <div className="sa-review-pill">
+                      <span>Đáp án đúng: <strong>{q.correctAnswer}</strong></span>
+                    </div>
+                    <div className="sa-review-user">
+                      <span>Bạn đã điền: <strong>{userChoice || 'Chưa điền'}</strong></span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4 phương án review */}
+                {(!q.questionType || q.questionType === 'multiple_choice') && (
+                  <div className="review-options-grid">
+                    {q.options.map(opt => {
+                      const isUserPick = userChoice === opt.key;
+                      const isKeyCorrect = opt.key === q.correctAnswer;
+
+                      let optClass = 'review-option';
+                      if (isKeyCorrect) optClass += ' correct-option';
+                      if (isUserPick && !isKeyCorrect) optClass += ' wrong-option';
+
+                      return (
+                        <div key={opt.key} className={optClass}>
+                          <span className="review-opt-key">{opt.key}</span>
+                          <div className="review-opt-text">
+                            <MathView text={opt.text} />
+                          </div>
+                          {isKeyCorrect && <Check size={16} className="text-emerald check-icon" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {q.explanation && (
+                  <div className="review-explanation-box">
+                    <div className="explanation-title">
+                      <Sparkles size={16} /> Lời giải chi tiết:
+                    </div>
+                    <div className="explanation-text">
+                      <MathView text={q.explanation} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // ===================== RENDER: DANH SÁCH BÀI KIỂM TRA =====================
+  return (
+    <div className="exams-page">
+      <div className="page-header">
+        <div>
+          <h2 className="page-title">Phòng Thi Thử & Kiểm Tra Trực Tuyến</h2>
+          <p className="page-subtitle">
+            Hệ thống bài kiểm tra theo từng bài học (SGK Kết Nối Tri Thức), kiểm tra chương, THPT Quốc Gia & VACT chuẩn LaTeX
+          </p>
+        </div>
+
+        {isTeacher && (
+          <button className="btn btn-primary" onClick={handleOpenAddExam}>
+            <Plus size={20} />
+            Soạn đề thi mới (LaTeX)
+          </button>
+        )}
+      </div>
+
+      {/* Filter Tabs (Mở tự do cho toàn bộ học sinh và giáo viên) */}
+      <div className="exam-filter-tabs">
+        {[
+          { id: 'grade-10', label: '🎓 Khối 10' },
+          { id: 'grade-11', label: '🎓 Khối 11' },
+          { id: 'grade-12', label: '🎓 Khối 12' },
+          { id: 'grade-thptqg', label: '🎯 THPTQG' },
+          { id: 'grade-vact', label: '⚡ VACT' }
+        ].map(filter => (
+          <button
+            key={filter.id}
+            className={`filter-pill ${activeGradeFilter === filter.id ? 'active' : ''}`}
+            onClick={() => {
+              setActiveGradeFilter(filter.id);
+              setSearchLessonQuery('');
+            }}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+
+      {/* GIAO DIỆN MỤC LỤC CHI TIẾT (CHO KHỐI 10, 11 VÀ 12) */}
+      {currentCurriculum ? (
+        <div className="grade10-curriculum-container">
+          <div className="curriculum-top-bar card">
+            <div className="search-input-wrapper">
+              <Search size={18} className="search-icon" />
+              <input 
+                type="text"
+                className="input search-curriculum-input"
+                placeholder={`Tìm nhanh bài học ${ALL_CURRICULA[activeGradeFilter]?.label}...`}
+                value={searchLessonQuery}
+                onChange={(e) => setSearchLessonQuery(e.target.value)}
+              />
+            </div>
+            <span className="curriculum-stat-badge">
+              {getCurriculumStatText()}
+            </span>
+          </div>
+
+          {/* Thanh cuộn nhanh đến Chương & Kiểm tra định kì */}
+          <div className="quick-jump-container card">
+            <span className="quick-jump-label">⚡ Cuộn nhanh đến:</span>
+            <div className="quick-jump-pills">
+              {currentCurriculum.map((chap) => (
+                <button
+                  key={chap.chapterId}
+                  className={`quick-jump-pill ${chap.isTermExams ? 'is-term' : ''}`}
+                  onClick={() => scrollToChapter(chap.chapterId)}
+                  title={`Cuộn nhanh đến ${chap.chapterName}`}
+                >
+                  {chap.isTermExams ? '🏆 Kiểm tra định kì' : `Chương ${chap.chapterNumber}`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="chapters-list">
+            {currentCurriculum.map((chapter) => {
+              const matchingItems = chapter.items.filter(item => 
+                item.name.toLowerCase().includes(searchLessonQuery.toLowerCase())
+              );
+
+              if (searchLessonQuery && matchingItems.length === 0) return null;
+
+              const isExpanded = expandedChapters[chapter.chapterId] !== false;
+
+              return (
+                <div 
+                  key={chapter.chapterId} 
+                  id={`chapter-${chapter.chapterId}`}
+                  className={`chapter-block card ${chapter.isTermExams ? 'term-exams-chapter' : ''}`}
+                >
+                  <div 
+                    className="chapter-header"
+                    onClick={() => toggleChapterExpand(chapter.chapterId)}
+                  >
+                    <div className="chapter-header-left">
+                      <div className="chapter-num-badge">
+                        {chapter.chapterNumber}
+                      </div>
+                      <h3 className="chapter-title">{chapter.chapterName}</h3>
+                    </div>
+
+                    <div className="chapter-header-right">
+                      <span className="item-count-text">
+                        {chapter.items.length} bài kiểm tra
+                      </span>
+                      {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                    </div>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="chapter-items-grid">
+                      {(searchLessonQuery ? matchingItems : chapter.items).map((item) => {
+                        const lessonExams = getExamsByCurriculumId(item.id);
+                        const hasExams = lessonExams.length > 0;
+
+                        return (
+                          <div 
+                            key={item.id} 
+                            className={`lesson-exam-block card ${item.type === 'chapter_test' ? 'is-chapter-test' : ''} ${item.type === 'term_exam' ? 'is-term-exam' : ''}`}
+                          >
+                            <div className="lesson-exam-header-row">
+                              <div className="lesson-exam-left">
+                                <div className="lesson-type-icon">
+                                  {item.type === 'term_exam' ? (
+                                    <Calendar size={18} className="text-amber" />
+                                  ) : item.type === 'chapter_test' ? (
+                                    <Award size={18} className="text-indigo" />
+                                  ) : (
+                                    <BookOpen size={18} className="text-emerald" />
+                                  )}
+                                </div>
+                                <div className="lesson-meta-box">
+                                  <h4 className="lesson-name">{item.name}</h4>
+                                  <div className="lesson-sub-meta">
+                                    <span className="meta-q-count">
+                                      {hasExams ? (
+                                        <span className="badge-has-q">
+                                          <CheckSquare size={13} /> {lessonExams.length} bộ đề thi
+                                        </span>
+                                      ) : (
+                                        <span className="badge-no-q">Chưa có đề</span>
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {isTeacher && (
+                                <button 
+                                  className="btn btn-outline btn-sm btn-add-sub-exam"
+                                  onClick={() => handleOpenAddNewExamToLesson(item, chapter, activeGradeFilter)}
+                                  title="Thêm một bộ đề thi mới cho bài học này"
+                                >
+                                  <Plus size={14} /> Thêm đề thi mới
+                                </button>
+                              )}
+                            </div>
+
+                            {/* DANH SÁCH TẤT CẢ CÁC ĐỀ THI ĐÃ TẠO CHO BÀI NÀY */}
+                            {hasExams ? (
+                              <div className="lesson-sub-exams-list">
+                                {lessonExams.filter(ex => isTeacher || !ex.isHidden).map((ex, exIdx) => (
+                                  <div key={ex.id} className={`sub-exam-item-row ${ex.isHidden ? 'opacity-60' : ''}`}>
+                                    <div className="sub-exam-left-info">
+                                      <span className="sub-exam-tag" style={ex.isHidden ? {background: '#e5e7eb', color: '#6b7280'} : {}}>Đề {exIdx + 1}</span>
+                                      <h5 className="sub-exam-title">
+                                        {ex.title}
+                                      </h5>
+                                      <span className="sub-exam-pill"><Clock size={12} /> {ex.duration} phút</span>
+                                      <span className="sub-exam-pill is-count"><CheckSquare size={12} /> {ex.questions?.length || 0} câu</span>
+                                    </div>
+
+                                    <div className="sub-exam-actions">
+                                      <button 
+                                        className="btn btn-primary btn-sm btn-take-sub-exam"
+                                        onClick={() => handleStartExam(ex)}
+                                      >
+                                        <Play size={14} /> Làm bài
+                                      </button>
+
+                                      {isTeacher && (
+                                        <div className="teacher-sub-btn-group">
+                                          <button 
+                                            className="icon-btn"
+                                            onClick={() => handleToggleHideExam(ex.id)}
+                                            title={ex.isHidden ? "Hiển thị đề thi này" : "Ẩn đề thi này"}
+                                          >
+                                            {ex.isHidden ? <EyeOff size={14} /> : <Eye size={14} />}
+                                          </button>
+                                          <button 
+                                            className="icon-btn edit-sub-btn"
+                                            onClick={() => handleOpenEditSpecificExam(ex, item, chapter, activeGradeFilter)}
+                                            title="Chỉnh sửa đề thi này (LaTeX)"
+                                          >
+                                            <Edit size={14} />
+                                          </button>
+                                          <button 
+                                            className="icon-btn delete-sub-btn"
+                                            onClick={() => handleDeleteSpecificExam(ex.id, ex.title)}
+                                            title="Xóa đề thi này"
+                                          >
+                                            <Trash2 size={14} />
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              !isTeacher && (
+                                <div className="no-exam-empty-hint">
+                                  <span className="text-muted-status">Giáo viên đang cập nhật đề thi cho bài học này...</span>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        /* GIAO DIỆN CHO CÁC ĐỀ THI TỰ DO (THPT QUỐC GIA & VACT) */
+        <div className="freeform-exams-wrapper">
+          <div className="freeform-header-bar card">
+            <div className="freeform-info">
+              <h3>{ALL_CURRICULA[activeGradeFilter]?.label === 'THPTQG' ? '🎯 Đề Thi Thử Tốt Nghiệp THPT Quốc Gia Môn Toán' : '⚡ Đề Thi Thử Đánh Giá Năng Lực VACT'}</h3>
+              <p>Tổng hợp các bộ đề thi thử chất lượng cao có đầy đủ công thức LaTeX và lời giải chi tiết</p>
+            </div>
+            {isTeacher && (
+              <button className="btn btn-primary" onClick={handleOpenAddExam}>
+                <Plus size={16} /> Thêm đề {ALL_CURRICULA[activeGradeFilter]?.label} mới
+              </button>
+            )}
+          </div>
+
+          <div className="exams-grid">
+            {exams.filter(ex => ex.grade === activeGradeFilter && (isTeacher || !ex.isHidden)).map((exam) => (
+              <div key={exam.id} className={`exam-card card ${exam.isHidden ? 'opacity-60' : ''}`}>
+                <div className="exam-card-badge-row">
+                  <span className="exam-grade-badge">{exam.gradeLabel || 'THPTQG'}</span>
+                  <div className="exam-meta-pill">
+                    <Clock size={14} /> {exam.duration} phút
+                  </div>
+                </div>
+
+                <h3 className="exam-card-title">
+                  {exam.title}
+                </h3>
+
+                <div className="exam-card-details">
+                  <div className="detail-item">
+                    <HelpCircle size={15} /> {exam.questions?.length || 0} câu hỏi (Đầy đủ 4 dạng)
+                  </div>
+                  <div className="detail-item">
+                    <BookOpen size={15} /> Chuẩn công thức LaTeX & Lời giải
+                  </div>
+                </div>
+
+                <div className="exam-card-footer">
+                  <button className="btn btn-primary btn-start-exam" onClick={() => handleStartExam(exam)}>
+                    <Play size={16} /> Bắt đầu làm bài
+                  </button>
+
+                  {isTeacher && (
+                    <div className="teacher-exam-actions">
+                      <button className="icon-btn" onClick={() => handleToggleHideExam(exam.id)} title={exam.isHidden ? "Hiển thị đề thi" : "Ẩn đề thi"}>
+                        {exam.isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                      <button className="icon-btn edit-btn" onClick={() => handleOpenEditFreeformExam(exam)} title="Sửa đề (LaTeX)">
+                        <Edit size={16} />
+                      </button>
+                      <button className="icon-btn delete-btn" onClick={() => handleDeleteFreeformExam(exam.id, exam.title)} title="Xóa đề">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ===================== MODAL SOẠN ĐỀ 2 CỘT (IDE LATEX & LIVE COMPILED VIEW) ===================== */}
+      {isTeacher && isEditorOpen && createPortal(
+        <div className="modal-overlay">
+          <div className="modal-content glass exam-editor-modal modal-dual-pane">
+            <div className="modal-header">
+              <div className="modal-title-box">
+                <div className="modal-title-left">
+                  <FileCode size={22} className="text-indigo" />
+                  <h3>{editingExamId ? 'Soạn & Biên dịch đề thi LaTeX' : 'Tạo đề thi mới (Trình soạn LaTeX)'}</h3>
+                </div>
+                <span className="modal-sub-badge">
+                  {ALL_CURRICULA[examFormData.grade]?.label} • {examFormData.title}
+                </span>
+              </div>
+              <button className="icon-btn" onClick={() => setIsEditorOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveExam} className="modal-form-dual">
+              <div className="editor-two-columns-layout">
+                {/* CỘT TRÁI */}
+                <div className="editor-left-column">
+                  <div className="editor-dropdowns-compact">
+                    <div className="form-group">
+                      <label>Khối:</label>
+                      <select 
+                        className="input select-input select-compact"
+                        value={examFormData.grade}
+                        onChange={(e) => handleGradeChangeInModal(e.target.value)}
+                      >
+                        <option value="grade-10">Khối 10</option>
+                        <option value="grade-11">Khối 11</option>
+                        <option value="grade-12">Khối 12</option>
+                        <option value="grade-thptqg">THPTQG</option>
+                        <option value="grade-vact">VACT</option>
+                      </select>
+                    </div>
+
+                    {ALL_CURRICULA[examFormData.grade]?.data && (
+                      <div className="form-group">
+                        <label>Chương:</label>
+                        <select 
+                          className="input select-input select-compact"
+                          value={examFormData.chapterId}
+                          onChange={(e) => handleChapterChangeInModal(e.target.value)}
+                        >
+                          {ALL_CURRICULA[examFormData.grade]?.data.map(chap => (
+                            <option key={chap.chapterId} value={chap.chapterId}>
+                              {chap.isTermExams ? '🏆 ĐỊNH KỲ (GK1, CK1...)' : `${chap.chapterName}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {ALL_CURRICULA[examFormData.grade]?.data && (
+                      <div className="form-group">
+                        <label>Bài học / Kỳ thi:</label>
+                        <select 
+                          className="input select-input select-compact"
+                          value={examFormData.itemId}
+                          onChange={(e) => handleItemChangeInModal(e.target.value)}
+                        >
+                          {ALL_CURRICULA[examFormData.grade]?.data
+                            .find(c => c.chapterId === examFormData.chapterId)
+                            ?.items?.map(item => (
+                              <option key={item.id} value={item.id}>
+                                {item.name}
+                              </option>
+                            ))
+                          }
+                        </select>
+                      </div>
+                    )}
+
+                    <div className="form-group time-group">
+                      <label>Thời gian:</label>
+                      <div className="time-input-wrap">
+                        <input 
+                          type="number" 
+                          className="input select-compact" 
+                          min="5" 
+                          max="180"
+                          value={examFormData.duration}
+                          onChange={(e) => setExamFormData({ ...examFormData, duration: e.target.value })}
+                          required
+                        />
+                        <span className="unit-text">phút</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-group title-compact-group">
+                    <label>Tiêu đề bài kiểm tra:</label>
+                    <input 
+                      type="text" 
+                      className="input input-sm" 
+                      value={examFormData.title}
+                      onChange={(e) => setExamFormData({ ...examFormData, title: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="latex-toolbar-compact">
+                    <div className="toolbar-status-badge">
+                      <span>Mã nguồn LaTeX (Hỗ trợ 4 dạng & ex_test.sty)</span>
+                    </div>
+
+                    <div className="toolbar-actions-group">
+                      <input 
+                        type="file" 
+                        ref={texFileInputRef} 
+                        accept=".tex,.txt"
+                        style={{ display: 'none' }}
+                        onChange={handleUploadTexFile}
+                      />
+                      <button 
+                        type="button" 
+                        className="btn btn-outline btn-xs"
+                        onClick={() => texFileInputRef.current?.click()}
+                      >
+                        <Upload size={13} /> Tải file .tex
+                      </button>
+                      <button 
+                        type="button" 
+                        className="btn btn-primary btn-xs"
+                        onClick={handleParseLatexInput}
+                      >
+                        <Sparkles size={13} /> Biên dịch lại
+                      </button>
+                    </div>
+                  </div>
+
+                  <div 
+                    className={`latex-dropzone-container flex-grow-editor ${isDraggingFile ? 'is-dragging' : ''}`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    {isDraggingFile && (
+                      <div className="drag-overlay-indicator">
+                        <div className="drag-overlay-card">
+                          <div className="drag-icon-glow">
+                            <Upload size={32} />
+                          </div>
+                          <p className="drag-main-title">📂 Thả tệp .tex hoặc .txt vào đây</p>
+                          <span className="drag-sub-hint">Hệ thống sẽ tự động nạp và biên dịch tức thì</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <textarea 
+                      className="input textarea-input latex-code-box full-height-textarea"
+                      style={{ height: '100%', minHeight: '100%', flex: 1, resize: 'none' }}
+                      placeholder={`\\begin{ex}%[Mã câu hỏi]
+	Nhập câu hỏi với công thức LaTeX $...$
+	\\choice
+	{Phương án A}
+	{\\True Phương án B đúng}
+	{Phương án C}
+	{Phương án D}
+	\\loigiai{
+		Lời giải chi tiết bài toán...
+	}
+\\end{ex}`}
+                      value={examFormData.latexBulkCode}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setExamFormData({ ...examFormData, latexBulkCode: val });
+                        const parsed = parseLatexStringToQuestions(val);
+                        setEditorQuestions(parsed);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* CỘT PHẢI: KẾT QUẢ BIÊN DỊCH */}
+                <div className="editor-right-column">
+                  <div className="preview-column-header">
+                    <div className="preview-title-wrap">
+                      <Eye size={18} className="text-emerald" />
+                      <h4>Kết quả biên dịch hiển thị</h4>
+                    </div>
+                    <span className="parsed-count-pill">
+                      {editorQuestions.length} câu hỏi
+                    </span>
+                  </div>
+
+                  <div className="compiled-questions-scroll-area">
+                    {editorQuestions.length === 0 ? (
+                      <div className="empty-preview-state">
+                        <FileCode size={36} className="text-muted" />
+                        <p>Chưa có câu hỏi nào được biên dịch.</p>
+                        <span>Nhập mã LaTeX hoặc kéo thả file <code>.tex</code> ở cột bên trái để xem kết quả.</span>
+                      </div>
+                    ) : (
+                      editorQuestions.map((question, qIdx) => (
+                        <div key={question.id || qIdx} className="compiled-question-card">
+                          <div className="compiled-q-header">
+                            <span className="compiled-q-badge">Câu {qIdx + 1} {getQuestionTypeBadge(question.questionType)}</span>
+                            {question.questionType === 'multiple_choice' && (
+                              <span className="compiled-correct-badge">
+                                Đáp án đúng: <strong>{question.correctAnswer}</strong>
+                              </span>
+                            )}
+                            {question.questionType === 'short_answer' && (
+                              <span className="compiled-correct-badge">
+                                Đáp án: <strong>{question.correctAnswer}</strong>
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="compiled-q-content">
+                            <MathView text={question.content} />
+                          </div>
+
+                          {/* 1. Dạng Trắc nghiệm Đúng / Sai */}
+                          {question.questionType === 'true_false' && (
+                            <div className="compiled-tf-list">
+                              {(question.options || []).map((opt) => (
+                                <div key={opt.key} className={`compiled-tf-item ${opt.isCorrectTrue ? 'is-tf-true' : 'is-tf-false'}`}>
+                                  <span className="tf-key-badge">{opt.key})</span>
+                                  <div className="tf-item-text">
+                                    <MathView text={opt.text} />
+                                  </div>
+                                  <span className={`tf-val-badge ${opt.isCorrectTrue ? 'val-true' : 'val-false'}`}>
+                                    {opt.isCorrectTrue ? '✓ ĐÚNG' : '✗ SAI'}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* 2. Dạng Trả lời ngắn */}
+                          {question.questionType === 'short_answer' && (
+                            <div className="compiled-shortans-box">
+                              <span className="sa-label">Đáp án điền ngắn:</span>
+                              <span className="sa-value-badge">{String(question.correctAnswer || '').replace(/\{,\}/g, ',').replace(/\$/g, '').trim()}</span>
+                            </div>
+                          )}
+
+                          {/* 3. Dạng 4 phương án */}
+                          {(!question.questionType || question.questionType === 'multiple_choice') && (
+                            <div className="compiled-options-grid">
+                              {question.options.map((opt) => {
+                                const isCorrect = opt.key === question.correctAnswer;
+                                return (
+                                  <div key={opt.key} className={`compiled-option-item ${isCorrect ? 'is-correct-choice' : ''}`}>
+                                    <div className="opt-key-circle-sm">{opt.key}</div>
+                                    <div className="opt-text-sm">
+                                      <MathView text={opt.text} />
+                                    </div>
+                                    {isCorrect && <Check size={14} className="text-emerald check-icon-sm" />}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {/* Lời giải chi tiết */}
+                          {question.explanation && (
+                            <div className="compiled-explanation-box">
+                              <span className="exp-label">Lời giải:</span>
+                              <div className="exp-content">
+                                <MathView text={question.explanation} />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="modal-actions modal-dual-footer">
+                <div className="footer-left-hint">
+                  <span>💡 Hệ thống đã tự động lọc bỏ các comment <code>%</code> và hỗ trợ đầy đủ 4 dạng câu hỏi chuẩn Bộ GD&ĐT.</span>
+                </div>
+                <div className="footer-right-buttons">
+                  <button type="button" className="btn btn-outline" onClick={() => setIsEditorOpen(false)}>
+                    Hủy
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    <Save size={16} /> Lưu đề thi ({editorQuestions.length} câu) vào hệ thống
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
+
+export default Exams;
