@@ -178,7 +178,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
                 <img src={`${import.meta.env.BASE_URL}logos/logo_thth.jpg`} alt="Logo Trường THTH" className="school-logo-img" />
               </div>
               <div className="school-logo-item logo-blue-wrapper" title="Trung tâm Tri thức NP">
-                <img src={`${import.meta.env.BASE_URL}logos/logo_np.jpg`} alt="Logo Trung tâm NP" className="school-logo-img" />
+                <img src={`${import.meta.env.BASE_URL}logos/logo_np_v2.jpg`} alt="Logo Trung tâm NP" className="school-logo-img" />
               </div>
             </div>
 

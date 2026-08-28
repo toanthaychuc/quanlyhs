@@ -77,13 +77,13 @@
 .logo-blue-wrapper {
   border: 4px solid #0284c7;
   box-shadow: 0 12px 35px rgba(2, 132, 199, 0.28);
-  overflow: hidden;
-  padding: 0; /* Remove padding to make the circle fit precisely to the border */
+  padding: 18px; /* Added padding to give the NP logo breathing room */
+  background-color: white;
 }
 
 .logo-blue-wrapper .school-logo-img {
-  transform: scale(2.8) translateY(0%); 
-  transform-origin: center center;
+  transform: none; 
+  object-fit: contain;
   border-radius: 0;
 }
 
