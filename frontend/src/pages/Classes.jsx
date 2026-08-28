@@ -45,18 +45,20 @@ const Classes = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return parsed.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' }));
+        if (Array.isArray(parsed)) {
+          return parsed.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' }));
+        }
       } catch (e) {
         console.error('Failed to parse classes from localStorage', e);
       }
     }
-    return INITIAL_CLASSES_DATA;
+    return [];
   });
 
   // Tải dữ liệu từ Supabase khi component mount
   useEffect(() => {
     getClasses().then(data => {
-      if (data && data.length > 0) {
+      if (Array.isArray(data)) {
         setClasses(data.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
       }
     }).catch(err => {

@@ -4,9 +4,7 @@
  * Falls back gracefully if Supabase is not configured.
  */
 import supabase from '../lib/supabase';
-import { INITIAL_CLASSES_DATA } from '../data/classesData';
-
-const LOCAL_KEY = 'edumanager_classes_data';
+const LOCAL_KEY = 'edumanager_classes_data_v2';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -43,10 +41,8 @@ function rowToStudent(row) {
 }
 
 export async function getClasses() {
-  const localClasses = getClassesFromLocal();
-
   if (!isSupabaseReady()) {
-    return localClasses;
+    return getClassesFromLocal();
   }
 
   try {
@@ -80,7 +76,7 @@ export async function getClasses() {
     return mergedClasses;
   } catch (err) {
     console.error('[classService] getClasses error, using localStorage fallback:', err);
-    return localClasses;
+    return getClassesFromLocal();
   }
 }
 
@@ -89,12 +85,12 @@ function getClassesFromLocal() {
     const raw = localStorage.getItem(LOCAL_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' }));
       }
     }
   } catch (_) {}
-  return INITIAL_CLASSES_DATA;
+  return [];
 }
 
 /**

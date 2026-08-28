@@ -92,7 +92,7 @@ const MainLayout = () => {
 
   useEffect(() => {
     getClasses().then(data => {
-      if (data && data.length > 0) {
+      if (Array.isArray(data)) {
         setClassesData(data);
       }
     }).catch(err => console.error('MainLayout getClasses error:', err));
