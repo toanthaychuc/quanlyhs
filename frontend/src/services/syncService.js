@@ -37,7 +37,10 @@ export async function pushAllLocalDataToCloud() {
     if (rawExams) {
       const exams = JSON.parse(rawExams);
       for (const ex of exams) {
-        await saveExam(ex);
+        const res = await saveExam(ex);
+        if (res && !res.success && res.error) {
+          throw new Error(`Lỗi lưu Đề thi: ${res.error}`);
+        }
       }
       results.exams = true;
     }
@@ -46,7 +49,10 @@ export async function pushAllLocalDataToCloud() {
     const rawAsg = localStorage.getItem('edumanager_class_assignments_v2');
     if (rawAsg) {
       const asg = JSON.parse(rawAsg);
-      await saveAllAssignments(asg);
+      const res = await saveAllAssignments(asg);
+      if (res && !res.success && res.error) {
+        throw new Error(`Lỗi lưu Bài tập: ${res.error}`);
+      }
       results.assignments = true;
     }
 
