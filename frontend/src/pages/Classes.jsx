@@ -56,13 +56,21 @@ const Classes = () => {
   });
 
   // Tải dữ liệu từ Supabase khi component mount
+  // Tải dữ liệu từ Supabase (Stale-While-Revalidate)
   useEffect(() => {
-    getClasses().then(data => {
-      if (Array.isArray(data)) {
+    // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
+    getClasses(false).then(data => {
+      if (Array.isArray(data) && data.length > 0) {
         setClasses(data.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
       }
+      // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
+      getClasses(true).then(freshData => {
+        if (Array.isArray(freshData)) {
+          setClasses(freshData.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
+        }
+      }).catch(err => console.error('Background sync getClasses error:', err));
     }).catch(err => {
-      console.error('getClasses error:', err);
+      console.error('Local getClasses error:', err);
     });
   }, []);
 

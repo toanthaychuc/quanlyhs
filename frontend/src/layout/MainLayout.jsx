@@ -91,10 +91,13 @@ const MainLayout = () => {
   const [classesData, setClassesData] = useState([]);
 
   useEffect(() => {
-    getClasses().then(data => {
-      if (Array.isArray(data)) {
-        setClassesData(data);
-      }
+    // 1. Lấy dữ liệu local
+    getClasses(false).then(data => {
+      if (Array.isArray(data)) setClassesData(data);
+      // 2. Cập nhật nền từ mây
+      getClasses(true).then(freshData => {
+        if (Array.isArray(freshData)) setClassesData(freshData);
+      }).catch(err => console.error('Background sync classes error:', err));
     }).catch(err => console.error('MainLayout getClasses error:', err));
   }, [role, hasEnteredApp]);
 
