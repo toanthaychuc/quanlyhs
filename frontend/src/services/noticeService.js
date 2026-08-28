@@ -94,6 +94,43 @@ export async function saveNotice(notice) {
   }
 }
 
+export async function saveAllNotices(notices) {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(notices));
+  if (!isSupabaseReady()) return { success: true };
+
+  try {
+    const rows = notices.map(n => ({
+      id: String(n.id),
+      title: n.title,
+      content: n.content,
+      type: JSON.stringify({
+        isPinned: n.isPinned,
+        targetClass: n.targetClass,
+        author: n.author,
+        date: n.date
+      }),
+      created_by: n.createdBy || null,
+    }));
+    
+    if (rows.length > 0) {
+      const { error: upsertErr } = await supabase.from('notices').upsert(rows, { onConflict: 'id' });
+      if (upsertErr) throw upsertErr;
+    }
+    
+    const validIds = rows.map(r => r.id);
+    if (validIds.length > 0) {
+      await supabase.from('notices').delete().not('id', 'in', `(${validIds.map(id => `"${id}"`).join(',')})`);
+    } else {
+      await supabase.from('notices').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    }
+    
+    return { success: true };
+  } catch (err) {
+    console.error('[noticeService] saveAllNotices error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 export async function deleteNotice(noticeId) {
   if (!isSupabaseReady()) {
     return deleteNoticeFromLocal(noticeId);

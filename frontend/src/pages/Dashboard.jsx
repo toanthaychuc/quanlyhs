@@ -102,9 +102,30 @@ const Dashboard = () => {
         if (!hasLocalChangesRef.current && Array.isArray(freshData)) {
           setNotices(freshData);
         }
-      }).catch(err => console.error('getNotices cloud error:', err));
+        setIsCloudSynced(true);
+      }).catch(err => {
+        console.error('getNotices cloud error:', err);
+        setIsCloudSynced(true);
+      });
     }).catch(err => console.error('getNotices local error:', err));
   }, []);
+
+  // Tự động đồng bộ lên Supabase mỗi 1.5s
+  useEffect(() => {
+    localStorage.setItem('edumanager_notices', JSON.stringify(notices));
+    if (!isCloudSynced) return;
+    
+    if (noticeSaveTimeoutRef.current) clearTimeout(noticeSaveTimeoutRef.current);
+    noticeSaveTimeoutRef.current = setTimeout(() => {
+      import('../services/noticeService').then(({ saveAllNotices }) => {
+        saveAllNotices(notices);
+      });
+    }, 1500);
+
+    return () => {
+      if (noticeSaveTimeoutRef.current) clearTimeout(noticeSaveTimeoutRef.current);
+    };
+  }, [notices, isCloudSynced]);
 
   const [classList, setClassList] = useState([]);
   const [showNoticeModal, setShowNoticeModal] = useState(false);
