@@ -98,6 +98,8 @@ const Classes = () => {
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
 
   // Modals state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
 
   // State Thêm Lớp Học Mới
