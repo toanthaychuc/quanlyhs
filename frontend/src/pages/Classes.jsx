@@ -548,89 +548,118 @@ const Classes = () => {
       </div>
 
       {/* Grid Danh Sách Lớp Học */}
-      <div className="classes-grid">
-        {filteredClasses.map((cls) => {
-          const isSelected = cls.id === activeClassId;
-          const globalIndex = classes.findIndex(c => c.id === cls.id);
-          return (
-            <div 
-              key={cls.id} 
-              className={`class-card ${isSelected ? 'active' : ''}`}
-              onClick={() => setActiveClassId(cls.id)}
+      {filteredClasses.length === 0 ? (
+        <div className="empty-classes-card" style={{
+          textAlign: 'center',
+          padding: '3rem 2rem',
+          background: 'var(--card-bg, #1e293b)',
+          borderRadius: 'var(--radius-lg, 16px)',
+          border: '1px dashed var(--border-color, #334155)',
+          margin: '1.5rem 0',
+          color: '#94a3b8'
+        }}>
+          <School size={48} style={{ margin: '0 auto 1rem', opacity: 0.5, color: '#6366f1' }} />
+          <h3 style={{ color: 'var(--text-color, #f8fafc)', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
+            Chưa Có Lớp Học Nào
+          </h3>
+          <p style={{ maxWidth: '400px', margin: '0 auto 1.5rem', fontSize: '0.9rem' }}>
+            Hệ thống hiện tại chưa có lớp học nào. Hãy nhấn nút bên dưới để tạo lớp học đầu tiên của thầy!
+          </p>
+          {isTeacher && (
+            <button 
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', margin: '0 auto' }}
+              onClick={handleOpenAddClass}
             >
-              <div className="class-card-top">
-                <span 
-                  className="class-badge" 
-                  style={{ 
-                    backgroundColor: cls.school === 'NP' ? '#e0e7ff' : (cls.school === 'THTH' ? '#ecfdf5' : '#fef3c7'),
-                    color: cls.school === 'NP' ? '#4338ca' : (cls.school === 'THTH' ? '#047857' : '#b45309')
-                  }}
-                >
-                  Trường {cls.school}
-                </span>
-                <span className="text-xs text-gray-500 font-semibold">Khối {cls.grade}</span>
-              </div>
-              
-              <div className="class-name">{cls.name}</div>
-              <div className="class-school-desc">{cls.schoolFullName}</div>
+              <Plus size={16} /> Thêm Lớp Học Mới
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="classes-grid">
+          {filteredClasses.map((cls) => {
+            const isSelected = cls.id === activeClassId;
+            const globalIndex = classes.findIndex(c => c.id === cls.id);
+            return (
+              <div 
+                key={cls.id} 
+                className={`class-card ${isSelected ? 'active' : ''}`}
+                onClick={() => setActiveClassId(cls.id)}
+              >
+                <div className="class-card-top">
+                  <span 
+                    className="class-badge" 
+                    style={{ 
+                      backgroundColor: cls.school === 'NP' ? '#e0e7ff' : (cls.school === 'THTH' ? '#ecfdf5' : '#fef3c7'),
+                      color: cls.school === 'NP' ? '#4338ca' : (cls.school === 'THTH' ? '#047857' : '#b45309')
+                    }}
+                  >
+                    Trường {cls.school}
+                  </span>
+                  <span className="text-xs text-gray-500 font-semibold">Khối {cls.grade}</span>
+                </div>
+                
+                <div className="class-name">{cls.name}</div>
+                <div className="class-school-desc">{cls.schoolFullName}</div>
 
-              <div className="class-card-stats">
-                <div className="stat-item">
-                  <GraduationCap size={15} />
-                  <span>Sĩ số: <strong>{cls.students.length}</strong></span>
+                <div className="class-card-stats">
+                  <div className="stat-item">
+                    <GraduationCap size={15} />
+                    <span>Sĩ số: <strong>{cls.students?.length || 0}</strong></span>
+                  </div>
+                  <div className="stat-item">
+                    <span>GV: <strong>{cls.teacher || 'Thầy Lê Công Chức'}</strong></span>
+                  </div>
                 </div>
-                <div className="stat-item">
-                  <span>GV: <strong>{cls.teacher || 'Thầy Lê Công Chức'}</strong></span>
-                </div>
-              </div>
 
-              {/* Điều chỉnh thứ tự lớp, Sửa lớp & Xóa lớp (Dành cho Giáo viên) */}
-              {isTeacher && (
-                <div className="class-card-actions" onClick={(e) => e.stopPropagation()}>
-                  <button 
-                    type="button" 
-                    className="class-action-btn"
-                    title="Di chuyển sang trái / lên trước"
-                    onClick={(e) => handleMoveClass(cls.id, 'left', e)}
-                    disabled={globalIndex === 0}
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                  <button 
-                    type="button" 
-                    className="class-action-btn"
-                    title="Di chuyển sang phải / về sau"
-                    onClick={(e) => handleMoveClass(cls.id, 'right', e)}
-                    disabled={globalIndex === classes.length - 1}
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                  <button 
-                    type="button" 
-                    className="class-action-btn"
-                    style={{ marginLeft: 'auto', marginRight: '0.25rem', color: '#4f46e5' }}
-                    title={`Chỉnh sửa thông tin lớp ${cls.name}`}
-                    onClick={(e) => handleOpenEditClass(cls, e)}
-                  >
-                    <Edit2 size={14} />
-                  </button>
-                  <button 
-                    type="button" 
-                    className="class-action-btn btn-delete"
-                    title={`Xóa lớp ${cls.name}`}
-                    onClick={(e) => handleDeleteClass(cls.id, cls.name, e)}
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                {/* Điều chỉnh thứ tự lớp, Sửa lớp & Xóa lớp (Dành cho Giáo viên) */}
+                {isTeacher && (
+                  <div className="class-card-actions" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      type="button" 
+                      className="class-action-btn"
+                      title="Di chuyển sang trái / lên trước"
+                      onClick={(e) => handleMoveClass(cls.id, 'left', e)}
+                      disabled={globalIndex === 0}
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="class-action-btn"
+                      title="Di chuyển sang phải / về sau"
+                      onClick={(e) => handleMoveClass(cls.id, 'right', e)}
+                      disabled={globalIndex === classes.length - 1}
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="class-action-btn"
+                      style={{ marginLeft: 'auto', marginRight: '0.25rem', color: '#4f46e5' }}
+                      title={`Chỉnh sửa thông tin lớp ${cls.name}`}
+                      onClick={(e) => handleOpenEditClass(cls, e)}
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="class-action-btn btn-delete"
+                      title={`Xóa lớp ${cls.name}`}
+                      onClick={(e) => handleDeleteClass(cls.id, cls.name, e)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Banner Cá Nhân Dành Riêng Cho Học Sinh Đang Đăng Nhập */}
-      {isStudent && myStudentProfile && (
+      {isStudent && myStudentProfile && currentClass && (
         <div className="student-banner">
           <div className="student-banner-left">
             <div className="student-banner-avatar">
@@ -639,7 +668,7 @@ const Classes = () => {
             <div className="student-banner-info">
               <h3>{myStudentProfile.name} <span style={{ fontSize: '0.85rem', opacity: 0.85 }}>({myStudentProfile.id})</span></h3>
               <p>
-                Lớp: <strong>{currentClass?.name}</strong> • Trường: <strong>{currentClass?.schoolFullName}</strong> • GV: <strong>{currentClass?.teacher}</strong>
+                Lớp: <strong>{currentClass.name}</strong> • Trường: <strong>{currentClass.schoolFullName}</strong> • GV: <strong>{currentClass.teacher}</strong>
               </p>
             </div>
           </div>
