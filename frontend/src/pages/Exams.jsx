@@ -383,7 +383,7 @@ const Exams = () => {
       const saved = localStorage.getItem(EXAMS_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed; // Chấp nhận mảng rỗng nếu user đã xóa hết
       }
     } catch (e) {
       console.error(e);
@@ -394,7 +394,7 @@ const Exams = () => {
   // Tải đề thi từ Supabase khi component mount
   useEffect(() => {
     getExams().then(data => {
-      if (data && data.length > 0) setExams(data);
+      if (Array.isArray(data)) setExams(data); // Cập nhật ngay cả khi Supabase trả về rỗng (đã xóa hết trên cloud)
     }).catch(err => console.error('getExams error:', err));
   }, []);
 
