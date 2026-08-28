@@ -175,8 +175,14 @@ CREATE POLICY "Allow all writes gamification"  ON gamification  FOR ALL USING (t
 CREATE POLICY "Allow all writes notices"       ON notices       FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================
--- REALTIME: Bật realtime cho exam_sessions và gamification
--- (Để thầy thấy kết quả học sinh ngay khi nộp bài)
+-- PERMISSIONS: Cấp quyền thao tác cho vai trò anon và authenticated
 -- ============================================================
-ALTER PUBLICATION supabase_realtime ADD TABLE exam_sessions;
-ALTER PUBLICATION supabase_realtime ADD TABLE gamification;
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated;
+
+-- Đảm bảo các bảng tạo mới trong tương lai cũng tự động cấp quyền
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated;
