@@ -95,6 +95,23 @@ const Classes = () => {
   // Tìm kiếm học sinh
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Lọc lớp theo trường
+  const filteredClasses = selectedSchool === 'ALL' 
+    ? classes 
+    : classes.filter(c => c.school === selectedSchool);
+
+  // Lớp hiện tại
+  const currentClass = classes.find(c => c.id === activeClassId) || filteredClasses[0];
+
+  // Học sinh của lớp hiện tại
+  const currentStudents = currentClass?.students || [];
+
+  // Lọc học sinh theo tìm kiếm
+  const filteredStudents = currentStudents.filter(s => 
+    s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    s.id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   // Selected students for batch delete
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
 
@@ -143,6 +160,27 @@ const Classes = () => {
       color: '#4f46e5'
     });
     setShowAddClassModal(true);
+  };
+
+  // Handler: Di chuyển thứ tự lớp học
+  const handleMoveClass = (classId, direction, e) => {
+    e?.stopPropagation();
+    const index = classes.findIndex(c => c.id === classId);
+    if (index === -1) return;
+
+    if (direction === 'left' && index > 0) {
+      const newClasses = [...classes];
+      const temp = newClasses[index - 1];
+      newClasses[index - 1] = newClasses[index];
+      newClasses[index] = temp;
+      setClasses(newClasses);
+    } else if (direction === 'right' && index < classes.length - 1) {
+      const newClasses = [...classes];
+      const temp = newClasses[index + 1];
+      newClasses[index + 1] = newClasses[index];
+      newClasses[index] = temp;
+      setClasses(newClasses);
+    }
   };
 
   // Handler: Xóa lớp học (Cho phép xóa sạch toàn bộ các lớp)
