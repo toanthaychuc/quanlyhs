@@ -5,7 +5,7 @@
  */
 import supabase from '../lib/supabase';
 
-const EXAMS_KEY     = 'edumanager_exams_data_v7';
+const EXAMS_KEY     = 'edumanager_exams_data_v8';
 const HISTORY_KEY   = 'edumanager_completed_exams';
 const UNFINISHED_KEY = 'edumanager_unfinished_exams';
 const GAMI_KEY      = 'edumanager_gamification';
@@ -16,10 +16,8 @@ const isSupabaseReady = () =>
 // ─── Exams ────────────────────────────────────────────────────────────────────
 
 export async function getExams() {
-  const localExams = getExamsFromLocal();
-
   if (!isSupabaseReady()) {
-    return localExams;
+    return getExamsFromLocal();
   }
 
   try {
@@ -31,27 +29,11 @@ export async function getExams() {
     if (error) throw error;
 
     const dbExams = (data || []).map(rowToExam);
-    let merged = [...dbExams];
-    let needSyncUp = false;
-
-    // Giữ lại các đề thi đã tạo ở local mà Supabase chưa kịp lưu
-    for (const le of localExams) {
-      if (!merged.some(e => e.id === le.id)) {
-        merged.push(le);
-        needSyncUp = true;
-      }
-    }
-
-    localStorage.setItem(EXAMS_KEY, JSON.stringify(merged));
-
-    if (needSyncUp) {
-      merged.forEach(ex => saveExam(ex).catch(() => {}));
-    }
-
-    return merged;
+    localStorage.setItem(EXAMS_KEY, JSON.stringify(dbExams));
+    return dbExams;
   } catch (err) {
     console.error('[examService] getExams error, fallback to local:', err);
-    return localExams;
+    return getExamsFromLocal();
   }
 }
 

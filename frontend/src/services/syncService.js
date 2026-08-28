@@ -33,7 +33,7 @@ export async function pushAllLocalDataToCloud() {
     }
 
     // 2. Exams
-    const rawExams = localStorage.getItem('edumanager_exams_data_v7');
+    const rawExams = localStorage.getItem('edumanager_exams_data_v8');
     if (rawExams) {
       const exams = JSON.parse(rawExams);
       for (const ex of exams) {
@@ -46,7 +46,7 @@ export async function pushAllLocalDataToCloud() {
     }
 
     // 3. Assignments
-    const rawAsg = localStorage.getItem('edumanager_class_assignments_v2');
+    const rawAsg = localStorage.getItem('edumanager_class_assignments_v3');
     if (rawAsg) {
       const asg = JSON.parse(rawAsg);
       const res = await saveAllAssignments(asg);

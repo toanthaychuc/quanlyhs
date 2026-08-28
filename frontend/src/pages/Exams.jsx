@@ -21,7 +21,11 @@ import {
   saveUnfinishedExam, getUnfinishedExam, clearUnfinishedExam
 } from '../services/examService';
 
-const EXAMS_STORAGE_KEY = 'edumanager_exams_data_v7';
+const EXAMS_STORAGE_KEY = 'edumanager_exams_data_v8';
+
+const getInitialExams = () => {
+  return [];
+};
 
 const ALL_CURRICULA = {
   'grade-10': { label: 'Khối 10', data: GRADE_10_CURRICULUM },
@@ -256,89 +260,7 @@ const parseLatexStringToQuestions = (rawText) => {
   }
 };
 
-// Helper tạo danh sách đề thi ban đầu
-const getInitialExams = () => {
-  const list = [];
 
-  ['grade-10', 'grade-11', 'grade-12'].forEach(gradeKey => {
-    const cur = ALL_CURRICULA[gradeKey].data;
-    if (cur) {
-      cur.forEach(chap => {
-        chap.items.forEach(item => {
-          list.push({
-            id: item.id,
-            curriculumId: item.id,
-            chapterId: chap.chapterId,
-            chapterName: chap.chapterName,
-            title: item.name,
-            grade: gradeKey,
-            gradeLabel: ALL_CURRICULA[gradeKey].label,
-            duration: item.duration || 15,
-            questions: item.defaultQuestions || []
-          });
-        });
-      });
-    }
-  });
-
-  // Đề mẫu THPTQG
-  list.push({
-    id: 'thptqg-de-01',
-    title: 'Đề thi thử THPT Quốc Gia môn Toán 2026 - Đề số 01 (Chuẩn cấu trúc Bộ GD&ĐT)',
-    grade: 'grade-thptqg',
-    gradeLabel: 'THPTQG',
-    duration: 90,
-    questions: [
-      {
-        id: 'q_thpt_1',
-        questionType: 'multiple_choice',
-        content: 'Cho hàm số $y = \\frac{2x - 1}{x + 1}$. Tiệm cận ngang của đồ thị hàm số là đường thẳng:',
-        options: [
-          { key: 'A', text: '$y = 2$' },
-          { key: 'B', text: '$x = -1$' },
-          { key: 'C', text: '$y = -1$' },
-          { key: 'D', text: '$x = 2$' }
-        ],
-        correctAnswer: 'A',
-        explanation: 'Ta có $\\lim_{x \\to \\pm\\infty} \\frac{2x-1}{x+1} = 2 \\Rightarrow$ Tiệm cận ngang là $y = 2$.'
-      },
-      {
-        id: 'q_thpt_2',
-        questionType: 'short_answer',
-        content: 'Tìm giá trị lớn nhất của hàm số $f(x) = -x^2 + 4x + 1$ trên đoạn $[0; 3]$.',
-        options: [],
-        correctAnswer: '5',
-        explanation: 'Ta có $f\'(x) = -2x + 4 = 0 \\Leftrightarrow x = 2 \\in [0; 3]$. $f(0) = 1, f(2) = 5, f(3) = 4 \\Rightarrow \\max f(x) = 5$.'
-      }
-    ]
-  });
-
-  // Đề mẫu VACT
-  list.push({
-    id: 'vact-de-01',
-    title: 'Đề thi thử Đánh giá năng lực V-ACT (Toán học & Tư duy logic) - Đề 01',
-    grade: 'grade-vact',
-    gradeLabel: 'VACT',
-    duration: 60,
-    questions: [
-      {
-        id: 'q_vact_1',
-        questionType: 'multiple_choice',
-        content: 'Trong không gian $Oxyz$, cho mặt cầu $(S): (x-1)^2 + (y+2)^2 + (z-3)^2 = 16$. Tọa độ tâm $I$ và bán kính $R$ là:',
-        options: [
-          { key: 'A', text: '$I(1; -2; 3), R = 4$' },
-          { key: 'B', text: '$I(-1; 2; -3), R = 4$' },
-          { key: 'C', text: '$I(1; -2; 3), R = 16$' },
-          { key: 'D', text: '$I(-1; 2; -3), R = 16$' }
-        ],
-        correctAnswer: 'A',
-        explanation: 'Phương trình mặt cầu $(x-a)^2 + (y-b)^2 + (z-c)^2 = R^2 \\Rightarrow I(1; -2; 3), R = \\sqrt{16} = 4$.'
-      }
-    ]
-  });
-
-  return list;
-};
 
 const Exams = () => {
   const { isTeacher, isStudent, currentStudentId } = useRole();
