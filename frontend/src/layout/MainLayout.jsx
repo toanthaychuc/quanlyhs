@@ -93,17 +93,10 @@ const MainLayout = () => {
   useEffect(() => {
     // 1. Lấy dữ liệu local
     getClasses(false).then(data => {
-      const hasLocal = Array.isArray(data) && data.length > 0;
-      if (hasLocal) setClassesData(data);
+      if (Array.isArray(data)) setClassesData(data);
       // 2. Cập nhật nền từ mây
       getClasses(true).then(freshData => {
-        if (Array.isArray(freshData)) {
-          if (freshData.length === 0 && hasLocal) {
-            console.warn('MainLayout: Supabase returned empty but local has data. Preventing overwrite.');
-          } else {
-            setClassesData(freshData);
-          }
-        }
+        if (Array.isArray(freshData)) setClassesData(freshData);
       }).catch(err => console.error('Background sync classes error:', err));
     }).catch(err => console.error('MainLayout getClasses error:', err));
   }, [role, hasEnteredApp]);

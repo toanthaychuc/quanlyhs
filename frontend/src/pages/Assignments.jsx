@@ -192,18 +192,10 @@ const Assignments = () => {
   useEffect(() => {
     // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
     getAssignments(false).then(data => {
-      const hasLocal = Array.isArray(data) && data.length > 0;
-      if (hasLocal) setAssignments(data);
+      if (Array.isArray(data) && data.length > 0) setAssignments(data);
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getAssignments(true).then(freshData => {
-        if (Array.isArray(freshData)) {
-          // BẢO VỆ DỮ LIỆU: Nếu Supabase trả về rỗng (do lỗi RLS) nhưng local có dữ liệu, KHÔNG ghi đè
-          if (freshData.length === 0 && hasLocal) {
-            console.warn('Supabase returned empty but local has data. Preventing overwrite due to possible RLS error.');
-          } else {
-            setAssignments(freshData);
-          }
-        }
+        if (Array.isArray(freshData)) setAssignments(freshData);
       }).catch(err => console.error('Background sync assignments error:', err));
     }).catch(err => console.error('Local assignments error:', err));
   }, []);

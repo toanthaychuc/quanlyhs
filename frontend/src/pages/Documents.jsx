@@ -47,17 +47,10 @@ const Documents = () => {
   useEffect(() => {
     // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
     getDocuments(false).then(data => {
-      const hasLocal = data && data.length > 0;
-      if (hasLocal) setDocuments(data);
+      if (data && data.length > 0) setDocuments(data);
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getDocuments(true).then(freshData => {
-        if (Array.isArray(freshData)) {
-          if (freshData.length === 0 && hasLocal) {
-            console.warn('Supabase returned empty documents but local has data. Preventing overwrite.');
-          } else {
-            setDocuments(freshData);
-          }
-        }
+        if (freshData && freshData.length > 0) setDocuments(freshData);
       }).catch(err => console.error('Background sync documents error:', err));
     }).catch(err => console.error('Local documents error:', err));
   }, []);
