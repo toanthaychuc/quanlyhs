@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import StudentName from '../components/StudentName';
-import { INITIAL_CLASSES_DATA } from '../data/classesData';
+import { exportStudentsToExcel, downloadTemplateExcel, parseStudentExcelFile } from '../utils/excelUtils';
 import { getClasses, saveAllClasses, deleteClass } from '../services/classService';
 import './Classes.css';
 
