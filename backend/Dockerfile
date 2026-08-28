@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-fonts-extra \
     texlive-science \
     texlive-pictures \
-    texlive-lang-vietnamese \
+    texlive-lang-other \
     poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
