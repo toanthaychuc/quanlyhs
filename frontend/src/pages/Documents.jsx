@@ -31,6 +31,8 @@ const Documents = () => {
   const fileInputRef = useRef(null);
   const [pasteSuccess, setPasteSuccess] = useState(false);
   const [isCloudSynced, setIsCloudSynced] = useState(false);
+  const docSaveTimeoutRef = useRef(null);
+  const hasLocalChangesRef = useRef(false);
 
   // Đọc dữ liệu từ localStorage/Supabase
   const [documents, setDocuments] = useState(() => {
@@ -51,7 +53,9 @@ const Documents = () => {
       if (data && data.length > 0) setDocuments(data);
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getDocuments(true).then(freshData => {
-        if (freshData && freshData.length > 0) setDocuments(freshData);
+        if (!hasLocalChangesRef.current && Array.isArray(freshData)) {
+          setDocuments(freshData);
+        }
         setIsCloudSynced(true);
       }).catch(err => {
         console.error('Background sync documents error:', err);
@@ -64,7 +68,6 @@ const Documents = () => {
   }, []);
 
   // Tự động đồng bộ lên Supabase (debounced)
-  const docSaveTimeoutRef = useRef(null);
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
     if (!isCloudSynced) return;
@@ -72,6 +75,7 @@ const Documents = () => {
     if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);
     docSaveTimeoutRef.current = setTimeout(() => {
       saveAllDocuments(documents);
+      hasLocalChangesRef.current = false;
     }, 1500);
     return () => {
       if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);
@@ -92,6 +96,7 @@ const Documents = () => {
     e.preventDefault();
     if (!newDoc.title.trim() || !newDoc.driveLink.trim()) return;
 
+    hasLocalChangesRef.current = true;
     if (editId) {
       setDocuments(documents.map(doc => doc.id === editId ? { ...doc, ...newDoc } : doc));
     } else {
@@ -134,6 +139,7 @@ const Documents = () => {
     e.preventDefault();
     if (!isTeacher) return;
     if (window.confirm('Bạn có chắc chắn muốn xóa tài liệu này?')) {
+      hasLocalChangesRef.current = true;
       try {
         await deleteDocument(id);
         setDocuments(documents.filter(doc => doc.id !== id));

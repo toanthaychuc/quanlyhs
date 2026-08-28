@@ -174,8 +174,10 @@ const Assignments = () => {
 
   const [classesList, setClassesList] = useState([]);
   const [activeClassId, setActiveClassId] = useState('np-10t8');
-
   const [isCloudSynced, setIsCloudSynced] = useState(false);
+  const asgSaveTimeoutRef = useRef(null);
+  const hasLocalChangesRef = useRef(false);
+  
   const [assignments, setAssignments] = useState(() => {
     try {
       const saved = localStorage.getItem(ASSIGNMENTS_STORAGE_KEY);
@@ -196,7 +198,7 @@ const Assignments = () => {
       if (Array.isArray(data) && data.length > 0) setAssignments(data);
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getAssignments(true).then(freshData => {
-        if (Array.isArray(freshData)) {
+        if (!hasLocalChangesRef.current && Array.isArray(freshData)) {
           setAssignments(freshData);
         }
         setIsCloudSynced(true);
@@ -230,7 +232,6 @@ const Assignments = () => {
   }, [isStudent, currentStudentId]);
 
   // Tự động đồng bộ bài tập lên Supabase (debounced)
-  const asgSaveTimeoutRef = useRef(null);
   useEffect(() => {
     localStorage.setItem(ASSIGNMENTS_STORAGE_KEY, JSON.stringify(assignments));
     
@@ -240,13 +241,12 @@ const Assignments = () => {
     if (asgSaveTimeoutRef.current) clearTimeout(asgSaveTimeoutRef.current);
     asgSaveTimeoutRef.current = setTimeout(() => {
       saveAllAssignments(assignments);
+      hasLocalChangesRef.current = false;
     }, 1500);
     return () => {
       if (asgSaveTimeoutRef.current) clearTimeout(asgSaveTimeoutRef.current);
     };
   }, [assignments, isCloudSynced]);
-
-
 
   // Modal nộp file của học sinh
   const [submittingFileAsg, setSubmittingFileAsg] = useState(null);
@@ -359,6 +359,7 @@ const Assignments = () => {
 
   // Bật / Tắt trạng thái Ẩn / Hiện (Public / Hide) bài tập
   const handleToggleAssignmentVisibility = (asgId) => {
+    hasLocalChangesRef.current = true;
     setAssignments(prev => prev.map(a => {
       if (a.id !== asgId) return a;
       const nextHidden = !a.isHidden;
@@ -371,6 +372,7 @@ const Assignments = () => {
     e.preventDefault();
     if (!formData.title.trim()) return;
 
+    hasLocalChangesRef.current = true;
     const targetCls = classesList.find(c => c.id === formData.classId);
 
     if (editingAssignmentId) {
@@ -421,6 +423,7 @@ const Assignments = () => {
   const handleDeleteAssignment = async (asgId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa nhiệm vụ bài tập này khỏi lớp?')) {
       try {
+        hasLocalChangesRef.current = true;
         await deleteAssignment(asgId);
         setAssignments(prev => prev.filter(a => a.id !== asgId));
       } catch (err) {
