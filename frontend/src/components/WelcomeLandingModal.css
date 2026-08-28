@@ -121,7 +121,7 @@
 }
 
 .welcome-main-title {
-  font-size: 3.25rem;
+  font-size: 2.75rem;
   font-weight: 900;
   line-height: 1.25;
   letter-spacing: -0.03em;
@@ -129,7 +129,8 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0 0 1rem 0;
-  max-width: 800px;
+  max-width: 1000px;
+  white-space: nowrap;
 }
 
 .welcome-subtitle {

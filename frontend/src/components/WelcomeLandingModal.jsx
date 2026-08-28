@@ -189,7 +189,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
 
             {/* Tiêu đề lớn gradient */}
             <h1 className="welcome-main-title">
-              Thầy dạy dễ hiểu - Trò học hiệu quả
+              Kỷ luật mỗi ngày - Làm chủ phòng thi
             </h1>
 
             {/* Tên thương hiệu phụ */}
