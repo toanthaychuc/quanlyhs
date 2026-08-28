@@ -16,7 +16,10 @@ import {
   UserMinus,
   FileDown,
   RotateCcw,
-  UserX
+  UserX,
+  ChevronLeft,
+  ChevronRight,
+  FolderPlus
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import StudentName from '../components/StudentName';
@@ -95,9 +98,18 @@ const Classes = () => {
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
 
   // Modals state
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+
+  // State Thêm Lớp Học Mới
+  const [showAddClassModal, setShowAddClassModal] = useState(false);
+  const [newClassForm, setNewClassForm] = useState({
+    name: '',
+    school: 'NP',
+    customSchool: '',
+    grade: '10',
+    academicYear: '2025 - 2026',
+    color: '#4f46e5'
+  });
 
   // Form add/edit student state (bao gồm cả điểm)
   const [studentForm, setStudentForm] = useState({
@@ -172,6 +184,80 @@ const Classes = () => {
       student.note?.toLowerCase().includes(term)
     );
   });
+
+  // Handler: Di chuyển thứ tự lớp học
+  const handleMoveClass = (classId, direction, e) => {
+    e?.stopPropagation();
+    const index = classes.findIndex(c => c.id === classId);
+    if (index === -1) return;
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= classes.length) return;
+
+    const newClasses = [...classes];
+    const temp = newClasses[index];
+    newClasses[index] = newClasses[targetIndex];
+    newClasses[targetIndex] = temp;
+
+    setClasses(newClasses);
+  };
+
+  // Handler: Xóa lớp học
+  const handleDeleteClass = (classId, className, e) => {
+    e?.stopPropagation();
+    if (classes.length <= 1) {
+      alert('Không thể xóa vì hệ thống cần ít nhất 1 lớp học!');
+      return;
+    }
+    if (window.confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn xóa lớp "${className}" cùng toàn bộ dữ liệu học sinh của lớp này?`)) {
+      const remainingClasses = classes.filter(c => c.id !== classId);
+      setClasses(remainingClasses);
+      if (activeClassId === classId) {
+        setActiveClassId(remainingClasses[0]?.id || '');
+      }
+    }
+  };
+
+  // Handler: Thêm lớp học mới
+  const handleSaveNewClass = (e) => {
+    e.preventDefault();
+    if (!newClassForm.name.trim()) return;
+
+    const schoolCode = newClassForm.school === 'OTHER' 
+      ? (newClassForm.customSchool.trim().toUpperCase() || 'TRUONG') 
+      : newClassForm.school;
+
+    const schoolFullName = schoolCode === 'NP' 
+      ? 'Trung tâm NP (NP)' 
+      : schoolCode === 'THTH' 
+        ? 'Trường Trung học Thực hành (THTH)' 
+        : (newClassForm.customSchool.trim() || 'Trường học');
+
+    const newClassObj = {
+      id: `cls_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      name: newClassForm.name.trim(),
+      school: schoolCode,
+      schoolFullName: schoolFullName,
+      grade: newClassForm.grade,
+      academicYear: newClassForm.academicYear || '2025 - 2026',
+      teacher: 'Thầy Lê Công Chức',
+      subject: 'Toán học',
+      color: newClassForm.color || '#4f46e5',
+      scoreColumns: DEFAULT_SCORE_COLUMNS,
+      students: []
+    };
+
+    setClasses(prev => [...prev, newClassObj]);
+    setActiveClassId(newClassObj.id);
+    setShowAddClassModal(false);
+    setNewClassForm({
+      name: '',
+      school: 'NP',
+      customSchool: '',
+      grade: '10',
+      academicYear: '2025 - 2026',
+      color: '#4f46e5'
+    });
+  };
 
   // Handler: Mở modal thêm/sửa học sinh
   const handleOpenStudentModal = (student = null) => {
@@ -461,26 +547,36 @@ const Classes = () => {
         </div>
 
         {isTeacher && (
-          <div className="school-tabs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="school-tabs">
+              <button 
+                className={`school-tab-btn ${selectedSchool === 'ALL' ? 'active' : ''}`}
+                onClick={() => setSelectedSchool('ALL')}
+              >
+                Tất cả
+              </button>
+              <button 
+                className={`school-tab-btn ${selectedSchool === 'NP' ? 'active' : ''}`}
+                onClick={() => setSelectedSchool('NP')}
+              >
+                <School size={16} />
+                Trung tâm NP (NP)
+              </button>
+              <button 
+                className={`school-tab-btn ${selectedSchool === 'THTH' ? 'active' : ''}`}
+                onClick={() => setSelectedSchool('THTH')}
+              >
+                <School size={16} />
+                TH Thực hành (THTH)
+              </button>
+            </div>
+
             <button 
-              className={`school-tab-btn ${selectedSchool === 'ALL' ? 'active' : ''}`}
-              onClick={() => setSelectedSchool('ALL')}
+              className="btn btn-primary flex items-center gap-1.5"
+              style={{ padding: '0.55rem 1.15rem', borderRadius: 'var(--radius-md)', fontWeight: 600 }}
+              onClick={() => setShowAddClassModal(true)}
             >
-              Tất cả
-            </button>
-            <button 
-              className={`school-tab-btn ${selectedSchool === 'NP' ? 'active' : ''}`}
-              onClick={() => setSelectedSchool('NP')}
-            >
-              <School size={16} />
-              Trung tâm NP (NP)
-            </button>
-            <button 
-              className={`school-tab-btn ${selectedSchool === 'THTH' ? 'active' : ''}`}
-              onClick={() => setSelectedSchool('THTH')}
-            >
-              <School size={16} />
-              TH Thực hành (THTH)
+              <Plus size={16} /> Thêm Lớp Học Mới
             </button>
           </div>
         )}
@@ -490,6 +586,7 @@ const Classes = () => {
       <div className="classes-grid">
         {filteredClasses.map((cls) => {
           const isSelected = cls.id === activeClassId;
+          const globalIndex = classes.findIndex(c => c.id === cls.id);
           return (
             <div 
               key={cls.id} 
@@ -500,8 +597,8 @@ const Classes = () => {
                 <span 
                   className="class-badge" 
                   style={{ 
-                    backgroundColor: cls.school === 'NP' ? '#e0e7ff' : '#ecfdf5',
-                    color: cls.school === 'NP' ? '#4338ca' : '#047857'
+                    backgroundColor: cls.school === 'NP' ? '#e0e7ff' : (cls.school === 'THTH' ? '#ecfdf5' : '#fef3c7'),
+                    color: cls.school === 'NP' ? '#4338ca' : (cls.school === 'THTH' ? '#047857' : '#b45309')
                   }}
                 >
                   Trường {cls.school}
@@ -521,6 +618,39 @@ const Classes = () => {
                   <span>GV: <strong>{cls.teacher || 'Thầy Lê Công Chức'}</strong></span>
                 </div>
               </div>
+
+              {/* Điều chỉnh thứ tự lớp & Xóa lớp (Dành cho Giáo viên) */}
+              {isTeacher && (
+                <div className="class-card-actions" onClick={(e) => e.stopPropagation()}>
+                  <button 
+                    type="button" 
+                    className="class-action-btn"
+                    title="Di chuyển sang trái / lên trước"
+                    onClick={(e) => handleMoveClass(cls.id, 'left', e)}
+                    disabled={globalIndex === 0}
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button 
+                    type="button" 
+                    className="class-action-btn"
+                    title="Di chuyển sang phải / về sau"
+                    onClick={(e) => handleMoveClass(cls.id, 'right', e)}
+                    disabled={globalIndex === classes.length - 1}
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                  <button 
+                    type="button" 
+                    className="class-action-btn btn-delete"
+                    style={{ marginLeft: 'auto' }}
+                    title={`Xóa lớp ${cls.name}`}
+                    onClick={(e) => handleDeleteClass(cls.id, cls.name, e)}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -1474,6 +1604,102 @@ const Classes = () => {
                 Lưu Điểm Danh
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Thêm Lớp Học Mới */}
+      {showAddClassModal && (
+        <div className="modal-overlay" onClick={() => setShowAddClassModal(false)}>
+          <div className="modal-content" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="flex items-center gap-2">
+                <School size={22} color="var(--primary-color)" />
+                <h3>Thêm Lớp Học Mới</h3>
+              </div>
+              <button className="btn-icon" onClick={() => setShowAddClassModal(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveNewClass}>
+              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="form-group">
+                  <label>1. Tên Lớp Học * (VD: Lớp 10A1, Lớp 12T6, Lớp Luyện Đề...)</label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={newClassForm.name}
+                    onChange={(e) => setNewClassForm({ ...newClassForm, name: e.target.value })}
+                    placeholder="Nhập tên lớp học..."
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>2. Đơn Vị / Trường Học *</label>
+                    <select
+                      className="input"
+                      value={newClassForm.school}
+                      onChange={(e) => setNewClassForm({ ...newClassForm, school: e.target.value })}
+                    >
+                      <option value="NP">Trung tâm NP (NP)</option>
+                      <option value="THTH">TH Thực hành (THTH)</option>
+                      <option value="OTHER">Trường / Đơn vị khác...</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>3. Khối Lớp *</label>
+                    <select
+                      className="input"
+                      value={newClassForm.grade}
+                      onChange={(e) => setNewClassForm({ ...newClassForm, grade: e.target.value })}
+                    >
+                      <option value="10">Khối 10</option>
+                      <option value="11">Khối 11</option>
+                      <option value="12">Khối 12</option>
+                    </select>
+                  </div>
+                </div>
+
+                {newClassForm.school === 'OTHER' && (
+                  <div className="form-group">
+                    <label>Nhập Tên Trường / Đơn Vị Mới *</label>
+                    <input
+                      type="text"
+                      className="input"
+                      value={newClassForm.customSchool}
+                      onChange={(e) => setNewClassForm({ ...newClassForm, customSchool: e.target.value })}
+                      placeholder="VD: Trường THPT Lê Hồng Phong..."
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label>4. Niên Khóa</label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={newClassForm.academicYear}
+                    onChange={(e) => setNewClassForm({ ...newClassForm, academicYear: e.target.value })}
+                    placeholder="VD: 2025 - 2026"
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowAddClassModal(false)}>
+                  Hủy Bỏ
+                </button>
+                <button type="submit" className="btn btn-primary flex items-center gap-1.5">
+                  <Plus size={16} /> Tạo Lớp Học
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
