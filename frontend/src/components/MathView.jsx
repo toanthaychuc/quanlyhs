@@ -257,7 +257,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
             console.warn("No VITE_API_URL, switching to offline fallback viewer.");
             setUseFallback(true);
           } else {
-            setErrorMsg('Lỗi kết nối Backend: Không thể gọi pdflatex (Server chưa chạy?)');
+            setErrorMsg(`Lỗi Backend: ${err.message}`);
           }
           
           if (containerRef.current) {
