@@ -60,13 +60,18 @@ const Classes = () => {
   useEffect(() => {
     // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
     getClasses(false).then(data => {
-      if (Array.isArray(data) && data.length > 0) {
+      const hasLocal = Array.isArray(data) && data.length > 0;
+      if (hasLocal) {
         setClasses(data.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
       }
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getClasses(true).then(freshData => {
         if (Array.isArray(freshData)) {
-          setClasses(freshData.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
+          if (freshData.length === 0 && hasLocal) {
+             console.warn('Supabase returned empty classes but local has data. Preventing overwrite.');
+          } else {
+             setClasses(freshData.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
+          }
         }
       }).catch(err => console.error('Background sync getClasses error:', err));
     }).catch(err => {

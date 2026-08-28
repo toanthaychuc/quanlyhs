@@ -318,10 +318,17 @@ const Exams = () => {
   useEffect(() => {
     // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
     getExams(false).then(data => {
-      if (Array.isArray(data) && data.length > 0) setExams(data);
+      const hasLocal = Array.isArray(data) && data.length > 0;
+      if (hasLocal) setExams(data);
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getExams(true).then(freshData => {
-        if (Array.isArray(freshData)) setExams(freshData);
+        if (Array.isArray(freshData)) {
+          if (freshData.length === 0 && hasLocal) {
+            console.warn('Supabase returned empty exams but local has data. Preventing overwrite.');
+          } else {
+            setExams(freshData);
+          }
+        }
       }).catch(err => console.error('Background sync exams error:', err));
     }).catch(err => console.error('Local exams error:', err));
   }, []);
