@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Clock, 
   Target, 
@@ -52,6 +52,7 @@ const CHAPTER_COLORS = ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '
 const Dashboard = () => {
   const navigate = useNavigate();
   const { role, isTeacher, isStudent, currentStudentId } = useRole();
+  const hasLocalChangesRef = useRef(false);
 
   // Xác định thông tin lớp và khối của học sinh
   const [studentInfo, setStudentInfo] = useState({ grade: '12', className: 'Lớp 12T6', classId: '' });
@@ -91,11 +92,18 @@ const Dashboard = () => {
     }
   });
 
-  // Tải notices từ Supabase
+  // Tải notices từ Supabase (Stale-While-Revalidate)
   useEffect(() => {
-    getNotices().then(data => {
+    // 1. Local
+    getNotices(false).then(data => {
       if (data && data.length > 0) setNotices(data);
-    }).catch(err => console.error('getNotices error:', err));
+      // 2. Cloud
+      getNotices(true).then(freshData => {
+        if (!hasLocalChangesRef.current && Array.isArray(freshData)) {
+          setNotices(freshData);
+        }
+      }).catch(err => console.error('getNotices cloud error:', err));
+    }).catch(err => console.error('getNotices local error:', err));
   }, []);
 
   const [classList, setClassList] = useState([]);
@@ -172,6 +180,7 @@ const Dashboard = () => {
   const handleSaveNotice = (e) => {
     e.preventDefault();
     if (!noticeForm.title.trim() || !noticeForm.content.trim()) return;
+    hasLocalChangesRef.current = true;
 
     let updatedNotices;
     const now = new Date();
@@ -207,6 +216,7 @@ const Dashboard = () => {
 
   const handleDeleteNotice = (id) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa thông báo này?')) {
+      hasLocalChangesRef.current = true;
       const updatedNotices = notices.filter(n => n.id !== id);
       setNotices(updatedNotices);
       localStorage.setItem('edumanager_notices', JSON.stringify(updatedNotices));

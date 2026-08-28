@@ -26,13 +26,21 @@ export async function getNotices(forceSync = false) {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    const notices = (data || []).map(r => ({
-      id: r.id,
-      title: r.title,
-      content: r.content,
-      type: r.type,
-      createdAt: r.created_at,
-    }));
+    const notices = (data || []).map(r => {
+      let extra = {};
+      try { extra = JSON.parse(r.type); } catch (e) {}
+      return {
+        id: r.id,
+        title: r.title,
+        content: r.content,
+        type: r.type,
+        createdAt: r.created_at,
+        isPinned: extra.isPinned || false,
+        targetClass: extra.targetClass || 'ALL',
+        author: extra.author || 'Thầy Lê Công Chức',
+        date: extra.date || 'Gần đây',
+      };
+    });
     localStorage.setItem(LOCAL_KEY, JSON.stringify(notices));
     return notices;
   } catch (err) {
@@ -50,7 +58,12 @@ export async function saveNotice(notice) {
     const row = {
       title: notice.title,
       content: notice.content,
-      type: notice.type || 'info',
+      type: JSON.stringify({
+        isPinned: notice.isPinned,
+        targetClass: notice.targetClass,
+        author: notice.author,
+        date: notice.date
+      }),
       created_by: notice.createdBy || null,
     };
     if (notice.id && /^[0-9a-f-]{36}$/.test(notice.id)) row.id = notice.id;
