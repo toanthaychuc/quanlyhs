@@ -42,15 +42,11 @@ function rowToStudent(row) {
   };
 }
 
-// ─── Classes ──────────────────────────────────────────────────────────────────
-
-/**
- * Fetch all classes with their students from Supabase.
- * Falls back to localStorage if Supabase is not ready.
- */
 export async function getClasses() {
+  const localClasses = getClassesFromLocal();
+
   if (!isSupabaseReady()) {
-    return getClassesFromLocal();
+    return localClasses;
   }
 
   try {
@@ -62,23 +58,51 @@ export async function getClasses() {
     if (classRes.error) throw classRes.error;
     if (studentRes.error) throw studentRes.error;
 
+    const dbClasses = classRes.data || [];
+    const dbStudents = studentRes.data || [];
+
+    // Map students by class_id from DB
     const studentsByClass = {};
-    for (const s of (studentRes.data || [])) {
+    for (const s of dbStudents) {
       if (!studentsByClass[s.class_id]) studentsByClass[s.class_id] = [];
       studentsByClass[s.class_id].push(rowToStudent(s));
     }
 
-    const classes = (classRes.data || []).map(row => ({
+    // Base result from DB
+    let mergedClasses = dbClasses.map(row => ({
       ...rowToClass(row),
       students: studentsByClass[row.id] || [],
     }));
 
-    // Mirror to localStorage as cache
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(classes));
-    return classes;
+    // BẢO VỆ DỮ LIỆU: Nếu Local có dữ liệu lớp/học sinh mà Supabase chưa có -> Giữ lại và tự động đẩy lên Supabase
+    let needSyncUp = false;
+    for (const localCls of localClasses) {
+      const matchedIdx = mergedClasses.findIndex(c => c.id === localCls.id);
+      if (matchedIdx === -1) {
+        // Lớp này có ở local nhưng chưa có trên Supabase
+        mergedClasses.push(localCls);
+        needSyncUp = true;
+      } else {
+        // Nếu lớp trên Supabase chưa có học sinh nào, nhưng local lại có danh sách học sinh
+        if ((mergedClasses[matchedIdx].students || []).length === 0 && (localCls.students || []).length > 0) {
+          mergedClasses[matchedIdx].students = localCls.students;
+          needSyncUp = true;
+        }
+      }
+    }
+
+    // Lưu cache an toàn vào localStorage
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(mergedClasses));
+
+    // Nếu phát hiện local có dữ liệu phong phú hơn -> Tự động đồng bộ lên Supabase
+    if (needSyncUp) {
+      saveAllClasses(mergedClasses).catch(e => console.warn('Auto-sync to Supabase warning:', e));
+    }
+
+    return mergedClasses;
   } catch (err) {
     console.error('[classService] getClasses error, using localStorage fallback:', err);
-    return getClassesFromLocal();
+    return localClasses;
   }
 }
 
@@ -87,7 +111,9 @@ function getClassesFromLocal() {
     const raw = localStorage.getItem(LOCAL_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return parsed.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' }));
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' }));
+      }
     }
   } catch (_) {}
   return INITIAL_CLASSES_DATA;

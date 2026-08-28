@@ -15,12 +15,11 @@ const isSupabaseReady = () =>
 
 // ─── Exams ────────────────────────────────────────────────────────────────────
 
-/**
- * Get all exams. Returns app-shaped objects.
- */
 export async function getExams() {
+  const localExams = getExamsFromLocal();
+
   if (!isSupabaseReady()) {
-    return getExamsFromLocal();
+    return localExams;
   }
 
   try {
@@ -31,12 +30,28 @@ export async function getExams() {
 
     if (error) throw error;
 
-    const exams = (data || []).map(rowToExam);
-    localStorage.setItem(EXAMS_KEY, JSON.stringify(exams));
-    return exams;
+    const dbExams = (data || []).map(rowToExam);
+    let merged = [...dbExams];
+    let needSyncUp = false;
+
+    // Giữ lại các đề thi đã tạo ở local mà Supabase chưa kịp lưu
+    for (const le of localExams) {
+      if (!merged.some(e => e.id === le.id)) {
+        merged.push(le);
+        needSyncUp = true;
+      }
+    }
+
+    localStorage.setItem(EXAMS_KEY, JSON.stringify(merged));
+
+    if (needSyncUp) {
+      merged.forEach(ex => saveExam(ex).catch(() => {}));
+    }
+
+    return merged;
   } catch (err) {
     console.error('[examService] getExams error, fallback to local:', err);
-    return getExamsFromLocal();
+    return localExams;
   }
 }
 
