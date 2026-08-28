@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, Globe, MonitorPlay, Mail, Edit2, Save, X, ExternalLink } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
+import { getSetting, saveSetting } from '../services/settingService';
 import './Forum.css';
 
 const DEFAULT_LINKS = {
@@ -20,10 +21,26 @@ const Forum = () => {
   const [editing, setEditing] = useState(false);
   const [tempLinks, setTempLinks] = useState({ ...links });
 
-  const handleSave = () => {
+  // Tải liên kết mới nhất từ Supabase khi mở trang
+  useEffect(() => {
+    getSetting('social_links', DEFAULT_LINKS).then(remoteLinks => {
+      if (remoteLinks) {
+        setLinks(remoteLinks);
+        setTempLinks(remoteLinks);
+        localStorage.setItem('edumanager_social_links', JSON.stringify(remoteLinks));
+      }
+    }).catch(err => console.error('getSetting social_links error:', err));
+  }, []);
+
+  const handleSave = async () => {
     setLinks(tempLinks);
     localStorage.setItem('edumanager_social_links', JSON.stringify(tempLinks));
     setEditing(false);
+    try {
+      await saveSetting('social_links', tempLinks);
+    } catch (err) {
+      console.error('saveSetting error:', err);
+    }
   };
 
   const handleCancel = () => {
