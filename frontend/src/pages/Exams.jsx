@@ -741,9 +741,15 @@ const Exams = () => {
     }
   };
 
-  const handleDeleteSpecificExam = (examId, examTitle) => {
+  const handleDeleteSpecificExam = async (examId, examTitle) => {
     if (window.confirm(`Bạn có chắc chắn muốn xóa đề thi "${examTitle}" không?`)) {
-      setExams(prev => prev.filter(e => e.id !== examId));
+      try {
+        await deleteExam(examId);
+        setExams(prev => prev.filter(e => e.id !== examId));
+      } catch (err) {
+        console.error('Lỗi khi xóa đề thi:', err);
+        alert('Không thể xóa đề thi. Vui lòng thử lại.');
+      }
     }
   };
 
@@ -765,9 +771,15 @@ const Exams = () => {
     setIsEditorOpen(true);
   };
 
-  const handleDeleteFreeformExam = (examId, examTitle) => {
+  const handleDeleteFreeformExam = async (examId, examTitle) => {
     if (window.confirm(`Bạn có chắc chắn muốn xóa đề thi "${examTitle}" không?`)) {
-      setExams(exams.filter(e => e.id !== examId));
+      try {
+        await deleteExam(examId);
+        setExams(prev => prev.filter(e => e.id !== examId));
+      } catch (err) {
+        console.error('Lỗi khi xóa đề thi:', err);
+        alert('Không thể xóa đề thi tự do. Vui lòng thử lại.');
+      }
     }
   };
 
