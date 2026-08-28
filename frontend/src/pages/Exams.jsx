@@ -903,6 +903,9 @@ const Exams = () => {
       setExams(prev => [newExamObj, ...prev]);
     }
 
+    // Lưu trực tiếp lên Supabase
+    saveExam(newExamObj);
+
     setIsEditorOpen(false);
     alert(`Đã lưu thành công bài kiểm tra: "${newExamObj.title}" với ${finalQuestions.length} câu hỏi!`);
   };

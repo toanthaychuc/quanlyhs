@@ -335,6 +335,7 @@ function rowToExam(row) {
 
 function examToRow(exam) {
   const row = {
+    id: String(exam.id || `exam_${Date.now()}`),
     title: exam.title,
     description: exam.description || null,
     class_id: exam.classId || null,
@@ -344,13 +345,9 @@ function examToRow(exam) {
     curriculum_id: exam.curriculumId || null,
     chapter_id: exam.chapterId || null,
     topic_id: exam.topicId || null,
-    is_published: exam.isPublished ?? false,
+    is_published: exam.isPublished !== undefined ? exam.isPublished : true,
     created_by: exam.createdBy || null,
   };
-  // Only include id if it's a UUID (existing record), not if it's a local slug
-  if (exam.id && /^[0-9a-f-]{36}$/.test(exam.id)) {
-    row.id = exam.id;
-  }
   return row;
 }
 

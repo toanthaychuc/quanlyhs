@@ -1,43 +1,37 @@
 -- ============================================================
--- SCHEMA: App Quản lý Học Sinh - Toán Thầy Công Chức
--- Chạy file này trong Supabase SQL Editor
+-- TOAN THAY CHUC - SUPABASE SCHEMA (FULL UNIFIED MIGRATION)
 -- ============================================================
 
--- Enable UUID extension
+-- Kích hoạt extension UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================================
--- TABLE: classes (Danh sách lớp học)
+-- TABLE: classes (Lớp học)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS classes (
-  id            TEXT PRIMARY KEY,               -- e.g. 'np-10t8'
-  name          TEXT NOT NULL,                  -- 'Lớp 10T8'
-  school        TEXT NOT NULL DEFAULT 'NP',
-  school_full_name TEXT,
-  grade         TEXT NOT NULL DEFAULT '10',
-  academic_year TEXT NOT NULL DEFAULT '2025 - 2026',
-  teacher       TEXT NOT NULL DEFAULT 'Thầy Lê Công Chức',
-  subject       TEXT NOT NULL DEFAULT 'Toán học',
-  color         TEXT NOT NULL DEFAULT '#4f46e5',
-  score_columns JSONB NOT NULL DEFAULT '[
-    {"id":"regular1","name":"TX 1","weight":1},
-    {"id":"regular2","name":"TX 2","weight":1},
-    {"id":"midterm","name":"Giữa Kỳ","weight":2},
-    {"id":"final","name":"Cuối Kỳ","weight":3}
-  ]'::jsonb,
-  created_at    TIMESTAMPTZ DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ DEFAULT NOW()
+  id                TEXT PRIMARY KEY,
+  name              TEXT NOT NULL,
+  school            TEXT NOT NULL,
+  school_full_name  TEXT,
+  grade             TEXT NOT NULL,
+  academic_year     TEXT NOT NULL,
+  teacher           TEXT NOT NULL DEFAULT 'Thầy Lê Công Chức',
+  subject           TEXT NOT NULL DEFAULT 'Toán học',
+  color             TEXT NOT NULL DEFAULT '#4f46e5',
+  score_columns     JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at        TIMESTAMPTZ DEFAULT NOW(),
+  updated_at        TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================================
--- TABLE: students (Danh sách học sinh)
+-- TABLE: students (Học sinh trong lớp)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS students (
-  id            TEXT PRIMARY KEY,               -- e.g. '10T8-01'
+  id            TEXT PRIMARY KEY,
   class_id      TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
   name          TEXT NOT NULL,
   phone         TEXT,
-  scores        JSONB NOT NULL DEFAULT '{}'::jsonb,  -- {regular1: 8, midterm: 7.5, ...}
+  scores        JSONB NOT NULL DEFAULT '{}'::jsonb,
   notes         TEXT,
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
@@ -46,54 +40,53 @@ CREATE TABLE IF NOT EXISTS students (
 CREATE INDEX IF NOT EXISTS idx_students_class_id ON students(class_id);
 
 -- ============================================================
--- TABLE: exams (Đề thi)
+-- TABLE: exams (Đề thi & Kiểm tra)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS exams (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              TEXT PRIMARY KEY,
   title           TEXT NOT NULL,
   description     TEXT,
-  class_id        TEXT REFERENCES classes(id) ON DELETE SET NULL,  -- null = tất cả lớp
+  class_id        TEXT REFERENCES classes(id) ON DELETE SET NULL,
   questions       JSONB NOT NULL DEFAULT '[]'::jsonb,
-  duration        INTEGER NOT NULL DEFAULT 45,  -- phút
-  grade           TEXT,                         -- 'grade-10', 'grade-11', 'grade-12'
+  duration        INTEGER NOT NULL DEFAULT 45,
+  grade           TEXT,
   curriculum_id   TEXT,
   chapter_id      TEXT,
   topic_id        TEXT,
-  is_published    BOOLEAN NOT NULL DEFAULT FALSE,
-  created_by      TEXT,                         -- email của giáo viên
+  is_published    BOOLEAN NOT NULL DEFAULT TRUE,
+  created_by      TEXT,
   created_at      TIMESTAMPTZ DEFAULT NOW(),
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_exams_class_id    ON exams(class_id);
-CREATE INDEX IF NOT EXISTS idx_exams_grade       ON exams(grade);
-CREATE INDEX IF NOT EXISTS idx_exams_is_published ON exams(is_published);
+CREATE INDEX IF NOT EXISTS idx_exams_class_id ON exams(class_id);
+CREATE INDEX IF NOT EXISTS idx_exams_grade ON exams(grade);
 
 -- ============================================================
--- TABLE: exam_sessions (Phiên thi của học sinh)
+-- TABLE: exam_sessions (Phiên thi & Lịch sử làm bài)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS exam_sessions (
   id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  exam_id         UUID NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
-  student_id      TEXT NOT NULL,               -- student identifier
+  exam_id         TEXT NOT NULL,
+  student_id      TEXT NOT NULL,
   student_name    TEXT,
   class_id        TEXT REFERENCES classes(id) ON DELETE SET NULL,
   started_at      TIMESTAMPTZ DEFAULT NOW(),
   submitted_at    TIMESTAMPTZ,
-  answers         JSONB NOT NULL DEFAULT '{}'::jsonb,   -- {questionId: answer}
-  flagged         JSONB NOT NULL DEFAULT '[]'::jsonb,   -- [questionId, ...]
-  score           NUMERIC(4,1),                -- 0.0 - 10.0
+  answers         JSONB NOT NULL DEFAULT '{}'::jsonb,
+  flagged         JSONB NOT NULL DEFAULT '[]'::jsonb,
+  score           NUMERIC(4,1),
   correct_count   INTEGER,
   total_questions INTEGER,
-  time_spent      INTEGER,                     -- giây
+  time_spent      INTEGER,
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_sessions_exam_id    ON exam_sessions(exam_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_exam_id ON exam_sessions(exam_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_student_id ON exam_sessions(student_id);
 
 -- ============================================================
--- TABLE: gamification (XP, Streak, Badges của học sinh)
+-- TABLE: gamification (XP, Streak, Huy hiệu học sinh)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS gamification (
   student_id      TEXT PRIMARY KEY,
@@ -106,83 +99,120 @@ CREATE TABLE IF NOT EXISTS gamification (
 );
 
 -- ============================================================
--- TABLE: notices (Thông báo của giáo viên trên Dashboard)
+-- TABLE: notices (Bảng tin thông báo của Thầy)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS notices (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title       TEXT NOT NULL,
   content     TEXT NOT NULL,
-  type        TEXT NOT NULL DEFAULT 'info',   -- 'info' | 'warning' | 'success'
+  type        TEXT NOT NULL DEFAULT 'info',
   created_by  TEXT,
   created_at  TIMESTAMPTZ DEFAULT NOW(),
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================================
--- FUNCTION: auto update updated_at timestamp
+-- TABLE: assignments (Bài tập giao theo lớp / toàn bộ)
 -- ============================================================
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+CREATE TABLE IF NOT EXISTS assignments (
+  id           TEXT PRIMARY KEY,
+  class_id     TEXT,
+  title        TEXT NOT NULL,
+  description  TEXT,
+  type         TEXT DEFAULT 'latex',
+  due_date     TEXT,
+  data         JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_assignments_class_id ON assignments(class_id);
+
+-- ============================================================
+-- TABLE: documents (Tài liệu học tập, PDF, chuyên đề)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS documents (
+  id           TEXT PRIMARY KEY,
+  title        TEXT NOT NULL,
+  category     TEXT NOT NULL,
+  sub_category TEXT,
+  subject      TEXT,
+  cover_url    TEXT,
+  drive_link   TEXT NOT NULL,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_documents_category ON documents(category);
+
+-- ============================================================
+-- TABLE: system_settings (Cài đặt chung: Link MXH, Ngày thi...)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS system_settings (
+  key          TEXT PRIMARY KEY,
+  value        JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================
+-- BẬT ROW LEVEL SECURITY (RLS) & CẤP QUYỀN
+-- ============================================================
+ALTER TABLE classes         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE students        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE exams           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE exam_sessions   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gamification    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notices         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE assignments     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE documents       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
+
+DO $$
 BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+  -- Classes
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes classes' AND tablename = 'classes') THEN
+    CREATE POLICY "Allow all writes classes" ON classes FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+  -- Students
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes students' AND tablename = 'students') THEN
+    CREATE POLICY "Allow all writes students" ON students FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+  -- Exams
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes exams' AND tablename = 'exams') THEN
+    CREATE POLICY "Allow all writes exams" ON exams FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+  -- Exam Sessions
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes sessions' AND tablename = 'exam_sessions') THEN
+    CREATE POLICY "Allow all writes sessions" ON exam_sessions FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+  -- Gamification
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes gamification' AND tablename = 'gamification') THEN
+    CREATE POLICY "Allow all writes gamification" ON gamification FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+  -- Notices
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes notices' AND tablename = 'notices') THEN
+    CREATE POLICY "Allow all writes notices" ON notices FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+  -- Assignments
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes assignments' AND tablename = 'assignments') THEN
+    CREATE POLICY "Allow all writes assignments" ON assignments FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+  -- Documents
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes documents' AND tablename = 'documents') THEN
+    CREATE POLICY "Allow all writes documents" ON documents FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+  -- System Settings
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow all writes system_settings' AND tablename = 'system_settings') THEN
+    CREATE POLICY "Allow all writes system_settings" ON system_settings FOR ALL USING (true) WITH CHECK (true);
+  END IF;
+END $$;
 
-CREATE OR REPLACE TRIGGER update_classes_updated_at
-  BEFORE UPDATE ON classes
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE OR REPLACE TRIGGER update_students_updated_at
-  BEFORE UPDATE ON students
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE OR REPLACE TRIGGER update_exams_updated_at
-  BEFORE UPDATE ON exams
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE OR REPLACE TRIGGER update_gamification_updated_at
-  BEFORE UPDATE ON gamification
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- ============================================================
--- ROW LEVEL SECURITY (RLS)
--- Tất cả đều đọc được (học sinh xem đề thi), chỉ giáo viên ghi
--- ============================================================
-ALTER TABLE classes       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE students      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE exams         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE exam_sessions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE gamification  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notices       ENABLE ROW LEVEL SECURITY;
-
--- Cho phép đọc tất cả (anonymous & authenticated)
-CREATE POLICY "Public read classes"       ON classes       FOR SELECT USING (true);
-CREATE POLICY "Public read students"      ON students      FOR SELECT USING (true);
-CREATE POLICY "Public read published exams" ON exams       FOR SELECT USING (is_published = true OR true);
-CREATE POLICY "Public read sessions"      ON exam_sessions FOR SELECT USING (true);
-CREATE POLICY "Public read gamification"  ON gamification  FOR SELECT USING (true);
-CREATE POLICY "Public read notices"       ON notices       FOR SELECT USING (true);
-
--- Cho phép ghi tất cả (dùng anon key, giáo viên được kiểm tra phía app)
--- NOTE: Trong môi trường production thực sự, nên dùng Supabase Auth thật.
--- Hiện tại dùng "open write" để đơn giản hóa không cần auth service.
-CREATE POLICY "Allow all writes classes"       ON classes       FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all writes students"      ON students      FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all writes exams"         ON exams         FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all writes sessions"      ON exam_sessions FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all writes gamification"  ON gamification  FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Allow all writes notices"       ON notices       FOR ALL USING (true) WITH CHECK (true);
-
--- ============================================================
--- PERMISSIONS: Cấp quyền thao tác cho vai trò anon và authenticated
--- ============================================================
+-- CẤP QUYỀN TOÀN DIỆN CHO VAI TRÒ ANON VÀ AUTHENTICATED
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
 GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated;
 
--- Đảm bảo các bảng tạo mới trong tương lai cũng tự động cấp quyền
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated;

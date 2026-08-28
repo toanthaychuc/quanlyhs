@@ -5,6 +5,7 @@ import {
   Lock, Eye
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
+import { getDocuments, saveAllDocuments } from '../services/documentService';
 import './Documents.css';
 
 const CATEGORIES = [
@@ -30,26 +31,35 @@ const Documents = () => {
   const fileInputRef = useRef(null);
   const [pasteSuccess, setPasteSuccess] = useState(false);
 
-  // Đọc dữ liệu từ localStorage
+  // Đọc dữ liệu từ localStorage/Supabase
   const [documents, setDocuments] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
+      if (saved) return JSON.parse(saved);
     } catch (error) {
       console.error('Lỗi khi đọc tài liệu từ LocalStorage:', error);
     }
     return [];
   });
 
-  // Tự động lưu vào localStorage
+  // Tải tài liệu từ Supabase khi mount
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
-    } catch (error) {
-      console.error('Lỗi khi lưu vào LocalStorage:', error);
-    }
+    getDocuments().then(data => {
+      if (data && data.length > 0) setDocuments(data);
+    }).catch(err => console.error('getDocuments error:', err));
+  }, []);
+
+  // Tự động đồng bộ lên Supabase (debounced)
+  const docSaveTimeoutRef = useRef(null);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+    if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);
+    docSaveTimeoutRef.current = setTimeout(() => {
+      saveAllDocuments(documents);
+    }, 1500);
+    return () => {
+      if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);
+    };
   }, [documents]);
 
   const [newDoc, setNewDoc] = useState({

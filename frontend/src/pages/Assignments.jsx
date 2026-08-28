@@ -31,6 +31,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
+import { getClasses } from '../services/classService';
+import { getAssignments, saveAllAssignments } from '../services/assignmentService';
 import MathView from '../components/MathView';
 import { stripLatexComments, extractBracedBlocks, parseImminiBlock, cleanQuestionObj } from '../utils/latexUtils';
 import './Assignments.css';
@@ -278,29 +280,40 @@ const Assignments = () => {
     return INITIAL_ASSIGNMENTS;
   });
 
+  // Tải danh sách bài tập từ Supabase
+  useEffect(() => {
+    getAssignments().then(data => {
+      if (data && data.length > 0) setAssignments(data);
+    }).catch(err => console.error('getAssignments error:', err));
+  }, []);
+
+  // Tải danh sách lớp từ Supabase
+  useEffect(() => {
+    getClasses().then(cls => {
+      if (cls && cls.length > 0) {
+        setClassesList(cls);
+        if (isStudent) {
+          const myCls = cls.find(c => (c.students || []).some(s => s.id === currentStudentId));
+          if (myCls) setActiveClassId(myCls.id);
+        } else {
+          setActiveClassId(cls[0].id);
+        }
+      }
+    }).catch(err => console.error('getClasses in Assignments error:', err));
+  }, [isStudent, currentStudentId]);
+
+  // Tự động đồng bộ bài tập lên Supabase (debounced)
+  const asgSaveTimeoutRef = useRef(null);
   useEffect(() => {
     localStorage.setItem(ASSIGNMENTS_STORAGE_KEY, JSON.stringify(assignments));
+    if (asgSaveTimeoutRef.current) clearTimeout(asgSaveTimeoutRef.current);
+    asgSaveTimeoutRef.current = setTimeout(() => {
+      saveAllAssignments(assignments);
+    }, 1500);
+    return () => {
+      if (asgSaveTimeoutRef.current) clearTimeout(asgSaveTimeoutRef.current);
+    };
   }, [assignments]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('edumanager_classes_data');
-    if (saved) {
-      try {
-        const cls = JSON.parse(saved);
-        setClassesList(cls);
-        if (cls.length > 0) {
-          if (isStudent) {
-            const myCls = cls.find(c => (c.students || []).some(s => s.id === currentStudentId));
-            if (myCls) setActiveClassId(myCls.id);
-          } else {
-            setActiveClassId(cls[0].id);
-          }
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, [isStudent, currentStudentId]);
 
 
 
