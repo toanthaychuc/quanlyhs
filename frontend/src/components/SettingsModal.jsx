@@ -390,10 +390,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="modal-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '1rem 1.5rem', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="modal-footer" style={{ borderTop: '1px solid var(--border-color)', padding: '1rem 1.5rem', background: 'var(--bg-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             {saveSuccess && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#16a34a', fontSize: '0.85rem', fontWeight: 600 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: 'var(--secondary-color)', fontSize: '0.85rem', fontWeight: 600 }}>
                 <CheckCircle size={16} /> Đã lưu cấu hình thành công!
               </span>
             )}
