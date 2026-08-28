@@ -129,6 +129,17 @@ const Classes = () => {
 
   // State Điểm danh
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [attendanceDate, setAttendanceDate] = useState('');
+  const [attendanceData, setAttendanceData] = useState({});
+  
+  // State Import Excel
+  const [importFile, setImportFile] = useState(null);
+  const [importPreview, setImportPreview] = useState([]);
+  const [newScoreColumnsFromExcel, setNewScoreColumnsFromExcel] = useState([]);
+  const [importError, setImportError] = useState('');
+  const [importSuccess, setImportSuccess] = useState('');
+  const [importMode, setImportMode] = useState('merge');
+
 
   // State Thêm / Sửa Lớp Học Mới
   const [showAddClassModal, setShowAddClassModal] = useState(false);
