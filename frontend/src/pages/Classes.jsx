@@ -66,10 +66,13 @@ const Classes = () => {
     });
   }, []);
 
-  // Tự động lưu cache vào localStorage mỗi khi có thay đổi ở classes
-  // Giúp dữ liệu không bị mất khi F5 (reset trang) trước khi bấm Sync Lên Mây
+  // Tự động lưu cache vào localStorage và đồng bộ lên Supabase mỗi khi có thay đổi ở classes
+  // Giúp dữ liệu không bị mất khi F5 và học sinh cập nhật được ngay lập tức
   useEffect(() => {
-    if (classes) {
+    if (classes && classes.length > 0) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(classes));
+      saveAllClasses(classes).catch(err => console.error('Auto-sync error:', err));
+    } else if (classes && classes.length === 0) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(classes));
     }
   }, [classes]);
