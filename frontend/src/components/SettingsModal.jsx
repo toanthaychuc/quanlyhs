@@ -14,6 +14,7 @@ import {
   EyeOff
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
+import { pushAllLocalDataToCloud, pullAllDataFromCloud } from '../services/syncService';
 
 export const DEFAULT_LATEX_PREAMBLE = `\\usepackage{amsmath,amssymb}
 \\usepackage{tikz}
@@ -23,13 +24,17 @@ export const DEFAULT_LATEX_PREAMBLE = `\\usepackage{amsmath,amssymb}
 const SettingsModal = ({ isOpen, onClose }) => {
   const { isTeacher } = useRole();
 
-  const [activeTab, setActiveTab] = useState('latex'); // 'latex' | 'ai'
+  const [activeTab, setActiveTab] = useState('cloud'); // 'cloud' | 'latex' | 'ai'
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [aiModel, setAiModel] = useState('gemini-1.5-flash');
   const [latexPreamble, setLatexPreamble] = useState(DEFAULT_LATEX_PREAMBLE);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [customModel, setCustomModel] = useState('');
+
+  // Cloud Sync state
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatusMsg, setSyncStatusMsg] = useState('');
 
   // Nạp cấu hình từ localStorage khi mở modal
   useEffect(() => {
@@ -68,6 +73,31 @@ const SettingsModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const handlePushAllToCloud = async () => {
+    setIsSyncing(true);
+    setSyncStatusMsg('Đang tải toàn bộ dữ liệu lên Supabase...');
+    const res = await pushAllLocalDataToCloud();
+    setIsSyncing(false);
+    if (res.success) {
+      setSyncStatusMsg('🎉 Đã đồng bộ toàn bộ Dữ liệu (Lớp học, Học sinh, Đề thi, Bài tập, Tài liệu, Thông báo) lên Đám mây Supabase thành công!');
+    } else {
+      setSyncStatusMsg(`❌ Có lỗi khi đồng bộ: ${res.error}`);
+    }
+  };
+
+  const handlePullAllFromCloud = async () => {
+    setIsSyncing(true);
+    setSyncStatusMsg('Đang tải dữ liệu mới nhất từ Supabase...');
+    const res = await pullAllDataFromCloud();
+    setIsSyncing(false);
+    if (res.success) {
+      setSyncStatusMsg('🎉 Đã tải và cập nhật toàn bộ dữ liệu từ Đám mây về máy thành công!');
+      setTimeout(() => window.location.reload(), 1200);
+    } else {
+      setSyncStatusMsg(`❌ Lỗi tải dữ liệu: ${res.error}`);
+    }
+  };
+
   return (
     <div className="modal-overlay" style={{ zIndex: 9999 }} onClick={onClose}>
       <div 
@@ -94,8 +124,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
               <Sliders size={19} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>Cấu Hình Hệ Thống (Giáo Viên)</h3>
-              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Thiết lập AI Key, Mô hình ngôn ngữ & Preamble biên dịch LaTeX</span>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a' }}>Cấu Hình Hệ Thống & Đồng Bộ</h3>
+              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Quản lý đồng bộ Đám mây Supabase, AI Key & Preamble LaTeX</span>
             </div>
           </div>
           <button className="btn-icon" onClick={onClose} title="Đóng">
@@ -105,6 +135,26 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
         {/* Tab Navigation */}
         <div style={{ display: 'flex', gap: '0.5rem', padding: '0.85rem 1.5rem 0', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('cloud')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.55rem 1rem',
+              border: 'none',
+              background: 'transparent',
+              borderBottom: activeTab === 'cloud' ? '2.5px solid #4f46e5' : '2.5px solid transparent',
+              color: activeTab === 'cloud' ? '#4f46e5' : '#64748b',
+              fontWeight: activeTab === 'cloud' ? 700 : 500,
+              fontSize: '0.88rem',
+              cursor: 'pointer'
+            }}
+          >
+            <span>☁️ Đồng Bộ Đám Mây</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('latex')}
@@ -150,6 +200,56 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
         {/* Modal Body */}
         <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
+          {activeTab === 'cloud' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '1rem' }}>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: '#1d4ed8', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span>☁️</span> Trung Tâm Đồng Bộ Đám Mây (Supabase)
+                </h4>
+                <p style={{ margin: 0, fontSize: '0.825rem', color: '#3b82f6', lineHeight: 1.5 }}>
+                  Mọi dữ liệu (Danh sách lớp, Học sinh, Điểm số, Đề thi thử, Bài tập, Tài liệu, Thông báo) đều được lưu trữ trực tiếp trên đám mây để học sinh và thầy luôn thấy thông tin mới nhất.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{ padding: '0.85rem 1.25rem', fontSize: '0.92rem', justifyContent: 'center', gap: '0.5rem' }}
+                  onClick={handlePushAllToCloud}
+                  disabled={isSyncing}
+                >
+                  <span>☁️</span> {isSyncing ? 'Đang đồng bộ...' : 'Sao Lưu & Đẩy Toàn Bộ Dữ Liệu Lên Đám Mây (1 Chạm)'}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem', justifyContent: 'center', gap: '0.5rem' }}
+                  onClick={handlePullAllFromCloud}
+                  disabled={isSyncing}
+                >
+                  <RotateCcw size={15} /> {isSyncing ? 'Đang tải...' : 'Lấy Dữ Liệu Mới Nhất Từ Đám Mây Về Máy'}
+                </button>
+              </div>
+
+              {syncStatusMsg && (
+                <div style={{ 
+                  background: syncStatusMsg.startsWith('🎉') ? '#f0fdf4' : '#fef2f2',
+                  border: `1px solid ${syncStatusMsg.startsWith('🎉') ? '#bbf7d0' : '#fecaca'}`,
+                  color: syncStatusMsg.startsWith('🎉') ? '#15803d' : '#b91c1c',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '8px',
+                  fontSize: '0.85rem',
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-line'
+                }}>
+                  {syncStatusMsg}
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'latex' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.75rem 1rem' }}>
