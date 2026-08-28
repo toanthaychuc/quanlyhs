@@ -49,7 +49,16 @@ class ErrorBoundary extends React.Component {
           <button
             onClick={() => {
               localStorage.clear();
-              window.location.href = '/';
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                  for(let registration of registrations) {
+                    registration.unregister();
+                  }
+                  window.location.href = '/';
+                });
+              } else {
+                window.location.href = '/';
+              }
             }}
             style={{
               padding: '0.75rem 1.5rem',

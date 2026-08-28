@@ -119,6 +119,16 @@ const Classes = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+  const [studentForm, setStudentForm] = useState({
+    id: '', name: '', dob: '', gender: 'Nam', phone: '', email: '', note: '', scores: {}
+  });
+
+  // State Cấu hình cột điểm
+  const [showScoreConfigModal, setShowScoreConfigModal] = useState(false);
+  const [tempScoreColumns, setTempScoreColumns] = useState([...DEFAULT_SCORE_COLUMNS]);
+
+  // State Điểm danh
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
 
   // State Thêm / Sửa Lớp Học Mới
   const [showAddClassModal, setShowAddClassModal] = useState(false);
