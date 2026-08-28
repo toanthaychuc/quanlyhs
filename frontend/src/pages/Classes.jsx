@@ -24,8 +24,7 @@ import {
 import { useRole } from '../context/RoleContext';
 import StudentName from '../components/StudentName';
 import { INITIAL_CLASSES_DATA } from '../data/classesData';
-import { exportStudentsToExcel, downloadTemplateExcel, parseStudentExcelFile } from '../utils/excelUtils';
-import { getClasses, saveAllClasses } from '../services/classService';
+import { getClasses, saveAllClasses, deleteClass } from '../services/classService';
 import './Classes.css';
 
 const DEFAULT_SCORE_COLUMNS = [
@@ -35,7 +34,7 @@ const DEFAULT_SCORE_COLUMNS = [
   { id: 'final', name: 'Cuối Kỳ', weight: 3 }
 ];
 
-const LOCAL_STORAGE_KEY = 'edumanager_classes_data';
+const LOCAL_STORAGE_KEY = 'edumanager_classes_data_v2';
 
 const Classes = () => {
   const { isTeacher, isStudent, currentStudentId } = useRole();
@@ -204,17 +203,23 @@ const Classes = () => {
   };
 
   // Handler: Xóa lớp học
-  const handleDeleteClass = (classId, className, e) => {
+  const handleDeleteClass = async (classId, className, e) => {
     e?.stopPropagation();
     if (classes.length <= 1) {
       alert('Không thể xóa vì hệ thống cần ít nhất 1 lớp học!');
       return;
     }
     if (window.confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn xóa lớp "${className}" cùng toàn bộ dữ liệu học sinh của lớp này?`)) {
-      const remainingClasses = classes.filter(c => c.id !== classId);
-      setClasses(remainingClasses);
-      if (activeClassId === classId) {
-        setActiveClassId(remainingClasses[0]?.id || '');
+      try {
+        await deleteClass(classId);
+        const remainingClasses = classes.filter(c => c.id !== classId);
+        setClasses(remainingClasses);
+        if (activeClassId === classId) {
+          setActiveClassId(remainingClasses[0]?.id || '');
+        }
+      } catch (err) {
+        console.error('Lỗi xóa lớp:', err);
+        alert('Không thể xóa lớp. Vui lòng thử lại.');
       }
     }
   };

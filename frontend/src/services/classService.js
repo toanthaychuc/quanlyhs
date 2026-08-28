@@ -74,30 +74,8 @@ export async function getClasses() {
       students: studentsByClass[row.id] || [],
     }));
 
-    // BẢO VỆ DỮ LIỆU: Nếu Local có dữ liệu lớp/học sinh mà Supabase chưa có -> Giữ lại và tự động đẩy lên Supabase
-    let needSyncUp = false;
-    for (const localCls of localClasses) {
-      const matchedIdx = mergedClasses.findIndex(c => c.id === localCls.id);
-      if (matchedIdx === -1) {
-        // Lớp này có ở local nhưng chưa có trên Supabase
-        mergedClasses.push(localCls);
-        needSyncUp = true;
-      } else {
-        // Nếu lớp trên Supabase chưa có học sinh nào, nhưng local lại có danh sách học sinh
-        if ((mergedClasses[matchedIdx].students || []).length === 0 && (localCls.students || []).length > 0) {
-          mergedClasses[matchedIdx].students = localCls.students;
-          needSyncUp = true;
-        }
-      }
-    }
-
     // Lưu cache an toàn vào localStorage
     localStorage.setItem(LOCAL_KEY, JSON.stringify(mergedClasses));
-
-    // Nếu phát hiện local có dữ liệu phong phú hơn -> Tự động đồng bộ lên Supabase
-    if (needSyncUp) {
-      saveAllClasses(mergedClasses).catch(e => console.warn('Auto-sync to Supabase warning:', e));
-    }
 
     return mergedClasses;
   } catch (err) {
