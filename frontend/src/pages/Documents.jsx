@@ -43,10 +43,16 @@ const Documents = () => {
   });
 
   // Tải tài liệu từ Supabase khi mount
+  // Tải danh sách tài liệu (Stale-While-Revalidate)
   useEffect(() => {
-    getDocuments().then(data => {
+    // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
+    getDocuments(false).then(data => {
       if (data && data.length > 0) setDocuments(data);
-    }).catch(err => console.error('getDocuments error:', err));
+      // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
+      getDocuments(true).then(freshData => {
+        if (freshData && freshData.length > 0) setDocuments(freshData);
+      }).catch(err => console.error('Background sync documents error:', err));
+    }).catch(err => console.error('Local documents error:', err));
   }, []);
 
   // Tự động đồng bộ lên Supabase (debounced)

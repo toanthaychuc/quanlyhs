@@ -314,10 +314,16 @@ const Exams = () => {
   });
 
   // Tải đề thi từ Supabase khi component mount
+  // Tải danh sách đề thi (Stale-While-Revalidate)
   useEffect(() => {
-    getExams().then(data => {
-      if (Array.isArray(data)) setExams(data); // Cập nhật ngay cả khi Supabase trả về rỗng (đã xóa hết trên cloud)
-    }).catch(err => console.error('getExams error:', err));
+    // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
+    getExams(false).then(data => {
+      if (Array.isArray(data) && data.length > 0) setExams(data);
+      // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
+      getExams(true).then(freshData => {
+        if (Array.isArray(freshData)) setExams(freshData);
+      }).catch(err => console.error('Background sync exams error:', err));
+    }).catch(err => console.error('Local exams error:', err));
   }, []);
 
   // Lưu cache localStorage khi exams thay đổi (đồng bộ Supabase xảy ra trong từng action)

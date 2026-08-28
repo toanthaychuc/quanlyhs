@@ -188,16 +188,21 @@ const Assignments = () => {
     return [];
   });
 
-  // Tải danh sách bài tập từ Supabase
+  // Tải danh sách bài tập từ Supabase (Stale-While-Revalidate)
   useEffect(() => {
-    getAssignments().then(data => {
-      if (Array.isArray(data)) setAssignments(data);
-    }).catch(err => console.error('getAssignments error:', err));
+    // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
+    getAssignments(false).then(data => {
+      if (Array.isArray(data) && data.length > 0) setAssignments(data);
+      // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
+      getAssignments(true).then(freshData => {
+        if (Array.isArray(freshData)) setAssignments(freshData);
+      }).catch(err => console.error('Background sync assignments error:', err));
+    }).catch(err => console.error('Local assignments error:', err));
   }, []);
 
-  // Tải danh sách lớp từ Supabase
+  // Tải danh sách lớp (Stale-While-Revalidate)
   useEffect(() => {
-    getClasses().then(cls => {
+    const handleClasses = (cls) => {
       if (cls && cls.length > 0) {
         setClassesList(cls);
         if (isStudent) {
@@ -207,7 +212,11 @@ const Assignments = () => {
           setActiveClassId(cls[0].id);
         }
       }
-    }).catch(err => console.error('getClasses in Assignments error:', err));
+    };
+    // 1. Lấy dữ liệu local
+    getClasses(false).then(handleClasses).catch(err => console.error(err));
+    // 2. Cập nhật nền từ mây
+    getClasses(true).then(handleClasses).catch(err => console.error(err));
   }, [isStudent, currentStudentId]);
 
   // Tự động đồng bộ bài tập lên Supabase (debounced)

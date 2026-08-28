@@ -7,7 +7,9 @@ import supabase from '../lib/supabase';
 const isSupabaseReady = () =>
   Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
 
-export async function getSetting(key, defaultValue = null) {
+export async function getSetting(key, defaultValue = null, forceSync = false) {
+  const localVal = getLocalSetting(key, defaultValue);
+  if (!forceSync && localVal !== null) return localVal;
   const localVal = getLocalSetting(key, defaultValue);
 
   if (!isSupabaseReady()) return localVal;
