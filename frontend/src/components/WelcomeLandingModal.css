@@ -77,6 +77,13 @@
 .logo-blue-wrapper {
   border: 4px solid #0284c7;
   box-shadow: 0 12px 35px rgba(2, 132, 199, 0.28);
+  overflow: hidden;
+}
+
+.logo-blue-wrapper .school-logo-img {
+  transform: scale(1.85); /* Phóng to logo lên gần gấp đôi */
+  transform-origin: center center;
+  border-radius: 0;
 }
 
 .school-logo-img {
