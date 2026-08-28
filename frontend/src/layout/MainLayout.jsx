@@ -104,10 +104,13 @@ const MainLayout = () => {
     }
   };
 
+  // Đảm bảo classesData luôn là mảng an toàn
+  const safeClassesData = Array.isArray(classesData) ? classesData : [];
+
   // Tìm học sinh hiện tại và lớp của học sinh đó
   let currentStudent = null;
   let currentStudentClass = null;
-  for (const cls of classesData) {
+  for (const cls of safeClassesData) {
     const found = cls.students?.find(s => s.id === currentStudentId);
     if (found) {
       currentStudent = found;
@@ -117,7 +120,7 @@ const MainLayout = () => {
   }
 
   // Danh sách tất cả học sinh để giáo viên/người dùng có thể giả lập chọn học sinh khác nhau
-  const allStudentsWithClass = classesData.flatMap(cls => 
+  const allStudentsWithClass = safeClassesData.flatMap(cls => 
     (cls.students || []).map(s => ({ ...s, className: cls.name, school: cls.school }))
   );
 
