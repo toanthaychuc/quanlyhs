@@ -241,7 +241,6 @@ const Assignments = () => {
     if (asgSaveTimeoutRef.current) clearTimeout(asgSaveTimeoutRef.current);
     asgSaveTimeoutRef.current = setTimeout(() => {
       saveAllAssignments(assignments);
-      hasLocalChangesRef.current = false;
     }, 1500);
     return () => {
       if (asgSaveTimeoutRef.current) clearTimeout(asgSaveTimeoutRef.current);

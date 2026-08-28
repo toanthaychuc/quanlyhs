@@ -75,7 +75,6 @@ const Documents = () => {
     if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);
     docSaveTimeoutRef.current = setTimeout(() => {
       saveAllDocuments(documents);
-      hasLocalChangesRef.current = false;
     }, 1500);
     return () => {
       if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);
