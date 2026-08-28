@@ -33,7 +33,11 @@ function docToRow(doc) {
   };
 }
 
-export async function getDocuments() {
+export async function getDocuments(forceSync = false) {
+  if (!forceSync) {
+    const local = getLocalDocuments();
+    if (local && local.length > 0) return local;
+  }
   if (!isSupabaseReady()) {
     return getLocalDocuments();
   }

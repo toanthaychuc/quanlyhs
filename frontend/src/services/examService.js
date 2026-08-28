@@ -15,7 +15,11 @@ const isSupabaseReady = () =>
 
 // ─── Exams ────────────────────────────────────────────────────────────────────
 
-export async function getExams() {
+export async function getExams(forceSync = false) {
+  if (!forceSync) {
+    const local = getExamsFromLocal();
+    if (local && local.length > 0) return local;
+  }
   if (!isSupabaseReady()) {
     return getExamsFromLocal();
   }

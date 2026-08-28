@@ -101,11 +101,11 @@ export async function pushAllLocalDataToCloud() {
 export async function pullAllDataFromCloud() {
   try {
     const [classes, exams, assignments, documents, notices] = await Promise.all([
-      getClasses(),
-      getExams(),
-      getAssignments(),
-      getDocuments(),
-      getNotices(),
+      getClasses(true),
+      getExams(true),
+      getAssignments(true),
+      getDocuments(true),
+      getNotices(true),
     ]);
 
     return { success: true, data: { classes, exams, assignments, documents, notices } };

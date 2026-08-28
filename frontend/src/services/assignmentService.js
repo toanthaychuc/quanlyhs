@@ -34,7 +34,11 @@ function assignmentToRow(asg) {
   };
 }
 
-export async function getAssignments() {
+export async function getAssignments(forceSync = false) {
+  if (!forceSync) {
+    const local = getLocalAssignments();
+    if (local && local.length > 0) return local;
+  }
   if (!isSupabaseReady()) {
     return getLocalAssignments();
   }

@@ -40,7 +40,11 @@ function rowToStudent(row) {
   };
 }
 
-export async function getClasses() {
+export async function getClasses(forceSync = false) {
+  if (!forceSync) {
+    const local = getClassesFromLocal();
+    if (local && local.length > 0) return local;
+  }
   if (!isSupabaseReady()) {
     return getClassesFromLocal();
   }
