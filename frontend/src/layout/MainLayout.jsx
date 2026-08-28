@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -32,6 +32,7 @@ import './MainLayout.css';
 
 const MainLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { 
     role, 
     setRole, 
@@ -48,6 +49,19 @@ const MainLayout = () => {
     currentStudentId, 
     setCurrentStudentId 
   } = useRole();
+
+  // Xử lý chặn các mục menu đối với chế độ "Học mà không cần đăng nhập" (Guest Mode)
+  const handleNavClick = (e, path) => {
+    setIsMobileMenuOpen(false);
+    if (!isTeacher && isGuestMode) {
+      const allowedPaths = ['/exams', '/documents', '/forum'];
+      if (!allowedPaths.includes(path)) {
+        e.preventDefault();
+        alert('Hãy vào hỏi đáp để liên hệ thầy nhé!');
+        return;
+      }
+    }
+  };
 
   // State modal đăng nhập email
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -163,7 +177,7 @@ const MainLayout = () => {
               key={item.path} 
               to={item.path} 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={(e) => handleNavClick(e, item.path)}
             >
               {item.icon}
               <span>{item.label}</span>

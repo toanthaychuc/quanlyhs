@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   ShieldCheck, 
   GraduationCap, 
@@ -21,6 +22,7 @@ import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import './WelcomeLandingModal.css';
 
 const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
+  const navigate = useNavigate();
   const { 
     currentUserEmail, 
     loginWithEmail, 
@@ -62,6 +64,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
   // Xử lý học sinh chọn "Học mà không cần đăng nhập" (Guest Mode tự do làm bài thi thử)
   const handleGuestEntry = () => {
     loginAsGuest();
+    navigate('/exams');
     onClose();
   };
 
