@@ -46,7 +46,7 @@ export async function getAssignments() {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    if (data && data.length > 0) {
+    if (Array.isArray(data)) {
       const formatted = data.map(rowToAssignment);
       localStorage.setItem(LOCAL_KEY, JSON.stringify(formatted));
       return formatted;

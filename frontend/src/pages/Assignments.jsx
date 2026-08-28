@@ -32,7 +32,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { getClasses } from '../services/classService';
-import { getAssignments, saveAllAssignments } from '../services/assignmentService';
+import { getAssignments, saveAllAssignments, deleteAssignment } from '../services/assignmentService';
 import MathView from '../components/MathView';
 import { stripLatexComments, extractBracedBlocks, parseImminiBlock, cleanQuestionObj } from '../utils/latexUtils';
 import './Assignments.css';
@@ -164,104 +164,9 @@ const parseLatexStringToQuestions = (rawText) => {
   }
 };
 
-const ASSIGNMENTS_STORAGE_KEY = 'edumanager_class_assignments_v2';
+const ASSIGNMENTS_STORAGE_KEY = 'edumanager_class_assignments_v3';
 
-const INITIAL_ASSIGNMENTS = [
-  {
-    id: 'asg-10t8-1',
-    classId: 'np-10t8',
-    className: 'Lớp 10T8',
-    school: 'NP',
-    type: 'online_latex', // 1: Làm trực tiếp trên web (LaTeX)
-    title: 'Bài tập Chuyên đề 1: Mệnh đề & Tập hợp (Trực tuyến LaTeX)',
-    description: 'Yêu cầu các em hoàn thành các câu hỏi trắc nghiệm dưới đây.',
-    deadline: '2026-03-01T23:59',
-    duration: 45,
-    questionsCount: 3,
-    assignedAt: '2026-02-20',
-    latexCode: `\\begin{ex}
-  Trong các câu sau, câu nào là một mệnh đề toán học?
-  \\choice
-  {$x + 2 > 5$}
-  {\\True $2 + 3 = 7$}
-  {Hôm nay trời đẹp quá!}
-  {Bạn có thích học Toán không?}
-  \\loigiai{
-    Mệnh đề toán học là một khẳng định có tính đúng hoặc sai rõ ràng.
-  }
-\\end{ex}
-\\begin{ex}
-  Cho hai tập hợp $A = [-2; 3)$ và $B = [1; 5]$. Giao của hai tập hợp $A \\cap B$ là:
-  \\choice
-  {$[-2; 5]$}
-  {\\True $[1; 3)$}
-  {$[-2; 1)$}
-  {$(3; 5]$}
-\\end{ex}`,
-    submissions: {
-      '10T8-01': { submittedAt: '2026-02-22 14:30', score: 9.0, status: 'submitted', type: 'online' },
-      '10T8-02': { submittedAt: '2026-02-21 19:15', score: 9.5, status: 'submitted', type: 'online' },
-      '10T8-03': { submittedAt: '2026-02-22 20:00', score: 7.5, status: 'submitted', type: 'online' },
-    }
-  },
-  {
-    id: 'asg-10t8-2',
-    classId: 'np-10t8',
-    className: 'Lớp 10T8',
-    school: 'NP',
-    type: 'file_upload', // 2: Nộp file PDF / Hình ảnh
-    title: 'Nộp bài tập tự luận: Phương trình Đường thẳng trong Mặt phẳng Oxy',
-    description: 'Các em giải chi tiết bài 1, 2, 3 trang 45 SGK ra giấy vở, sau đó chụp ảnh rõ nét hoặc scan file PDF tải lên đây.',
-    deadline: '2026-03-05T23:59',
-    duration: 60,
-    questionsCount: 3,
-    assignedAt: '2026-02-22',
-    attachmentUrl: '',
-    submissions: {
-      '10T8-01': { 
-        submittedAt: '2026-02-23 08:00', 
-        score: 8.5, 
-        status: 'submitted', 
-        type: 'file',
-        fileName: 'BaiTap_NguyenVanAn_Oxy.pdf',
-        fileSize: '1.8 MB'
-      },
-    }
-  },
-  {
-    id: 'asg-12t6-1',
-    classId: 'np-12t6',
-    className: 'Lớp 12T6',
-    school: 'NP',
-    type: 'online_latex',
-    title: 'Nhiệm vụ tuần 24: Khảo sát hàm số & Tích phân nâng cao',
-    description: 'Bộ 40 câu trắc nghiệm chuẩn cấu trúc đề thi Tốt nghiệp THPT 2026.',
-    deadline: '2026-03-02T23:59',
-    duration: 90,
-    questionsCount: 40,
-    assignedAt: '2026-02-21',
-    submissions: {
-      '12T6-01': { submittedAt: '2026-02-22 16:40', score: 9.5, status: 'submitted', type: 'online' },
-      '12T6-02': { submittedAt: '2026-02-22 21:10', score: 8.2, status: 'submitted', type: 'online' },
-    }
-  },
-  {
-    id: 'asg-thth108-1',
-    classId: 'thth-10.8',
-    className: 'Lớp 10.8',
-    school: 'THTH',
-    type: 'file_upload',
-    title: 'Nộp vở bài tập: Hình học Vectơ & Tích vô hướng',
-    description: 'Chụp ảnh các bài tập tự luyện chương Vectơ và tải lên file ảnh hoặc PDF.',
-    deadline: '2026-02-28T23:59',
-    duration: 45,
-    questionsCount: 5,
-    assignedAt: '2026-02-22',
-    submissions: {
-      '10.8-01': { submittedAt: '2026-02-22 10:15', score: 10.0, status: 'submitted', type: 'file', fileName: 'VoGiai_NguyenTHTH.pdf', fileSize: '2.4 MB' },
-    }
-  }
-];
+const INITIAL_ASSIGNMENTS = [];
 
 const Assignments = () => {
   const navigate = useNavigate();
@@ -273,17 +178,20 @@ const Assignments = () => {
   const [assignments, setAssignments] = useState(() => {
     try {
       const saved = localStorage.getItem(ASSIGNMENTS_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
     } catch (e) {
       console.error(e);
     }
-    return INITIAL_ASSIGNMENTS;
+    return [];
   });
 
   // Tải danh sách bài tập từ Supabase
   useEffect(() => {
     getAssignments().then(data => {
-      if (data && data.length > 0) setAssignments(data);
+      if (Array.isArray(data)) setAssignments(data);
     }).catch(err => console.error('getAssignments error:', err));
   }, []);
 
@@ -485,9 +393,15 @@ const Assignments = () => {
   };
 
   // Xóa bài tập
-  const handleDeleteAssignment = (asgId) => {
+  const handleDeleteAssignment = async (asgId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa nhiệm vụ bài tập này khỏi lớp?')) {
-      setAssignments(assignments.filter(a => a.id !== asgId));
+      try {
+        await deleteAssignment(asgId);
+        setAssignments(prev => prev.filter(a => a.id !== asgId));
+      } catch (err) {
+        console.error('Lỗi khi xóa bài tập:', err);
+        alert('Không thể xóa bài tập. Vui lòng thử lại.');
+      }
     }
   };
 
