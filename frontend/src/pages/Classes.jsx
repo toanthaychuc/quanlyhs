@@ -525,7 +525,7 @@ const Classes = () => {
 
   // Handler: Xuất Excel danh sách học sinh lớp hiện tại
   const handleExportExcel = () => {
-    if (!currentClass || !currentClass.students.length) {
+    if (!currentClass || !(currentClass?.students?.length || 0)) {
       alert('Lớp học chưa có học sinh để xuất danh sách!');
       return;
     }
@@ -782,7 +782,7 @@ const Classes = () => {
                   )}
                 </span>
                 <span>•</span>
-                <span>Sĩ số: <strong>{currentClass.students.length} học sinh</strong></span>
+                <span>Sĩ số: <strong>{(currentClass?.students?.length || 0)} học sinh</strong></span>
               </div>
             </div>
 
@@ -879,7 +879,7 @@ const Classes = () => {
                 </button>
               )}
 
-              {isTeacher && currentClass.students.length > 0 && (
+              {isTeacher && (currentClass?.students?.length || 0) > 0 && (
                 <button 
                   className="btn-icon delete" 
                   style={{ fontSize: '0.8rem', padding: '0.4rem 0.6rem', border: '1px solid #fee2e2', color: '#dc2626' }}
@@ -911,7 +911,7 @@ const Classes = () => {
               )}
 
               <span className="text-xs text-gray-500" style={{ marginLeft: '0.5rem' }}>
-                Hiển thị <strong>{filteredStudents.length}</strong> / {currentClass.students.length} HS
+                Hiển thị <strong>{filteredStudents.length}</strong> / {(currentClass?.students?.length || 0)} HS
               </span>
             </div>
           </div>
