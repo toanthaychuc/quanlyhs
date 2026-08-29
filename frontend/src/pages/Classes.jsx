@@ -366,7 +366,7 @@ const Classes = () => {
 
     const finalScores = {
       ...studentForm.scores,
-      avg: avg || studentForm.scores?.avg || ''
+      avg: avg
     };
 
     setClasses(prevClasses => prevClasses.map(cls => {
