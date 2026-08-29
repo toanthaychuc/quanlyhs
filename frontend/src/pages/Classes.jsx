@@ -767,13 +767,13 @@ const Classes = () => {
             {activeColumns.map(col => (
                <div key={col.id} className="student-score-stat">
                  <span className="label">{col.name}</span>
-                 <span className="val">{myStudentProfile.scores?.[col.id] ?? '—'}</span>
+                 <span className="val">{myStudentProfile.scores?.[col.id] || '—'}</span>
                </div>
             ))}
             <div className="student-score-stat" style={{ borderLeft: '1px solid rgba(255,255,255,0.3)', paddingLeft: '0.75rem' }}>
               <span className="label" style={{ color: '#fef08a' }}>ĐTB Môn</span>
               <span className="val" style={{ color: '#fef08a', fontWeight: 900 }}>
-                {myStudentProfile.scores?.avg ?? '—'}
+                {myStudentProfile.scores?.avg || '—'}
               </span>
             </div>
           </div>
@@ -1055,7 +1055,7 @@ const Classes = () => {
                         {activeColumns.map(col => (
                            <td key={col.id} style={{ textAlign: 'center' }}>
                              {canSeeScore ? (
-                               <span className="score-badge">{student.scores?.[col.id] ?? '—'}</span>
+                               <span className="score-badge">{student.scores?.[col.id] || '—'}</span>
                              ) : (
                                <span className="score-hidden">🔒 Ẩn</span>
                              )}
@@ -1066,7 +1066,7 @@ const Classes = () => {
                         <td style={{ textAlign: 'center' }}>
                           {canSeeScore ? (
                             <span className={`score-badge ${Number(student.scores?.avg) >= 8 ? 'high' : Number(student.scores?.avg) >= 6.5 ? 'medium' : 'low'}`}>
-                              {student.scores?.avg ?? '—'}
+                              {student.scores?.avg || '—'}
                             </span>
                           ) : (
                             <span className="score-hidden">🔒 Ẩn</span>
