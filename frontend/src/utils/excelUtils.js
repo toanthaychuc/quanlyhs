@@ -143,7 +143,7 @@ export const parseStudentExcelFile = async (file) => {
             headerRowIndex = r;
             basicCols.name = nameIdx;
             basicCols.id = rowStr.findIndex(c => c.includes('mã') || c.includes('id') || c.includes('code'));
-            basicCols.gender = rowStr.findIndex(c => c.includes('giới') || c.includes('tính') || c.includes('gender'));
+            basicCols.gender = rowStr.findIndex(c => c.includes('giới') || c.includes('tính') || c.includes('gender') || c.includes('phái'));
             basicCols.dob = rowStr.findIndex(c => c.includes('sinh') || c.includes('dob') || c.includes('birth'));
             basicCols.phone = rowStr.findIndex(c => c.includes('thoại') || c.includes('phone') || c.includes('sđt'));
             basicCols.email = rowStr.findIndex(c => c.includes('email') || c.includes('mail'));

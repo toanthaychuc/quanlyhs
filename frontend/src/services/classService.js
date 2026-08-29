@@ -31,12 +31,18 @@ function rowToClass(row) {
 
 /** Normalize a student DB row → app shape */
 function rowToStudent(row) {
+  const { _gender, _dob, _email, _note, _address, ...realScores } = row.scores || {};
   return {
     id: row.id,
     name: row.name,
     phone: row.phone || '',
-    scores: row.scores || {},
+    scores: realScores,
     notes: row.notes || '',
+    note: _note || row.notes || '',
+    gender: _gender || 'Nam',
+    dob: _dob || '',
+    email: _email || '',
+    address: _address || '',
   };
 }
 
@@ -135,14 +141,23 @@ export async function saveClass(cls) {
         .not('id', 'in', `(${studentIds.map(id => `'${id}'`).join(',')})`);
 
       // Upsert current students
-      const studentRows = cls.students.map(s => ({
-        id: s.id,
-        class_id: cls.id,
-        name: s.name,
-        phone: s.phone || null,
-        scores: s.scores || {},
-        notes: s.notes || null,
-      }));
+      const studentRows = cls.students.map(s => {
+        const enrichedScores = { ...s.scores };
+        if (s.gender) enrichedScores._gender = s.gender;
+        if (s.dob) enrichedScores._dob = s.dob;
+        if (s.email) enrichedScores._email = s.email;
+        if (s.note) enrichedScores._note = s.note;
+        if (s.address) enrichedScores._address = s.address;
+
+        return {
+          id: s.id,
+          class_id: cls.id,
+          name: s.name,
+          phone: s.phone || null,
+          scores: enrichedScores,
+          notes: s.notes || s.note || null,
+        };
+      });
       const { error: stuErr } = await supabase
         .from('students')
         .upsert(studentRows, { onConflict: 'id' });
