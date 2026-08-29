@@ -53,6 +53,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { role, isTeacher, isStudent, currentStudentId } = useRole();
   const hasLocalChangesRef = useRef(false);
+  const noticeSaveTimeoutRef = useRef(null);
+  const [isCloudSynced, setIsCloudSynced] = useState(false);
 
   // Xác định thông tin lớp và khối của học sinh
   const [studentInfo, setStudentInfo] = useState({ grade: '12', className: 'Lớp 12T6', classId: '' });
