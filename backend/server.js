@@ -182,9 +182,9 @@ app.post('/api/compile-tikz', async (req, res) => {
         // DEBUG: save the last compiled tikz code to workspace
         fs.writeFileSync(path.join(process.cwd(), 'last_compiled.tex'), texContent);
         
-        // Biên dịch ra PDF (có timeout 10 giây để chống treo máy)
+        // Biên dịch ra PDF (có timeout 60 giây để cho phép server cấu hình thấp kịp chạy)
         try {
-          await execAsync(`pdflatex -interaction=nonstopmode -halt-on-error -output-directory=${tmpDir} ${texFile}`, { timeout: 10000 });
+          await execAsync(`pdflatex -interaction=nonstopmode -halt-on-error -output-directory=${tmpDir} ${texFile}`, { timeout: 60000 });
         } catch (compileErr) {
           const logFile = path.join(tmpDir, 'main.log');
           let errorDetail = compileErr.message || 'Compilation failed';
@@ -199,7 +199,7 @@ app.post('/api/compile-tikz', async (req, res) => {
         }
         
         // Chuyển đổi PDF sang SVG
-        await execAsync(`pdftocairo -svg ${pdfFile} ${svgFile}`);
+        await execAsync(`pdftocairo -svg ${pdfFile} ${svgFile}`, { timeout: 30000 });
         
         // Đọc nội dung SVG
         let rawSvgContent = fs.readFileSync(svgFile, 'utf8');
