@@ -221,6 +221,9 @@ const TikzDiagramViewer = ({ tikzCode }) => {
   // Fetch compiled SVG from local API on mount or when tikzCode changes
   React.useEffect(() => {
     if (tikzCode) {
+      const controller = new AbortController();
+      const signal = controller.signal;
+
       const compileTikz = async () => {
         setLoading(true);
         setErrorMsg('');
@@ -239,7 +242,8 @@ const TikzDiagramViewer = ({ tikzCode }) => {
             body: JSON.stringify({ 
               tikzCode,
               preamble: storedPreamble || undefined
-            })
+            }),
+            signal
           });
           
           const data = await res.json();
@@ -251,6 +255,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
             containerRef.current.innerHTML = data.svg;
           }
         } catch (err) {
+          if (err.name === 'AbortError') return;
           console.error("TikZ API Error:", err);
           
           if (!import.meta.env.VITE_API_URL) {
@@ -272,7 +277,10 @@ const TikzDiagramViewer = ({ tikzCode }) => {
         compileTikz();
       }, 500);
       
-      return () => clearTimeout(debounceTimer);
+      return () => {
+        clearTimeout(debounceTimer);
+        controller.abort();
+      };
     }
   }, [tikzCode]);
 

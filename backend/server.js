@@ -165,6 +165,12 @@ app.post('/api/compile-tikz', async (req, res) => {
     // ==========================================
     console.log(`[Cache Miss] Đưa vào hàng đợi biên dịch: ${hash}`);
     const compileTask = async () => {
+      // Bỏ qua nếu client đã đóng kết nối (hủy request)
+      if (req.closed || req.destroyed || res.writableEnded) {
+        console.log(`[Abort] Client đã ngắt kết nối trước khi biên dịch: ${hash}`);
+        return;
+      }
+
       let tmpDir;
       try {
         tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tikz-'));
@@ -176,9 +182,9 @@ app.post('/api/compile-tikz', async (req, res) => {
         // DEBUG: save the last compiled tikz code to workspace
         fs.writeFileSync(path.join(process.cwd(), 'last_compiled.tex'), texContent);
         
-        // Biên dịch ra PDF
+        // Biên dịch ra PDF (có timeout 10 giây để chống treo máy)
         try {
-          await execAsync(`pdflatex -interaction=nonstopmode -halt-on-error -output-directory=${tmpDir} ${texFile}`);
+          await execAsync(`pdflatex -interaction=nonstopmode -halt-on-error -output-directory=${tmpDir} ${texFile}`, { timeout: 10000 });
         } catch (compileErr) {
           const logFile = path.join(tmpDir, 'main.log');
           let errorDetail = compileErr.message || 'Compilation failed';
