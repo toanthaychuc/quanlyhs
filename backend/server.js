@@ -173,8 +173,7 @@ app.post('/api/compile-tikz', async (req, res) => {
         const svgFile = path.join(tmpDir, 'main.svg');
         
         fs.writeFileSync(texFile, texContent);
-        // DEBUG: save the last compiled tikz code to workspace
-        fs.writeFileSync(path.join(process.cwd(), 'last_compiled.tex'), texContent);
+
         
         // Biên dịch ra PDF (có timeout 60 giây để cho phép server cấu hình thấp kịp chạy)
         try {
