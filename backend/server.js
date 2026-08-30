@@ -125,11 +125,20 @@ app.post('/api/compile-tikz', async (req, res) => {
     const cleanPreamble = resolveAndSanitizePreamble(rawPreamble);
     
     // Tự động sửa lỗi phổ biến trong mã TikZ trước khi biên dịch
-    const fixedTikzCode = tikzCode
+    let fixedTikzCode = tikzCode
+      // Sửa \tkzTabVar{-/$$,...} → \tkzTabVar{-/,...} (bỏ $$ trống không hợp lệ)
       .replace(/(\/-)\s*\$\$\s*([,}])/g, '$1/$2')
       .replace(/(\/\+)\s*\$\$\s*([,}])/g, '$1/$2')
-      .replace(/\/\$\$([,}])/g, '/$1');
+      // Dạng tổng quát: /$$  hoặc /$$ trong tkzTabVar
+      .replace(/\/\$\$([,}])/g, '/$1')
+      .replace(/\xA0/g, ' '); // Xóa non-breaking space
     
+    // AUTO-FIXER: Thử xử lý các lệnh dễ gây lỗi trên các bản LaTeX cũ (Render)
+    // Xóa font=\footnotesize vì một số cấu hình TeX cũ không hiểu lệnh này trong options của TikZ
+    fixedTikzCode = fixedTikzCode.replace(/font=\\footnotesize/g, ''); 
+    // Thay \overrightarrow thành \vec vì \overrightarrow đôi khi gây lỗi fragile trong node TikZ cũ
+    fixedTikzCode = fixedTikzCode.replace(/\\overrightarrow/g, '\\vec');
+
     const texContent = `\\documentclass[tikz,margin=2mm]{standalone}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T5]{fontenc}\n${cleanPreamble}\n\\begin{document}\n${fixedTikzCode}\n\\end{document}\n`;
     
     // ==========================================
