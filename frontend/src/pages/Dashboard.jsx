@@ -266,10 +266,17 @@ const Dashboard = () => {
     return localStorage.getItem('edumanager_exam_date') || '2027-06-27';
   });
   const [isEditingExamDate, setIsEditingExamDate] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Cập nhật mỗi phút để đổi ngày tự động lúc nửa đêm
+    return () => clearInterval(timer);
+  }, []);
 
   const examDateObj = new Date(examDateStr + 'T00:00:00');
-  const today = new Date();
-  const timeDiff = examDateObj.getTime() - today.getTime();
+  const timeDiff = examDateObj.getTime() - currentTime.getTime();
   const daysLeft = Math.max(0, Math.ceil(timeDiff / (1000 * 3600 * 24)));
   const examYear = examDateObj.getFullYear();
 
