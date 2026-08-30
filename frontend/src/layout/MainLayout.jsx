@@ -506,7 +506,7 @@ const MainLayout = () => {
               </button>
             </div>
             <iframe 
-              src={window.location.pathname} 
+              src={window.location.href} 
               className="mobile-simulator-iframe"
               title="Mobile Simulator"
             />
