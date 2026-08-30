@@ -1642,9 +1642,9 @@ const Exams = () => {
                   </div>
 
                   {/* POINTS CONFIG UI */}
-                  <div className="points-config-box card" style={{ padding: '12px', marginBottom: '12px', background: 'rgba(255, 255, 255, 0.5)', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                  <div className="points-config-box card" style={{ padding: '12px', marginBottom: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                      <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#374151' }}>Cấu hình điểm số</h4>
+                      <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: 'var(--text-color, #f8fafc)' }}>Cấu hình điểm số</h4>
                       <span style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '14px', background: 'rgba(var(--primary-color-rgb), 0.1)', padding: '4px 10px', borderRadius: '12px' }}>
                         Tổng điểm: {
                           ((editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length * (examFormData.pointsConfig?.multipleChoice || 0)) + 
@@ -1656,7 +1656,7 @@ const Exams = () => {
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label style={{ fontSize: '12px', color: '#4b5563' }}>Trắc nghiệm 4 PA ({editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length} câu)</label>
+                        <label style={{ fontSize: '12px', color: 'var(--text-secondary, #94a3b8)' }}>Trắc nghiệm 4 PA ({editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length} câu)</label>
                         <input 
                           type="number" step="0.01" min="0" className="input input-sm" 
                           value={examFormData.pointsConfig?.multipleChoice ?? 0.25} 
@@ -1664,7 +1664,7 @@ const Exams = () => {
                         />
                       </div>
                       <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label style={{ fontSize: '12px', color: '#4b5563' }}>Trả lời ngắn ({editorQuestions.filter(q => q.questionType === 'short_answer').length} câu)</label>
+                        <label style={{ fontSize: '12px', color: 'var(--text-secondary, #94a3b8)' }}>Trả lời ngắn ({editorQuestions.filter(q => q.questionType === 'short_answer').length} câu)</label>
                         <input 
                           type="number" step="0.01" min="0" className="input input-sm" 
                           value={examFormData.pointsConfig?.shortAnswer ?? 0.5} 
@@ -1674,23 +1674,23 @@ const Exams = () => {
                     </div>
                     
                     {editorQuestions.filter(q => q.questionType === 'true_false').length > 0 && (
-                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #e5e7eb' }}>
-                        <label style={{ fontSize: '12px', color: '#4b5563', marginBottom: '8px', display: 'block' }}>Trắc nghiệm Đúng/Sai ({editorQuestions.filter(q => q.questionType === 'true_false').length} câu)</label>
+                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--border-color, #334155)' }}>
+                        <label style={{ fontSize: '12px', color: 'var(--text-secondary, #94a3b8)', marginBottom: '8px', display: 'block' }}>Trắc nghiệm Đúng/Sai ({editorQuestions.filter(q => q.questionType === 'true_false').length} câu)</label>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
                           <div>
-                            <span style={{ fontSize: '11px', display: 'block', color: '#6b7280', marginBottom: '4px' }}>Đúng 1 ý</span>
+                            <span style={{ fontSize: '11px', display: 'block', color: 'var(--text-secondary, #94a3b8)', marginBottom: '4px' }}>Đúng 1 ý</span>
                             <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct1 ?? 0.1} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct1: parseFloat(e.target.value) || 0 } } }))} />
                           </div>
                           <div>
-                            <span style={{ fontSize: '11px', display: 'block', color: '#6b7280', marginBottom: '4px' }}>Đúng 2 ý</span>
+                            <span style={{ fontSize: '11px', display: 'block', color: 'var(--text-secondary, #94a3b8)', marginBottom: '4px' }}>Đúng 2 ý</span>
                             <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct2 ?? 0.25} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct2: parseFloat(e.target.value) || 0 } } }))} />
                           </div>
                           <div>
-                            <span style={{ fontSize: '11px', display: 'block', color: '#6b7280', marginBottom: '4px' }}>Đúng 3 ý</span>
+                            <span style={{ fontSize: '11px', display: 'block', color: 'var(--text-secondary, #94a3b8)', marginBottom: '4px' }}>Đúng 3 ý</span>
                             <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct3 ?? 0.5} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct3: parseFloat(e.target.value) || 0 } } }))} />
                           </div>
                           <div>
-                            <span style={{ fontSize: '11px', display: 'block', color: '#6b7280', marginBottom: '4px' }}>Đúng 4 ý</span>
+                            <span style={{ fontSize: '11px', display: 'block', color: 'var(--text-secondary, #94a3b8)', marginBottom: '4px' }}>Đúng 4 ý</span>
                             <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct4 ?? 1.0} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct4: parseFloat(e.target.value) || 0 } } }))} />
                           </div>
                         </div>
