@@ -175,9 +175,9 @@ app.post('/api/compile-tikz', async (req, res) => {
         fs.writeFileSync(texFile, texContent);
 
         
-        // Biên dịch ra PDF (có timeout 60 giây để cho phép server cấu hình thấp kịp chạy)
+        // Biên dịch bằng LuaLaTeX (chính xác hơn, không bị lỗi bộ nhớ)
         try {
-          await execAsync(`pdflatex -interaction=nonstopmode -halt-on-error -output-directory=${tmpDir} ${texFile}`, { timeout: 60000 });
+          await execAsync(`lualatex -interaction=nonstopmode -halt-on-error -output-directory=${tmpDir} ${texFile}`, { timeout: 90000 });
         } catch (compileErr) {
           const logFile = path.join(tmpDir, 'main.log');
           let errorDetail = compileErr.message || 'Compilation failed';
@@ -196,8 +196,8 @@ app.post('/api/compile-tikz', async (req, res) => {
           throw new Error(errorDetail);
         }
         
-        // Chuyển đổi PDF sang SVG
-        await execAsync(`pdftocairo -svg ${pdfFile} ${svgFile}`, { timeout: 30000 });
+        // Chuyển đổi PDF sang SVG bằng dvisvgm (chính xác hơn)
+        await execAsync(`dvisvgm --pdf ${pdfFile} -o ${svgFile} --exact-bbox --zoom=1.2`, { timeout: 30000 });
         
         // Đọc nội dung SVG
         let rawSvgContent = fs.readFileSync(svgFile, 'utf8');
