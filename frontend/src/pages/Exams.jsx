@@ -379,7 +379,12 @@ const Exams = () => {
     itemId: '',
     title: '',
     duration: 15,
-    latexBulkCode: ''
+    latexBulkCode: '',
+    pointsConfig: {
+      multipleChoice: 0.25,
+      shortAnswer: 0.5,
+      trueFalse: { correct1: 0.1, correct2: 0.25, correct3: 0.5, correct4: 1.0 }
+    }
   });
 
   // Auto-resume from Dashboard
@@ -479,32 +484,51 @@ const Exams = () => {
     clearInterval(timerRef.current);
 
     let correctCount = 0;
+    let totalCalculatedScore = 0;
+    const hasPointsConfig = !!currentExam.pointsConfig;
+    const pConfig = currentExam.pointsConfig || {
+      multipleChoice: 0,
+      shortAnswer: 0,
+      trueFalse: { correct1: 0, correct2: 0, correct3: 0, correct4: 0 }
+    };
+
     currentExam.questions.forEach((q) => {
       const uAns = userAnswers[q.id];
       if (q.questionType === 'true_false') {
-        // Đối với đúng sai, kiểm tra cả 4 ý
-        let allMatched = true;
+        let subCorrect = 0;
         (q.options || []).forEach(opt => {
           const userPick = uAns?.[opt.key];
           const expected = opt.isCorrectTrue ? 'T' : 'F';
-          if (userPick !== expected) allMatched = false;
+          if (userPick === expected) subCorrect += 1;
         });
-        if (allMatched && uAns) correctCount += 1;
+
+        if (subCorrect === 4 && uAns) correctCount += 1;
+
+        if (hasPointsConfig && uAns) {
+          if (subCorrect === 1) totalCalculatedScore += pConfig.trueFalse.correct1;
+          else if (subCorrect === 2) totalCalculatedScore += pConfig.trueFalse.correct2;
+          else if (subCorrect === 3) totalCalculatedScore += pConfig.trueFalse.correct3;
+          else if (subCorrect === 4) totalCalculatedScore += pConfig.trueFalse.correct4;
+        }
       } else if (q.questionType === 'short_answer') {
-        // So sánh chuỗi trả lời ngắn (bỏ khoảng trắng và dấu phẩy)
         const cleanUser = String(uAns || '').trim().replace(/,/g, '.');
         const cleanTarget = String(q.correctAnswer || '').trim().replace(/,/g, '.');
-        if (cleanUser === cleanTarget) correctCount += 1;
+        if (cleanUser === cleanTarget) {
+          correctCount += 1;
+          if (hasPointsConfig) totalCalculatedScore += pConfig.shortAnswer;
+        }
       } else {
-        // Trắc nghiệm 4 phương án
         if (uAns === q.correctAnswer) {
           correctCount += 1;
+          if (hasPointsConfig) totalCalculatedScore += pConfig.multipleChoice;
         }
       }
     });
 
     const totalQuestions = currentExam.questions.length;
-    const score = totalQuestions > 0 ? ((correctCount / totalQuestions) * 10).toFixed(1) : 0;
+    const score = hasPointsConfig 
+      ? Number(totalCalculatedScore.toFixed(2)) 
+      : (totalQuestions > 0 ? Number(((correctCount / totalQuestions) * 10).toFixed(1)) : 0);
     const timeSpentSeconds = (currentExam.duration * 60) - timeLeft;
 
     setExamResult({
@@ -609,6 +633,18 @@ const Exams = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const calculateMaxScore = (exam) => {
+    if (!exam || !exam.pointsConfig) return 10;
+    let max = 0;
+    const pConfig = exam.pointsConfig;
+    (exam.questions || []).forEach(q => {
+      if (q.questionType === 'multiple_choice' || !q.questionType) max += pConfig.multipleChoice;
+      else if (q.questionType === 'short_answer') max += pConfig.shortAnswer;
+      else if (q.questionType === 'true_false') max += pConfig.trueFalse.correct4;
+    });
+    return Number(max.toFixed(2));
+  };
+
   // ===================== CRUD GIÁO VIÊN (SOẠN ĐỀ LATEX) =====================
   const handleOpenAddExam = () => {
     const defaultGrade = activeGradeFilter;
@@ -623,7 +659,12 @@ const Exams = () => {
       itemId: firstItem?.id || '',
       title: defaultGrade === 'grade-thptqg' ? 'Đề thi thử THPT Quốc Gia mới' : (defaultGrade === 'grade-vact' ? 'Đề thi thử VACT mới' : (firstItem?.name ? `${firstItem.name} (Đề mới)` : 'Bài kiểm tra mới')),
       duration: defaultGrade === 'grade-thptqg' ? 90 : (defaultGrade === 'grade-vact' ? 60 : 15),
-      latexBulkCode: '' // Để trống để hiển thị placeholder mờ gợi ý
+      latexBulkCode: '', // Để trống để hiển thị placeholder mờ gợi ý
+      pointsConfig: {
+        multipleChoice: 0.25,
+        shortAnswer: 0.5,
+        trueFalse: { correct1: 0.1, correct2: 0.25, correct3: 0.5, correct4: 1.0 }
+      }
     });
     setEditorQuestions([]);
     setIsEditorOpen(true);
@@ -640,7 +681,12 @@ const Exams = () => {
       itemId: item.id,
       title: `${item.name} - Đề số ${newIndex}`,
       duration: item.duration || 15,
-      latexBulkCode: ''
+      latexBulkCode: '',
+      pointsConfig: {
+        multipleChoice: 0.25,
+        shortAnswer: 0.5,
+        trueFalse: { correct1: 0.1, correct2: 0.25, correct3: 0.5, correct4: 1.0 }
+      }
     });
     setEditorQuestions([]);
     setIsEditorOpen(true);
@@ -659,7 +705,12 @@ const Exams = () => {
         itemId: exam.curriculumId || item?.id || exam.id,
         title: exam.title,
         duration: exam.duration || 15,
-        latexBulkCode: latexStr
+        latexBulkCode: latexStr,
+        pointsConfig: exam.pointsConfig || {
+          multipleChoice: 0.25,
+          shortAnswer: 0.5,
+          trueFalse: { correct1: 0.1, correct2: 0.25, correct3: 0.5, correct4: 1.0 }
+        }
       });
       setEditorQuestions(hasExistingQs ? qs.map(cleanQuestionObj) : []);
       setIsEditorOpen(true);
@@ -693,7 +744,12 @@ const Exams = () => {
       itemId: exam.curriculumId || exam.id,
       title: exam.title,
       duration: exam.duration || 60,
-      latexBulkCode: latexStr
+      latexBulkCode: latexStr,
+      pointsConfig: exam.pointsConfig || {
+        multipleChoice: 0.25,
+        shortAnswer: 0.5,
+        trueFalse: { correct1: 0.1, correct2: 0.25, correct3: 0.5, correct4: 1.0 }
+      }
     });
     setEditorQuestions(hasExistingQs ? qs.map(cleanQuestionObj) : []);
     setIsEditorOpen(true);
@@ -834,7 +890,8 @@ const Exams = () => {
       grade: examFormData.grade,
       gradeLabel: ALL_CURRICULA[examFormData.grade]?.label || 'Toán học',
       duration: parseInt(examFormData.duration, 10) || 15,
-      questions: finalQuestions
+      questions: finalQuestions,
+      pointsConfig: examFormData.pointsConfig
     };
 
     if (editingExamId) {
@@ -1060,7 +1117,7 @@ const Exams = () => {
         <div className="result-score-card card glass">
           <div className="score-badge-circle">
             <span className="score-number">{examResult.score}</span>
-            <span className="score-max">/ 10</span>
+            <span className="score-max">/ {calculateMaxScore(currentExam)}</span>
           </div>
 
           <div className="score-summary-info">
@@ -1583,6 +1640,64 @@ const Exams = () => {
                       required
                     />
                   </div>
+
+                  {/* POINTS CONFIG UI */}
+                  <div className="points-config-box card" style={{ padding: '12px', marginBottom: '12px', background: 'rgba(255, 255, 255, 0.5)', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#374151' }}>Cấu hình điểm số</h4>
+                      <span style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '14px', background: 'rgba(var(--primary-color-rgb), 0.1)', padding: '4px 10px', borderRadius: '12px' }}>
+                        Tổng điểm: {
+                          ((editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length * (examFormData.pointsConfig?.multipleChoice || 0)) + 
+                          (editorQuestions.filter(q => q.questionType === 'short_answer').length * (examFormData.pointsConfig?.shortAnswer || 0)) + 
+                          (editorQuestions.filter(q => q.questionType === 'true_false').length * (examFormData.pointsConfig?.trueFalse?.correct4 || 0))).toFixed(2)
+                        }
+                      </span>
+                    </div>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ fontSize: '12px', color: '#4b5563' }}>Trắc nghiệm 4 PA ({editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length} câu)</label>
+                        <input 
+                          type="number" step="0.01" min="0" className="input input-sm" 
+                          value={examFormData.pointsConfig?.multipleChoice ?? 0.25} 
+                          onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, multipleChoice: parseFloat(e.target.value) || 0 } }))} 
+                        />
+                      </div>
+                      <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label style={{ fontSize: '12px', color: '#4b5563' }}>Trả lời ngắn ({editorQuestions.filter(q => q.questionType === 'short_answer').length} câu)</label>
+                        <input 
+                          type="number" step="0.01" min="0" className="input input-sm" 
+                          value={examFormData.pointsConfig?.shortAnswer ?? 0.5} 
+                          onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, shortAnswer: parseFloat(e.target.value) || 0 } }))} 
+                        />
+                      </div>
+                    </div>
+                    
+                    {editorQuestions.filter(q => q.questionType === 'true_false').length > 0 && (
+                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #e5e7eb' }}>
+                        <label style={{ fontSize: '12px', color: '#4b5563', marginBottom: '8px', display: 'block' }}>Trắc nghiệm Đúng/Sai ({editorQuestions.filter(q => q.questionType === 'true_false').length} câu)</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                          <div>
+                            <span style={{ fontSize: '11px', display: 'block', color: '#6b7280', marginBottom: '4px' }}>Đúng 1 ý</span>
+                            <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct1 ?? 0.1} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct1: parseFloat(e.target.value) || 0 } } }))} />
+                          </div>
+                          <div>
+                            <span style={{ fontSize: '11px', display: 'block', color: '#6b7280', marginBottom: '4px' }}>Đúng 2 ý</span>
+                            <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct2 ?? 0.25} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct2: parseFloat(e.target.value) || 0 } } }))} />
+                          </div>
+                          <div>
+                            <span style={{ fontSize: '11px', display: 'block', color: '#6b7280', marginBottom: '4px' }}>Đúng 3 ý</span>
+                            <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct3 ?? 0.5} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct3: parseFloat(e.target.value) || 0 } } }))} />
+                          </div>
+                          <div>
+                            <span style={{ fontSize: '11px', display: 'block', color: '#6b7280', marginBottom: '4px' }}>Đúng 4 ý</span>
+                            <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct4 ?? 1.0} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct4: parseFloat(e.target.value) || 0 } } }))} />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="latex-toolbar-compact">
                     <div className="toolbar-status-badge">
                       <span>Mã nguồn LaTeX (Hỗ trợ 4 dạng & ex_test.sty)</span>
