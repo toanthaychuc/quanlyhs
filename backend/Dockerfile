@@ -1,17 +1,15 @@
 FROM node:18-bullseye-slim
 
-# Install TeX Live, luatex, dvisvgm, and ghostscript (for optimal SVG compilation)
+# Install TeX Live and poppler-utils (for pdftocairo)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-latex-base \
     texlive-latex-extra \
-    texlive-luatex \
     texlive-fonts-recommended \
     texlive-fonts-extra \
     texlive-science \
     texlive-pictures \
     texlive-lang-other \
-    dvisvgm \
-    ghostscript \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
