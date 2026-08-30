@@ -34,6 +34,31 @@ const DEFAULT_SCORE_COLUMNS = [
   { id: 'final', name: 'Cuối Kỳ', weight: 3 }
 ];
 
+const sortStudentsByVietnameseName = (students) => {
+  if (!Array.isArray(students)) return [];
+  
+  const getFirstName = (fullName) => {
+    const parts = (fullName || '').trim().split(' ');
+    return parts.length > 0 ? parts[parts.length - 1] : '';
+  };
+
+  const getLastName = (fullName) => {
+    const parts = (fullName || '').trim().split(' ');
+    return parts.slice(0, -1).join(' ');
+  };
+
+  return [...students].sort((a, b) => {
+    const nameA = getFirstName(a.name);
+    const nameB = getFirstName(b.name);
+    const nameCompare = nameA.localeCompare(nameB, 'vi');
+    if (nameCompare !== 0) return nameCompare;
+    
+    const lastA = getLastName(a.name);
+    const lastB = getLastName(b.name);
+    return lastA.localeCompare(lastB, 'vi');
+  });
+};
+
 const LOCAL_STORAGE_KEY = 'edumanager_classes_data_v2';
 
 const Classes = () => {
@@ -46,7 +71,11 @@ const Classes = () => {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          return parsed.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' }));
+          return parsed.map(c => ({ 
+            ...c, 
+            teacher: 'Thầy Lê Công Chức',
+            students: sortStudentsByVietnameseName(c.students)
+          }));
         }
       } catch (e) {
         console.error('Failed to parse classes from localStorage', e);
@@ -65,12 +94,20 @@ const Classes = () => {
     // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
     getClasses(false).then(data => {
       if (Array.isArray(data) && data.length > 0) {
-        setClasses(data.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
+        setClasses(data.map(c => ({ 
+          ...c, 
+          teacher: 'Thầy Lê Công Chức',
+          students: sortStudentsByVietnameseName(c.students)
+        })));
       }
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getClasses(true).then(freshData => {
         if (Array.isArray(freshData)) {
-          setClasses(freshData.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' })));
+          setClasses(freshData.map(c => ({ 
+            ...c, 
+            teacher: 'Thầy Lê Công Chức',
+            students: sortStudentsByVietnameseName(c.students)
+          })));
         }
         setIsCloudSynced(true);
       }).catch(err => {
@@ -387,7 +424,7 @@ const Classes = () => {
         updatedStudents = [...cls.students, newStudent];
       }
 
-      return { ...cls, students: updatedStudents };
+      return { ...cls, students: sortStudentsByVietnameseName(updatedStudents) };
     }));
 
     setShowAddModal(false);
@@ -544,7 +581,7 @@ const Classes = () => {
         // Thay thế toàn bộ danh sách lớp bằng file mới
         return {
           ...cls,
-          students: importPreview,
+          students: sortStudentsByVietnameseName(importPreview),
           scoreColumns: updatedScoreColumns
         };
       } else {
@@ -560,7 +597,7 @@ const Classes = () => {
 
         return {
           ...cls,
-          students: Array.from(existingMap.values()),
+          students: sortStudentsByVietnameseName(Array.from(existingMap.values())),
           scoreColumns: updatedScoreColumns
         };
       }
