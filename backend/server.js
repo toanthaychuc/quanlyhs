@@ -165,12 +165,6 @@ app.post('/api/compile-tikz', async (req, res) => {
     // ==========================================
     console.log(`[Cache Miss] Đưa vào hàng đợi biên dịch: ${hash}`);
     const compileTask = async () => {
-      // Bỏ qua nếu client đã đóng kết nối (hủy request)
-      if (req.closed || req.destroyed || res.writableEnded) {
-        console.log(`[Abort] Client đã ngắt kết nối trước khi biên dịch: ${hash}`);
-        return;
-      }
-
       let tmpDir;
       try {
         tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tikz-'));
@@ -193,6 +187,11 @@ app.post('/api/compile-tikz', async (req, res) => {
             const errorLines = logContent.match(/^!.*$/gm);
             if (errorLines && errorLines.length > 0) {
               errorDetail = errorLines.slice(0, 3).join('\n');
+            } else {
+              // Get the last 10 lines of the log to understand the failure
+              const allLines = logContent.split('\n');
+              const lastLines = allLines.slice(Math.max(allLines.length - 15, 0)).join('\n');
+              errorDetail = `LaTeX Log (No ! error):\n${lastLines}`;
             }
           }
           throw new Error(errorDetail);
