@@ -222,3 +222,4 @@ app.post('/api/compile-tikz', async (req, res) => {
 app.listen(port, () => {
   console.log(`TikZ compilation backend listening at http://localhost:${port}`);
 });
+
