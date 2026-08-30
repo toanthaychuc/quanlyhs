@@ -5,8 +5,46 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import util from 'util';
+import crypto from 'crypto';
 
 const execAsync = util.promisify(exec);
+
+// ==========================================
+// Setup Cache Directory
+// ==========================================
+const CACHE_DIR = path.join(process.cwd(), 'tikz_cache');
+if (!fs.existsSync(CACHE_DIR)) {
+  fs.mkdirSync(CACHE_DIR, { recursive: true });
+}
+
+// ==========================================
+// Concurrency Queue (giới hạn luồng chạy đồng thời)
+// ==========================================
+class TaskQueue {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.running = 0;
+    this.queue = [];
+  }
+
+  async add(taskFn) {
+    if (this.running >= this.concurrency) {
+      await new Promise(resolve => this.queue.push(resolve));
+    }
+    this.running++;
+    try {
+      return await taskFn();
+    } finally {
+      this.running--;
+      if (this.queue.length > 0) {
+        const next = this.queue.shift();
+        next();
+      }
+    }
+  }
+}
+// Giới hạn tối đa 2 tiến trình pdflatex chạy cùng lúc để chống sập server
+const compilerQueue = new TaskQueue(2);
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -71,19 +109,12 @@ function resolveAndSanitizePreamble(preamble) {
 }
 
 app.post('/api/compile-tikz', async (req, res) => {
-  let tmpDir;
   try {
     const { tikzCode, preamble } = req.body;
     
     if (!tikzCode) {
       return res.status(400).json({ error: 'tikzCode is required' });
     }
-    
-    // Create a secure temporary directory
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tikz-'));
-    const texFile = path.join(tmpDir, 'main.tex');
-    const pdfFile = path.join(tmpDir, 'main.pdf');
-    const svgFile = path.join(tmpDir, 'main.svg');
     
     const defaultPreamble = `\\usepackage[utf8]{inputenc}\n\\usepackage[T5]{fontenc}\n\\usepackage{amsmath,amssymb}\n\\usepackage{tikz}\n\\usepackage{tkz-tab}\n\\usetikzlibrary{calc,intersections,angles,quotes,patterns,positioning,arrows,arrows.meta,decorations.pathreplacing,decorations.markings,shapes.geometric,math}`;
     
@@ -95,61 +126,96 @@ app.post('/api/compile-tikz', async (req, res) => {
     
     // Tự động sửa lỗi phổ biến trong mã TikZ trước khi biên dịch
     const fixedTikzCode = tikzCode
-      // Sửa \tkzTabVar{-/$$,...} → \tkzTabVar{-/,...} (bỏ $$ trống không hợp lệ)
       .replace(/(\/-)\s*\$\$\s*([,}])/g, '$1/$2')
       .replace(/(\/\+)\s*\$\$\s*([,}])/g, '$1/$2')
-      // Dạng tổng quát: /$$  hoặc /$$ trong tkzTabVar
       .replace(/\/\$\$([,}])/g, '/$1');
     
     const texContent = `\\documentclass[tikz,margin=2mm]{standalone}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T5]{fontenc}\n${cleanPreamble}\n\\begin{document}\n${fixedTikzCode}\n\\end{document}\n`;
     
-    fs.writeFileSync(texFile, texContent);
-    // DEBUG: save the last compiled tikz code to workspace
-    fs.writeFileSync(path.join(process.cwd(), 'last_compiled.tex'), texContent);
+    // ==========================================
+    // 1. Kiểm tra Cache
+    // ==========================================
+    const hash = crypto.createHash('md5').update(texContent).digest('hex');
+    const cachedSvgPath = path.join(CACHE_DIR, `${hash}.svg`);
     
-    // Compile using pdflatex
-    try {
-      await execAsync(`pdflatex -interaction=nonstopmode -halt-on-error -output-directory=${tmpDir} ${texFile}`);
-    } catch (compileErr) {
-      // Đọc log file để tìm lỗi cụ thể
-      const logFile = path.join(tmpDir, 'main.log');
-      let errorDetail = compileErr.message || 'Compilation failed';
-      if (fs.existsSync(logFile)) {
-        const logContent = fs.readFileSync(logFile, 'utf8');
-        const errorLines = logContent.match(/^!.*$/gm);
-        if (errorLines && errorLines.length > 0) {
-          errorDetail = errorLines.slice(0, 3).join('\n');
+    if (fs.existsSync(cachedSvgPath)) {
+      console.log(`[Cache Hit] Trả về ảnh từ cache: ${hash}`);
+      let cachedSvg = fs.readFileSync(cachedSvgPath, 'utf8');
+      
+      // Vẫn cần đổi ID ngẫu nhiên để không trùng lặp DOM trên web
+      const uniqueId = Math.random().toString(36).substring(2, 9);
+      cachedSvg = cachedSvg.replace(/id="([^"]+)"/g, `id="$1-${uniqueId}"`);
+      cachedSvg = cachedSvg.replace(/href="#([^"]+)"/g, `href="#$1-${uniqueId}"`);
+      cachedSvg = cachedSvg.replace(/url\(\s*#([^)]+)\s*\)/g, `url(#$1-${uniqueId})`);
+      
+      return res.json({ svg: cachedSvg });
+    }
+
+    // ==========================================
+    // 2. Nếu chưa có cache, đưa vào Hàng đợi (Queue)
+    // ==========================================
+    console.log(`[Cache Miss] Đưa vào hàng đợi biên dịch: ${hash}`);
+    const compileTask = async () => {
+      let tmpDir;
+      try {
+        tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tikz-'));
+        const texFile = path.join(tmpDir, 'main.tex');
+        const pdfFile = path.join(tmpDir, 'main.pdf');
+        const svgFile = path.join(tmpDir, 'main.svg');
+        
+        fs.writeFileSync(texFile, texContent);
+        // DEBUG: save the last compiled tikz code to workspace
+        fs.writeFileSync(path.join(process.cwd(), 'last_compiled.tex'), texContent);
+        
+        // Biên dịch ra PDF
+        try {
+          await execAsync(`pdflatex -interaction=nonstopmode -halt-on-error -output-directory=${tmpDir} ${texFile}`);
+        } catch (compileErr) {
+          const logFile = path.join(tmpDir, 'main.log');
+          let errorDetail = compileErr.message || 'Compilation failed';
+          if (fs.existsSync(logFile)) {
+            const logContent = fs.readFileSync(logFile, 'utf8');
+            const errorLines = logContent.match(/^!.*$/gm);
+            if (errorLines && errorLines.length > 0) {
+              errorDetail = errorLines.slice(0, 3).join('\n');
+            }
+          }
+          throw new Error(errorDetail);
+        }
+        
+        // Chuyển đổi PDF sang SVG
+        await execAsync(`pdftocairo -svg ${pdfFile} ${svgFile}`);
+        
+        // Đọc nội dung SVG
+        let rawSvgContent = fs.readFileSync(svgFile, 'utf8');
+        
+        // Lưu vào bộ nhớ đệm
+        fs.writeFileSync(cachedSvgPath, rawSvgContent);
+        console.log(`[Cache Saved] Lưu SVG mới vào cache: ${hash}`);
+        
+        // Trả kết quả (Namespace ID)
+        let svgContent = rawSvgContent;
+        const uniqueId = Math.random().toString(36).substring(2, 9);
+        svgContent = svgContent.replace(/id="([^"]+)"/g, `id="$1-${uniqueId}"`);
+        svgContent = svgContent.replace(/href="#([^"]+)"/g, `href="#$1-${uniqueId}"`);
+        svgContent = svgContent.replace(/url\(\s*#([^)]+)\s*\)/g, `url(#$1-${uniqueId})`);
+        
+        return svgContent;
+      } finally {
+        if (tmpDir) {
+          try {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+          } catch (e) { }
         }
       }
-      throw new Error(errorDetail);
-    }
-    
-    // Convert to SVG using pdftocairo
-    await execAsync(`pdftocairo -svg ${pdfFile} ${svgFile}`);
-    // Read the generated SVG
-    let svgContent = fs.readFileSync(svgFile, 'utf8');
-    
-    // Generate a unique ID for this SVG to prevent DOM conflicts when rendering multiple SVGs
-    const uniqueId = Math.random().toString(36).substring(2, 9);
-    
-    // Namespace ALL IDs and references to them (href="#...", url(#...))
-    svgContent = svgContent.replace(/id="([^"]+)"/g, `id="$1-${uniqueId}"`);
-    svgContent = svgContent.replace(/href="#([^"]+)"/g, `href="#$1-${uniqueId}"`);
-    svgContent = svgContent.replace(/url\(\s*#([^)]+)\s*\)/g, `url(#$1-${uniqueId})`);
-    
-    res.json({ svg: svgContent });
+    };
+
+    const finalSvg = await compilerQueue.add(compileTask);
+    res.json({ svg: finalSvg });
     
   } catch (err) {
     console.error('TikZ Compilation Error:', err);
     res.status(500).json({ error: err.message || 'Compilation failed' });
-  } finally {
-    if (tmpDir) {
-      try {
-        fs.rmSync(tmpDir, { recursive: true, force: true });
-      } catch (e) {
-        // Ignore cleanup errors
-      }
-    }
   }
 });
 
