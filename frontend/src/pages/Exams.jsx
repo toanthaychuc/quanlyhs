@@ -303,11 +303,12 @@ const Exams = () => {
   const [isDraggingFile, setIsDraggingFile] = useState(false);
 
   const handleQuestionClick = (question) => {
-    if (!texTextareaRef.current || !question._searchSnippet) return;
+    if (!texTextareaRef.current) return;
     const textArea = texTextareaRef.current;
     const rawText = examFormData.latexBulkCode;
     
-    const snippetTokens = question._searchSnippet.replace(/\s+/g, '').substring(0, 30);
+    const snippetSource = question._searchSnippet || question.content || '';
+    const snippetTokens = snippetSource.replace(/\s+/g, '').substring(0, 30);
     if (!snippetTokens) return;
 
     let targetIndex = -1;
@@ -343,13 +344,13 @@ const Exams = () => {
     }
 
     if (targetIndex === -1) {
-       const simpleSearch = question._searchSnippet.substring(0, 20).trim();
+       const simpleSearch = snippetSource.substring(0, 20).trim();
        targetIndex = rawText.indexOf(simpleSearch);
     }
 
     if (targetIndex !== -1) {
        textArea.focus();
-       textArea.setSelectionRange(targetIndex, targetIndex);
+       textArea.setSelectionRange(targetIndex, targetIndex + 25);
        
        const textBefore = rawText.substring(0, targetIndex);
        const linesBefore = textBefore.split('\n').length;
