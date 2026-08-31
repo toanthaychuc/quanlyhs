@@ -289,7 +289,15 @@ export const normalizeLatexString = (str = '') => {
   // 7. Môi trường danh sách: itemchoice, enumEX, enumEXV, listEX, taskEX
   text = text.replace(/\\begin\{(?:itemchoice|listEX|enumEX|enumEXV|taskEX|enumerate|itemize)\}(?:\[[^\]]*\])?(?:\([^)]*\))?/gi, '');
   text = text.replace(/\\end\{(?:itemchoice|listEX|enumEX|enumEXV|taskEX|enumerate|itemize)\}/gi, '');
-  text = text.replace(/\\itemch\b\s*/gi, '\n• ');
+  
+  let itemchCounter = 0;
+  text = text.replace(/\\itemch\b\s*/gi, () => {
+    const chars = ['a) ', 'b) ', 'c) ', 'd) '];
+    const bullet = chars[itemchCounter % 4];
+    itemchCounter++;
+    return `\n**${bullet}**`;
+  });
+  
   text = text.replace(/\\item\b\s*/gi, '\n• ');
   text = text.replace(/\\Eitem\b\s*/gi, '\n• ');
   text = text.replace(/\\Esubitemch\b\s*/gi, '\n• ');
