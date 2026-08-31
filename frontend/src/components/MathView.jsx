@@ -636,7 +636,7 @@ const RenderMathSegment = ({ rawText = '', className = '' }) => {
   const katexMacros = {
     "\\vv": "\\overrightarrow{#1}",
     "\\heva": "\\begin{cases} #1 \\end{cases}",
-    "\\hoac": "\\left[\\begin{array}{l} #1 \\end{array}\\right.",
+    "\\hoac": "\\left[\\begin{array}{ll} #1 \\end{array}\\right.",
     "\\goc": "\\widehat{#1}",
     "\\ang": "#1^\\circ",
     "\\degree": "^\\circ",
