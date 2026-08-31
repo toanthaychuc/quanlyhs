@@ -309,15 +309,18 @@ const Exams = () => {
     const textArea = texTextareaRef.current;
     const rawText = textArea.value || '';
     
-    let index = rawText.toLowerCase().indexOf(query.toLowerCase(), fromIndex);
+    const searchString = query.trim().toLowerCase();
+    if (!searchString) return;
+
+    let index = rawText.toLowerCase().indexOf(searchString, fromIndex);
     if (index === -1 && fromIndex > 0) {
-       index = rawText.toLowerCase().indexOf(query.toLowerCase()); // wrap around
+       index = rawText.toLowerCase().indexOf(searchString); // wrap around
     }
     
     if (index !== -1) {
        // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen và giữ highlight
        textArea.focus();
-       textArea.setSelectionRange(index, index + query.length);
+       textArea.setSelectionRange(index, index + searchString.length);
        
        const textBefore = rawText.substring(0, index);
        const linesBefore = textBefore.split('\n').length;
@@ -1879,6 +1882,7 @@ const Exams = () => {
                       <button 
                         type="button"
                         className="btn btn-primary btn-sm"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={(e) => { e.preventDefault(); handleTexSearchKeyDown({ key: 'Enter', preventDefault: () => {} }); }}
                         style={{ height: '28px', minHeight: '28px', fontSize: '12px' }}
                       >
