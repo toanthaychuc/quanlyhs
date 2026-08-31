@@ -38,8 +38,8 @@ const ALL_CURRICULA = {
 // Chuyển danh sách câu hỏi thành chuỗi mã LaTeX chuẩn theo 4 dạng
 const questionsToLatexString = (questions) => {
   if (!questions || questions.length === 0) return '';
-  return questions.map((q) => {
-    let str = `\\begin{ex}\n\t${q.content}\n`;
+  return questions.map((q, index) => {
+    let str = `%%%=== Câu ${index + 1} ===%%%\n\\begin{ex}\n\t${q.content}\n`;
     
     if (q.questionType === 'true_false') {
       str += `\t\\choiceTF\n`;
