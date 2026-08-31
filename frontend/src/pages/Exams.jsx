@@ -877,13 +877,19 @@ const Exams = () => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target.result;
-      setExamFormData(prev => ({ ...prev, latexBulkCode: content }));
       const parsed = parseLatexStringToQuestions(content);
       if (parsed.length > 0) {
         setEditorQuestions(parsed);
-        alert(`Đã nhận diện thành công ${parsed.length} câu hỏi từ tệp "${file.name}"!`);
+        const standardizedLatex = questionsToLatexString(parsed);
+        setExamFormData(prev => ({ ...prev, latexBulkCode: standardizedLatex }));
+        setTimeout(() => {
+          alert(`Đã nhận diện và chuẩn hóa thành công ${parsed.length} câu hỏi từ tệp "${file.name}"!`);
+        }, 100);
       } else {
-        alert(`Đã tải nội dung file "${file.name}". Vui lòng kiểm tra lại cấu trúc LaTeX!`);
+        setExamFormData(prev => ({ ...prev, latexBulkCode: content }));
+        setTimeout(() => {
+          alert(`Đã tải nội dung file "${file.name}". Vui lòng kiểm tra lại cấu trúc LaTeX!`);
+        }, 100);
       }
     };
     reader.readAsText(file);
@@ -924,9 +930,13 @@ const Exams = () => {
       const standardizedLatex = questionsToLatexString(parsed);
       setExamFormData(prev => ({ ...prev, latexBulkCode: standardizedLatex }));
       
-      alert(`Đã nhận diện và chuẩn hóa thành công ${parsed.length} câu hỏi chuẩn LaTeX!`);
+      setTimeout(() => {
+        alert(`Đã nhận diện và chuẩn hóa thành công ${parsed.length} câu hỏi chuẩn LaTeX!`);
+      }, 100);
     } else {
-      alert('Không nhận diện được định dạng câu hỏi. Vui lòng kiểm tra lại mã (VD: \\begin{ex}...\\choice{...}{\\True ...}\\loigiai{...}\\end{ex})');
+      setTimeout(() => {
+        alert('Không nhận diện được định dạng câu hỏi. Vui lòng kiểm tra lại mã (VD: \\begin{ex}...\\choice{...}{\\True ...}\\loigiai{...}\\end{ex})');
+      }, 100);
     }
   };
 
