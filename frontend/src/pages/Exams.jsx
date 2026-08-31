@@ -592,22 +592,15 @@ const Exams = () => {
     return () => clearInterval(timerRef.current);
   }, [examMode, timeLeft]);
 
-  // Tự động lưu tiến độ làm bài (debounced 2 giây)
-  const unfinishedSaveRef = useRef(null);
+  // Tự động lưu tiến độ làm bài (lưu liên tục mỗi khi có thay đổi)
   useEffect(() => {
     if (examMode !== 'taking' || !currentExam || !trackingId) return;
-    if (unfinishedSaveRef.current) clearTimeout(unfinishedSaveRef.current);
-    unfinishedSaveRef.current = setTimeout(() => {
-      saveUnfinishedExam(trackingId, currentExam.id, {
-        answers: userAnswers,
-        flagged: flaggedQuestions,
-        timeLeft,
-      });
-    }, 2000);
-    return () => {
-      if (unfinishedSaveRef.current) clearTimeout(unfinishedSaveRef.current);
-    };
-  }, [userAnswers, flaggedQuestions, examMode, currentExam, trackingId]);
+    saveUnfinishedExam(trackingId, currentExam.id, {
+      answers: userAnswers,
+      flagged: flaggedQuestions,
+      timeLeft,
+    });
+  }, [userAnswers, flaggedQuestions, examMode, currentExam, trackingId, timeLeft]);
 
   // Nộp bài thi
   const handleSubmitExam = async (autoSubmit = false) => {
