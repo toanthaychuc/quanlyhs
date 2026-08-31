@@ -572,25 +572,30 @@ const Exams = () => {
       return;
     }
 
-    let resumeState = null;
     if (trackingId) {
       const entry = getUnfinishedExam(trackingId);
-      if (entry && entry.examId === exam.id) {
-        resumeState = entry;
-      }
-    }
-
-    if (resumeState) {
-      if (window.confirm('Bạn có tiến trình làm dở cho đề thi này. Bạn muốn TIẾP TỤC làm (OK) hay LÀM LẠI TỪ ĐẦU (Cancel)?')) {
-        setCurrentExam(exam);
-        setCurrentQuestionIndex(0);
-        setUserAnswers(resumeState.answers || {});
-        setFlaggedQuestions(resumeState.flagged || {});
-        setTimeLeft(resumeState.timeLeft || (exam.duration * 60));
-        setExamMode('taking');
-        return;
-      } else {
-        if (trackingId) clearUnfinishedExam(trackingId);
+      if (entry) {
+        if (entry.examId === exam.id) {
+          if (window.confirm('Bạn có tiến trình làm dở cho đề thi này. Bạn muốn TIẾP TỤC làm (OK) hay LÀM LẠI TỪ ĐẦU (Cancel)?')) {
+            setCurrentExam(exam);
+            setCurrentQuestionIndex(0);
+            setUserAnswers(entry.answers || {});
+            setFlaggedQuestions(entry.flagged || {});
+            setTimeLeft(entry.timeLeft || (exam.duration * 60));
+            setExamMode('taking');
+            return;
+          } else {
+            clearUnfinishedExam(trackingId);
+          }
+        } else {
+          const unfinishedExamObj = exams.find(e => e.id === entry.examId);
+          const unfinishedExamName = unfinishedExamObj ? unfinishedExamObj.title : 'một đề thi khác';
+          if (!window.confirm(`⚠️ CẢNH BÁO: Bạn đang có bài làm dở ở "${unfinishedExamName}".\n\nNếu bạn bắt đầu đề mới này, tiến trình của bài cũ sẽ BỊ XÓA BỎ hoàn toàn.\nBạn có chắc chắn muốn làm đề mới không?`)) {
+            return;
+          } else {
+            clearUnfinishedExam(trackingId);
+          }
+        }
       }
     }
 
