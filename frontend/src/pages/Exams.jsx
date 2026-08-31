@@ -300,14 +300,14 @@ const Exams = () => {
   const [expandedChapters, setExpandedChapters] = useState({});
   const texFileInputRef = useRef(null);
   const texTextareaRef = useRef(null);
+  const texSearchInputRef = useRef(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
-  const [texSearchQuery, setTexSearchQuery] = useState('');
   const [isTexSearchOpen, setIsTexSearchOpen] = useState(false);
 
   const executeTexSearch = (query, fromIndex = 0) => {
     if (!texTextareaRef.current || !query) return;
     const textArea = texTextareaRef.current;
-    const rawText = examFormData.latexBulkCode;
+    const rawText = examFormData.latexBulkCode || '';
     
     let index = rawText.toLowerCase().indexOf(query.toLowerCase(), fromIndex);
     if (index === -1 && fromIndex > 0) {
@@ -315,19 +315,30 @@ const Exams = () => {
     }
     
     if (index !== -1) {
-       // Không focus textArea để tránh lỗi mất focus của ô tìm kiếm khi đang nhập
+       // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen
+       textArea.focus();
        textArea.setSelectionRange(index, index + query.length);
        
        const textBefore = rawText.substring(0, index);
        const linesBefore = textBefore.split('\n').length;
        const lineHeight = 24; 
        textArea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
+
+       // Focus ngược lại ô tìm kiếm ngay lập tức
+       if (texSearchInputRef.current) {
+         texSearchInputRef.current.focus();
+       }
+    } else {
+       alert(`Không tìm thấy "${query}" trong mã nguồn!`);
     }
   };
 
   const handleTexSearchKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      const query = texSearchInputRef.current?.value;
+      if (!query) return;
+
       let startIndex = 0;
       if (texTextareaRef.current) {
         if (texTextareaRef.current.selectionStart !== texTextareaRef.current.selectionEnd) {
@@ -336,7 +347,7 @@ const Exams = () => {
           startIndex = texTextareaRef.current.selectionEnd;
         }
       }
-      executeTexSearch(texSearchQuery, startIndex);
+      executeTexSearch(query, startIndex);
     }
   };
 
@@ -1861,18 +1872,19 @@ const Exams = () => {
                         <Search size={13} className="search-icon" style={{ left: '8px', top: '50%', transform: 'translateY(-50%)', position: 'absolute', color: '#94a3b8' }} />
                         <input 
                           type="text"
+                          ref={texSearchInputRef}
                           className="input input-sm"
                           placeholder="Gõ từ khóa và ấn Enter để tìm..."
-                          value={texSearchQuery}
-                          onChange={(e) => setTexSearchQuery(e.target.value)}
+                          defaultValue=""
                           onKeyDown={handleTexSearchKeyDown}
                           autoFocus
                           style={{ paddingLeft: '28px', height: '28px', fontSize: '12px', width: '100%', borderRadius: '4px', border: '1px solid var(--border-color, #334155)', background: 'var(--bg-primary, #0f172a)', color: '#fff' }}
                         />
                       </div>
                       <button 
+                        type="button"
                         className="btn btn-primary btn-sm"
-                        onClick={() => handleTexSearchKeyDown({ key: 'Enter', preventDefault: () => {} })}
+                        onClick={(e) => { e.preventDefault(); handleTexSearchKeyDown({ key: 'Enter', preventDefault: () => {} }); }}
                         style={{ height: '28px', minHeight: '28px', fontSize: '12px' }}
                       >
                         Tìm tiếp
