@@ -302,6 +302,7 @@ const Exams = () => {
   const texTextareaRef = useRef(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [texSearchQuery, setTexSearchQuery] = useState('');
+  const [isTexSearchOpen, setIsTexSearchOpen] = useState(false);
 
   const executeTexSearch = (query, fromIndex = 0) => {
     if (!texTextareaRef.current || !query) return;
@@ -314,7 +315,7 @@ const Exams = () => {
     }
     
     if (index !== -1) {
-       textArea.focus();
+       // Không focus textArea để tránh lỗi mất focus của ô tìm kiếm khi đang nhập
        textArea.setSelectionRange(index, index + query.length);
        
        const textBefore = rawText.substring(0, index);
@@ -324,16 +325,17 @@ const Exams = () => {
     }
   };
 
-  const handleTexSearchChange = (e) => {
-    const query = e.target.value;
-    setTexSearchQuery(query);
-    executeTexSearch(query, 0);
-  };
-
   const handleTexSearchKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const startIndex = texTextareaRef.current ? texTextareaRef.current.selectionEnd : 0;
+      let startIndex = 0;
+      if (texTextareaRef.current) {
+        if (texTextareaRef.current.selectionStart !== texTextareaRef.current.selectionEnd) {
+          startIndex = texTextareaRef.current.selectionStart + 1;
+        } else {
+          startIndex = texTextareaRef.current.selectionEnd;
+        }
+      }
       executeTexSearch(texSearchQuery, startIndex);
     }
   };
@@ -1820,18 +1822,14 @@ const Exams = () => {
                     </div>
 
                     <div className="toolbar-actions-group" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <div className="search-input-wrapper" style={{ margin: 0, padding: 0, position: 'relative' }}>
-                        <Search size={13} className="search-icon" style={{ left: '8px', top: '50%', transform: 'translateY(-50%)', position: 'absolute', color: '#94a3b8' }} />
-                        <input 
-                          type="text"
-                          className="input input-sm"
-                          placeholder="Tìm trong mã LaTeX... (Enter để tìm tiếp)"
-                          value={texSearchQuery}
-                          onChange={handleTexSearchChange}
-                          onKeyDown={handleTexSearchKeyDown}
-                          style={{ paddingLeft: '28px', height: '28px', fontSize: '12px', minWidth: '240px', borderRadius: '4px', border: '1px solid var(--border-color, #334155)', background: 'var(--bg-secondary, #1e293b)', color: '#fff' }}
-                        />
-                      </div>
+                      <button 
+                        type="button" 
+                        className={`btn btn-outline btn-xs ${isTexSearchOpen ? 'btn-active' : ''}`}
+                        onClick={() => setIsTexSearchOpen(!isTexSearchOpen)}
+                        title="Tìm kiếm trong mã LaTeX"
+                      >
+                        <Search size={13} />
+                      </button>
                       
                       <input 
                         type="file" 
@@ -1856,6 +1854,31 @@ const Exams = () => {
                       </button>
                     </div>
                   </div>
+
+                  {isTexSearchOpen && (
+                    <div className="tex-search-bar" style={{ padding: '8px', background: 'var(--bg-secondary, #1e293b)', borderBottom: '1px solid var(--border-color, #334155)', display: 'flex', gap: '8px' }}>
+                      <div className="search-input-wrapper" style={{ margin: 0, padding: 0, position: 'relative', flex: 1 }}>
+                        <Search size={13} className="search-icon" style={{ left: '8px', top: '50%', transform: 'translateY(-50%)', position: 'absolute', color: '#94a3b8' }} />
+                        <input 
+                          type="text"
+                          className="input input-sm"
+                          placeholder="Gõ từ khóa và ấn Enter để tìm..."
+                          value={texSearchQuery}
+                          onChange={(e) => setTexSearchQuery(e.target.value)}
+                          onKeyDown={handleTexSearchKeyDown}
+                          autoFocus
+                          style={{ paddingLeft: '28px', height: '28px', fontSize: '12px', width: '100%', borderRadius: '4px', border: '1px solid var(--border-color, #334155)', background: 'var(--bg-primary, #0f172a)', color: '#fff' }}
+                        />
+                      </div>
+                      <button 
+                        className="btn btn-primary btn-sm"
+                        onClick={() => handleTexSearchKeyDown({ key: 'Enter', preventDefault: () => {} })}
+                        style={{ height: '28px', minHeight: '28px', fontSize: '12px' }}
+                      >
+                        Tìm tiếp
+                      </button>
+                    </div>
+                  )}
 
                   <div 
                     className={`latex-dropzone-container flex-grow-editor ${isDraggingFile ? 'is-dragging' : ''}`}
