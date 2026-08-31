@@ -529,10 +529,13 @@ const Exams = () => {
     }
   });
 
+  // Lấy ID để lưu tiến độ (học sinh thì lấy ID thực, giáo viên thì dùng tạm để test)
+  const trackingId = isStudent ? currentStudentId : (isTeacher ? 'teacher_preview' : null);
+
   // Auto-resume from Dashboard or Page Reload (F5)
   useEffect(() => {
-    if (isStudent && currentStudentId && exams.length > 0) {
-      const entry = getUnfinishedExam(currentStudentId);
+    if (trackingId && exams.length > 0) {
+      const entry = getUnfinishedExam(trackingId);
       const targetExamId = location.state?.resumeExamId || (entry ? entry.examId : null);
 
       if (entry && entry.examId === targetExamId) {
@@ -551,7 +554,7 @@ const Exams = () => {
         }
       }
     }
-  }, [location.state, isStudent, currentStudentId, exams, navigate, location.pathname, examMode]);
+  }, [location.state, trackingId, exams, navigate, location.pathname, examMode]);
 
   // Bắt đầu làm bài thi
   const handleStartExam = (exam) => {
@@ -592,10 +595,10 @@ const Exams = () => {
   // Tự động lưu tiến độ làm bài (debounced 2 giây)
   const unfinishedSaveRef = useRef(null);
   useEffect(() => {
-    if (examMode !== 'taking' || !currentExam || !isStudent || !currentStudentId) return;
+    if (examMode !== 'taking' || !currentExam || !trackingId) return;
     if (unfinishedSaveRef.current) clearTimeout(unfinishedSaveRef.current);
     unfinishedSaveRef.current = setTimeout(() => {
-      saveUnfinishedExam(currentStudentId, currentExam.id, {
+      saveUnfinishedExam(trackingId, currentExam.id, {
         answers: userAnswers,
         flagged: flaggedQuestions,
         timeLeft,
@@ -604,7 +607,7 @@ const Exams = () => {
     return () => {
       if (unfinishedSaveRef.current) clearTimeout(unfinishedSaveRef.current);
     };
-  }, [userAnswers, flaggedQuestions, examMode, currentExam, isStudent, currentStudentId]);
+  }, [userAnswers, flaggedQuestions, examMode, currentExam, trackingId]);
 
   // Nộp bài thi
   const handleSubmitExam = async (autoSubmit = false) => {
@@ -737,8 +740,8 @@ const Exams = () => {
       }
 
       // 3. Xóa trạng thái làm dở
-      if (isStudent && currentStudentId) {
-        clearUnfinishedExam(currentStudentId);
+      if (trackingId) {
+        clearUnfinishedExam(trackingId);
       }
     } catch (e) {
       console.error('Lỗi khi lưu kết quả thi:', e);
