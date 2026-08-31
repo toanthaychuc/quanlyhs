@@ -337,11 +337,8 @@ const Exams = () => {
          // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen và giữ highlight
          textArea.focus();
          textArea.setSelectionRange(index, index + matchLength);
-         
-         const textBefore = rawText.substring(0, index);
-         const linesBefore = textBefore.split('\n').length;
-         const lineHeight = 24; 
-         textArea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
+         // Loại bỏ việc tính toán scrollTop thủ công (linesBefore * 24) vì nó sẽ bị sai hoàn toàn khi một dòng văn bản dài bị tự động xuống dòng (word-wrap).
+         // Trình duyệt sẽ tự động cuộn đến đúng vị trí của vùng bôi đen (selectionRange).
       } else {
          alert(`Không tìm thấy "${query}" trong mã nguồn!`);
       }
@@ -418,12 +415,7 @@ const Exams = () => {
     if (targetIndex !== -1) {
        textArea.focus();
        textArea.setSelectionRange(targetIndex, targetIndex + 25);
-       
-       const textBefore = rawText.substring(0, targetIndex);
-       const linesBefore = textBefore.split('\n').length;
-       
-       const lineHeight = 24; 
-       textArea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
+       // Loại bỏ việc tính toán scrollTop thủ công để trình duyệt tự động xử lý chính xác
     }
   };
 
