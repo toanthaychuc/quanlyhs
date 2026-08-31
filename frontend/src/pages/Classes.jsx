@@ -25,6 +25,7 @@ import { useRole } from '../context/RoleContext';
 import StudentName from '../components/StudentName';
 import { exportStudentsToExcel, downloadTemplateExcel, parseStudentExcelFile } from '../utils/excelUtils';
 import { getClasses, saveAllClasses, deleteClass } from '../services/classService';
+import { getSetting, saveSetting } from '../services/settingService';
 import './Classes.css';
 
 const DEFAULT_SCORE_COLUMNS = [
@@ -92,9 +93,22 @@ const Classes = () => {
   // Tải dữ liệu từ Supabase (Stale-While-Revalidate)
   useEffect(() => {
     // 1. Lấy dữ liệu local (nhanh, 0 độ trễ)
-    getClasses(false).then(data => {
+    getClasses(false).then(async (data) => {
+      let orderList = await getSetting('classes_order', []);
+      const sortData = (list) => {
+        if (!orderList || orderList.length === 0) return list;
+        return [...list].sort((a, b) => {
+          const idxA = orderList.indexOf(a.id);
+          const idxB = orderList.indexOf(b.id);
+          if (idxA === -1 && idxB === -1) return 0;
+          if (idxA === -1) return 1;
+          if (idxB === -1) return -1;
+          return idxA - idxB;
+        });
+      };
+
       if (Array.isArray(data) && data.length > 0) {
-        setClasses(data.map(c => ({ 
+        setClasses(sortData(data).map(c => ({ 
           ...c, 
           teacher: 'Thầy Lê Công Chức',
           students: sortStudentsByVietnameseName(c.students)
@@ -103,7 +117,7 @@ const Classes = () => {
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getClasses(true).then(freshData => {
         if (Array.isArray(freshData)) {
-          setClasses(freshData.map(c => ({ 
+          setClasses(sortData(freshData).map(c => ({ 
             ...c, 
             teacher: 'Thầy Lê Công Chức',
             students: sortStudentsByVietnameseName(c.students)
@@ -257,19 +271,22 @@ const Classes = () => {
     const index = classes.findIndex(c => c.id === classId);
     if (index === -1) return;
 
+    let newClasses = [...classes];
     if (direction === 'left' && index > 0) {
-      const newClasses = [...classes];
       const temp = newClasses[index - 1];
       newClasses[index - 1] = newClasses[index];
       newClasses[index] = temp;
       setClasses(newClasses);
     } else if (direction === 'right' && index < classes.length - 1) {
-      const newClasses = [...classes];
       const temp = newClasses[index + 1];
       newClasses[index + 1] = newClasses[index];
       newClasses[index] = temp;
       setClasses(newClasses);
     }
+    
+    // Lưu lại thứ tự mảng vào settings để giữ nguyên khi reload
+    const orderList = newClasses.map(c => c.id);
+    saveSetting('classes_order', orderList).catch(err => console.error('Save classes_order err', err));
   };
 
   // Handler: Xóa lớp học (Cho phép xóa sạch toàn bộ các lớp)
