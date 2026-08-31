@@ -301,6 +301,42 @@ const Exams = () => {
   const texFileInputRef = useRef(null);
   const texTextareaRef = useRef(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [texSearchQuery, setTexSearchQuery] = useState('');
+
+  const executeTexSearch = (query, fromIndex = 0) => {
+    if (!texTextareaRef.current || !query) return;
+    const textArea = texTextareaRef.current;
+    const rawText = examFormData.latexBulkCode;
+    
+    let index = rawText.toLowerCase().indexOf(query.toLowerCase(), fromIndex);
+    if (index === -1 && fromIndex > 0) {
+       index = rawText.toLowerCase().indexOf(query.toLowerCase()); // wrap around
+    }
+    
+    if (index !== -1) {
+       textArea.focus();
+       textArea.setSelectionRange(index, index + query.length);
+       
+       const textBefore = rawText.substring(0, index);
+       const linesBefore = textBefore.split('\n').length;
+       const lineHeight = 24; 
+       textArea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
+    }
+  };
+
+  const handleTexSearchChange = (e) => {
+    const query = e.target.value;
+    setTexSearchQuery(query);
+    executeTexSearch(query, 0);
+  };
+
+  const handleTexSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const startIndex = texTextareaRef.current ? texTextareaRef.current.selectionEnd : 0;
+      executeTexSearch(texSearchQuery, startIndex);
+    }
+  };
 
   const handleQuestionClick = (question) => {
     if (!texTextareaRef.current) return;
@@ -1783,7 +1819,20 @@ const Exams = () => {
                       <span>Mã nguồn LaTeX (Hỗ trợ 4 dạng & ex_test.sty)</span>
                     </div>
 
-                    <div className="toolbar-actions-group">
+                    <div className="toolbar-actions-group" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div className="search-input-wrapper" style={{ margin: 0, padding: 0, position: 'relative' }}>
+                        <Search size={13} className="search-icon" style={{ left: '8px', top: '50%', transform: 'translateY(-50%)', position: 'absolute', color: '#94a3b8' }} />
+                        <input 
+                          type="text"
+                          className="input input-sm"
+                          placeholder="Tìm trong mã LaTeX... (Enter để tìm tiếp)"
+                          value={texSearchQuery}
+                          onChange={handleTexSearchChange}
+                          onKeyDown={handleTexSearchKeyDown}
+                          style={{ paddingLeft: '28px', height: '28px', fontSize: '12px', minWidth: '240px', borderRadius: '4px', border: '1px solid var(--border-color, #334155)', background: 'var(--bg-secondary, #1e293b)', color: '#fff' }}
+                        />
+                      </div>
+                      
                       <input 
                         type="file" 
                         ref={texFileInputRef} 
