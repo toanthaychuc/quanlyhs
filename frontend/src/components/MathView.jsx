@@ -726,7 +726,6 @@ const RenderMathSegment = ({ rawText = '', className = '' }) => {
                   // Tự động sửa lỗi phổ biến của giáo viên: dùng & ở đầu dòng trong \begin{array}{l} (chỉ có 1 cột l)
                   .replace(/(\\begin\{array\}\{[lcr]\}\s*)&+/gi, '$1')
                   .replace(/(\\(?:hoac|heva)\s*\{\s*)&+/gi, '$1')
-                  .replace(/(\\\\\s*)&+/g, '$1')
                   .replace(/^\$+/, '')
                   .replace(/\$+$/, '')
                   .trim();
