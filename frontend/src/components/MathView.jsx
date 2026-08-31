@@ -730,8 +730,35 @@ const RenderMathSegment = ({ rawText = '', className = '' }) => {
                   .replace(/\$+$/, '')
                   .trim();
 
-                normalizedMath = replaceMacroWithBraces(normalizedMath, '\\heva', inner => `\\heva{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`);
-                normalizedMath = replaceMacroWithBraces(normalizedMath, '\\hoac', inner => `\\hoac{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`);
+                const replaceMacroPure = (txt, macro, fn) => {
+                  let res = '';
+                  let idx = 0;
+                  while (idx < txt.length) {
+                    const mIdx = txt.indexOf(macro, idx);
+                    if (mIdx === -1) { res += txt.slice(idx); break; }
+                    res += txt.slice(idx, mIdx);
+                    const openIdx = txt.indexOf('{', mIdx + macro.length);
+                    const inBetween = txt.slice(mIdx + macro.length, openIdx);
+                    if (openIdx === -1 || inBetween.trim() !== '') {
+                      res += macro; idx = mIdx + macro.length; continue;
+                    }
+                    let depth = 1, closeIdx = -1;
+                    for (let k = openIdx + 1; k < txt.length; k++) {
+                      if (txt[k] === '{') depth++;
+                      else if (txt[k] === '}') {
+                        depth--;
+                        if (depth === 0) { closeIdx = k; break; }
+                      }
+                    }
+                    if (closeIdx === -1) { res += txt.slice(mIdx); break; }
+                    res += fn(txt.slice(openIdx + 1, closeIdx));
+                    idx = closeIdx + 1;
+                  }
+                  return res;
+                };
+
+                normalizedMath = replaceMacroPure(normalizedMath, '\\heva', inner => `\\heva{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`);
+                normalizedMath = replaceMacroPure(normalizedMath, '\\hoac', inner => `\\hoac{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`);
 
                 const html = katex.renderToString(normalizedMath, {
                   displayMode: part.isBlock,
