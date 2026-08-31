@@ -920,7 +920,11 @@ const Exams = () => {
     const parsed = parseLatexStringToQuestions(examFormData.latexBulkCode);
     if (parsed.length > 0) {
       setEditorQuestions(parsed);
-      alert(`Đã nhận diện thành công ${parsed.length} câu hỏi chuẩn LaTeX!`);
+      
+      const standardizedLatex = questionsToLatexString(parsed);
+      setExamFormData(prev => ({ ...prev, latexBulkCode: standardizedLatex }));
+      
+      alert(`Đã nhận diện và chuẩn hóa thành công ${parsed.length} câu hỏi chuẩn LaTeX!`);
     } else {
       alert('Không nhận diện được định dạng câu hỏi. Vui lòng kiểm tra lại mã (VD: \\begin{ex}...\\choice{...}{\\True ...}\\loigiai{...}\\end{ex})');
     }
