@@ -211,6 +211,9 @@ export const normalizeLatexString = (str = '') => {
   if (!str) return '';
 
   let text = stripLatexComments(str);
+  
+  // Khử các khoảng trắng/tab thụt lề thừa từ source code LaTeX ở đầu mỗi dòng
+  text = text.replace(/^[ \t]+/gm, '');
 
   // 1. Tự động loại bỏ Preamble khai báo gói và cài đặt trang nếu giáo viên dán cả file .tex
   text = text.replace(/\\documentclass(?:\[[^\]]*\])?\{[^}]*\}/gi, '');

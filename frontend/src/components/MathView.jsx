@@ -534,7 +534,6 @@ const TikzDiagramViewer = ({ tikzCode }) => {
 const renderFormattedText = (raw) => {
   if (!raw) return null;
   const cleaned = raw
-    .replace(/^[ \t]+/gm, '') // Khử các khoảng trắng/tab thụt lề thừa từ source code LaTeX
     .replace(/\\par\b/gi, '')
     .replace(/\\qquad/g, '        ')
     .replace(/\\quad/g, '    ')
