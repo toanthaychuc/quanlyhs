@@ -982,7 +982,13 @@ const Exams = () => {
   };
 
   const getExamsByCurriculumId = (currId) => {
-    return exams.filter(e => (e.curriculumId === currId || e.id === currId) && e.questions?.length > 0);
+    const filtered = exams.filter(e => (e.curriculumId === currId || e.id === currId) && e.questions?.length > 0);
+    // Sắp xếp đề cũ lên trên (Đề 1), đề mới xuống dưới (Đề 2, 3...)
+    return filtered.sort((a, b) => {
+      const timeA = parseInt(a.id.split('_')[1]) || 0;
+      const timeB = parseInt(b.id.split('_')[1]) || 0;
+      return timeA - timeB;
+    });
   };
 
   const getCurriculumStatText = () => {
