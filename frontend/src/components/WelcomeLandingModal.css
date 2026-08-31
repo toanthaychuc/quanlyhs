@@ -2,7 +2,7 @@
 .welcome-overlay {
   position: fixed;
   inset: 0;
-  background-color: #f8fafc;
+  background-color: var(--bg-color);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -95,7 +95,7 @@
 }
 
 .welcome-logo-badge {
-  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  background: linear-gradient(135deg, var(--primary-color), #06b6d4);
   color: white;
   width: 58px;
   height: 58px;
@@ -139,7 +139,7 @@
   gap: 0.5rem;
   font-size: 1.2rem;
   font-weight: 700;
-  color: #475569;
+  color: var(--text-secondary);
   margin-bottom: 3.5rem;
 }
 
@@ -176,14 +176,14 @@
 
 /* Pill 1: Đăng nhập để bắt đầu */
 .pill-primary {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .pill-primary:hover {
-  border-color: #cbd5e1;
-  background: #fdfdfd;
+  border-color: var(--primary-color);
+  background: var(--bg-color);
 }
 
 .google-icon-wrapper {
@@ -195,34 +195,34 @@
 
 /* Pill 2: Học không cần đăng nhập */
 .pill-secondary {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #1e293b;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .pill-secondary:hover {
-  border-color: #94a3b8;
-  background: #f8fafc;
+  border-color: var(--primary-color);
+  background: var(--bg-color);
 }
 
 /* Pill 3: Giáo viên */
 .pill-teacher {
-  background: #eef2ff;
-  border: 1px solid #c7d2fe;
-  color: #3730a3;
+  background: rgba(79, 70, 229, 0.05);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  color: var(--primary-color);
 }
 
 .pill-teacher:hover {
-  background: #e0e7ff;
-  border-color: #818cf8;
+  background: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.3);
 }
 
 .teacher-shield-icon {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #e0e7ff;
-  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -242,24 +242,24 @@
 .pill-title {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
 .pill-teacher .pill-title {
-  color: #312e81;
+  color: var(--primary-color);
 }
 
 .pill-sub {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-secondary);
   margin-top: 0.15rem;
 }
 
 /* STEP CARD (Chọn HS / Google Login) */
 .welcome-step-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   width: 100%;
   max-width: 480px;
@@ -281,7 +281,7 @@
 
 .step-header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -291,7 +291,7 @@
   margin: 0;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .step-body {
@@ -302,8 +302,8 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
   padding: 0.85rem 1rem;
   border-radius: 12px;
 }
@@ -312,9 +312,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--danger-color);
   padding: 0.65rem 0.85rem;
   border-radius: 8px;
   font-size: 0.8rem;
