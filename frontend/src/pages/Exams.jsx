@@ -561,6 +561,18 @@ const Exams = () => {
     }
   }, [location.state, trackingId, exams, navigate, location.pathname, examMode]);
 
+  // Đảm bảo cuộn lên đầu trang khi bắt đầu làm bài
+  useEffect(() => {
+    if (examMode === 'taking') {
+      window.scrollTo(0, 0);
+      // Đợi DOM render xong thẻ list rồi cuộn
+      setTimeout(() => {
+        const list = document.querySelector('.exam-questions-list');
+        if (list) list.scrollTop = 0;
+      }, 0);
+    }
+  }, [examMode, currentExam]);
+
   // Bắt đầu làm bài thi
   const handleStartExam = (exam) => {
     if (!exam.questions || exam.questions.length === 0) {
