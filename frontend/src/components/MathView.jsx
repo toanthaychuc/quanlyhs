@@ -641,7 +641,9 @@ const RenderMathSegment = ({ rawText = '', className = '' }) => {
     "\\ang": "#1^\\circ",
     "\\degree": "^\\circ",
     "\\vect": "\\overrightarrow{#1}",
-    "\\varparallel": "\\parallel"
+    "\\varparallel": "\\parallel",
+    "\\wideparen": "\\overgroup{#1}",
+    "\\overparen": "\\overgroup{#1}"
   };
 
   return (
