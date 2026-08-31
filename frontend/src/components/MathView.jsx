@@ -725,6 +725,7 @@ const RenderMathSegment = ({ rawText = '', className = '' }) => {
                   .replace(/\\vv\s+([A-Za-z]{2,})\b/g, '\\overrightarrow{$1}')
                   .replace(/\\vv\s+([A-Za-z])\b/g, '\\vec{$1}')
                   .replace(/\\varparallel\b/g, '\\parallel')
+                  .replace(/\\(heva|hoac)\s*\{([\s\S]*?)\}/g, (match, cmd, inner) => `\\${cmd}{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`)
                   // Tự động sửa lỗi phổ biến của giáo viên: dùng & ở đầu dòng trong \begin{array}{l} (chỉ có 1 cột l)
                   .replace(/^\$+/, '')
                   .replace(/\$+$/, '')
