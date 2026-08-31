@@ -337,8 +337,20 @@ const Exams = () => {
          // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen và giữ highlight
          textArea.focus();
          textArea.setSelectionRange(index, index + matchLength);
-         // Loại bỏ việc tính toán scrollTop thủ công (linesBefore * 24) vì nó sẽ bị sai hoàn toàn khi một dòng văn bản dài bị tự động xuống dòng (word-wrap).
-         // Trình duyệt sẽ tự động cuộn đến đúng vị trí của vùng bôi đen (selectionRange).
+         
+         const textBefore = rawText.substring(0, index);
+         const lines = textBefore.split('\n');
+         let visualLinesBefore = 0;
+         for (let i = 0; i < lines.length; i++) {
+             // Ước lượng số dòng hiển thị thực tế (word-wrap) với ~90 ký tự/dòng
+             visualLinesBefore += Math.max(1, Math.ceil(lines[i].length / 90));
+         }
+         
+         // Đợi trình duyệt cuộn xong native, sau đó điều chỉnh lại scrollTop để giữ 5 dòng phía trên (tạo context)
+         setTimeout(() => {
+             const lineHeight = 19.5; // fontSize 13px * lineHeight 1.5 = 19.5px
+             textArea.scrollTop = Math.max(0, 16 + (visualLinesBefore - 5) * lineHeight);
+         }, 10);
       } else {
          alert(`Không tìm thấy "${query}" trong mã nguồn!`);
       }
@@ -415,7 +427,18 @@ const Exams = () => {
     if (targetIndex !== -1) {
        textArea.focus();
        textArea.setSelectionRange(targetIndex, targetIndex + 25);
-       // Loại bỏ việc tính toán scrollTop thủ công để trình duyệt tự động xử lý chính xác
+       
+       const textBefore = rawText.substring(0, targetIndex);
+       const lines = textBefore.split('\n');
+       let visualLinesBefore = 0;
+       for (let i = 0; i < lines.length; i++) {
+           visualLinesBefore += Math.max(1, Math.ceil(lines[i].length / 90));
+       }
+       
+       setTimeout(() => {
+           const lineHeight = 19.5;
+           textArea.scrollTop = Math.max(0, 16 + (visualLinesBefore - 5) * lineHeight);
+       }, 10);
     }
   };
 
