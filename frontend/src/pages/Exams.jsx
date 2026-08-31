@@ -567,6 +567,28 @@ const Exams = () => {
       return;
     }
 
+    let resumeState = null;
+    if (trackingId) {
+      const entry = getUnfinishedExam(trackingId);
+      if (entry && entry.examId === exam.id) {
+        resumeState = entry;
+      }
+    }
+
+    if (resumeState) {
+      if (window.confirm('Bạn có tiến trình làm dở cho đề thi này. Bạn muốn TIẾP TỤC làm (OK) hay LÀM LẠI TỪ ĐẦU (Cancel)?')) {
+        setCurrentExam(exam);
+        setCurrentQuestionIndex(0);
+        setUserAnswers(resumeState.answers || {});
+        setFlaggedQuestions(resumeState.flagged || {});
+        setTimeLeft(resumeState.timeLeft || (exam.duration * 60));
+        setExamMode('taking');
+        return;
+      } else {
+        if (trackingId) clearUnfinishedExam(trackingId);
+      }
+    }
+
     setCurrentExam(exam);
     setCurrentQuestionIndex(0);
     setUserAnswers({});
