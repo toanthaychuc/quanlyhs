@@ -307,7 +307,7 @@ const Exams = () => {
   const executeTexSearch = (query, fromIndex = 0) => {
     if (!texTextareaRef.current || !query) return;
     const textArea = texTextareaRef.current;
-    const rawText = examFormData.latexBulkCode || '';
+    const rawText = textArea.value || '';
     
     let index = rawText.toLowerCase().indexOf(query.toLowerCase(), fromIndex);
     if (index === -1 && fromIndex > 0) {
@@ -349,7 +349,7 @@ const Exams = () => {
   const handleQuestionClick = (question) => {
     if (!texTextareaRef.current) return;
     const textArea = texTextareaRef.current;
-    const rawText = examFormData.latexBulkCode;
+    const rawText = textArea.value || '';
     
     const snippetSource = question._searchSnippet || question.content || '';
     const snippetTokens = snippetSource.replace(/\s+/g, '').substring(0, 30);
