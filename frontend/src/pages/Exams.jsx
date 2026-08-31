@@ -532,9 +532,14 @@ const Exams = () => {
   // Lấy ID để lưu tiến độ (học sinh thì lấy ID thực, giáo viên thì dùng tạm để test)
   const trackingId = isStudent ? currentStudentId : (isTeacher ? 'teacher_preview' : null);
 
+  const hasCheckedAutoResumeRef = useRef(false);
+
   // Auto-resume from Dashboard or Page Reload (F5)
   useEffect(() => {
+    if (hasCheckedAutoResumeRef.current) return;
     if (trackingId && exams.length > 0) {
+      hasCheckedAutoResumeRef.current = true; // Đánh dấu đã kiểm tra auto-resume một lần
+
       const entry = getUnfinishedExam(trackingId);
       const targetExamId = location.state?.resumeExamId || (entry ? entry.examId : null);
 
