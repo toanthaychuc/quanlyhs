@@ -310,27 +310,44 @@ const Exams = () => {
     const rawText = textArea.value || '';
     
     // Chuẩn hóa Unicode (NFC) để xử lý tiếng Việt (tránh lỗi font tổ hợp vs dựng sẵn)
-    const searchString = query.trim().normalize('NFC').toLowerCase();
+    const searchString = query.trim().normalize('NFC');
     if (!searchString) return;
 
-    const normalizedText = rawText.normalize('NFC').toLowerCase();
+    const normalizedText = rawText.normalize('NFC');
 
-    let index = normalizedText.indexOf(searchString, fromIndex);
-    if (index === -1 && fromIndex > 0) {
-       index = normalizedText.indexOf(searchString); // wrap around
-    }
+    // Chuyển đổi query thành Regex để bỏ qua các khoảng trắng thừa/dấu xuống dòng trong mã LaTeX
+    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchWords = searchString.split(/\s+/).map(escapeRegExp);
+    const regexPattern = searchWords.join('\\s+');
     
-    if (index !== -1) {
-       // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen và giữ highlight
-       textArea.focus();
-       textArea.setSelectionRange(index, index + searchString.length);
-       
-       const textBefore = rawText.substring(0, index);
-       const linesBefore = textBefore.split('\n').length;
-       const lineHeight = 24; 
-       textArea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
-    } else {
-       alert(`Không tìm thấy "${query}" trong mã nguồn!`);
+    try {
+      const regex = new RegExp(regexPattern, 'ig');
+      regex.lastIndex = fromIndex;
+      
+      let match = regex.exec(normalizedText);
+      if (!match && fromIndex > 0) {
+         regex.lastIndex = 0;
+         match = regex.exec(normalizedText); // wrap around
+      }
+      
+      if (match) {
+         const index = match.index;
+         const matchLength = match[0].length;
+         
+         // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen và giữ highlight
+         textArea.focus();
+         textArea.setSelectionRange(index, index + matchLength);
+         
+         const textBefore = rawText.substring(0, index);
+         const linesBefore = textBefore.split('\n').length;
+         const lineHeight = 24; 
+         textArea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
+      } else {
+         alert(`Không tìm thấy "${query}" trong mã nguồn!`);
+      }
+    } catch (err) {
+      console.error("Lỗi Regex:", err);
+      alert(`Không thể tìm kiếm từ khóa này!`);
     }
   };
 
