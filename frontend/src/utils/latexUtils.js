@@ -359,6 +359,8 @@ export const normalizeLatexString = (str = '') => {
   text = replaceMacroWithBraces(text, '\\textbf', c => `**${c}**`);
   text = replaceMacroWithBraces(text, '\\textit', c => `*${c}*`);
   text = replaceMacroWithBraces(text, '\\underline', c => `<u>${c}</u>`);
+  text = text.replace(/\{\s*\\it\b\s*([^}]+)\}/g, '*$1*');
+  text = text.replace(/\{\s*\\bf\b\s*([^}]+)\}/g, '**$1**');
   text = text.replace(/\\bfseries\b/g, '');
   text = text.replace(/\\rm\b/g, '');
 
