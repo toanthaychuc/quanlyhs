@@ -309,12 +309,15 @@ const Exams = () => {
     const textArea = texTextareaRef.current;
     const rawText = textArea.value || '';
     
-    const searchString = query.trim().toLowerCase();
+    // Chuẩn hóa Unicode (NFC) để xử lý tiếng Việt (tránh lỗi font tổ hợp vs dựng sẵn)
+    const searchString = query.trim().normalize('NFC').toLowerCase();
     if (!searchString) return;
 
-    let index = rawText.toLowerCase().indexOf(searchString, fromIndex);
+    const normalizedText = rawText.normalize('NFC').toLowerCase();
+
+    let index = normalizedText.indexOf(searchString, fromIndex);
     if (index === -1 && fromIndex > 0) {
-       index = rawText.toLowerCase().indexOf(searchString); // wrap around
+       index = normalizedText.indexOf(searchString); // wrap around
     }
     
     if (index !== -1) {
@@ -923,7 +926,8 @@ const Exams = () => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (event) => {
-      const content = event.target.result;
+      // Chuẩn hóa Unicode (NFC) khi đọc file
+      const content = event.target.result.normalize('NFC');
       const parsed = parseLatexStringToQuestions(content);
       if (parsed.length > 0) {
         setEditorQuestions(parsed);
@@ -1926,7 +1930,8 @@ const Exams = () => {
 \\end{ex}`}
                       value={examFormData.latexBulkCode}
                       onChange={(e) => {
-                        const val = e.target.value;
+                        // Chuẩn hóa Unicode (NFC) ngay khi gõ để tránh lỗi tìm kiếm tiếng Việt
+                        const val = e.target.value.normalize('NFC');
                         setExamFormData({ ...examFormData, latexBulkCode: val });
                         const parsed = parseLatexStringToQuestions(val);
                         setEditorQuestions(parsed);
