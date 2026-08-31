@@ -1109,9 +1109,14 @@ const Exams = () => {
             </span>
           </div>
 
-          <button className="btn btn-submit-exam" onClick={() => handleSubmitExam(false)}>
-            <CheckCircle size={18} /> Nộp bài thi
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn btn-outline" onClick={() => setExamMode('list')} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <ArrowLeft size={18} /> Tạm dừng
+            </button>
+            <button className="btn btn-submit-exam" onClick={() => handleSubmitExam(false)}>
+              <CheckCircle size={18} /> Nộp bài thi
+            </button>
+          </div>
         </div>
 
         <div className="exam-taking-body">
