@@ -1,7 +1,7 @@
 import React from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { normalizeLatexString, extractBracedBlocks, parseImminiBlock } from '../utils/latexUtils';
+import { normalizeLatexString, extractBracedBlocks, parseImminiBlock, replaceMacroWithBraces } from '../utils/latexUtils';
 import { parseTikzToSvgData, getSmoothSvgPath } from '../utils/tikzParser';
 
 // Component hiển thị hình vẽ TikZ & Đồ thị hàm số chuẩn xác 100% bằng Vector SVG Canvas
@@ -725,11 +725,13 @@ const RenderMathSegment = ({ rawText = '', className = '' }) => {
                   .replace(/\\vv\s+([A-Za-z]{2,})\b/g, '\\overrightarrow{$1}')
                   .replace(/\\vv\s+([A-Za-z])\b/g, '\\vec{$1}')
                   .replace(/\\varparallel\b/g, '\\parallel')
-                  .replace(/\\(heva|hoac)\s*\{([\s\S]*?)\}/g, (match, cmd, inner) => `\\${cmd}{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`)
                   // Tự động sửa lỗi phổ biến của giáo viên: dùng & ở đầu dòng trong \begin{array}{l} (chỉ có 1 cột l)
                   .replace(/^\$+/, '')
                   .replace(/\$+$/, '')
                   .trim();
+
+                normalizedMath = replaceMacroWithBraces(normalizedMath, '\\heva', inner => `\\heva{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`);
+                normalizedMath = replaceMacroWithBraces(normalizedMath, '\\hoac', inner => `\\hoac{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`);
 
                 const html = katex.renderToString(normalizedMath, {
                   displayMode: part.isBlock,
