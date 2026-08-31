@@ -315,7 +315,7 @@ const Exams = () => {
     }
     
     if (index !== -1) {
-       // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen
+       // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen và giữ highlight
        textArea.focus();
        textArea.setSelectionRange(index, index + query.length);
        
@@ -323,11 +323,6 @@ const Exams = () => {
        const linesBefore = textBefore.split('\n').length;
        const lineHeight = 24; 
        textArea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
-
-       // Focus ngược lại ô tìm kiếm ngay lập tức
-       if (texSearchInputRef.current) {
-         texSearchInputRef.current.focus();
-       }
     } else {
        alert(`Không tìm thấy "${query}" trong mã nguồn!`);
     }
