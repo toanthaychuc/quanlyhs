@@ -529,28 +529,29 @@ const Exams = () => {
     }
   });
 
-  // Auto-resume from Dashboard
+  // Auto-resume from Dashboard or Page Reload (F5)
   useEffect(() => {
-    if (location.state?.resumeExamId && isStudent && currentStudentId && exams.length > 0) {
-      const raw = getUnfinishedExam(currentStudentId);
-      if (raw) {
-        const entry = raw.examId === location.state.resumeExamId ? raw : null;
-        if (entry) {
-          const ex = exams.find(e => e.id === entry.examId);
-          if (ex) {
-            setCurrentExam(ex);
-            setUserAnswers(entry.answers || {});
-            setFlaggedQuestions(entry.flagged || {});
-            setTimeLeft(entry.timeLeft || (ex.duration * 60));
-            setExamMode('taking');
-            setCurrentQuestionIndex(0);
-            
+    if (isStudent && currentStudentId && exams.length > 0) {
+      const entry = getUnfinishedExam(currentStudentId);
+      const targetExamId = location.state?.resumeExamId || (entry ? entry.examId : null);
+
+      if (entry && entry.examId === targetExamId) {
+        const ex = exams.find(e => e.id === entry.examId);
+        if (ex && examMode !== 'taking') {
+          setCurrentExam(ex);
+          setUserAnswers(entry.answers || {});
+          setFlaggedQuestions(entry.flagged || {});
+          setTimeLeft(entry.timeLeft || (ex.duration * 60));
+          setExamMode('taking');
+          setCurrentQuestionIndex(0);
+          
+          if (location.state?.resumeExamId) {
             navigate(location.pathname, { replace: true });
           }
         }
       }
     }
-  }, [location.state, isStudent, currentStudentId, exams, navigate, location.pathname]);
+  }, [location.state, isStudent, currentStudentId, exams, navigate, location.pathname, examMode]);
 
   // Bắt đầu làm bài thi
   const handleStartExam = (exam) => {
