@@ -564,7 +564,10 @@ const Exams = () => {
   // Đảm bảo cuộn lên đầu trang khi bắt đầu làm bài
   useEffect(() => {
     if (examMode === 'taking') {
-      window.scrollTo(0, 0);
+      const pageContainer = document.querySelector('.page-container');
+      if (pageContainer) pageContainer.scrollTop = 0;
+      window.scrollTo(0, 0); // Dự phòng nếu có thanh cuộn trên window
+      
       // Đợi DOM render xong thẻ list rồi cuộn
       setTimeout(() => {
         const list = document.querySelector('.exam-questions-list');
