@@ -533,6 +533,7 @@ const Exams = () => {
   const trackingId = isStudent ? currentStudentId : (isTeacher ? 'teacher_preview' : null);
 
   const hasCheckedAutoResumeRef = useRef(false);
+  const [pendingExamEntry, setPendingExamEntry] = useState(null);
 
   // Auto-resume from Dashboard or Page Reload (F5)
   useEffect(() => {
@@ -541,7 +542,7 @@ const Exams = () => {
       hasCheckedAutoResumeRef.current = true; // Đánh dấu đã kiểm tra auto-resume một lần
 
       const entry = getUnfinishedExam(trackingId);
-      const targetExamId = location.state?.resumeExamId || (entry ? entry.examId : null);
+      const targetExamId = location.state?.resumeExamId;
 
       if (entry && entry.examId === targetExamId) {
         const ex = exams.find(e => e.id === entry.examId);
@@ -553,27 +554,37 @@ const Exams = () => {
           setExamMode('taking');
           setCurrentQuestionIndex(0);
           
-          if (location.state?.resumeExamId) {
-            navigate(location.pathname, { replace: true });
-          }
+          navigate(location.pathname, { replace: true });
         }
       }
     }
   }, [location.state, trackingId, exams, navigate, location.pathname, examMode]);
 
-  // Đảm bảo cuộn lên đầu trang khi bắt đầu làm bài
+  // Cập nhật banner trạng thái đề đang làm dở khi ở màn hình danh sách
   useEffect(() => {
-    if (examMode === 'taking') {
+    if (examMode === 'list' && trackingId) {
+      setPendingExamEntry(getUnfinishedExam(trackingId));
+    } else {
+      setPendingExamEntry(null);
+    }
+  }, [examMode, trackingId]);
+
+  // Đảm bảo cuộn lên đầu trang khi bắt đầu làm bài hoặc đổi chế độ
+  useEffect(() => {
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       const pageContainer = document.querySelector('.page-container');
       if (pageContainer) pageContainer.scrollTop = 0;
-      window.scrollTo(0, 0); // Dự phòng nếu có thanh cuộn trên window
-      
-      // Đợi DOM render xong thẻ list rồi cuộn
-      setTimeout(() => {
-        const list = document.querySelector('.exam-questions-list');
-        if (list) list.scrollTop = 0;
-      }, 0);
-    }
+      const list = document.querySelector('.exam-questions-list');
+      if (list) list.scrollTop = 0;
+      const mainContent = document.querySelector('.main-content');
+      if (mainContent) mainContent.scrollTop = 0;
+    };
+
+    scrollToTop();
+    // Đảm bảo thực thi sau khi React render DOM xong
+    const timer = setTimeout(scrollToTop, 50);
+    return () => clearTimeout(timer);
   }, [examMode, currentExam]);
 
   // Bắt đầu làm bài thi
@@ -1497,6 +1508,56 @@ const Exams = () => {
           </button>
         ))}
       </div>
+
+      {/* Banner thông báo đang làm dở đề thi */}
+      {pendingExamEntry && exams.find(e => e.id === pendingExamEntry.examId) && (
+        <div className="card glass" style={{ marginBottom: '1.5rem', borderLeft: '4px solid #f59e0b', background: 'rgba(245, 158, 11, 0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ padding: '0.5rem', background: 'rgba(245, 158, 11, 0.2)', borderRadius: '50%', color: '#d97706' }}>
+                <Clock size={20} />
+              </div>
+              <div>
+                <h4 style={{ margin: 0, fontSize: '1rem', color: '#b45309', fontWeight: 600 }}>Bạn đang làm dở một đề thi!</h4>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  Đề thi: <strong>{exams.find(e => e.id === pendingExamEntry.examId)?.title}</strong>
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button 
+                className="btn btn-primary"
+                onClick={() => {
+                  const ex = exams.find(e => e.id === pendingExamEntry.examId);
+                  if (ex) {
+                    setCurrentExam(ex);
+                    setUserAnswers(pendingExamEntry.answers || {});
+                    setFlaggedQuestions(pendingExamEntry.flagged || {});
+                    setTimeLeft(pendingExamEntry.timeLeft || (ex.duration * 60));
+                    setExamMode('taking');
+                    setCurrentQuestionIndex(0);
+                    setPendingExamEntry(null);
+                  }
+                }}
+              >
+                <Play size={16} /> Làm tiếp
+              </button>
+              <button 
+                className="btn btn-outline"
+                style={{ borderColor: '#ef4444', color: '#ef4444' }}
+                onClick={() => {
+                  if (window.confirm('Bạn có chắc chắn muốn thoát khỏi đề đang làm? Tiến trình của đề này sẽ bị xóa!')) {
+                    clearUnfinishedExam(trackingId);
+                    setPendingExamEntry(null);
+                  }
+                }}
+              >
+                <Trash2 size={16} /> Bỏ cuộc
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* GIAO DIỆN MỤC LỤC CHI TIẾT (CHO KHỐI 10, 11 VÀ 12) */}
       {currentCurriculum ? (
