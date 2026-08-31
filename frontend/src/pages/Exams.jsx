@@ -251,7 +251,8 @@ const parseLatexStringToQuestions = (rawText) => {
         content: questionContent || `Câu hỏi ${index + 1}`,
         options,
         correctAnswer,
-        explanation: explanation || 'Xem lại kiến thức lý thuyết và phương pháp giải.'
+        explanation: explanation || 'Xem lại kiến thức lý thuyết và phương pháp giải.',
+        _searchSnippet: rawBlock
       });
     });
   } catch (err) {
@@ -298,7 +299,65 @@ const Exams = () => {
   const [searchLessonQuery, setSearchLessonQuery] = useState('');
   const [expandedChapters, setExpandedChapters] = useState({});
   const texFileInputRef = useRef(null);
+  const texTextareaRef = useRef(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+
+  const handleQuestionClick = (question) => {
+    if (!texTextareaRef.current || !question._searchSnippet) return;
+    const textArea = texTextareaRef.current;
+    const rawText = examFormData.latexBulkCode;
+    
+    const snippetTokens = question._searchSnippet.replace(/\s+/g, '').substring(0, 30);
+    if (!snippetTokens) return;
+
+    let targetIndex = -1;
+    let inComment = false;
+    let matchedCount = 0;
+    let potentialStartIndex = -1;
+    
+    for (let i = 0; i < rawText.length; i++) {
+      const char = rawText[i];
+      if (char === '%') inComment = true;
+      if (char === '\n') {
+        inComment = false;
+        continue;
+      }
+      
+      if (!inComment && !/\s/.test(char)) {
+        if (matchedCount === 0) potentialStartIndex = i;
+        
+        if (char === snippetTokens[matchedCount]) {
+          matchedCount++;
+          if (matchedCount === snippetTokens.length) {
+            targetIndex = potentialStartIndex;
+            break;
+          }
+        } else {
+          matchedCount = 0;
+          if (char === snippetTokens[0]) {
+             matchedCount = 1;
+             potentialStartIndex = i;
+          }
+        }
+      }
+    }
+
+    if (targetIndex === -1) {
+       const simpleSearch = question._searchSnippet.substring(0, 20).trim();
+       targetIndex = rawText.indexOf(simpleSearch);
+    }
+
+    if (targetIndex !== -1) {
+       textArea.focus();
+       textArea.setSelectionRange(targetIndex, targetIndex);
+       
+       const textBefore = rawText.substring(0, targetIndex);
+       const linesBefore = textBefore.split('\n').length;
+       
+       const lineHeight = 24; 
+       textArea.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
+    }
+  };
 
   const [exams, setExams] = useState(() => {
     try {
@@ -1747,6 +1806,7 @@ const Exams = () => {
                     )}
 
                     <textarea 
+                      ref={texTextareaRef}
                       className="input textarea-input latex-code-box full-height-textarea"
                       style={{ height: '100%', minHeight: '100%', flex: 1, resize: 'none' }}
                       placeholder={`\\begin{ex}%[Mã câu hỏi]
@@ -1792,7 +1852,13 @@ const Exams = () => {
                       </div>
                     ) : (
                       editorQuestions.map((question, qIdx) => (
-                        <div key={question.id || qIdx} className="compiled-question-card">
+                        <div 
+                          key={question.id || qIdx} 
+                          className="compiled-question-card"
+                          onClick={() => handleQuestionClick(question)}
+                          style={{ cursor: 'pointer' }}
+                          title="Nhấn để cuộn đến mã nguồn LaTeX của câu này"
+                        >
                           <div className="compiled-q-header">
                             <span className="compiled-q-badge">Câu {qIdx + 1} {getQuestionTypeBadge(question.questionType)}</span>
                             {question.questionType === 'multiple_choice' && (
