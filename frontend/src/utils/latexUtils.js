@@ -341,7 +341,8 @@ export const normalizeLatexString = (str = '') => {
   // Bỏ các lệnh không được hỗ trợ bởi KaTeX nhưng hay gặp
   text = text.replace(/\\allowdisplaybreaks\b/g, '');
   text = text.replace(/\\begin\{eqnarray\*?\}([\s\S]*?)\\end\{eqnarray\*?\}/g, (match, inner) => {
-    const fixedInner = inner.replace(/&([^&]+)&/g, '&$1');
+    let fixedInner = inner.replace(/&&/g, '&');
+    fixedInner = fixedInner.replace(/&([^&\n\r]+)&/g, '&$1');
     return `\\begin{aligned}${fixedInner}\\end{aligned}`;
   });
 
