@@ -571,6 +571,15 @@ const Classes = () => {
       } else {
         setImportPreview(parsedStudents);
         setNewScoreColumnsFromExcel(newScoreColumns);
+        
+        // Cảnh báo trùng mã số học sinh
+        const existingIds = new Set((currentClass?.students || []).map(s => 
+          s.id.startsWith(`${currentClass?.id}_`) ? s.id.replace(`${currentClass?.id}_`, '') : s.id
+        ));
+        const duplicateCount = parsedStudents.filter(s => existingIds.has(s.id)).length;
+        if (duplicateCount > 0) {
+          setImportError(`⚠️ Có ${duplicateCount} học sinh trong file bị trùng mã với học sinh đang có trong lớp. Khi Xác nhận, hệ thống sẽ CHỈ GHI ĐÈ / CẬP NHẬT điểm cho các học sinh này.`);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -1134,7 +1143,7 @@ const Classes = () => {
                         <td>
                           {canSeeScore ? (
                             <span style={{ fontFamily: 'monospace', fontWeight: '600', color: isMe ? '#2563eb' : '#4f46e5' }}>
-                              {student.id}
+                              {student.id.startsWith(`${currentClass?.id}_`) ? student.id.replace(`${currentClass?.id}_`, '') : student.id}
                             </span>
                           ) : (
                             <span className="score-hidden" style={{ fontSize: '0.775rem' }}>
@@ -1295,7 +1304,7 @@ const Classes = () => {
                     <input 
                       type="text" 
                       className="input" 
-                      value={studentForm.id}
+                      value={studentForm.id.startsWith(`${currentClass?.id}_`) ? studentForm.id.replace(`${currentClass?.id}_`, '') : studentForm.id}
                       onChange={(e) => {
                         const val = e.target.value;
                         setStudentForm({ ...studentForm, id: val, phone: studentForm.phone || val });
