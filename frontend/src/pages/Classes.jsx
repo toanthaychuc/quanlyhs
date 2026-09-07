@@ -138,7 +138,7 @@ const Classes = () => {
             return sortData(mergedClasses).map(c => ({ 
               ...c, 
               teacher: 'Thầy Lê Công Chức',
-              students: sortStudentsByVietnameseName(c.students)
+              students: c.students
             }));
           });
         }
@@ -210,6 +210,19 @@ const Classes = () => {
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     s.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // State sắp xếp học sinh
+  const [sortOrder, setSortOrder] = useState('excel');
+
+  // Sắp xếp danh sách đã lọc
+  let sortedAndFilteredStudents = [...filteredStudents];
+  if (sortOrder === 'name_asc') {
+    sortedAndFilteredStudents = sortStudentsByVietnameseName(sortedAndFilteredStudents);
+  } else if (sortOrder === 'score_asc') {
+    sortedAndFilteredStudents.sort((a, b) => (parseFloat(a.scores?.avg) || 0) - (parseFloat(b.scores?.avg) || 0));
+  } else if (sortOrder === 'score_desc') {
+    sortedAndFilteredStudents.sort((a, b) => (parseFloat(b.scores?.avg) || 0) - (parseFloat(a.scores?.avg) || 0));
+  }
 
   // Selected students for batch delete
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
@@ -468,7 +481,7 @@ const Classes = () => {
         updatedStudents = [...cls.students, newStudent];
       }
 
-      return { ...cls, students: sortStudentsByVietnameseName(updatedStudents) };
+      return { ...cls, students: updatedStudents };
     }));
 
     setShowAddModal(false);
@@ -630,7 +643,7 @@ const Classes = () => {
         // Thay thế toàn bộ danh sách lớp bằng file mới
         return {
           ...cls,
-          students: sortStudentsByVietnameseName(processedPreview),
+          students: processedPreview,
           scoreColumns: updatedScoreColumns
         };
       } else {
@@ -646,7 +659,7 @@ const Classes = () => {
 
         return {
           ...cls,
-          students: sortStudentsByVietnameseName(Array.from(existingMap.values())),
+          students: Array.from(existingMap.values()),
           scoreColumns: updatedScoreColumns
         };
       }
@@ -1004,6 +1017,18 @@ const Classes = () => {
             </div>
             
             <div className="filter-group">
+              <select 
+                className="input" 
+                style={{ minWidth: '180px', padding: '0.4rem 0.75rem', fontSize: '0.9rem' }}
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                title="Sắp xếp danh sách học sinh"
+              >
+                <option value="excel">Sắp xếp: Thứ tự nhập (Excel)</option>
+                <option value="name_asc">Sắp xếp: Theo Tên (A-Z)</option>
+                <option value="score_desc">Sắp xếp: Điểm TB giảm dần</option>
+                <option value="score_asc">Sắp xếp: Điểm TB tăng dần</option>
+              </select>
               {/* Batch Actions khi chọn nhiều học sinh */}
               {selectedStudentIds.length > 0 && isTeacher && (
                 <button 
@@ -1049,14 +1074,14 @@ const Classes = () => {
               )}
 
               <span className="text-xs text-gray-500" style={{ marginLeft: '0.5rem' }}>
-                Hiển thị <strong>{filteredStudents.length}</strong> / {(currentClass?.students?.length || 0)} HS
+                Hiển thị <strong>{sortedAndFilteredStudents.length}</strong> / {(currentClass?.students?.length || 0)} HS
               </span>
             </div>
           </div>
 
           {/* Bảng danh sách học sinh */}
           <div className="table-responsive">
-            {filteredStudents.length > 0 ? (
+            {sortedAndFilteredStudents.length > 0 ? (
               <table className="students-table">
                 <thead>
                   <tr>
@@ -1085,7 +1110,7 @@ const Classes = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents.map((student, idx) => {
+                  {sortedAndFilteredStudents.map((student, idx) => {
                     const isChecked = selectedStudentIds.includes(student.id);
                     const isMe = isStudent && student.id === currentStudentId;
                     const canSeeScore = isTeacher || isMe;
