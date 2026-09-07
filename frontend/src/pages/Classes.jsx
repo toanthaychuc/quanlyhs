@@ -448,13 +448,21 @@ const Classes = () => {
       let updatedStudents;
       if (editingStudent) {
         // Edit
-        updatedStudents = cls.students.map(s => s.id === editingStudent.id ? { ...studentForm, scores: finalScores } : s);
+        let finalId = studentForm.id.trim();
+        if (!finalId.startsWith(`${cls.id}_`)) {
+           finalId = `${cls.id}_${finalId}`;
+        }
+        updatedStudents = cls.students.map(s => s.id === editingStudent.id ? { ...studentForm, id: finalId, scores: finalScores } : s);
       } else {
         // Add
+        let finalId = studentForm.id.trim() || `HS-${Date.now().toString().slice(-4)}`;
+        if (!finalId.startsWith(`${cls.id}_`)) {
+           finalId = `${cls.id}_${finalId}`;
+        }
         const newStudent = {
           ...studentForm,
           scores: finalScores,
-          id: studentForm.id.trim() || `HS-${Date.now().toString().slice(-4)}`,
+          id: finalId,
           status: 'active'
         };
         updatedStudents = [...cls.students, newStudent];
@@ -613,17 +621,22 @@ const Classes = () => {
          }
       });
 
+      const processedPreview = importPreview.map(s => ({
+        ...s,
+        id: s.id.startsWith(`${cls.id}_`) ? s.id : `${cls.id}_${s.id}`
+      }));
+
       if (importMode === 'replace') {
         // Thay thế toàn bộ danh sách lớp bằng file mới
         return {
           ...cls,
-          students: sortStudentsByVietnameseName(importPreview),
+          students: sortStudentsByVietnameseName(processedPreview),
           scoreColumns: updatedScoreColumns
         };
       } else {
         // Gộp thêm vào danh sách lớp hiện tại (cập nhật nếu trùng mã HS)
         const existingMap = new Map(cls.students.map(s => [s.id, s]));
-        importPreview.forEach(s => {
+        processedPreview.forEach(s => {
           existingMap.set(s.id, { 
             ...existingMap.get(s.id), 
             ...s, 

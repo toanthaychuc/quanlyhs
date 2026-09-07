@@ -148,8 +148,15 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
     const studentId = (targetStudent.id || '').trim().toUpperCase();
     const studentPhone = (targetStudent.phone || '').trim().replace(/\s+/g, '');
     
+    // Tìm ID thực sự (nếu có prefix của class)
+    const classPrefix = `${currentClassObj.id.toUpperCase()}_`;
+    const realStudentId = studentId.startsWith(classPrefix) 
+                          ? studentId.replace(classPrefix, '') 
+                          : studentId;
+
     // Đối chiếu: Trùng Mã HS, hoặc Trùng Số điện thoại (kể cả trường hợp nhập có/không có số 0 đầu)
     const isCodeMatch = (inputCode.toUpperCase() === studentId) ||
+                        (inputCode.toUpperCase() === realStudentId) ||
                         (studentPhone && inputCode === studentPhone) ||
                         (studentPhone && inputCode.replace(/^0/, '') === studentPhone.replace(/^0/, '')) ||
                         (inputCode === targetStudent.id);
