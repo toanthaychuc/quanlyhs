@@ -117,11 +117,30 @@ const Classes = () => {
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
       getClasses(true).then(freshData => {
         if (Array.isArray(freshData)) {
-          setClasses(sortData(freshData).map(c => ({ 
-            ...c, 
-            teacher: 'Thầy Lê Công Chức',
-            students: sortStudentsByVietnameseName(c.students)
-          })));
+          setClasses(prevClasses => {
+            const mergedClasses = freshData.map(freshCls => {
+              const localCls = prevClasses.find(c => c.id === freshCls.id);
+              // Bảo vệ dữ liệu local: nếu local có nhiều học sinh hơn (do chưa kịp sync lên cloud đã bị F5), giữ lại local
+              if (localCls && localCls.students?.length > freshCls.students?.length) {
+                return { ...freshCls, students: localCls.students };
+              }
+              // Bảo vệ tên học sinh: nếu cloud trả về mất tên, dùng tên local hoặc ID
+              const safeStudents = (freshCls.students || []).map(s => {
+                const localS = localCls?.students?.find(ls => ls.id === s.id);
+                return {
+                  ...s,
+                  name: s.name || localS?.name || `Học sinh ${s.id}`
+                };
+              });
+              return { ...freshCls, students: safeStudents };
+            });
+
+            return sortData(mergedClasses).map(c => ({ 
+              ...c, 
+              teacher: 'Thầy Lê Công Chức',
+              students: sortStudentsByVietnameseName(c.students)
+            }));
+          });
         }
         setIsCloudSynced(true);
       }).catch(err => {
