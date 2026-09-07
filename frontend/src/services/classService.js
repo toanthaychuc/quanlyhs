@@ -58,7 +58,7 @@ export async function getClasses(forceSync = false) {
   try {
     const [classRes, studentRes] = await Promise.all([
       supabase.from('classes').select('*').order('created_at'),
-      supabase.from('students').select('*').order('name'),
+      supabase.from('students').select('*').order('created_at', { ascending: true }).order('id', { ascending: true }),
     ]);
 
     if (classRes.error) throw classRes.error;
