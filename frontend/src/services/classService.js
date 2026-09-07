@@ -75,10 +75,19 @@ export async function getClasses(forceSync = false) {
     }
 
     // Base result from DB
-    let mergedClasses = dbClasses.map(row => ({
-      ...rowToClass(row),
-      students: studentsByClass[row.id] || [],
-    }));
+    let mergedClasses = dbClasses.map(row => {
+      const classStudents = studentsByClass[row.id] || [];
+      // Sort students by the explicitly saved order index to perfectly preserve Excel order
+      classStudents.sort((a, b) => {
+         const orderA = a.scores?._order !== undefined ? Number(a.scores._order) : 999999;
+         const orderB = b.scores?._order !== undefined ? Number(b.scores._order) : 999999;
+         return orderA - orderB;
+      });
+      return {
+        ...rowToClass(row),
+        students: classStudents,
+      };
+    });
 
     // Lưu cache an toàn vào localStorage
     localStorage.setItem(LOCAL_KEY, JSON.stringify(mergedClasses));
@@ -141,8 +150,8 @@ export async function saveClass(cls) {
         .not('id', 'in', `(${studentIds.map(id => `'${id}'`).join(',')})`);
 
       // Upsert current students
-      const studentRows = cls.students.map(s => {
-        const enrichedScores = { ...s.scores };
+      const studentRows = cls.students.map((s, index) => {
+        const enrichedScores = { ...s.scores, _order: index };
         if (s.gender) enrichedScores._gender = s.gender;
         if (s.dob) enrichedScores._dob = s.dob;
         if (s.email) enrichedScores._email = s.email;
