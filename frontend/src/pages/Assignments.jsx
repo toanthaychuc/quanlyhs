@@ -798,7 +798,7 @@ const Assignments = () => {
                           {mySubmission.fileName && (
                             <span style={{ marginLeft: '6px' }}>
                               (File: {mySubmission.fileUrl ? (
-                                <a href={mySubmission.fileUrl} download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline' }}><strong>{mySubmission.fileName}</strong></a>
+                                <a href={mySubmission.fileUrl} target="_blank" rel="noopener noreferrer" download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline' }}><strong>{mySubmission.fileName}</strong></a>
                               ) : (
                                 <strong>{mySubmission.fileName}</strong>
                               )})
@@ -959,7 +959,7 @@ const Assignments = () => {
                                     <div className="flex items-center gap-1 text-xs font-semibold">
                                       <Paperclip size={13} color="#4f46e5" />
                                       {sub.fileUrl ? (
-                                        <a href={sub.fileUrl} download={sub.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
+                                        <a href={sub.fileUrl} target="_blank" rel="noopener noreferrer" download={sub.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
                                           {sub.fileName} ({sub.fileSize})
                                         </a>
                                       ) : (
