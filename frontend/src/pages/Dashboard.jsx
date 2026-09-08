@@ -39,6 +39,7 @@ import { GRADE_12_CURRICULUM } from '../data/grade12Curriculum';
 import { getClasses } from '../services/classService';
 import { getExams, getStudentHistory, getGamification } from '../services/examService';
 import { getNotices, saveNotice, deleteNotice } from '../services/noticeService';
+import { getSetting, saveSetting } from '../services/settingService';
 import './Dashboard.css';
 
 const CURRICULUM_MAP = {
@@ -269,6 +270,21 @@ const Dashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
+    // Load from cloud (SWR)
+    getSetting('exam_date', '2027-06-27', false).then(localDate => {
+      if (localDate) {
+        setExamDateStr(localDate);
+      }
+      getSetting('exam_date', '2027-06-27', true).then(remoteDate => {
+        if (remoteDate && remoteDate !== examDateStr) {
+          setExamDateStr(remoteDate);
+          localStorage.setItem('edumanager_exam_date', remoteDate);
+        }
+      });
+    }).catch(err => console.error('getSetting error:', err));
+  }, []);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000); // Cập nhật mỗi phút để đổi ngày tự động lúc nửa đêm
@@ -284,6 +300,7 @@ const Dashboard = () => {
     const newDate = e.target.value;
     setExamDateStr(newDate);
     localStorage.setItem('edumanager_exam_date', newDate);
+    saveSetting('exam_date', newDate).catch(err => console.error('saveSetting error:', err));
     setIsEditingExamDate(false);
   };
 
