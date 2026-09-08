@@ -273,7 +273,7 @@ const Exams = () => {
 
   useEffect(() => {
     if (isStudent) {
-      const saved = localStorage.getItem('edumanager_classes_data');
+      const saved = localStorage.getItem('edumanager_classes_data_v2') || localStorage.getItem('edumanager_classes_data');
       if (saved) {
         try {
           const classes = JSON.parse(saved);

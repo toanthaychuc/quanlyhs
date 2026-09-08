@@ -24,8 +24,29 @@ const SUB_CATEGORIES = [
 const STORAGE_KEY = 'edumanager_teacher_documents';
 
 const Documents = () => {
-  const { isTeacher } = useRole();
+  const { isTeacher, isStudent, currentStudentId } = useRole();
   const [activeCategory, setActiveCategory] = useState('grade-12');
+
+  useEffect(() => {
+    if (isStudent) {
+      const saved = localStorage.getItem('edumanager_classes_data_v2') || localStorage.getItem('edumanager_classes_data');
+      if (saved) {
+        try {
+          const classes = JSON.parse(saved);
+          for (const cls of classes) {
+            const found = cls.students?.find(s => s.id === currentStudentId);
+            if (found) {
+              const gradeKey = `grade-${cls.grade || '10'}`;
+              setActiveCategory(gradeKey);
+              break;
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, [isStudent, currentStudentId]);
   const [activeSubCategory, setActiveSubCategory] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef(null);
