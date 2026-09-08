@@ -34,6 +34,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { getClasses } from '../services/classService';
 import { getAssignments, saveAllAssignments, deleteAssignment } from '../services/assignmentService';
+import { supabase } from '../lib/supabase';
 import MathView from '../components/MathView';
 import { stripLatexComments, extractBracedBlocks, parseImminiBlock, cleanQuestionObj } from '../utils/latexUtils';
 import './Assignments.css';
@@ -252,6 +253,7 @@ const Assignments = () => {
   const [submittingFileAsg, setSubmittingFileAsg] = useState(null);
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [uploadedFileSize, setUploadedFileSize] = useState('');
+  const [uploadedFile, setUploadedFile] = useState(null);
   const [isCompressing, setIsCompressing] = useState(false);
 
   // Kéo thả & Nạp file LaTeX
@@ -456,14 +458,43 @@ const Assignments = () => {
         }
       }
 
+      setUploadedFile(finalFile);
       setUploadedFileName(finalFile.name);
       setUploadedFileSize((finalFile.size / (1024 * 1024)).toFixed(2) + ' MB');
     }
   };
 
-  const handleConfirmSubmitFile = () => {
-    if (!uploadedFileName) {
+  const handleConfirmSubmitFile = async () => {
+    if (!uploadedFileName || !uploadedFile) {
       alert('Vui lòng chọn file PDF hoặc hình ảnh bài làm trước khi nộp!');
+      return;
+    }
+
+    setIsCompressing(true);
+    let fileUrl = '';
+
+    try {
+      const fileExt = uploadedFileName.split('.').pop();
+      const uniqueName = `${currentStudentId}_${Date.now()}.${fileExt}`;
+      const filePath = `${submittingFileAsg.id}/${uniqueName}`;
+
+      const { data, error } = await supabase.storage
+        .from('assignments')
+        .upload(filePath, uploadedFile);
+
+      if (error) {
+        throw error;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('assignments')
+        .getPublicUrl(filePath);
+      
+      fileUrl = publicUrlData.publicUrl;
+    } catch (err) {
+      console.error('Lỗi upload file:', err);
+      alert('Có lỗi xảy ra khi tải file lên máy chủ (Vui lòng kiểm tra lại cấu hình Supabase Storage Bucket).');
+      setIsCompressing(false);
       return;
     }
 
@@ -475,20 +506,23 @@ const Assignments = () => {
           ...a.submissions,
           [currentStudentId]: {
             submittedAt: new Date().toLocaleString('vi-VN'),
-            score: 9.0, // Điểm chờ giáo viên chấm hoặc chấm mẫu
+            score: null, // Chờ giáo viên chấm
             status: 'submitted',
             type: 'file',
             fileName: uploadedFileName,
-            fileSize: uploadedFileSize
+            fileSize: uploadedFileSize,
+            fileUrl: fileUrl
           }
         }
       };
     }));
 
+    setIsCompressing(false);
     alert(`🎉 Đã tải lên và nộp thành công file "${uploadedFileName}"!`);
     setSubmittingFileAsg(null);
     setUploadedFileName('');
     setUploadedFileSize('');
+    setUploadedFile(null);
   };
 
   // Học sinh làm bài online trực tiếp
@@ -724,7 +758,7 @@ const Assignments = () => {
                           Bạn đã nộp bài thành công.
                           {mySubmission.fileName && (
                             <span style={{ marginLeft: '6px' }}>
-                              (File: <strong>{mySubmission.fileName}</strong>)
+                              (File: <a href={mySubmission.fileUrl || '#'} target="_blank" rel="noopener noreferrer" style={{ color: '#0284c7', textDecoration: 'underline' }}><strong>{mySubmission.fileName}</strong></a>)
                             </span>
                           )}
                         </span>
@@ -879,9 +913,11 @@ const Assignments = () => {
                               <td>
                                 {isDone ? (
                                   sub.type === 'file' ? (
-                                    <div className="flex items-center gap-1 text-xs text-indigo-600 font-semibold cursor-pointer">
-                                      <Paperclip size={13} />
-                                      <span>{sub.fileName} ({sub.fileSize})</span>
+                                    <div className="flex items-center gap-1 text-xs font-semibold">
+                                      <Paperclip size={13} color="#4f46e5" />
+                                      <a href={sub.fileUrl || '#'} target="_blank" rel="noopener noreferrer" style={{ color: '#4f46e5', textDecoration: 'underline' }}>
+                                        {sub.fileName} ({sub.fileSize})
+                                      </a>
                                     </div>
                                   ) : (
                                     <span className="text-xs text-gray-600">Trắc nghiệm Online</span>
@@ -890,8 +926,8 @@ const Assignments = () => {
                               </td>
                               <td style={{ textAlign: 'center', fontWeight: 700 }}>
                                 {isDone ? (
-                                  <span style={{ color: sub.score >= 8 ? '#15803d' : '#b45309' }}>
-                                    {sub.score}
+                                  <span style={{ color: sub.score >= 8 ? '#15803d' : (sub.score !== null ? '#b45309' : '#64748b') }}>
+                                    {sub.score !== null ? sub.score : 'Chờ chấm'}
                                   </span>
                                 ) : '—'}
                               </td>
@@ -1272,11 +1308,11 @@ const Assignments = () => {
             </div>
 
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={() => setSubmittingFileAsg(null)}>
+              <button type="button" className="btn btn-secondary" onClick={() => setSubmittingFileAsg(null)} disabled={isCompressing}>
                 Hủy Bỏ
               </button>
-              <button type="button" className="btn btn-primary" onClick={handleConfirmSubmitFile}>
-                <Check size={16} /> Xác Nhận Nộp Bài
+              <button type="button" className="btn btn-primary" onClick={handleConfirmSubmitFile} disabled={isCompressing}>
+                {isCompressing ? 'Đang tải lên...' : <><Check size={16} /> Xác Nhận Nộp Bài</>}
               </button>
             </div>
           </div>
