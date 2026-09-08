@@ -75,7 +75,7 @@ const Classes = () => {
           return parsed.map(c => ({ 
             ...c, 
             teacher: 'Thầy Lê Công Chức',
-            students: sortStudentsByVietnameseName(c.students)
+            students: c.students
           }));
         }
       } catch (e) {
@@ -111,7 +111,7 @@ const Classes = () => {
         setClasses(sortData(data).map(c => ({ 
           ...c, 
           teacher: 'Thầy Lê Công Chức',
-          students: sortStudentsByVietnameseName(c.students)
+          students: c.students
         })));
       }
       // 2. Kéo dữ liệu mới nhất từ mây ở chế độ nền
@@ -656,19 +656,32 @@ const Classes = () => {
           scoreColumns: updatedScoreColumns
         };
       } else {
-        // Gộp thêm vào danh sách lớp hiện tại (cập nhật nếu trùng mã HS)
+        // Gộp thêm vào danh sách lớp hiện tại (ưu tiên giữ đúng thứ tự của file Excel)
         const existingMap = new Map(cls.students.map(s => [s.id, s]));
+        
+        // Tạo map từ danh sách mới (để đảm bảo thứ tự)
+        const newMap = new Map(processedPreview.map(s => [s.id, s]));
+        const mergedStudents = [];
+
+        // 1. Thêm các học sinh có trong file Excel (theo ĐÚNG thứ tự của file Excel)
         processedPreview.forEach(s => {
-          existingMap.set(s.id, { 
-            ...existingMap.get(s.id), 
+          mergedStudents.push({ 
+            ...(existingMap.get(s.id) || {}), 
             ...s, 
             scores: { ...(existingMap.get(s.id)?.scores || {}), ...s.scores }
           });
         });
 
+        // 2. Thêm những học sinh cũ KHÔNG có trong file Excel vào cuối danh sách
+        cls.students.forEach(s => {
+          if (!newMap.has(s.id)) {
+            mergedStudents.push(s);
+          }
+        });
+
         return {
           ...cls,
-          students: Array.from(existingMap.values()),
+          students: mergedStudents,
           scoreColumns: updatedScoreColumns
         };
       }
