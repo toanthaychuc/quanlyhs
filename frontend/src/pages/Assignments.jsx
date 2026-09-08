@@ -28,7 +28,10 @@ import {
   Globe,
   Lock,
   Paperclip,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Download,
+  ChevronRight,
+  Copy
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
@@ -38,6 +41,17 @@ import { supabase } from '../lib/supabase';
 import MathView from '../components/MathView';
 import { stripLatexComments, extractBracedBlocks, parseImminiBlock, cleanQuestionObj } from '../utils/latexUtils';
 import './Assignments.css';
+
+const getDownloadUrl = (url, fileName) => {
+  if (!url) return url;
+  try {
+    const urlObj = new URL(url);
+    urlObj.searchParams.set('download', fileName);
+    return urlObj.toString();
+  } catch (e) {
+    return url;
+  }
+};
 
 // Phân tích mã nguồn LaTeX đa năng hỗ trợ các dạng câu hỏi chuẩn
 const parseLatexStringToQuestions = (rawText) => {
@@ -520,7 +534,7 @@ const Assignments = () => {
 
         const { data: publicUrlData } = supabase.storage
           .from('assignments')
-          .getPublicUrl(filePath, { download: true });
+          .getPublicUrl(filePath, { download: uf.name });
         
         uploadedUrls.push({
           fileName: uf.name,
@@ -885,7 +899,7 @@ const Assignments = () => {
                                 <div className="flex items-center gap-1">
                                   <FileCheck size={14} color="#0284c7" />
                                   {f.fileUrl ? (
-                                    <a href={f.fileUrl} target="_blank" rel="noopener noreferrer" download={f.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{f.fileName}</strong> ({f.fileSize})</a>
+                                    <a href={getDownloadUrl(f.fileUrl, f.fileName)} target="_blank" rel="noopener noreferrer" download={f.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{f.fileName}</strong> ({f.fileSize})</a>
                                   ) : (
                                     <strong style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>{f.fileName} (Bản cũ - Không xem được)</strong>
                                   )}
@@ -905,7 +919,7 @@ const Assignments = () => {
                                 <div className="flex items-center gap-1">
                                   <FileCheck size={14} color="#0284c7" />
                                   {mySubmission.fileUrl ? (
-                                    <a href={mySubmission.fileUrl} target="_blank" rel="noopener noreferrer" download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{mySubmission.fileName}</strong></a>
+                                    <a href={getDownloadUrl(mySubmission.fileUrl, mySubmission.fileName)} target="_blank" rel="noopener noreferrer" download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{mySubmission.fileName}</strong></a>
                                   ) : (
                                     <strong style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>{mySubmission.fileName} (Bản cũ - Không xem được)</strong>
                                   )}
@@ -1078,7 +1092,7 @@ const Assignments = () => {
                                           <div key={i} className="flex items-center gap-1">
                                             <Paperclip size={13} color="#4f46e5" />
                                             {f.fileUrl ? (
-                                              <a href={f.fileUrl} target="_blank" rel="noopener noreferrer" download={f.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
+                                              <a href={getDownloadUrl(f.fileUrl, f.fileName)} target="_blank" rel="noopener noreferrer" download={f.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
                                                 {f.fileName} ({f.fileSize})
                                               </a>
                                             ) : (
@@ -1092,7 +1106,7 @@ const Assignments = () => {
                                         <div className="flex items-center gap-1">
                                           <Paperclip size={13} color="#4f46e5" />
                                           {sub.fileUrl ? (
-                                            <a href={sub.fileUrl} target="_blank" rel="noopener noreferrer" download={sub.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
+                                            <a href={getDownloadUrl(sub.fileUrl, sub.fileName)} target="_blank" rel="noopener noreferrer" download={sub.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
                                               {sub.fileName} ({sub.fileSize})
                                             </a>
                                           ) : (
