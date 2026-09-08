@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import imageCompression from 'browser-image-compression';
 import { 
   BookOpen, 
   Plus, 
@@ -251,6 +252,7 @@ const Assignments = () => {
   const [submittingFileAsg, setSubmittingFileAsg] = useState(null);
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [uploadedFileSize, setUploadedFileSize] = useState('');
+  const [isCompressing, setIsCompressing] = useState(false);
 
   // Kéo thả & Nạp file LaTeX
   const texFileInputRef = useRef(null);
@@ -433,11 +435,29 @@ const Assignments = () => {
   };
 
   // Học sinh nộp file PDF / Hình ảnh
-  const handleStudentFileUpload = (e) => {
+  const handleStudentFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadedFileName(file.name);
-      setUploadedFileSize((file.size / (1024 * 1024)).toFixed(2) + ' MB');
+      let finalFile = file;
+      
+      if (file.type.startsWith('image/')) {
+        setIsCompressing(true);
+        try {
+          const options = {
+            maxSizeMB: 0.2, // ~200KB
+            maxWidthOrHeight: 1920,
+            useWebWorker: true
+          };
+          finalFile = await imageCompression(file, options);
+        } catch (error) {
+          console.error('Lỗi khi nén ảnh:', error);
+        } finally {
+          setIsCompressing(false);
+        }
+      }
+
+      setUploadedFileName(finalFile.name);
+      setUploadedFileSize((finalFile.size / (1024 * 1024)).toFixed(2) + ' MB');
     }
   };
 
@@ -1215,7 +1235,12 @@ const Assignments = () => {
                 />
               </div>
 
-              {uploadedFileName && (
+              {isCompressing && (
+                <div style={{ textAlign: 'center', marginTop: '10px', color: 'var(--primary-color)' }}>
+                  <small>Đang nén ảnh...</small>
+                </div>
+              )}
+              {uploadedFileName && !isCompressing && (
                 <div className="file-chip">
                   <FileCheck size={16} />
                   <span>{uploadedFileName} ({uploadedFileSize})</span>
