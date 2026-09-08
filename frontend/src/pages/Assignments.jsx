@@ -800,7 +800,7 @@ const Assignments = () => {
                               (File: {mySubmission.fileUrl ? (
                                 <a href={mySubmission.fileUrl} target="_blank" rel="noopener noreferrer" download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline' }}><strong>{mySubmission.fileName}</strong></a>
                               ) : (
-                                <strong>{mySubmission.fileName}</strong>
+                                <strong style={{ color: '#94a3b8', fontStyle: 'italic' }}>{mySubmission.fileName} (Bản cũ - Không xem được)</strong>
                               )})
                             </span>
                           )}
@@ -963,7 +963,9 @@ const Assignments = () => {
                                           {sub.fileName} ({sub.fileSize})
                                         </a>
                                       ) : (
-                                        <span>{sub.fileName} ({sub.fileSize})</span>
+                                        <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>
+                                          {sub.fileName} (Bản cũ - Không xem được)
+                                        </span>
                                       )}
                                     </div>
                                   ) : (
