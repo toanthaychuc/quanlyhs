@@ -537,20 +537,33 @@ const Assignments = () => {
 
     setAssignments(prev => prev.map(a => {
       if (a.id !== submittingFileAsg.id) return a;
+      
+      const existingSub = a.submissions?.[currentStudentId];
+      let existingFiles = existingSub?.files || [];
+      if (!existingFiles.length && existingSub?.fileName) {
+        existingFiles.push({
+          fileName: existingSub.fileName,
+          fileSize: existingSub.fileSize || '',
+          fileUrl: existingSub.fileUrl
+        });
+      }
+      
+      const mergedFiles = [...existingFiles, ...uploadedUrls];
+
       return {
         ...a,
         submissions: {
           ...a.submissions,
           [currentStudentId]: {
+            ...existingSub,
             submittedAt: new Date().toLocaleString('vi-VN'),
-            score: null, // Chờ giáo viên chấm
+            score: existingSub?.score !== undefined ? existingSub.score : null,
             status: 'submitted',
             type: 'file',
-            files: uploadedUrls, // Lưu mảng các file đã nộp
-            // Fallback cho tương thích ngược nếu cần
-            fileName: uploadedUrls[0]?.fileName,
-            fileSize: uploadedUrls[0]?.fileSize,
-            fileUrl: uploadedUrls[0]?.fileUrl
+            files: mergedFiles,
+            fileName: mergedFiles[0]?.fileName,
+            fileSize: mergedFiles[0]?.fileSize,
+            fileUrl: mergedFiles[0]?.fileUrl
           }
         }
       };
@@ -560,6 +573,53 @@ const Assignments = () => {
     alert(`🎉 Đã tải lên và nộp thành công ${uploadedUrls.length} file!`);
     setSubmittingFileAsg(null);
     setUploadedFiles([]);
+  };
+
+  const handleDeleteSubmittedFile = async (asgId, fileIndex) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa file này khỏi bài nộp?")) return;
+    
+    setAssignments(prev => prev.map(a => {
+      if (a.id !== asgId) return a;
+      
+      const existingSub = a.submissions?.[currentStudentId];
+      if (!existingSub) return a;
+
+      let existingFiles = existingSub.files || [];
+      if (!existingFiles.length && existingSub.fileName) {
+        existingFiles.push({
+          fileName: existingSub.fileName,
+          fileSize: existingSub.fileSize || '',
+          fileUrl: existingSub.fileUrl
+        });
+      }
+
+      const newFiles = existingFiles.filter((_, i) => i !== fileIndex);
+      
+      if (newFiles.length === 0) {
+        // Nếu xóa hết file, coi như chưa nộp
+        const newSubmissions = { ...a.submissions };
+        delete newSubmissions[currentStudentId];
+        return {
+          ...a,
+          submissions: newSubmissions
+        };
+      }
+
+      return {
+        ...a,
+        submissions: {
+          ...a.submissions,
+          [currentStudentId]: {
+            ...existingSub,
+            files: newFiles,
+            fileName: newFiles[0]?.fileName,
+            fileSize: newFiles[0]?.fileSize,
+            fileUrl: newFiles[0]?.fileUrl
+          }
+        }
+      };
+    }));
+    alert("Đã xóa file khỏi bài nộp thành công.");
   };
 
   const removeUploadedFile = (index) => {
@@ -821,24 +881,42 @@ const Assignments = () => {
                         <div style={{ marginLeft: '26px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                           {mySubmission.files ? (
                             mySubmission.files.map((f, i) => (
-                              <div key={i} className="flex items-center gap-1">
-                                <FileCheck size={14} color="#0284c7" />
-                                {f.fileUrl ? (
-                                  <a href={f.fileUrl} target="_blank" rel="noopener noreferrer" download={f.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{f.fileName}</strong> ({f.fileSize})</a>
-                                ) : (
-                                  <strong style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>{f.fileName} (Bản cũ - Không xem được)</strong>
-                                )}
+                              <div key={i} className="flex items-center gap-2">
+                                <div className="flex items-center gap-1">
+                                  <FileCheck size={14} color="#0284c7" />
+                                  {f.fileUrl ? (
+                                    <a href={f.fileUrl} target="_blank" rel="noopener noreferrer" download={f.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{f.fileName}</strong> ({f.fileSize})</a>
+                                  ) : (
+                                    <strong style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>{f.fileName} (Bản cũ - Không xem được)</strong>
+                                  )}
+                                </div>
+                                <button 
+                                  onClick={() => handleDeleteSubmittedFile(asg.id, i)}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                                  title="Xóa file này"
+                                >
+                                  <X size={14} color="#dc2626" />
+                                </button>
                               </div>
                             ))
                           ) : (
                             mySubmission.fileName && (
-                              <div className="flex items-center gap-1">
-                                <FileCheck size={14} color="#0284c7" />
-                                {mySubmission.fileUrl ? (
-                                  <a href={mySubmission.fileUrl} target="_blank" rel="noopener noreferrer" download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{mySubmission.fileName}</strong></a>
-                                ) : (
-                                  <strong style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>{mySubmission.fileName} (Bản cũ - Không xem được)</strong>
-                                )}
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1">
+                                  <FileCheck size={14} color="#0284c7" />
+                                  {mySubmission.fileUrl ? (
+                                    <a href={mySubmission.fileUrl} target="_blank" rel="noopener noreferrer" download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{mySubmission.fileName}</strong></a>
+                                  ) : (
+                                    <strong style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>{mySubmission.fileName} (Bản cũ - Không xem được)</strong>
+                                  )}
+                                </div>
+                                <button 
+                                  onClick={() => handleDeleteSubmittedFile(asg.id, 0)}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                                  title="Xóa file này"
+                                >
+                                  <X size={14} color="#dc2626" />
+                                </button>
                               </div>
                             )
                           )}
@@ -890,7 +968,7 @@ const Assignments = () => {
                           }}
                         >
                           <UploadCloud size={15} />
-                          <span>{hasSubmitted ? 'Nộp lại file khác' : 'Tải lên File PDF / Ảnh bài làm'}</span>
+                          <span>{hasSubmitted ? 'Nộp thêm file' : 'Tải lên File PDF / Ảnh bài làm'}</span>
                         </button>
                       )
                     )}
