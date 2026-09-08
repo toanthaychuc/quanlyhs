@@ -184,6 +184,28 @@ const ASSIGNMENTS_STORAGE_KEY = 'edumanager_class_assignments_v3';
 
 const INITIAL_ASSIGNMENTS = [];
 
+const renderTextWithLinks = (text) => {
+  if (!text) return null;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.split(urlRegex).map((part, i) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a 
+          key={i} 
+          href={part} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ color: '#2563eb', textDecoration: 'underline' }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 const Assignments = () => {
   const navigate = useNavigate();
   const { isTeacher, isStudent, currentStudentId } = useRole();
@@ -841,8 +863,8 @@ const Assignments = () => {
                 </div>
 
                 {asg.description && (
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                    {asg.description}
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                    {renderTextWithLinks(asg.description)}
                   </p>
                 )}
 
