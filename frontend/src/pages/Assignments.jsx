@@ -750,7 +750,7 @@ const Assignments = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="assignment-progress-section" style={{ padding: '0.75rem', backgroundColor: hasSubmitted ? '#f0fdf4' : '#fffbeb', border: `1px solid ${hasSubmitted ? '#bbf7d0' : '#fef3c7'}`, borderRadius: 'var(--radius-md)' }}>
+                  <div className={`assignment-progress-section student-status ${hasSubmitted ? 'submitted' : 'pending'}`}>
                     {hasSubmitted ? (
                       <div className="flex items-center gap-2" style={{ color: '#16a34a', fontSize: '0.9rem' }}>
                         <CheckCircle2 size={18} />
