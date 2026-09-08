@@ -194,10 +194,17 @@ const Classes = () => {
   // Tìm kiếm học sinh
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Lọc lớp theo trường
-  const filteredClasses = selectedSchool === 'ALL' 
+  // Lọc lớp theo trường và phân quyền học sinh
+  const filteredClasses = (selectedSchool === 'ALL' 
     ? classes 
-    : classes.filter(c => c.school === selectedSchool);
+    : classes.filter(c => c.school === selectedSchool)
+  ).filter(c => {
+    if (isTeacher) return true;
+    if (isStudent && currentStudentId) {
+      return c.students?.some(s => s.id === currentStudentId);
+    }
+    return false;
+  });
 
   // Lớp hiện tại
   const currentClass = classes.find(c => c.id === activeClassId) || filteredClasses[0];
