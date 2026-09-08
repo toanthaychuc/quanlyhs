@@ -693,27 +693,50 @@ const Assignments = () => {
                   </div>
                 )}
 
-                {/* Báo cáo tiến độ */}
-                <div className="assignment-progress-section">
-                  <div className="progress-header-row">
-                    <span>
-                      Báo cáo tiến độ nộp bài: <strong>{submittedCount}/{totalStudentsInClass} học sinh</strong> ({submitPercent}%)
-                    </span>
-                    <span style={{ color: submitPercent >= 80 ? '#16a34a' : '#b45309' }}>
-                      {submitPercent >= 80 ? 'Tiến độ tốt' : 'Cần đôn đốc thêm'}
-                    </span>
-                  </div>
+                {/* Báo cáo tiến độ (Giáo viên) / Trạng thái (Học sinh) */}
+                {isTeacher ? (
+                  <div className="assignment-progress-section">
+                    <div className="progress-header-row">
+                      <span>
+                        Báo cáo tiến độ nộp bài: <strong>{submittedCount}/{totalStudentsInClass} học sinh</strong> ({submitPercent}%)
+                      </span>
+                      <span style={{ color: submitPercent >= 80 ? '#16a34a' : '#b45309' }}>
+                        {submitPercent >= 80 ? 'Tiến độ tốt' : 'Cần đôn đốc thêm'}
+                      </span>
+                    </div>
 
-                  <div className="progress-track" style={{ height: '8px' }}>
-                    <div 
-                      className="progress-fill" 
-                      style={{ 
-                        width: `${submitPercent}%`, 
-                        backgroundColor: submitPercent >= 80 ? '#10b981' : '#4f46e5' 
-                      }} 
-                    />
+                    <div className="progress-track" style={{ height: '8px' }}>
+                      <div 
+                        className="progress-fill" 
+                        style={{ 
+                          width: `${submitPercent}%`, 
+                          backgroundColor: submitPercent >= 80 ? '#10b981' : '#4f46e5' 
+                        }} 
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="assignment-progress-section" style={{ padding: '0.75rem', backgroundColor: hasSubmitted ? '#f0fdf4' : '#fffbeb', border: `1px solid ${hasSubmitted ? '#bbf7d0' : '#fef3c7'}`, borderRadius: 'var(--radius-md)' }}>
+                    {hasSubmitted ? (
+                      <div className="flex items-center gap-2" style={{ color: '#16a34a', fontSize: '0.9rem' }}>
+                        <CheckCircle2 size={18} />
+                        <span>
+                          Bạn đã nộp bài thành công.
+                          {mySubmission.fileName && (
+                            <span style={{ marginLeft: '6px' }}>
+                              (File: <strong>{mySubmission.fileName}</strong>)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2" style={{ color: '#d97706', fontSize: '0.9rem' }}>
+                        <AlertCircle size={18} />
+                        <span>Bạn chưa nộp bài tập này. Hãy hoàn thành trước hạn nộp nhé!</span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Hàng nút bấm hành động */}
                 <div className="assignment-actions-row">
