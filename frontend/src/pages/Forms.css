@@ -36,9 +36,9 @@
   align-items: center;
   justify-content: center;
   padding: 4rem 2rem;
-  background: white;
+  background: var(--surface-color);
   border-radius: var(--radius-lg);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
   border: 1px dashed var(--border-color);
   color: var(--text-secondary);
   text-align: center;
@@ -57,9 +57,9 @@
 }
 
 .form-card {
-  background: white;
+  background: var(--surface-color);
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
   position: relative;
   transition: all 0.2s ease;
@@ -77,13 +77,13 @@
 }
 
 .form-view-card:hover {
-  background-color: #f8fafc;
+  background-color: var(--bg-color);
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-lg);
 }
 
 .form-icon-wrapper {
-  background: #eef2ff;
+  background: rgba(99, 102, 241, 0.1);
   border-radius: 12px;
   width: 48px;
   height: 48px;
@@ -127,7 +127,7 @@
 /* Edit Mode */
 .form-edit-fields {
   padding: 1.5rem;
-  background: #f8fafc;
+  background: var(--bg-color);
   border-left: 4px solid var(--primary-color);
 }
 
@@ -145,16 +145,18 @@
 
 .form-group .input {
   width: 100%;
-  background: white;
+  background: var(--surface-color);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .btn-delete-form {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: white;
-  border: 1px solid #fee2e2;
-  color: #ef4444;
+  background: var(--surface-color);
+  border: 1px solid var(--danger-color);
+  color: var(--danger-color);
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -166,7 +168,7 @@
 }
 
 .btn-delete-form:hover {
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .btn-add-form {
@@ -176,10 +178,10 @@
   gap: 0.5rem;
   width: 100%;
   padding: 1rem;
-  background: white;
-  border: 2px dashed #cbd5e1;
+  background: var(--surface-color);
+  border: 2px dashed var(--border-color);
   border-radius: var(--radius-lg);
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -188,7 +190,7 @@
 .btn-add-form:hover {
   border-color: var(--primary-color);
   color: var(--primary-color);
-  background: #f8fafc;
+  background: var(--bg-color);
 }
 
 /* Responsive */
