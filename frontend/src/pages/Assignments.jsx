@@ -249,6 +249,28 @@ const Assignments = () => {
     };
   }, [assignments, isCloudSynced]);
 
+  // Xóa dữ liệu điểm ảo (điểm 9 tự động) cũ của file nộp
+  useEffect(() => {
+    if (!isCloudSynced || assignments.length === 0) return;
+    let hasDummy = false;
+    const cleanAssignments = assignments.map(a => {
+      if (!a.submissions) return a;
+      let modified = false;
+      const newSubmissions = { ...a.submissions };
+      for (const stId in newSubmissions) {
+        if (newSubmissions[stId].type === 'file' && newSubmissions[stId].score === 9) {
+          newSubmissions[stId] = { ...newSubmissions[stId], score: null };
+          modified = true;
+          hasDummy = true;
+        }
+      }
+      return modified ? { ...a, submissions: newSubmissions } : a;
+    });
+    if (hasDummy) {
+      setAssignments(cleanAssignments);
+    }
+  }, [isCloudSynced, assignments.length]);
+
   // Modal nộp file của học sinh
   const [submittingFileAsg, setSubmittingFileAsg] = useState(null);
   const [uploadedFileName, setUploadedFileName] = useState('');
@@ -525,6 +547,23 @@ const Assignments = () => {
     setUploadedFile(null);
   };
 
+  // Giáo viên chấm điểm
+  const handleGradeSubmission = (asgId, studentId, newScore) => {
+    setAssignments(prev => prev.map(a => {
+      if (a.id !== asgId) return a;
+      return {
+        ...a,
+        submissions: {
+          ...a.submissions,
+          [studentId]: {
+            ...a.submissions[studentId],
+            score: newScore === '' ? null : Number(newScore)
+          }
+        }
+      };
+    }));
+  };
+
   // Học sinh làm bài online trực tiếp
   const handleStudentDoOnline = (asg) => {
     const randomScore = (8.0 + Math.random() * 2.0).toFixed(1);
@@ -698,7 +737,7 @@ const Assignments = () => {
                   <div>
                     {hasSubmitted ? (
                       <span className="badge-tag active">
-                        ✓ Đã nộp bài ({mySubmission.score}/10đ)
+                        ✓ Đã nộp bài ({mySubmission.score !== null ? `${mySubmission.score}/10đ` : 'Chờ chấm'})
                       </span>
                     ) : (
                       <span className="badge-tag urgent">
@@ -934,9 +973,22 @@ const Assignments = () => {
                               </td>
                               <td style={{ textAlign: 'center', fontWeight: 700 }}>
                                 {isDone ? (
-                                  <span style={{ color: sub.score >= 8 ? '#15803d' : (sub.score !== null ? '#b45309' : '#64748b') }}>
-                                    {sub.score !== null ? sub.score : 'Chờ chấm'}
-                                  </span>
+                                  sub.type === 'file' ? (
+                                    <input 
+                                      type="number" 
+                                      min="0" max="10" step="0.1"
+                                      className="score-input"
+                                      style={{ width: '60px', padding: '2px 4px', textAlign: 'center', border: '1px solid var(--border-color)', borderRadius: '4px', background: 'var(--card-bg)', color: 'var(--text-color)' }}
+                                      value={sub.score === null ? '' : sub.score}
+                                      onChange={(e) => handleGradeSubmission(asg.id, st.id, e.target.value)}
+                                      placeholder="—"
+                                      title="Nhập điểm cho học sinh"
+                                    />
+                                  ) : (
+                                    <span style={{ color: sub.score >= 8 ? '#15803d' : (sub.score !== null ? '#b45309' : '#64748b') }}>
+                                      {sub.score !== null ? sub.score : 'Chờ chấm'}
+                                    </span>
+                                  )
                                 ) : '—'}
                               </td>
                               <td style={{ fontSize: '0.8rem', color: '#64748b' }}>
