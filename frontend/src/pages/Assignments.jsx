@@ -273,9 +273,7 @@ const Assignments = () => {
 
   // Modal nộp file của học sinh
   const [submittingFileAsg, setSubmittingFileAsg] = useState(null);
-  const [uploadedFileName, setUploadedFileName] = useState('');
-  const [uploadedFileSize, setUploadedFileSize] = useState('');
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]); // [{ file, name, size }]
   const [isCompressing, setIsCompressing] = useState(false);
 
   // Kéo thả & Nạp file LaTeX
@@ -460,12 +458,17 @@ const Assignments = () => {
 
   // Học sinh nộp file PDF / Hình ảnh
   const handleStudentFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = Array.from(e.target.files);
+    if (!files || files.length === 0) return;
+    
+    setIsCompressing(true);
+    const newFiles = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       let finalFile = file;
       
       if (file.type.startsWith('image/')) {
-        setIsCompressing(true);
         try {
           const options = {
             maxSizeMB: 0.2, // ~200KB
@@ -475,44 +478,56 @@ const Assignments = () => {
           finalFile = await imageCompression(file, options);
         } catch (error) {
           console.error('Lỗi khi nén ảnh:', error);
-        } finally {
-          setIsCompressing(false);
         }
       }
 
-      setUploadedFile(finalFile);
-      setUploadedFileName(finalFile.name);
-      setUploadedFileSize((finalFile.size / (1024 * 1024)).toFixed(2) + ' MB');
+      newFiles.push({
+        file: finalFile,
+        name: finalFile.name,
+        size: (finalFile.size / (1024 * 1024)).toFixed(2) + ' MB'
+      });
     }
+
+    setUploadedFiles(prev => [...prev, ...newFiles]);
+    setIsCompressing(false);
+    
+    // Clear input so same files can be selected again if needed
+    e.target.value = null;
   };
 
   const handleConfirmSubmitFile = async () => {
-    if (!uploadedFileName || !uploadedFile) {
-      alert('Vui lòng chọn file PDF hoặc hình ảnh bài làm trước khi nộp!');
+    if (uploadedFiles.length === 0) {
+      alert('Vui lòng chọn ít nhất một file PDF hoặc hình ảnh bài làm trước khi nộp!');
       return;
     }
 
     setIsCompressing(true);
-    let fileUrl = '';
+    const uploadedUrls = [];
 
     try {
-      const fileExt = uploadedFileName.split('.').pop();
-      const uniqueName = `${currentStudentId}_${Date.now()}.${fileExt}`;
-      const filePath = `${submittingFileAsg.id}/${uniqueName}`;
+      for (const uf of uploadedFiles) {
+        const fileExt = uf.name.split('.').pop();
+        const uniqueName = `${currentStudentId}_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${submittingFileAsg.id}/${uniqueName}`;
 
-      const { data, error } = await supabase.storage
-        .from('assignments')
-        .upload(filePath, uploadedFile);
+        const { error } = await supabase.storage
+          .from('assignments')
+          .upload(filePath, uf.file);
 
-      if (error) {
-        throw error;
+        if (error) {
+          throw error;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('assignments')
+          .getPublicUrl(filePath, { download: true });
+        
+        uploadedUrls.push({
+          fileName: uf.name,
+          fileSize: uf.size,
+          fileUrl: publicUrlData.publicUrl
+        });
       }
-
-      const { data: publicUrlData } = supabase.storage
-        .from('assignments')
-        .getPublicUrl(filePath, { download: true });
-      
-      fileUrl = publicUrlData.publicUrl;
     } catch (err) {
       console.error('Lỗi upload file:', err);
       alert('Có lỗi xảy ra khi tải file lên máy chủ (Vui lòng kiểm tra lại cấu hình Supabase Storage Bucket).');
@@ -531,20 +546,24 @@ const Assignments = () => {
             score: null, // Chờ giáo viên chấm
             status: 'submitted',
             type: 'file',
-            fileName: uploadedFileName,
-            fileSize: uploadedFileSize,
-            fileUrl: fileUrl
+            files: uploadedUrls, // Lưu mảng các file đã nộp
+            // Fallback cho tương thích ngược nếu cần
+            fileName: uploadedUrls[0]?.fileName,
+            fileSize: uploadedUrls[0]?.fileSize,
+            fileUrl: uploadedUrls[0]?.fileUrl
           }
         }
       };
     }));
 
     setIsCompressing(false);
-    alert(`🎉 Đã tải lên và nộp thành công file "${uploadedFileName}"!`);
+    alert(`🎉 Đã tải lên và nộp thành công ${uploadedUrls.length} file!`);
     setSubmittingFileAsg(null);
-    setUploadedFileName('');
-    setUploadedFileSize('');
-    setUploadedFile(null);
+    setUploadedFiles([]);
+  };
+
+  const removeUploadedFile = (index) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   // Giáo viên chấm điểm
@@ -791,20 +810,39 @@ const Assignments = () => {
                 ) : (
                   <div className={`assignment-progress-section student-status ${hasSubmitted ? 'submitted' : 'pending'}`}>
                     {hasSubmitted ? (
-                      <div className="flex items-center gap-2" style={{ color: '#16a34a', fontSize: '0.9rem' }}>
-                        <CheckCircle2 size={18} />
-                        <span>
-                          Bạn đã nộp bài thành công.
-                          {mySubmission.fileName && (
-                            <span style={{ marginLeft: '6px' }}>
-                              (File: {mySubmission.fileUrl ? (
-                                <a href={mySubmission.fileUrl} target="_blank" rel="noopener noreferrer" download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline' }}><strong>{mySubmission.fileName}</strong></a>
-                              ) : (
-                                <strong style={{ color: '#94a3b8', fontStyle: 'italic' }}>{mySubmission.fileName} (Bản cũ - Không xem được)</strong>
-                              )})
-                            </span>
+                      <div className="flex flex-col gap-2" style={{ color: '#16a34a', fontSize: '0.9rem' }}>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 size={18} />
+                          <span>Bạn đã nộp bài thành công.</span>
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#475569', marginLeft: '26px' }}>
+                          <strong>Thời gian nộp:</strong> {mySubmission.submittedAt}
+                        </div>
+                        <div style={{ marginLeft: '26px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {mySubmission.files ? (
+                            mySubmission.files.map((f, i) => (
+                              <div key={i} className="flex items-center gap-1">
+                                <FileCheck size={14} color="#0284c7" />
+                                {f.fileUrl ? (
+                                  <a href={f.fileUrl} target="_blank" rel="noopener noreferrer" download={f.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{f.fileName}</strong> ({f.fileSize})</a>
+                                ) : (
+                                  <strong style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>{f.fileName} (Bản cũ - Không xem được)</strong>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            mySubmission.fileName && (
+                              <div className="flex items-center gap-1">
+                                <FileCheck size={14} color="#0284c7" />
+                                {mySubmission.fileUrl ? (
+                                  <a href={mySubmission.fileUrl} target="_blank" rel="noopener noreferrer" download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '0.85rem' }}><strong>{mySubmission.fileName}</strong></a>
+                                ) : (
+                                  <strong style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>{mySubmission.fileName} (Bản cũ - Không xem được)</strong>
+                                )}
+                              </div>
+                            )
                           )}
-                        </span>
+                        </div>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2" style={{ color: '#d97706', fontSize: '0.9rem' }}>
@@ -848,7 +886,7 @@ const Assignments = () => {
                           style={{ padding: '0.45rem 1rem', fontSize: '0.85rem', backgroundColor: '#d97706', borderColor: '#d97706' }}
                           onClick={() => {
                             setSubmittingFileAsg(asg);
-                            setUploadedFileName('');
+                            setUploadedFiles([]);
                           }}
                         >
                           <UploadCloud size={15} />
@@ -956,16 +994,35 @@ const Assignments = () => {
                               <td>
                                 {isDone ? (
                                   sub.type === 'file' ? (
-                                    <div className="flex items-center gap-1 text-xs font-semibold">
-                                      <Paperclip size={13} color="#4f46e5" />
-                                      {sub.fileUrl ? (
-                                        <a href={sub.fileUrl} target="_blank" rel="noopener noreferrer" download={sub.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
-                                          {sub.fileName} ({sub.fileSize})
-                                        </a>
+                                    <div className="flex flex-col gap-1 text-xs font-semibold">
+                                      {sub.files ? (
+                                        sub.files.map((f, i) => (
+                                          <div key={i} className="flex items-center gap-1">
+                                            <Paperclip size={13} color="#4f46e5" />
+                                            {f.fileUrl ? (
+                                              <a href={f.fileUrl} target="_blank" rel="noopener noreferrer" download={f.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
+                                                {f.fileName} ({f.fileSize})
+                                              </a>
+                                            ) : (
+                                              <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>
+                                                {f.fileName} (Bản cũ - Không xem được)
+                                              </span>
+                                            )}
+                                          </div>
+                                        ))
                                       ) : (
-                                        <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>
-                                          {sub.fileName} (Bản cũ - Không xem được)
-                                        </span>
+                                        <div className="flex items-center gap-1">
+                                          <Paperclip size={13} color="#4f46e5" />
+                                          {sub.fileUrl ? (
+                                            <a href={sub.fileUrl} target="_blank" rel="noopener noreferrer" download={sub.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
+                                              {sub.fileName} ({sub.fileSize})
+                                            </a>
+                                          ) : (
+                                            <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>
+                                              {sub.fileName} (Bản cũ - Không xem được)
+                                            </span>
+                                          )}
+                                        </div>
                                       )}
                                     </div>
                                   ) : (
@@ -1344,13 +1401,14 @@ const Assignments = () => {
                 <div>
                   <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>Nhấn để chọn file hoặc kéo thả vào đây</strong>
                   <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.2rem' }}>
-                    Hỗ trợ: .PDF, .PNG, .JPG, .JPEG (Tối đa 25MB)
+                    Hỗ trợ chọn nhiều file: .PDF, .PNG, .JPG, .JPEG
                   </div>
                 </div>
                 <input 
                   id="student-file-input"
                   type="file" 
                   accept=".pdf,image/*" 
+                  multiple
                   style={{ display: 'none' }}
                   onChange={handleStudentFileUpload}
                 />
@@ -1361,10 +1419,28 @@ const Assignments = () => {
                   <small>Đang nén ảnh...</small>
                 </div>
               )}
-              {uploadedFileName && !isCompressing && (
-                <div className="file-chip">
-                  <FileCheck size={16} />
-                  <span>{uploadedFileName} ({uploadedFileSize})</span>
+              {!isCompressing && uploadedFiles.length > 0 && (
+                <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-color)' }}>
+                    Các file đã chọn ({uploadedFiles.length}):
+                  </div>
+                  {uploadedFiles.map((uf, idx) => (
+                    <div key={idx} className="file-chip" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <FileCheck size={16} />
+                        <span>{uf.name} ({uf.size})</span>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => removeUploadedFile(idx)} 
+                        className="btn-icon" 
+                        style={{ padding: '4px' }}
+                        title="Xóa file này"
+                      >
+                        <X size={14} color="#dc2626" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
