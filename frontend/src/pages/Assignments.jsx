@@ -488,7 +488,7 @@ const Assignments = () => {
 
       const { data: publicUrlData } = supabase.storage
         .from('assignments')
-        .getPublicUrl(filePath);
+        .getPublicUrl(filePath, { download: true });
       
       fileUrl = publicUrlData.publicUrl;
     } catch (err) {
@@ -758,7 +758,11 @@ const Assignments = () => {
                           Bạn đã nộp bài thành công.
                           {mySubmission.fileName && (
                             <span style={{ marginLeft: '6px' }}>
-                              (File: <a href={mySubmission.fileUrl || '#'} target="_blank" rel="noopener noreferrer" style={{ color: '#0284c7', textDecoration: 'underline' }}><strong>{mySubmission.fileName}</strong></a>)
+                              (File: {mySubmission.fileUrl ? (
+                                <a href={mySubmission.fileUrl} download={mySubmission.fileName} style={{ color: '#0284c7', textDecoration: 'underline' }}><strong>{mySubmission.fileName}</strong></a>
+                              ) : (
+                                <strong>{mySubmission.fileName}</strong>
+                              )})
                             </span>
                           )}
                         </span>
@@ -915,9 +919,13 @@ const Assignments = () => {
                                   sub.type === 'file' ? (
                                     <div className="flex items-center gap-1 text-xs font-semibold">
                                       <Paperclip size={13} color="#4f46e5" />
-                                      <a href={sub.fileUrl || '#'} target="_blank" rel="noopener noreferrer" style={{ color: '#4f46e5', textDecoration: 'underline' }}>
-                                        {sub.fileName} ({sub.fileSize})
-                                      </a>
+                                      {sub.fileUrl ? (
+                                        <a href={sub.fileUrl} download={sub.fileName} style={{ color: '#4f46e5', textDecoration: 'underline' }}>
+                                          {sub.fileName} ({sub.fileSize})
+                                        </a>
+                                      ) : (
+                                        <span>{sub.fileName} ({sub.fileSize})</span>
+                                      )}
                                     </div>
                                   ) : (
                                     <span className="text-xs text-gray-600">Trắc nghiệm Online</span>
