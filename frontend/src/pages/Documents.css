@@ -468,7 +468,7 @@
   color: var(--text-secondary);
 }
 
-.with-icon {
+.input.with-icon {
   padding-left: 2.5rem;
 }
 
