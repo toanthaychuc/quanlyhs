@@ -1,0 +1,1 @@
+const text = 	hu là lớn nhất {\\\\it (làm tròn kết quả đến hàng phần chục)}; console.log(text.replace(/\\{\\s*\\\\it\\b\\s*([^}]+)\\}/g, '**'));

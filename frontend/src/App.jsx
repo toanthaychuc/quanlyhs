@@ -8,6 +8,7 @@ import Exams from './pages/Exams';
 import Classes from './pages/Classes';
 import Assignments from './pages/Assignments';
 import Forum from './pages/Forum';
+import Forms from './pages/Forms';
 import Leaderboard from './pages/Leaderboard';
 import MyRank from './pages/MyRank';
 
@@ -92,6 +93,7 @@ function App() {
               <Route path="documents" element={<Documents />} />
               <Route path="exams" element={<Exams />} />
               <Route path="forum" element={<Forum />} />
+              <Route path="forms" element={<Forms />} />
               <Route path="leaderboard" element={<Leaderboard />} />
               <Route path="my-rank" element={<MyRank />} />
               <Route path="*" element={<Navigate to="/" replace />} />
