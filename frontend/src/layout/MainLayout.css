@@ -20,7 +20,7 @@
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  transition: width var(--transition-normal);
+  transition: transform var(--transition-normal), width var(--transition-normal);
   z-index: 10;
 }
 
@@ -270,6 +270,11 @@
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 100;
     transform: translateX(-100%);
   }
   .sidebar.open {
