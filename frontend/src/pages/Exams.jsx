@@ -47,7 +47,7 @@ const questionsToLatexString = (questions) => {
     if (q.clusterContext && q.clusterLength > 1) {
       latexLines.push(`%%%=== Cụm câu ${i + 1} đến ${i + q.clusterLength} ===%%%`);
       latexLines.push(`\\begin{ex}`);
-      latexLines.push(`\\sochc{}`);
+      latexLines.push(`\\sochc{${q.clusterLength}}`);
       latexLines.push(`${q.clusterContext}`);
       
       for (let j = 0; j < q.clusterLength; j++) {
