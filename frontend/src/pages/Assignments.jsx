@@ -75,7 +75,28 @@ const parseLatexStringToQuestions = (rawText) => {
       blocks = [cleanSource];
     }
 
-    return blocks.map((rawBlock, index) => {
+    let expandedBlocks = [];
+    blocks.forEach((rawBlock) => {
+      let block = rawBlock.trim();
+      const chcRegex = /\\begin\s*\{chc\}(?:\[[^\]]*\])*([\s\S]*?)\\end\s*\{chc\}/gi;
+      let chcMatch;
+      let firstChcIndex = block.indexOf('\\begin{chc}');
+      
+      if (firstChcIndex !== -1) {
+        let clusterContext = block.substring(0, firstChcIndex).trim();
+        clusterContext = clusterContext.replace(/\\sochc\s*\{[^\}]*\}/g, '').trim();
+        
+        while ((chcMatch = chcRegex.exec(block)) !== null) {
+          let chcContent = chcMatch[1].trim();
+          let combined = clusterContext ? clusterContext + '\n\n' + chcContent : chcContent;
+          expandedBlocks.push(combined);
+        }
+      } else {
+        expandedBlocks.push(block);
+      }
+    });
+
+    return expandedBlocks.map((rawBlock, index) => {
       let block = rawBlock.trim();
       block = block.replace(/^\s*(?:\[[^\]]*\]\s*)+/g, '').trim();
       block = block.replace(/\\par\s*(?=\\shortans)/gi, '').trim();
