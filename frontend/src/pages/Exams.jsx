@@ -38,38 +38,78 @@ const ALL_CURRICULA = {
 // Chuyển danh sách câu hỏi thành chuỗi mã LaTeX chuẩn theo 4 dạng
 const questionsToLatexString = (questions) => {
   if (!questions || questions.length === 0) return '';
-  return questions.map((q, index) => {
-    let str = `%%%=== Câu ${index + 1} ===%%%\n\\begin{ex}\n\t${q.content}\n`;
+  let latexLines = [];
+  let i = 0;
+  
+  while (i < questions.length) {
+    const q = questions[i];
     
-    if (q.questionType === 'true_false') {
-      str += `\t\\choiceTF\n`;
-      (q.options || []).forEach(opt => {
-        if (opt.isCorrectTrue) {
-          str += `\t{\\True ${opt.text}}\n`;
-        } else {
-          str += `\t{${opt.text}}\n`;
+    if (q.clusterContext && q.clusterLength > 1) {
+      latexLines.push(`%%%=== Cụm câu ${i + 1} đến ${i + q.clusterLength} ===%%%`);
+      latexLines.push(`\\begin{ex}`);
+      latexLines.push(`\\sochc{}`);
+      latexLines.push(`${q.clusterContext}`);
+      
+      for (let j = 0; j < q.clusterLength; j++) {
+        const subQ = questions[i + j];
+        if (!subQ) break;
+        
+        latexLines.push(`\\begin{chc}`);
+        latexLines.push(`\t${subQ.content}`);
+        
+        if (subQ.questionType === 'true_false') {
+          latexLines.push(`\t\\choiceTF`);
+          (subQ.options || []).forEach(opt => {
+            latexLines.push(opt.isCorrectTrue ? `\t{\\True ${opt.text}}` : `\t{${opt.text}}`);
+          });
+        } else if (subQ.questionType === 'short_answer') {
+          const cleanAns = String(subQ.correctAnswer || '').replace(/\{,\}/g, ',').replace(/\$/g, '').trim();
+          latexLines.push(`\t\\shortans{${cleanAns}}`);
+        } else if (!subQ.questionType || subQ.questionType === 'multiple_choice') {
+          latexLines.push(`\t\\choice`);
+          (subQ.options || []).forEach(opt => {
+            latexLines.push(opt.key === subQ.correctAnswer ? `\t{\\True ${opt.text}}` : `\t{${opt.text}}`);
+          });
         }
-      });
-    } else if (q.questionType === 'short_answer') {
-      const cleanAns = String(q.correctAnswer || '').replace(/\{,\}/g, ',').replace(/\$/g, '').trim();
-      str += `\t\\shortans{${cleanAns}}\n`;
-    } else if (q.questionType === 'multiple_choice') {
-      str += `\t\\choice\n`;
-      (q.options || []).forEach(opt => {
-        if (opt.key === q.correctAnswer) {
-          str += `\t{\\True ${opt.text}}\n`;
-        } else {
-          str += `\t{${opt.text}}\n`;
-        }
-      });
-    }
 
-    if (q.explanation) {
-      str += `\t\\loigiai{\n\t\t${q.explanation}\n\t}\n`;
+        if (subQ.explanation) {
+          latexLines.push(`\t\\loigiai{\n\t\t${subQ.explanation}\n\t}`);
+        }
+        latexLines.push(`\\end{chc}`);
+      }
+      
+      latexLines.push(`\\end{ex}`);
+      i += q.clusterLength;
+    } else {
+      latexLines.push(`%%%=== Câu ${i + 1} ===%%%`);
+      latexLines.push(`\\begin{ex}`);
+      latexLines.push(`\t${q.content}`);
+      
+      if (q.questionType === 'true_false') {
+        latexLines.push(`\t\\choiceTF`);
+        (q.options || []).forEach(opt => {
+          latexLines.push(opt.isCorrectTrue ? `\t{\\True ${opt.text}}` : `\t{${opt.text}}`);
+        });
+      } else if (q.questionType === 'short_answer') {
+        const cleanAns = String(q.correctAnswer || '').replace(/\{,\}/g, ',').replace(/\$/g, '').trim();
+        latexLines.push(`\t\\shortans{${cleanAns}}`);
+      } else if (!q.questionType || q.questionType === 'multiple_choice') {
+        latexLines.push(`\t\\choice`);
+        (q.options || []).forEach(opt => {
+          latexLines.push(opt.key === q.correctAnswer ? `\t{\\True ${opt.text}}` : `\t{${opt.text}}`);
+        });
+      }
+
+      if (q.explanation) {
+        latexLines.push(`\t\\loigiai{\n\t\t${q.explanation}\n\t}`);
+      }
+      latexLines.push(`\\end{ex}`);
+      
+      i++;
     }
-    str += `\\end{ex}\n`;
-    return str;
-  }).join('\n');
+  }
+  
+  return latexLines.join('\n');
 };
 
 // Phân tích mã nguồn LaTeX đa năng hỗ trợ 4 dạng câu hỏi chuẩn Bộ GD&ĐT
