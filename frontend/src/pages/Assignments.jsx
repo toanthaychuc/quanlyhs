@@ -86,18 +86,25 @@ const parseLatexStringToQuestions = (rawText) => {
         let clusterContext = block.substring(0, firstChcIndex).trim();
         clusterContext = clusterContext.replace(/\\sochc\s*\{[^\}]*\}/g, '').trim();
         
+        let subBlocks = [];
         while ((chcMatch = chcRegex.exec(block)) !== null) {
-          let chcContent = chcMatch[1].trim();
-          let combined = clusterContext ? clusterContext + '\n\n' + chcContent : chcContent;
-          expandedBlocks.push(combined);
+          subBlocks.push(chcMatch[1].trim());
         }
+        
+        subBlocks.forEach((chcContent, idx) => {
+          expandedBlocks.push({
+            text: chcContent,
+            clusterContext: idx === 0 ? clusterContext : null,
+            clusterLength: subBlocks.length
+          });
+        });
       } else {
-        expandedBlocks.push(block);
+        expandedBlocks.push({ text: block });
       }
     });
 
-    return expandedBlocks.map((rawBlock, index) => {
-      let block = rawBlock.trim();
+    return expandedBlocks.map((rawBlockObj, index) => {
+      let block = rawBlockObj.text.trim();
       block = block.replace(/^\s*(?:\[[^\]]*\]\s*)+/g, '').trim();
       block = block.replace(/\\par\s*(?=\\shortans)/gi, '').trim();
 
@@ -192,7 +199,9 @@ const parseLatexStringToQuestions = (rawText) => {
         content: questionContent || `Câu hỏi ${index + 1}`,
         options,
         correctAnswer,
-        explanation
+        explanation,
+        clusterContext: rawBlockObj.clusterContext,
+        clusterLength: rawBlockObj.clusterLength
       });
     });
   } catch (err) {
@@ -1438,7 +1447,18 @@ const Assignments = () => {
                             </div>
                           ) : (
                             parsedQuestions.map((q, qIdx) => (
-                              <div key={q.id || qIdx} className="asg-preview-question-card">
+                              <React.Fragment key={q.id || qIdx}>
+                                {q.clusterContext && (
+                                  <div className="cluster-context-box" style={{ marginBottom: '1rem', padding: '1.25rem', background: '#f8fafc', borderLeft: '4px solid #3b82f6', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                                    <p style={{ fontWeight: 700, marginBottom: '0.75rem', color: '#1e293b', fontSize: '0.95rem' }}>
+                                      Dựa vào thông tin dưới đây để trả lời các câu từ {qIdx + 1} đến {qIdx + q.clusterLength}.
+                                    </p>
+                                    <div style={{ fontSize: '0.9rem', color: '#334155' }}>
+                                      <MathView text={q.clusterContext} />
+                                    </div>
+                                  </div>
+                                )}
+                              <div className="asg-preview-question-card">
                                 <div className="asg-q-header">
                                   <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
                                     Câu {qIdx + 1}

@@ -108,18 +108,25 @@ const parseLatexStringToQuestions = (rawText) => {
       let clusterContext = block.substring(0, firstChcIndex).trim();
       clusterContext = clusterContext.replace(/\\sochc\s*\{[^\}]*\}/g, '').trim();
       
+      let subBlocks = [];
       while ((chcMatch = chcRegex.exec(block)) !== null) {
-        let chcContent = chcMatch[1].trim();
-        let combined = clusterContext ? clusterContext + '\n\n' + chcContent : chcContent;
-        expandedBlocks.push(combined);
+        subBlocks.push(chcMatch[1].trim());
       }
+      
+      subBlocks.forEach((chcContent, idx) => {
+        expandedBlocks.push({
+          text: chcContent,
+          clusterContext: idx === 0 ? clusterContext : null,
+          clusterLength: subBlocks.length
+        });
+      });
     } else {
-      expandedBlocks.push(block);
+      expandedBlocks.push({ text: block });
     }
   });
 
-  return expandedBlocks.map((rawBlock, index) => {
-    let block = rawBlock.trim();
+  return expandedBlocks.map((rawBlockObj, index) => {
+    let block = rawBlockObj.text.trim();
     // Bỏ qua các tag phân loại câu hỏi dạng [thm], [2D1B1-1] ở đầu khối nếu còn sót
     block = block.replace(/^\s*(?:\[[^\]]*\]\s*)+/g, '').trim();
     block = block.replace(/\\par\s*(?=\\shortans)/gi, '').trim();
@@ -273,7 +280,9 @@ const parseLatexStringToQuestions = (rawText) => {
         options,
         correctAnswer,
         explanation: explanation || 'Xem lại kiến thức lý thuyết và phương pháp giải.',
-        _searchSnippet: rawBlock
+        _searchSnippet: rawBlockObj.text,
+        clusterContext: rawBlockObj.clusterContext,
+        clusterLength: rawBlockObj.clusterLength
       });
     });
   } catch (err) {
@@ -2124,8 +2133,18 @@ const Exams = () => {
                       </div>
                     ) : (
                       editorQuestions.map((question, qIdx) => (
+                        <React.Fragment key={question.id || qIdx}>
+                          {question.clusterContext && (
+                            <div className="cluster-context-box" style={{ marginBottom: '1rem', padding: '1.25rem', background: '#f8fafc', borderLeft: '4px solid #3b82f6', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                              <p style={{ fontWeight: 700, marginBottom: '0.75rem', color: '#1e293b', fontSize: '0.95rem' }}>
+                                Dựa vào thông tin dưới đây để trả lời các câu từ {qIdx + 1} đến {qIdx + question.clusterLength}.
+                              </p>
+                              <div style={{ fontSize: '0.9rem', color: '#334155' }}>
+                                <MathView text={question.clusterContext} />
+                              </div>
+                            </div>
+                          )}
                         <div 
-                          key={question.id || qIdx} 
                           className="compiled-question-card"
                           onClick={() => handleQuestionClick(question)}
                           style={{ cursor: 'pointer' }}
@@ -2202,6 +2221,7 @@ const Exams = () => {
                             </div>
                           )}
                         </div>
+                        </React.Fragment>
                       ))
                     )}
                   </div>
