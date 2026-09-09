@@ -537,7 +537,8 @@ const renderFormattedText = (raw) => {
     .replace(/\\par\b/gi, '')
     .replace(/\\qquad/g, '        ')
     .replace(/\\quad/g, '    ')
-    .replace(/\\[,;:]/g, ' ');
+    .replace(/\\[,;:]/g, ' ')
+    .replace(/\\%/g, '%');
   const parts = cleaned.split(/(\*\*[^*]+\*\*|\*[^*]+\*|<u>[^<]+<\/u>)/g);
   return parts.map((sub, sIdx) => {
     if (sub.startsWith('**') && sub.endsWith('**')) {
