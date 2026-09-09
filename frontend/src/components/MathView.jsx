@@ -555,10 +555,12 @@ const renderFormattedText = (raw) => {
 
 const TabularViewer = ({ code }) => {
   if (!code) return null;
-  const rows = code.split(/\\\\/g).map(r => r.trim()).filter(Boolean);
+  // Loại bỏ \cline{...} để không bị in ra thành text
+  const codeWithoutCline = code.replace(/\\cline\s*\{[^}]*\}/g, '');
+  const rows = codeWithoutCline.split(/\\\\/g).map(r => r.trim()).filter(Boolean);
   return (
     <div style={{ overflowX: 'auto', margin: '1rem 0' }}>
-      <table className="latex-tabular-table" style={{ borderCollapse: 'collapse', margin: '0 auto', fontSize: '0.95em' }}>
+      <table className="latex-tabular-table" style={{ borderCollapse: 'collapse', margin: '0 auto', fontSize: '0.95em', width: '100%', whiteSpace: 'nowrap' }}>
         <tbody>
           {rows.map((row, rIdx) => {
             if (row === '\\hline') return null;
@@ -567,11 +569,23 @@ const TabularViewer = ({ code }) => {
             const cells = cleanRow.split('&').map(c => c.trim());
             return (
               <tr key={rIdx}>
-                {cells.map((cell, cIdx) => (
-                  <td key={cIdx} style={{ border: '1px solid #ccc', padding: '8px 16px', textAlign: 'center' }}>
-                    <RenderMathSegment rawText={cell} />
-                  </td>
-                ))}
+                {cells.map((cell, cIdx) => {
+                  let colSpan = 1;
+                  let content = cell;
+                  
+                  // Phân tích \multicolumn{cols}{align}{content}
+                  const mcMatch = content.match(/\\multicolumn\s*\{(\d+)\}\s*\{[^{}]*\}\s*\{([\s\S]*?)\}\s*$/);
+                  if (mcMatch) {
+                    colSpan = parseInt(mcMatch[1], 10);
+                    content = mcMatch[2];
+                  }
+
+                  return (
+                    <td key={cIdx} colSpan={colSpan} style={{ border: '1px solid #ccc', padding: '8px 16px', textAlign: 'center' }}>
+                      <RenderMathSegment rawText={content} />
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}
