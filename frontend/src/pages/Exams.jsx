@@ -1985,7 +1985,7 @@ const Exams = () => {
                   </div>
 
                   {/* POINTS CONFIG UI - COMPACT */}
-                  <div className="points-config-compact" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginBottom: '8px', background: 'rgba(255, 255, 255, 0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <div className="points-config-compact" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginBottom: '8px', background: 'var(--bg-secondary, #f1f5f9)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color, #e2e8f0)' }}>
                     <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--primary-color)', whiteSpace: 'nowrap' }}>
                       Tổng điểm: {
                         ((editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length * (examFormData.pointsConfig?.multipleChoice || 0)) + 
@@ -1996,33 +1996,33 @@ const Exams = () => {
                     
                     <div style={{ display: 'flex', gap: '12px', flex: 1, flexWrap: 'wrap', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <label style={{ fontSize: '11px', color: 'var(--text-secondary, #94a3b8)', margin: 0, whiteSpace: 'nowrap' }}>TN 4 PA ({editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length}):</label>
+                        <label style={{ fontSize: '12px', color: 'var(--text-color, #1e293b)', margin: 0, whiteSpace: 'nowrap', fontWeight: '500' }}>TN 4 PA ({editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length}):</label>
                         <input 
                           type="number" step="0.01" min="0" 
-                          style={{ width: '45px', padding: '2px 4px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px' }} 
+                          style={{ width: '45px', padding: '2px 4px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--border-color, #cbd5e1)', background: 'var(--bg-color, #fff)', color: 'var(--text-color, #1e293b)', height: '24px', fontWeight: '600' }} 
                           value={examFormData.pointsConfig?.multipleChoice ?? 0.25} 
                           onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, multipleChoice: parseFloat(e.target.value) || 0 } }))} 
                         />
                       </div>
                       
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <label style={{ fontSize: '11px', color: 'var(--text-secondary, #94a3b8)', margin: 0, whiteSpace: 'nowrap' }}>TL ngắn ({editorQuestions.filter(q => q.questionType === 'short_answer').length}):</label>
+                        <label style={{ fontSize: '12px', color: 'var(--text-color, #1e293b)', margin: 0, whiteSpace: 'nowrap', fontWeight: '500' }}>TL ngắn ({editorQuestions.filter(q => q.questionType === 'short_answer').length}):</label>
                         <input 
                           type="number" step="0.01" min="0" 
-                          style={{ width: '45px', padding: '2px 4px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px' }} 
+                          style={{ width: '45px', padding: '2px 4px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--border-color, #cbd5e1)', background: 'var(--bg-color, #fff)', color: 'var(--text-color, #1e293b)', height: '24px', fontWeight: '600' }} 
                           value={examFormData.pointsConfig?.shortAnswer ?? 0.5} 
                           onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, shortAnswer: parseFloat(e.target.value) || 0 } }))} 
                         />
                       </div>
                       
                       {editorQuestions.filter(q => q.questionType === 'true_false').length > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '8px' }}>
-                          <label style={{ fontSize: '11px', color: 'var(--text-secondary, #94a3b8)', margin: 0, whiteSpace: 'nowrap' }}>Đúng/Sai ({editorQuestions.filter(q => q.questionType === 'true_false').length}):</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', borderLeft: '1px solid var(--border-color, #cbd5e1)', paddingLeft: '8px' }}>
+                          <label style={{ fontSize: '12px', color: 'var(--text-color, #1e293b)', margin: 0, whiteSpace: 'nowrap', fontWeight: '500' }}>Đúng/Sai ({editorQuestions.filter(q => q.questionType === 'true_false').length}):</label>
                           <div style={{ display: 'flex', gap: '4px' }}>
-                            <input type="number" step="0.01" min="0" title="Đúng 1 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px', textAlign: 'center' }} value={examFormData.pointsConfig?.trueFalse?.correct1 ?? 0.1} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct1: parseFloat(e.target.value) || 0 } } }))} />
-                            <input type="number" step="0.01" min="0" title="Đúng 2 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px', textAlign: 'center' }} value={examFormData.pointsConfig?.trueFalse?.correct2 ?? 0.25} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct2: parseFloat(e.target.value) || 0 } } }))} />
-                            <input type="number" step="0.01" min="0" title="Đúng 3 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px', textAlign: 'center' }} value={examFormData.pointsConfig?.trueFalse?.correct3 ?? 0.5} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct3: parseFloat(e.target.value) || 0 } } }))} />
-                            <input type="number" step="0.01" min="0" title="Đúng 4 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px', textAlign: 'center' }} value={examFormData.pointsConfig?.trueFalse?.correct4 ?? 1.0} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct4: parseFloat(e.target.value) || 0 } } }))} />
+                            <input type="number" step="0.01" min="0" title="Đúng 1 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid var(--border-color, #cbd5e1)', background: 'var(--bg-color, #fff)', color: 'var(--text-color, #1e293b)', height: '24px', textAlign: 'center', fontWeight: '600' }} value={examFormData.pointsConfig?.trueFalse?.correct1 ?? 0.1} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct1: parseFloat(e.target.value) || 0 } } }))} />
+                            <input type="number" step="0.01" min="0" title="Đúng 2 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid var(--border-color, #cbd5e1)', background: 'var(--bg-color, #fff)', color: 'var(--text-color, #1e293b)', height: '24px', textAlign: 'center', fontWeight: '600' }} value={examFormData.pointsConfig?.trueFalse?.correct2 ?? 0.25} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct2: parseFloat(e.target.value) || 0 } } }))} />
+                            <input type="number" step="0.01" min="0" title="Đúng 3 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid var(--border-color, #cbd5e1)', background: 'var(--bg-color, #fff)', color: 'var(--text-color, #1e293b)', height: '24px', textAlign: 'center', fontWeight: '600' }} value={examFormData.pointsConfig?.trueFalse?.correct3 ?? 0.5} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct3: parseFloat(e.target.value) || 0 } } }))} />
+                            <input type="number" step="0.01" min="0" title="Đúng 4 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid var(--border-color, #cbd5e1)', background: 'var(--bg-color, #fff)', color: 'var(--text-color, #1e293b)', height: '24px', textAlign: 'center', fontWeight: '600' }} value={examFormData.pointsConfig?.trueFalse?.correct4 ?? 1.0} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct4: parseFloat(e.target.value) || 0 } } }))} />
                           </div>
                         </div>
                       )}
