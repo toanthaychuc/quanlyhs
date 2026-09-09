@@ -1505,6 +1505,7 @@ const Assignments = () => {
                                   </div>
                                 )}
                               </div>
+                              </React.Fragment>
                             ))
                           )}
                         </div>
