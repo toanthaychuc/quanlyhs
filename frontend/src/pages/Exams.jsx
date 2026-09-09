@@ -2175,7 +2175,12 @@ const Exams = () => {
                       editorQuestions.map((question, qIdx) => (
                         <React.Fragment key={question.id || qIdx}>
                           {question.clusterContext && (
-                            <div className="cluster-context-box" style={{ marginBottom: '1rem', padding: '1.25rem', background: '#f8fafc', borderLeft: '4px solid #3b82f6', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                            <div 
+                              className="cluster-context-box" 
+                              onClick={() => handleQuestionClick(question)}
+                              title="Nhấn để cuộn đến mã nguồn LaTeX của cụm này"
+                              style={{ cursor: 'pointer', marginBottom: '1rem', padding: '1.25rem', background: '#f8fafc', borderLeft: '4px solid #3b82f6', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+                            >
                               <p style={{ fontWeight: 700, marginBottom: '0.75rem', color: '#1e293b', fontSize: '0.95rem' }}>
                                 Dựa vào thông tin dưới đây để trả lời các câu từ {qIdx + 1} đến {qIdx + question.clusterLength}.
                               </p>
