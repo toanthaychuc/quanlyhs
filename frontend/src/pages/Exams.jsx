@@ -355,8 +355,8 @@ const Exams = () => {
          const index = match.index;
          const matchLength = match[0].length;
          
-         // Focus để trình duyệt có thể tự động cuộn đến vị trí bôi đen và giữ highlight
-         textArea.focus();
+         // Focus để trình duyệt không tự động cuộn (sẽ cuộn bằng script sau)
+         textArea.focus({ preventScroll: true });
          textArea.setSelectionRange(index, index + matchLength);
          
          const textBefore = rawText.substring(0, index);
@@ -446,7 +446,7 @@ const Exams = () => {
     }
 
     if (targetIndex !== -1) {
-       textArea.focus();
+       textArea.focus({ preventScroll: true });
        textArea.setSelectionRange(targetIndex, targetIndex + 25);
        
        const textBefore = rawText.substring(0, targetIndex);
