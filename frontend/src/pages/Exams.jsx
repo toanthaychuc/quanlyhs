@@ -1971,74 +1971,62 @@ const Exams = () => {
                         <span className="unit-text">phút</span>
                       </div>
                     </div>
+                    <div className="form-group title-compact-group" style={{ flex: '1 1 250px' }}>
+                      <label>Tiêu đề bài kiểm tra:</label>
+                      <input 
+                        type="text" 
+                        className="input select-compact" 
+                        value={examFormData.title}
+                        onChange={(e) => setExamFormData({ ...examFormData, title: e.target.value })}
+                        required
+                        style={{ height: '36px' }}
+                      />
+                    </div>
                   </div>
 
-                  <div className="form-group title-compact-group">
-                    <label>Tiêu đề bài kiểm tra:</label>
-                    <input 
-                      type="text" 
-                      className="input input-sm" 
-                      value={examFormData.title}
-                      onChange={(e) => setExamFormData({ ...examFormData, title: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  {/* POINTS CONFIG UI */}
-                  <div className="points-config-box card" style={{ padding: '12px', marginBottom: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                      <h4 style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: 'var(--text-color, #f8fafc)' }}>Cấu hình điểm số</h4>
-                      <span style={{ fontWeight: '600', color: 'var(--primary-color)', fontSize: '14px', background: 'rgba(var(--primary-color-rgb), 0.1)', padding: '4px 10px', borderRadius: '12px' }}>
-                        Tổng điểm: {
-                          ((editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length * (examFormData.pointsConfig?.multipleChoice || 0)) + 
-                          (editorQuestions.filter(q => q.questionType === 'short_answer').length * (examFormData.pointsConfig?.shortAnswer || 0)) + 
-                          (editorQuestions.filter(q => q.questionType === 'true_false').length * (examFormData.pointsConfig?.trueFalse?.correct4 || 0))).toFixed(2)
-                        }
-                      </span>
+                  {/* POINTS CONFIG UI - COMPACT */}
+                  <div className="points-config-compact" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginBottom: '8px', background: 'rgba(255, 255, 255, 0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--primary-color)', whiteSpace: 'nowrap' }}>
+                      Tổng điểm: {
+                        ((editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length * (examFormData.pointsConfig?.multipleChoice || 0)) + 
+                        (editorQuestions.filter(q => q.questionType === 'short_answer').length * (examFormData.pointsConfig?.shortAnswer || 0)) + 
+                        (editorQuestions.filter(q => q.questionType === 'true_false').length * (examFormData.pointsConfig?.trueFalse?.correct4 || 0))).toFixed(2)
+                      }
                     </div>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label style={{ fontSize: '12px', color: 'var(--text-secondary, #94a3b8)' }}>Trắc nghiệm 4 PA ({editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length} câu)</label>
+                    <div style={{ display: 'flex', gap: '12px', flex: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <label style={{ fontSize: '11px', color: 'var(--text-secondary, #94a3b8)', margin: 0, whiteSpace: 'nowrap' }}>TN 4 PA ({editorQuestions.filter(q => q.questionType === 'multiple_choice' || !q.questionType).length}):</label>
                         <input 
-                          type="number" step="0.01" min="0" className="input input-sm" 
+                          type="number" step="0.01" min="0" 
+                          style={{ width: '45px', padding: '2px 4px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px' }} 
                           value={examFormData.pointsConfig?.multipleChoice ?? 0.25} 
                           onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, multipleChoice: parseFloat(e.target.value) || 0 } }))} 
                         />
                       </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label style={{ fontSize: '12px', color: 'var(--text-secondary, #94a3b8)' }}>Trả lời ngắn ({editorQuestions.filter(q => q.questionType === 'short_answer').length} câu)</label>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <label style={{ fontSize: '11px', color: 'var(--text-secondary, #94a3b8)', margin: 0, whiteSpace: 'nowrap' }}>TL ngắn ({editorQuestions.filter(q => q.questionType === 'short_answer').length}):</label>
                         <input 
-                          type="number" step="0.01" min="0" className="input input-sm" 
+                          type="number" step="0.01" min="0" 
+                          style={{ width: '45px', padding: '2px 4px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px' }} 
                           value={examFormData.pointsConfig?.shortAnswer ?? 0.5} 
                           onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, shortAnswer: parseFloat(e.target.value) || 0 } }))} 
                         />
                       </div>
-                    </div>
-                    
-                    {editorQuestions.filter(q => q.questionType === 'true_false').length > 0 && (
-                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed var(--border-color, #334155)' }}>
-                        <label style={{ fontSize: '12px', color: 'var(--text-secondary, #94a3b8)', marginBottom: '8px', display: 'block' }}>Trắc nghiệm Đúng/Sai ({editorQuestions.filter(q => q.questionType === 'true_false').length} câu)</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-                          <div>
-                            <span style={{ fontSize: '11px', display: 'block', color: 'var(--text-secondary, #94a3b8)', marginBottom: '4px' }}>Đúng 1 ý</span>
-                            <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct1 ?? 0.1} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct1: parseFloat(e.target.value) || 0 } } }))} />
-                          </div>
-                          <div>
-                            <span style={{ fontSize: '11px', display: 'block', color: 'var(--text-secondary, #94a3b8)', marginBottom: '4px' }}>Đúng 2 ý</span>
-                            <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct2 ?? 0.25} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct2: parseFloat(e.target.value) || 0 } } }))} />
-                          </div>
-                          <div>
-                            <span style={{ fontSize: '11px', display: 'block', color: 'var(--text-secondary, #94a3b8)', marginBottom: '4px' }}>Đúng 3 ý</span>
-                            <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct3 ?? 0.5} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct3: parseFloat(e.target.value) || 0 } } }))} />
-                          </div>
-                          <div>
-                            <span style={{ fontSize: '11px', display: 'block', color: 'var(--text-secondary, #94a3b8)', marginBottom: '4px' }}>Đúng 4 ý</span>
-                            <input type="number" step="0.01" min="0" className="input input-sm" value={examFormData.pointsConfig?.trueFalse?.correct4 ?? 1.0} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct4: parseFloat(e.target.value) || 0 } } }))} />
+                      
+                      {editorQuestions.filter(q => q.questionType === 'true_false').length > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '8px' }}>
+                          <label style={{ fontSize: '11px', color: 'var(--text-secondary, #94a3b8)', margin: 0, whiteSpace: 'nowrap' }}>Đúng/Sai ({editorQuestions.filter(q => q.questionType === 'true_false').length}):</label>
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <input type="number" step="0.01" min="0" title="Đúng 1 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px', textAlign: 'center' }} value={examFormData.pointsConfig?.trueFalse?.correct1 ?? 0.1} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct1: parseFloat(e.target.value) || 0 } } }))} />
+                            <input type="number" step="0.01" min="0" title="Đúng 2 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px', textAlign: 'center' }} value={examFormData.pointsConfig?.trueFalse?.correct2 ?? 0.25} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct2: parseFloat(e.target.value) || 0 } } }))} />
+                            <input type="number" step="0.01" min="0" title="Đúng 3 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px', textAlign: 'center' }} value={examFormData.pointsConfig?.trueFalse?.correct3 ?? 0.5} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct3: parseFloat(e.target.value) || 0 } } }))} />
+                            <input type="number" step="0.01" min="0" title="Đúng 4 ý" style={{ width: '36px', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: 'var(--text-color, #fff)', height: '24px', textAlign: 'center' }} value={examFormData.pointsConfig?.trueFalse?.correct4 ?? 1.0} onChange={(e) => setExamFormData(prev => ({ ...prev, pointsConfig: { ...prev.pointsConfig, trueFalse: { ...prev.pointsConfig.trueFalse, correct4: parseFloat(e.target.value) || 0 } } }))} />
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   <div className="latex-toolbar-compact">
