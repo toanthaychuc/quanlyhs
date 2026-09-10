@@ -290,6 +290,15 @@ export const normalizeLatexString = (str = '') => {
   // Khử các khoảng trắng/tab thụt lề thừa từ source code LaTeX ở đầu mỗi dòng
   text = text.replace(/^[ \t]+/gm, '');
 
+  // Loại bỏ cặp ngoặc nhọn bao quanh toàn bộ hình vẽ TikZ (do người dùng hay gõ nhóm hình)
+  const tikzBraceRegex = /\{\s*((?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture\}[^]*?\\end\{tikzpicture\})\s*\}/gi;
+  let prevText = text;
+  while (true) {
+    text = text.replace(tikzBraceRegex, '$1');
+    if (text === prevText) break;
+    prevText = text;
+  }
+
   // 1. Tự động loại bỏ Preamble khai báo gói và cài đặt trang nếu giáo viên dán cả file .tex
   text = text.replace(/\\documentclass(?:\[[^\]]*\])?\{[^}]*\}/gi, '');
   text = text.replace(/\\usepackage(?:\[[^\]]*\])?\{[^}]*\}/gi, '');
