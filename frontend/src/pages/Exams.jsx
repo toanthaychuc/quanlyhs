@@ -606,6 +606,11 @@ const Exams = () => {
   const [pendingExamEntry, setPendingExamEntry] = useState(null);
   const [completedExamsMap, setCompletedExamsMap] = useState({});
   const [teacherExamStats, setTeacherExamStats] = useState({});
+  const [expandedTeacherStats, setExpandedTeacherStats] = useState({});
+
+  const toggleTeacherStats = (examId) => {
+    setExpandedTeacherStats(prev => ({ ...prev, [examId]: !prev[examId] }));
+  };
 
   useEffect(() => {
     if (isStudent && currentStudentId && examMode === 'list') {
@@ -1857,17 +1862,25 @@ const Exams = () => {
                                       </div>
                                     )}
                                     {teacherExamStats[ex.id]?.length > 0 && isTeacher && (
-                                      <div className="sub-exam-teacher-stats" style={{ borderTop: '1px dashed #e5e7eb', marginTop: '0.4rem', paddingTop: '0.4rem', paddingLeft: '0.5rem', maxHeight: '150px', overflowY: 'auto' }}>
-                                        <div style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500' }}>Học sinh đã làm bài:</div>
-                                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                                          {teacherExamStats[ex.id].map((h, i) => (
-                                            <span key={i} className="badge" style={{ backgroundColor: '#f3f4f6', color: '#1f2937', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                                              <span style={{ fontWeight: 600 }}>{h.studentName}</span>
-                                              <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
-                                              <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
-                                            </span>
-                                          ))}
+                                      <div className="sub-exam-teacher-stats" style={{ borderTop: '1px dashed #e5e7eb', marginTop: '0.4rem', paddingTop: '0.4rem', paddingLeft: '0.5rem' }}>
+                                        <div 
+                                          style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                          onClick={() => toggleTeacherStats(ex.id)}
+                                        >
+                                          {expandedTeacherStats[ex.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />} 
+                                          Danh sách các học sinh đã làm ({teacherExamStats[ex.id].length})
                                         </div>
+                                        {expandedTeacherStats[ex.id] && (
+                                          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', maxHeight: '150px', overflowY: 'auto' }}>
+                                            {teacherExamStats[ex.id].map((h, i) => (
+                                              <span key={i} className="badge" style={{ backgroundColor: '#f3f4f6', color: '#1f2937', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                                <span style={{ fontWeight: 600 }}>{h.studentName}</span>
+                                                <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
+                                                <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
+                                              </span>
+                                            ))}
+                                          </div>
+                                        )}
                                       </div>
                                     )}
                                   </div>
@@ -1964,17 +1977,25 @@ const Exams = () => {
                 )}
 
                 {teacherExamStats[exam.id]?.length > 0 && isTeacher && (
-                  <div className="exam-history-section" style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.6rem', marginTop: '0.6rem', maxHeight: '180px', overflowY: 'auto' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500' }}>Học sinh đã làm bài:</div>
-                    <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                      {teacherExamStats[exam.id].map((h, i) => (
-                        <span key={i} className="badge" style={{ backgroundColor: '#f8fafc', color: '#1e293b', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                          <span style={{ fontWeight: 600 }}>{h.studentName}</span>
-                          <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
-                          <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
-                        </span>
-                      ))}
+                  <div className="exam-history-section" style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.6rem', marginTop: '0.6rem' }}>
+                    <div 
+                      style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      onClick={() => toggleTeacherStats(exam.id)}
+                    >
+                      {expandedTeacherStats[exam.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />} 
+                      Danh sách các học sinh đã làm ({teacherExamStats[exam.id].length})
                     </div>
+                    {expandedTeacherStats[exam.id] && (
+                      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', maxHeight: '180px', overflowY: 'auto' }}>
+                        {teacherExamStats[exam.id].map((h, i) => (
+                          <span key={i} className="badge" style={{ backgroundColor: '#f8fafc', color: '#1e293b', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <span style={{ fontWeight: 600 }}>{h.studentName}</span>
+                            <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
+                            <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
