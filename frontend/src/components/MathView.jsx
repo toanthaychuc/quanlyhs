@@ -572,7 +572,26 @@ const TabularViewer = ({ code }) => {
               <tr key={rIdx}>
                 {cells.map((cell, cIdx) => {
                   let colSpan = 1;
-                  let content = cell;
+                  let content = cell.trim();
+                  
+                  // Unwrap outer braces if the entire cell content is wrapped in {}
+                  while (content.startsWith('{') && content.endsWith('}')) {
+                    let depth = 0;
+                    let singleGroup = true;
+                    for (let i = 0; i < content.length - 1; i++) {
+                      if (content[i] === '{') depth++;
+                      else if (content[i] === '}') depth--;
+                      if (depth === 0) {
+                        singleGroup = false;
+                        break;
+                      }
+                    }
+                    if (singleGroup) {
+                      content = content.slice(1, -1).trim();
+                    } else {
+                      break;
+                    }
+                  }
                   
                   // Phân tích \multicolumn{cols}{align}{content}
                   const mcMatch = content.match(/\\multicolumn\s*\{(\d+)\}\s*\{[^{}]*\}\s*\{([\s\S]*?)\}\s*$/);
