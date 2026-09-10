@@ -987,4 +987,4 @@ const MathView = ({ text = '', className = '' }) => {
   return <RenderMathSegment rawText={text} className={className} />;
 };
 
-export default MathView;
+export default React.memo(MathView);
