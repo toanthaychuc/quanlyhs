@@ -177,17 +177,22 @@ export async function getStudentHistory(studentId) {
 
     if (error) throw error;
 
-    // Convert to the same shape as localStorage history
+    // Group into arrays per exam
     const history = {};
     for (const s of (data || [])) {
-      history[s.exam_id] = {
+      if (!history[s.exam_id]) history[s.exam_id] = [];
+      history[s.exam_id].push({
         examId: s.exam_id,
         score: s.score,
         correctCount: s.correct_count,
         totalQuestions: s.total_questions,
         completedAt: s.submitted_at,
-      };
+      });
     }
+    // Ensure chronological order
+    Object.keys(history).forEach(key => {
+      history[key].sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+    });
     return history;
   } catch (err) {
     console.error('[examService] getStudentHistory error:', err);
@@ -395,10 +400,17 @@ function saveSessionToLocal({ examId, studentId, score, correctCount, totalQuest
   try {
     const prev = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
     if (!prev[studentId]) prev[studentId] = {};
-    prev[studentId][examId] = {
+    
+    if (prev[studentId][examId] && !Array.isArray(prev[studentId][examId])) {
+      prev[studentId][examId] = [prev[studentId][examId]];
+    } else if (!prev[studentId][examId]) {
+      prev[studentId][examId] = [];
+    }
+    
+    prev[studentId][examId].push({
       examId, score, correctCount, totalQuestions,
       completedAt: new Date().toISOString(),
-    };
+    });
     localStorage.setItem(HISTORY_KEY, JSON.stringify(prev));
   } catch (_) {}
 }
@@ -406,7 +418,15 @@ function saveSessionToLocal({ examId, studentId, score, correctCount, totalQuest
 function getStudentHistoryFromLocal(studentId) {
   try {
     const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
-    return all[studentId] || {};
+    const studentHistory = all[studentId] || {};
+    
+    Object.keys(studentHistory).forEach(examId => {
+       if (!Array.isArray(studentHistory[examId])) {
+          studentHistory[examId] = [studentHistory[examId]];
+       }
+    });
+    
+    return studentHistory;
   } catch (_) {
     return {};
   }

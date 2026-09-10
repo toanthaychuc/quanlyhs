@@ -463,6 +463,7 @@ const Dashboard = () => {
 
   // Biến thiên điểm số qua các lần thi thử gần nhất (Biểu đồ đường)
   const actualScoreHistory = Object.values(completedExamsMap || {})
+    .flat()
     .filter(record => record.completedAt !== undefined && record.score !== undefined)
     .sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt))
     .slice(-10) // Lấy tối đa 10 lần gần nhất

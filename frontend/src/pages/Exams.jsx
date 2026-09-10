@@ -604,6 +604,15 @@ const Exams = () => {
 
   const hasCheckedAutoResumeRef = useRef(false);
   const [pendingExamEntry, setPendingExamEntry] = useState(null);
+  const [completedExamsMap, setCompletedExamsMap] = useState({});
+
+  useEffect(() => {
+    if (isStudent && currentStudentId && examMode === 'list') {
+      getStudentHistory(currentStudentId).then(history => {
+        setCompletedExamsMap(history || {});
+      });
+    }
+  }, [isStudent, currentStudentId, examMode]);
 
   // Auto-resume from Dashboard or Page Reload (F5)
   useEffect(() => {
@@ -1752,53 +1761,66 @@ const Exams = () => {
                             {/* DANH SÁCH TẤT CẢ CÁC ĐỀ THI ĐÃ TẠO CHO BÀI NÀY */}
                             {hasExams ? (
                               <div className="lesson-sub-exams-list">
-                                {lessonExams.filter(ex => isTeacher || !ex.isHidden).map((ex, exIdx) => (
-                                  <div key={ex.id} className={`sub-exam-item-row ${ex.isHidden ? 'opacity-60' : ''}`}>
-                                    <div className="sub-exam-left-info">
-                                      <span className="sub-exam-tag" style={ex.isHidden ? {background: '#e5e7eb', color: '#6b7280'} : {}}>Đề {exIdx + 1}</span>
-                                      <h5 className="sub-exam-title">
-                                        {ex.title}
-                                      </h5>
-                                      <span className="sub-exam-pill"><Clock size={12} /> {ex.duration} phút</span>
-                                      <span className="sub-exam-pill is-count"><CheckSquare size={12} /> {ex.questions?.length || 0} câu</span>
-                                    </div>
+                                {lessonExams.filter(ex => isTeacher || !ex.isHidden).map((ex, exIdx) => {
+                                  const history = completedExamsMap[ex.id] || [];
+                                  return (
+                                  <div key={ex.id} className="sub-exam-container" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginBottom: '0.5rem' }}>
+                                    <div className={`sub-exam-item-row ${ex.isHidden ? 'opacity-60' : ''}`} style={{ marginBottom: 0 }}>
+                                      <div className="sub-exam-left-info">
+                                        <span className="sub-exam-tag" style={ex.isHidden ? {background: '#e5e7eb', color: '#6b7280'} : {}}>Đề {exIdx + 1}</span>
+                                        <h5 className="sub-exam-title">
+                                          {ex.title}
+                                        </h5>
+                                        <span className="sub-exam-pill"><Clock size={12} /> {ex.duration} phút</span>
+                                        <span className="sub-exam-pill is-count"><CheckSquare size={12} /> {ex.questions?.length || 0} câu</span>
+                                      </div>
 
-                                    <div className="sub-exam-actions">
-                                      <button 
-                                        className="btn btn-primary btn-sm btn-take-sub-exam"
-                                        onClick={() => handleStartExam(ex)}
-                                      >
-                                        <Play size={14} /> Làm bài
-                                      </button>
+                                      <div className="sub-exam-actions">
+                                        <button 
+                                          className="btn btn-primary btn-sm btn-take-sub-exam"
+                                          onClick={() => handleStartExam(ex)}
+                                        >
+                                          <Play size={14} /> Làm bài
+                                        </button>
 
-                                      {isTeacher && (
-                                        <div className="teacher-sub-btn-group">
-                                          <button 
-                                            className="icon-btn"
-                                            onClick={() => handleToggleHideExam(ex.id)}
-                                            title={ex.isHidden ? "Hiển thị đề thi này" : "Ẩn đề thi này"}
-                                          >
-                                            {ex.isHidden ? <EyeOff size={14} /> : <Eye size={14} />}
-                                          </button>
-                                          <button 
-                                            className="icon-btn edit-sub-btn"
-                                            onClick={() => handleOpenEditSpecificExam(ex, item, chapter, activeGradeFilter)}
-                                            title="Chỉnh sửa đề thi này (LaTeX)"
-                                          >
-                                            <Edit size={14} />
-                                          </button>
-                                          <button 
-                                            className="icon-btn delete-sub-btn"
-                                            onClick={() => handleDeleteSpecificExam(ex.id, ex.title)}
-                                            title="Xóa đề thi này"
-                                          >
-                                            <Trash2 size={14} />
-                                          </button>
-                                        </div>
-                                      )}
+                                        {isTeacher && (
+                                          <div className="teacher-sub-btn-group">
+                                            <button 
+                                              className="icon-btn"
+                                              onClick={() => handleToggleHideExam(ex.id)}
+                                              title={ex.isHidden ? "Hiển thị đề thi này" : "Ẩn đề thi này"}
+                                            >
+                                              {ex.isHidden ? <EyeOff size={14} /> : <Eye size={14} />}
+                                            </button>
+                                            <button 
+                                              className="icon-btn edit-sub-btn"
+                                              onClick={() => handleOpenEditSpecificExam(ex, item, chapter, activeGradeFilter)}
+                                              title="Chỉnh sửa đề thi này (LaTeX)"
+                                            >
+                                              <Edit size={14} />
+                                            </button>
+                                            <button 
+                                              className="icon-btn delete-sub-btn"
+                                              onClick={() => handleDeleteSpecificExam(ex.id, ex.title)}
+                                              title="Xóa đề thi này"
+                                            >
+                                              <Trash2 size={14} />
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
+                                    {history.length > 0 && isStudent && (
+                                      <div className="sub-exam-history-badges" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', padding: '0 0.2rem' }}>
+                                        {history.map((h, i) => (
+                                          <span key={i} className="badge" style={{ backgroundColor: '#f3f4f6', color: '#4b5563', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb' }}>
+                                            Lần {i + 1}: <strong>{h.score}đ</strong> <span style={{fontSize:'0.65rem', opacity:0.8}}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
-                                ))}
+                                )})}
                               </div>
                             ) : (
                               !isTeacher && (
@@ -1833,7 +1855,9 @@ const Exams = () => {
           </div>
 
           <div className="exams-grid">
-            {exams.filter(ex => ex.grade === activeGradeFilter && (isTeacher || !ex.isHidden)).map((exam) => (
+            {exams.filter(ex => ex.grade === activeGradeFilter && (isTeacher || !ex.isHidden)).map((exam) => {
+              const history = completedExamsMap[exam.id] || [];
+              return (
               <div key={exam.id} className={`exam-card card ${exam.isHidden ? 'opacity-60' : ''}`}>
                 <div className="exam-card-badge-row">
                   <span className="exam-grade-badge">{exam.gradeLabel || 'THPTQG'}</span>
@@ -1874,8 +1898,21 @@ const Exams = () => {
                     </div>
                   )}
                 </div>
+                
+                {history.length > 0 && isStudent && (
+                  <div className="exam-history-section" style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.6rem', marginTop: '0.6rem' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500' }}>Lịch sử làm bài:</div>
+                    <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                      {history.map((h, i) => (
+                        <span key={i} className="badge" style={{ backgroundColor: '#f8fafc', color: '#475569', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+                          Lần {i + 1}: <strong style={{color: '#059669'}}>{h.score}đ</strong> <span style={{fontSize:'0.65rem', opacity:0.8}}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
+            )})}
           </div>
         </div>
       )}
