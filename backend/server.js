@@ -43,8 +43,10 @@ class TaskQueue {
     }
   }
 }
-// Giới hạn tối đa 2 tiến trình pdflatex chạy cùng lúc để chống sập server
-const compilerQueue = new TaskQueue(2);
+// Cho phép cấu hình giới hạn luồng chạy đồng thời qua biến môi trường (mặc định là 3)
+const CONCURRENCY_LIMIT = process.env.CONCURRENCY_LIMIT ? parseInt(process.env.CONCURRENCY_LIMIT) : 3;
+const compilerQueue = new TaskQueue(CONCURRENCY_LIMIT);
+console.log(`[tikz-compiler] Khởi tạo hàng đợi với số luồng đồng thời: ${CONCURRENCY_LIMIT}`);
 
 const app = express();
 const port = process.env.PORT || 3001;
