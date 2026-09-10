@@ -141,6 +141,38 @@ export async function submitExamSession({
 /**
  * Get all completed sessions for a specific exam (for teacher view).
  */
+export async function getAllExamSessions() {
+  if (!isSupabaseReady()) return getAllExamSessionsFromLocal();
+
+  try {
+    const { data, error } = await supabase
+      .from('exam_sessions')
+      .select('*')
+      .not('submitted_at', 'is', null)
+      .order('submitted_at', { ascending: false });
+
+    if (error) throw error;
+    
+    // Group into arrays per exam
+    const history = {};
+    for (const s of (data || [])) {
+      if (!history[s.exam_id]) history[s.exam_id] = [];
+      history[s.exam_id].push({
+        studentId: s.student_id,
+        examId: s.exam_id,
+        score: s.score,
+        correctCount: s.correct_count,
+        totalQuestions: s.total_questions,
+        completedAt: s.submitted_at,
+      });
+    }
+    return history;
+  } catch (err) {
+    console.error('[examService] getAllExamSessions error:', err);
+    return getAllExamSessionsFromLocal();
+  }
+}
+
 export async function getExamSessions(examId) {
   if (!isSupabaseReady()) return [];
 
@@ -427,6 +459,39 @@ function getStudentHistoryFromLocal(studentId) {
     });
     
     return studentHistory;
+  } catch (_) {
+    return {};
+  }
+}
+
+function getAllExamSessionsFromLocal() {
+  try {
+    const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+    const history = {};
+    
+    Object.keys(all).forEach(studentId => {
+      const studentHistory = all[studentId];
+      Object.keys(studentHistory).forEach(examId => {
+        if (!history[examId]) history[examId] = [];
+        
+        // Handle array or object
+        const sessions = Array.isArray(studentHistory[examId]) ? studentHistory[examId] : [studentHistory[examId]];
+        
+        sessions.forEach(s => {
+          history[examId].push({
+            studentId,
+            ...s
+          });
+        });
+      });
+    });
+    
+    // Sort all arrays by completedAt desc
+    Object.keys(history).forEach(examId => {
+      history[examId].sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+    });
+    
+    return history;
   } catch (_) {
     return {};
   }
