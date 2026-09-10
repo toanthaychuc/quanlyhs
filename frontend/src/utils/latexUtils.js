@@ -368,13 +368,62 @@ export const normalizeLatexString = (str = '') => {
   });
 
   // 6. Dấu ngoặc kép tiếng Việt \lq\lq ... \rq\rq
-  text = text.replace(/\\lq\\lq/g, '“');
-  text = text.replace(/\\rq\\rq/g, '”');
+  text = text.replace(/\\lq\s*\\lq/g, '“');
+  text = text.replace(/\\rq\s*\\rq/g, '”');
   text = text.replace(/\\lq/g, '‘');
   text = text.replace(/\\rq/g, '’');
 
-  // 7. Môi trường danh sách: itemchoice, enumEX, enumEXV, listEX, taskEX
-  text = text.replace(/\\begin\{(?:itemchoice|listEX|enumEX|enumEXV|taskEX|enumerate|itemize)\}(?:\[[^\]]*\])?(?:\([^)]*\))?/gi, '');
+  // 7. Môi trường danh sách: itemchoice, enumEX, enumEXV, listEX, taskEX, enumerate, itemize
+  let prevTextList;
+  do {
+    prevTextList = text;
+    text = text.replace(/\\begin\{(enumerate|itemize|itemchoice|listEX|enumEX|enumEXV|taskEX)\}\s*(?:\[([^\]]*)\])?\s*(?:\([^)]*\))?\s*((?:(?!\\begin\{(?:enumerate|itemize|itemchoice|listEX|enumEX|enumEXV|taskEX)\})[\s\S])*?)\\end\{\1\}/gi, (match, envType, opt, inner) => {
+      let counter = 0;
+      let type = 'bullet';
+      
+      const envLower = envType.toLowerCase();
+      
+      if (envLower === 'enumerate' || envLower === 'enumex' || envLower === 'enumexv' || envLower === 'listex' || envLower === 'taskex') {
+        type = 'number';
+        if (opt) {
+          if (opt.includes('a)') || opt.includes('a.') || opt.includes('\\alph') || opt === 'a') type = 'alpha';
+          else if (opt.includes('A)') || opt.includes('A.') || opt.includes('\\Alph') || opt === 'A') type = 'upperAlpha';
+          else if (opt.includes('i)') || opt.includes('i.') || opt.includes('\\roman') || opt === 'i') type = 'roman';
+        }
+      } else if (envLower === 'itemchoice') {
+        type = 'choice';
+      }
+      
+      let replacedInner = inner.replace(/\\(?:item|itemch|Eitem|Esubitemch)\b(?:\[([^\]]*)\])?\s*/gi, (itemMatch, itemOpt) => {
+        if (itemOpt) {
+          return `\n**${itemOpt}** `;
+        }
+        
+        let label = '';
+        if (type === 'alpha') {
+          label = String.fromCharCode(97 + (counter % 26)) + ')';
+        } else if (type === 'upperAlpha') {
+          label = String.fromCharCode(65 + (counter % 26)) + ')';
+        } else if (type === 'roman') {
+          const romans = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii'];
+          label = (romans[counter] || (counter+1)) + ')';
+        } else if (type === 'number') {
+          label = (counter + 1) + '.';
+        } else if (type === 'choice') {
+          const chars = ['a)', 'b)', 'c)', 'd)'];
+          label = chars[counter % 4];
+        } else {
+          label = '•';
+        }
+        counter++;
+        return `\n**${label}** `;
+      });
+      return replacedInner;
+    });
+  } while (text !== prevTextList);
+
+  // Fallback dự phòng cho các thẻ lỗi hoặc chưa đóng
+  text = text.replace(/\\begin\{(?:itemchoice|listEX|enumEX|enumEXV|taskEX|enumerate|itemize)\}\s*(?:\[[^\]]*\])?\s*(?:\([^)]*\))?/gi, '');
   text = text.replace(/\\end\{(?:itemchoice|listEX|enumEX|enumEXV|taskEX|enumerate|itemize)\}/gi, '');
   
   let itemchCounter = 0;
@@ -385,9 +434,7 @@ export const normalizeLatexString = (str = '') => {
     return `\n**${bullet}**`;
   });
   
-  text = text.replace(/\\item\b\s*/gi, '\n• ');
-  text = text.replace(/\\Eitem\b\s*/gi, '\n• ');
-  text = text.replace(/\\Esubitemch\b\s*/gi, '\n• ');
+  text = text.replace(/\\(?:item|Eitem|Esubitemch)\b\s*/gi, '\n• ');
 
   // 8. Xử lý các dạng \immini, \imminiL kèm mọi tuỳ chọn [thm], [d]...
   let imData;
