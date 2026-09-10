@@ -435,8 +435,8 @@ export const normalizeLatexString = (str = '') => {
   text = replaceMacroWithBraces(text, '\\textbf', c => `**${c}**`);
   text = replaceMacroWithBraces(text, '\\textit', c => `*${c}*`);
   text = replaceMacroWithBraces(text, '\\underline', c => `<u>${c}</u>`);
-  text = text.replace(/\{\s*\\it(?![a-zA-Z])\s*([^}]+)\}/g, '*$1*');
-  text = text.replace(/\{\s*\\bf(?![a-zA-Z])\s*([^}]+)\}/g, '**$1**');
+  text = text.replace(/\{\s*\\it(?![a-zA-Z])\s*([^}]+)\}/g, '{*$1*}');
+  text = text.replace(/\{\s*\\bf(?![a-zA-Z])\s*([^}]+)\}/g, '{**$1**}');
   text = text.replace(/\\bfseries\b/g, '');
   text = text.replace(/\\rm\b/g, '');
 
@@ -450,6 +450,7 @@ export const normalizeLatexString = (str = '') => {
   // Xóa các macro định dạng không được hỗ trợ để tránh rác text
   text = replaceTwoArgMacro(text, '\\scalebox', (arg1, arg2) => arg2);
   text = replaceTwoArgMacro(text, '\\textcolor', (arg1, arg2) => arg2);
+  text = text.replace(/\{\s*\\color\s*\{[^}]+\}\s*([^}]+)\}/g, '$1');
   text = replaceMacroWithBraces(text, '\\color', c => '');
   text = replaceMacroWithBraces(text, '\\fbox', c => c);
   text = text.replace(/\\tagEX\{([^}]+)\}/g, ' ($1)');
@@ -457,6 +458,7 @@ export const normalizeLatexString = (str = '') => {
   // 15. Dấu xuống dòng \\ và lệnh \par trong văn bản
   text = text.replace(/\\par\b/gi, '\n\n');
   text = text.replace(/\\\\\s*/g, '\n');
+  text = text.replace(/\\\s/g, ' ');
 
   // Restore protected math blocks
   text = text.replace(/__MATH_BLOCK_PLACEHOLDER_(\d+)__/g, (match, idx) => {
