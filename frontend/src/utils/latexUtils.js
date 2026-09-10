@@ -171,6 +171,81 @@ export const replaceMacroWithBraces = (text, macroName, transformFn) => {
   return result;
 };
 
+export const replaceTwoArgMacro = (text, macroName, transformFn) => {
+  let result = '';
+  let i = 0;
+  while (i < text.length) {
+    const idx = text.indexOf(macroName, i);
+    if (idx === -1) {
+      result += text.slice(i);
+      break;
+    }
+
+    result += text.slice(i, idx);
+    let openIdx1 = text.indexOf('{', idx + macroName.length);
+    const inBetween1 = text.slice(idx + macroName.length, openIdx1);
+
+    if (openIdx1 === -1 || inBetween1.trim() !== '') {
+      result += macroName;
+      i = idx + macroName.length;
+      continue;
+    }
+
+    let depth1 = 1;
+    let closeIdx1 = -1;
+    for (let k = openIdx1 + 1; k < text.length; k++) {
+      if (text[k] === '{') depth1++;
+      else if (text[k] === '}') {
+        depth1--;
+        if (depth1 === 0) {
+          closeIdx1 = k;
+          break;
+        }
+      }
+    }
+
+    if (closeIdx1 === -1) {
+      result += text.slice(idx);
+      break;
+    }
+
+    const arg1 = text.slice(openIdx1 + 1, closeIdx1);
+
+    let openIdx2 = text.indexOf('{', closeIdx1 + 1);
+    const inBetween2 = text.slice(closeIdx1 + 1, openIdx2);
+
+    if (openIdx2 === -1 || inBetween2.trim() !== '') {
+      result += text.slice(idx, closeIdx1 + 1);
+      i = closeIdx1 + 1;
+      continue;
+    }
+
+    let depth2 = 1;
+    let closeIdx2 = -1;
+    for (let k = openIdx2 + 1; k < text.length; k++) {
+      if (text[k] === '{') depth2++;
+      else if (text[k] === '}') {
+        depth2--;
+        if (depth2 === 0) {
+          closeIdx2 = k;
+          break;
+        }
+      }
+    }
+
+    if (closeIdx2 === -1) {
+      result += text.slice(idx);
+      break;
+    }
+
+    const arg2 = text.slice(openIdx2 + 1, closeIdx2);
+    result += transformFn(arg1, arg2);
+    i = closeIdx2 + 1;
+  }
+  return result;
+};
+
+
 // Chuẩn hóa một khối công thức toán học KaTeX
 const cleanMathContent = (content) => {
   if (!content) return '';
@@ -371,6 +446,12 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\circEX(?:\[[^\]]*\])?\{([^}]+)\}/g, '($1)');
   text = text.replace(/\\squareEX(?:\[[^\]]*\])?\{([^}]+)\}/g, '[$1]');
   text = text.replace(/\\boxEX(?:\[[^\]]*\])?\{([^}]+)\}/g, '$1');
+  
+  // Xóa các macro định dạng không được hỗ trợ để tránh rác text
+  text = replaceTwoArgMacro(text, '\\scalebox', (arg1, arg2) => arg2);
+  text = replaceTwoArgMacro(text, '\\textcolor', (arg1, arg2) => arg2);
+  text = replaceMacroWithBraces(text, '\\color', c => '');
+  text = replaceMacroWithBraces(text, '\\fbox', c => c);
   text = text.replace(/\\tagEX\{([^}]+)\}/g, ' ($1)');
 
   // 15. Dấu xuống dòng \\ và lệnh \par trong văn bản
