@@ -4,7 +4,7 @@ import {
   GraduationCap, Clock, HelpCircle, CheckCircle, XCircle, X,
   Award, Play, RotateCcw, ArrowLeft, ArrowRight, Plus, 
   Trash2, Edit, Save, FileText, Check, AlertTriangle, Sparkles, 
-  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, CheckSquare, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2
+  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, CheckSquare, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2, Download
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -1038,6 +1038,32 @@ const Exams = () => {
     }
   };
 
+  const handleDownloadTex = (exam) => {
+    try {
+      const qs = exam.questions || [];
+      const hasExistingQs = qs.length > 0;
+      const latexStr = hasExistingQs ? questionsToLatexString(qs) : '';
+      
+      if (!latexStr) {
+        alert("Đề thi này chưa có nội dung (không có câu hỏi).");
+        return;
+      }
+      
+      const blob = new Blob([latexStr], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${exam.title || 'de_thi'}.tex`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Error downloading tex:", e);
+      alert("Có lỗi xảy ra khi tải file .tex");
+    }
+  };
+
   const handleDeleteSpecificExam = async (examId, examTitle) => {
     if (window.confirm(`Bạn có chắc chắn muốn xóa đề thi "${examTitle}" không?`)) {
       try {
@@ -1827,6 +1853,13 @@ const Exams = () => {
 
                                         {isTeacher && (
                                           <div className="teacher-sub-btn-group">
+                                            <button 
+                                              className="icon-btn"
+                                              onClick={() => handleDownloadTex(ex)}
+                                              title="Tải file .tex để lưu trữ"
+                                            >
+                                              <Download size={14} />
+                                            </button>
                                             <button 
                                               className="icon-btn"
                                               onClick={() => handleToggleHideExam(ex.id)}
