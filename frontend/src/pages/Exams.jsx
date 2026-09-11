@@ -1957,7 +1957,7 @@ const Exams = () => {
               return (
               <div key={exam.id} className={`exam-card card ${exam.isHidden ? 'opacity-60' : ''}`}>
                 <div className="exam-card-badge-row">
-                  <span className="exam-grade-badge">{exam.gradeLabel || 'THPTQG'}</span>
+                  <span className="exam-grade-badge">{exam.gradeLabel || ALL_CURRICULA[exam.grade]?.label || 'THPTQG'}</span>
                   <div className="exam-meta-pill">
                     <Clock size={14} /> {exam.duration} phút
                   </div>
