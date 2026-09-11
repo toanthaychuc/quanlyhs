@@ -118,7 +118,7 @@ app.post('/api/compile-tikz', async (req, res) => {
       return res.status(400).json({ error: 'tikzCode is required' });
     }
     
-    const defaultPreamble = `\\usepackage[utf8]{inputenc}\n\\usepackage[T5]{fontenc}\n\\usepackage{amsmath,amssymb}\n\\usepackage{tikz}\n\\usepackage{tkz-tab}\n\\usetikzlibrary{calc,intersections,angles,quotes,patterns,positioning,arrows,arrows.meta,decorations.pathreplacing,decorations.markings,shapes.geometric,math}`;
+    const defaultPreamble = `\\usepackage[utf8]{inputenc}\n\\usepackage[T5]{fontenc}\n\\usepackage{amsmath,amssymb}\n\\usepackage{tikz}\n\\usepackage{tkz-tab}\n\\usepackage{tkz-euclide}\n\\usetikzlibrary{calc,intersections,angles,quotes,patterns,positioning,arrows,arrows.meta,decorations.pathreplacing,decorations.markings,shapes.geometric,math}`;
     
     const rawPreamble = preamble && preamble.trim().length > 0
       ? preamble.trim()
