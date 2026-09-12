@@ -579,7 +579,7 @@ const Exams = () => {
   const [flaggedQuestions, setFlaggedQuestions] = useState({});
   const [timeLeft, setTimeLeft] = useState(0);
   const [examResult, setExamResult] = useState(null);
-  const [showKeypad, setShowKeypad] = useState(false);
+  const [showKeypad, setShowKeypad] = useState(null);
   const timerRef = useRef(null);
 
   const handleReviewHistory = (historySession, exam) => {
@@ -1439,7 +1439,7 @@ const Exams = () => {
                               const val = e.target.value.replace(/[^0-9.,-]/g, '').slice(0, 4);
                               handleInputShortAns(q.id, val);
                             }}
-                            onFocus={() => setShowKeypad(false)}
+                            onFocus={() => setShowKeypad(null)}
                           />
                           {Array.from({ length: 4 }).map((_, i) => (
                             <div key={i} style={{
@@ -1453,7 +1453,7 @@ const Exams = () => {
                               {(currentAnswer || '')[i] || ''}
                             </div>
                           ))}
-                          {showKeypad && (
+                          {showKeypad === q.id && (
                             <div className="virtual-keypad card" style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', zIndex: 50, padding: '10px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', width: '220px', backgroundColor: 'var(--bg-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
                               {['1','2','3','4','5','6','7','8','9','-','0',','].map(key => (
                                 <button 
@@ -1479,7 +1479,7 @@ const Exams = () => {
                               <button 
                                 className="btn-primary" 
                                 style={{ padding: '8px 0', fontSize: '0.9rem' }}
-                                onClick={() => setShowKeypad(false)}
+                                onClick={() => setShowKeypad(null)}
                               >
                                 Xong
                               </button>
@@ -1487,9 +1487,9 @@ const Exams = () => {
                           )}
                         </div>
                         <button 
-                          className={`btn-secondary ${showKeypad ? 'active' : ''}`}
-                          style={{ padding: '0.7rem', flexShrink: 0, backgroundColor: showKeypad ? 'var(--primary-color)' : '', color: showKeypad ? 'white' : '' }}
-                          onClick={() => setShowKeypad(!showKeypad)}
+                          className={`btn-secondary ${showKeypad === q.id ? 'active' : ''}`}
+                          style={{ padding: '0.7rem', flexShrink: 0, backgroundColor: showKeypad === q.id ? 'var(--primary-color)' : '', color: showKeypad === q.id ? 'white' : '' }}
+                          onClick={() => setShowKeypad(showKeypad === q.id ? null : q.id)}
                           title="Bàn phím số"
                         >
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="7" y1="9" x2="7" y2="9"></line><line x1="12" y1="9" x2="12" y2="9"></line><line x1="17" y1="9" x2="17" y2="9"></line><line x1="7" y1="13" x2="7" y2="13"></line><line x1="12" y1="13" x2="12" y2="13"></line><line x1="17" y1="13" x2="17" y2="13"></line><line x1="7" y1="17" x2="17" y2="17"></line></svg>
