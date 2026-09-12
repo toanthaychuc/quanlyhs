@@ -311,10 +311,10 @@
     gap: 0.5rem;
   }
   .header-left .page-title {
-    display: none; /* Ẩn lời chào trên mobile để gọn gàng */
+    display: none !important; /* Ẩn lời chào trên mobile để gọn gàng, dùng !important để đè inline style */
   }
   .user-role-badge {
-    display: none; /* Ẩn chức danh trên mobile */
+    display: none !important; /* Ẩn chức danh trên mobile */
   }
   .header-right {
     width: auto;
