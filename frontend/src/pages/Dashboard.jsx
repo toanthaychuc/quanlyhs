@@ -794,7 +794,8 @@ const Dashboard = () => {
 
       {/* Row 1: Tổng quan tiến độ, Mục tiêu cá nhân & Bảng tin thông báo */}
       {!isTeacher && (
-        <div className="overview-grid">
+        <>
+          <div className="overview-grid">
         {/* 1. Tiến độ học theo chuyên đề */}
         <div className="card">
           <div className="card-title-bar">
@@ -1145,6 +1146,8 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+        </div>
+        </>
       )}
 
       {/* TEACHER DASHBOARD */}
