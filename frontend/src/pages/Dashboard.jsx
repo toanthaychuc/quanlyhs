@@ -699,12 +699,7 @@ const Dashboard = () => {
         <div style={{ position: 'absolute', right: '-5%', top: '-10%', width: '250px', height: '250px', border: '2px solid rgba(255,255,255,0.05)', borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)' }}></div>
 
         {/* Top Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.35rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, color: '#ffffff' }}>
-            <span style={{ fontSize: '1rem' }}>🎓</span> 
-            {isTeacher ? 'Trang Quản Trị Giáo Viên' : 'Mở app ra học là đã hơn hôm qua'}
-            <button style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '0.25rem', cursor: 'pointer' }}><RefreshCw size={12} /></button>
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', zIndex: 1 }}>
           <button 
             onClick={() => setShowAvatarModal(true)}
             style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.3)', border: 'none', color: 'white', padding: '0.4rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
