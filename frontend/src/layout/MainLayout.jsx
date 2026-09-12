@@ -278,6 +278,16 @@ const MainLayout = () => {
             >
               <Menu size={24} />
             </button>
+
+            {/* Mobile Header Logo (Hidden on Desktop) */}
+            <div className="mobile-header-logo">
+              <div className="logo-icon" style={{ width: '32px', height: '32px', fontSize: '0.9rem', borderRadius: '8px' }}>LC</div>
+              <div className="logo-text-wrapper" style={{ lineHeight: 1.1 }}>
+                <span className="logo-text-top" style={{ fontSize: '0.65rem' }}>Toán thầy</span>
+                <span className="logo-text-main" style={{ fontSize: '0.95rem' }}>Công Chức</span>
+              </div>
+            </div>
+
             <div>
               <h2 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {isTeacher 
