@@ -882,7 +882,7 @@ const Classes = () => {
               {myStudentProfile.name ? myStudentProfile.name.charAt(myStudentProfile.name.lastIndexOf(' ') + 1) || myStudentProfile.name.charAt(0) : 'H'}
             </div>
             <div className="student-banner-info">
-              <h3>{myStudentProfile.name} <span style={{ fontSize: '0.85rem', opacity: 0.85 }}>({myStudentProfile.id})</span></h3>
+              <h3>{myStudentProfile.name} <span style={{ fontSize: '0.85rem', opacity: 0.85 }}>({myStudentProfile.id.startsWith(`${currentClass.id}_`) ? myStudentProfile.id.replace(`${currentClass.id}_`, '') : myStudentProfile.id})</span></h3>
               <p>
                 Lớp: <strong>{currentClass.name}</strong> • Trường: <strong>{currentClass.schoolFullName}</strong> • GV: <strong>{currentClass.teacher}</strong>
               </p>
