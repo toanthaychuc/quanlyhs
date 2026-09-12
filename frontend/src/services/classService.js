@@ -147,7 +147,7 @@ export async function saveClass(cls) {
         .from('students')
         .delete()
         .eq('class_id', cls.id)
-        .not('id', 'in', `(${studentIds.map(id => `'${id}'`).join(',')})`);
+        .not('id', 'in', `(${studentIds.join(',')})`);
 
       // Upsert current students
       const studentRows = cls.students.map((s, index) => {
