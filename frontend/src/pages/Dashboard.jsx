@@ -54,12 +54,18 @@ const CURRICULUM_MAP = {
 };
 
 const AVATAR_OPTIONS = [
-  'https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=b6e3f4',
-  'https://api.dicebear.com/7.x/notionists/svg?seed=Aneka&backgroundColor=c0aede',
-  'https://api.dicebear.com/7.x/notionists/svg?seed=Nala&backgroundColor=ffd5dc',
-  'https://api.dicebear.com/7.x/notionists/svg?seed=Sasha&backgroundColor=d1d4f9',
-  'https://api.dicebear.com/7.x/notionists/svg?seed=Oliver&backgroundColor=b6e3f4',
-  'https://api.dicebear.com/7.x/notionists/svg?seed=Midnight&backgroundColor=c0aede',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&backgroundColor=c0aede',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Nala&backgroundColor=ffd5dc',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Sasha&backgroundColor=d1d4f9',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver&backgroundColor=bbf7d0',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=fef08a',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Bella&backgroundColor=ffdfbf',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=e9d5ff',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=Robo1&backgroundColor=b6e3f4',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=Robo2&backgroundColor=ffd5dc',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=Robo3&backgroundColor=bbf7d0',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=Robo4&backgroundColor=fef08a',
 ];
 
 const FRAME_OPTIONS = [
