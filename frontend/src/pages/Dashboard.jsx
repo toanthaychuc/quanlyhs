@@ -1443,7 +1443,7 @@ const Dashboard = () => {
                 <input 
                   type="text" 
                   className="form-control"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
                   value={noticeForm.title}
                   onChange={(e) => setNoticeForm({ ...noticeForm, title: e.target.value })}
                   placeholder="Ví dụ: Lịch thi thử đợt 5..."
@@ -1455,7 +1455,7 @@ const Dashboard = () => {
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Gửi đến lớp</label>
                 <select 
                   className="form-control"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
                   value={noticeForm.targetClass}
                   onChange={(e) => setNoticeForm({ ...noticeForm, targetClass: e.target.value })}
                 >
@@ -1470,7 +1470,7 @@ const Dashboard = () => {
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Nội dung thông báo</label>
                 <textarea 
                   className="form-control"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', minHeight: '120px', resize: 'vertical' }}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-color)', minHeight: '120px', resize: 'vertical', background: 'var(--bg-color)', color: 'var(--text-primary)' }}
                   value={noticeForm.content}
                   onChange={(e) => setNoticeForm({ ...noticeForm, content: e.target.value })}
                   placeholder="Nhập nội dung thông báo cụ thể gửi học sinh..."
