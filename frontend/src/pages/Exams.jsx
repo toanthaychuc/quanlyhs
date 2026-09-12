@@ -1426,16 +1426,33 @@ const Exams = () => {
                     <div className="short-ans-taking-box">
                       <label className="sa-input-label">Trả lời:</label>
                       <div className="sa-input-wrap" style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                        <div style={{ position: 'relative', flex: 1, maxWidth: '250px' }}>
+                        <div style={{ position: 'relative', display: 'flex', gap: '6px' }}>
                           <input 
                             type="text"
-                            className="input sa-taking-input"
-                            placeholder="VD: 59 hoặc -2.5"
-                            maxLength={8}
+                            style={{
+                              position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                              opacity: 0, cursor: 'text', zIndex: 10
+                            }}
+                            maxLength={4}
                             value={currentAnswer || ''}
-                            onChange={(e) => handleInputShortAns(q.id, e.target.value)}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9.,-]/g, '').slice(0, 4);
+                              handleInputShortAns(q.id, val);
+                            }}
                             onFocus={() => setShowKeypad(false)}
                           />
+                          {Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} style={{
+                              width: '42px', height: '52px', 
+                              border: '2px solid var(--border-color)', borderRadius: '6px',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: '1.4rem', fontWeight: 'bold', background: 'var(--surface-color)',
+                              color: 'var(--text-color)',
+                              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)'
+                            }}>
+                              {(currentAnswer || '')[i] || ''}
+                            </div>
+                          ))}
                           {showKeypad && (
                             <div className="virtual-keypad card" style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', zIndex: 50, padding: '10px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', width: '220px', backgroundColor: 'var(--bg-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
                               {['1','2','3','4','5','6','7','8','9','-','0',','].map(key => (
@@ -1443,7 +1460,11 @@ const Exams = () => {
                                   key={key} 
                                   className="btn-secondary" 
                                   style={{ padding: '8px 0', fontSize: '1.1rem', fontWeight: '600' }}
-                                  onClick={() => handleInputShortAns(q.id, (currentAnswer || '') + key)}
+                                  onClick={() => {
+                                    if ((currentAnswer || '').length < 4) {
+                                      handleInputShortAns(q.id, (currentAnswer || '') + key);
+                                    }
+                                  }}
                                 >
                                   {key}
                                 </button>
