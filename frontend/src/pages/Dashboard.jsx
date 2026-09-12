@@ -49,6 +49,22 @@ const CURRICULUM_MAP = {
   '12': GRADE_12_CURRICULUM,
 };
 
+const AVATAR_OPTIONS = [
+  'https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=b6e3f4',
+  'https://api.dicebear.com/7.x/notionists/svg?seed=Aneka&backgroundColor=c0aede',
+  'https://api.dicebear.com/7.x/notionists/svg?seed=Nala&backgroundColor=ffd5dc',
+  'https://api.dicebear.com/7.x/notionists/svg?seed=Sasha&backgroundColor=d1d4f9',
+  'https://api.dicebear.com/7.x/notionists/svg?seed=Oliver&backgroundColor=b6e3f4',
+  'https://api.dicebear.com/7.x/notionists/svg?seed=Midnight&backgroundColor=c0aede',
+];
+
+const FRAME_OPTIONS = [
+  { id: 'default', name: 'Mặc định', style: { border: '2px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' } },
+  { id: 'gold', name: 'Vàng Kim', style: { border: '2px solid #fbbf24', boxShadow: '0 0 10px rgba(251, 191, 36, 0.5), inset 0 0 5px rgba(251, 191, 36, 0.3)' } },
+  { id: 'neon', name: 'Neon', style: { border: '2px solid #22d3ee', boxShadow: '0 0 15px rgba(34, 211, 238, 0.6), inset 0 0 10px rgba(34, 211, 238, 0.4)' } },
+  { id: 'rainbow', name: 'Cầu vồng', style: { padding: '3px', background: 'linear-gradient(45deg, #f87171, #fbbf24, #34d399, #60a5fa, #c084fc)', border: 'none' } }
+];
+
 const CHAPTER_COLORS = ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#14b8a6', '#f97316'];
 
 const Dashboard = () => {
@@ -258,52 +274,28 @@ const Dashboard = () => {
   const studentGrade = isStudent ? studentInfo.grade : '12';
   const currentCurriculum = CURRICULUM_MAP[studentGrade] || GRADE_12_CURRICULUM;
 
+  // Trạng thái Avatar và Khung viền
+  const [userAvatar, setUserAvatar] = useState(() => {
+    return localStorage.getItem('edumanager_avatar') || AVATAR_OPTIONS[0];
+  });
+  const [userFrame, setUserFrame] = useState(() => {
+    return localStorage.getItem('edumanager_frame') || 'default';
+  });
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+
+  const saveAvatarSettings = (avatar, frameId) => {
+    setUserAvatar(avatar);
+    setUserFrame(frameId);
+    localStorage.setItem('edumanager_avatar', avatar);
+    localStorage.setItem('edumanager_frame', frameId);
+    setShowAvatarModal(false);
+  };
+
   // Mục tiêu điểm thi mong muốn của học sinh
   const [targetScore, setTargetScore] = useState(() => {
     return localStorage.getItem('edumanager_target_score') || '8.5';
   });
 
-  // Tính số ngày đếm ngược đến Kỳ thi quan trọng
-  const [examDateStr, setExamDateStr] = useState(() => {
-    return localStorage.getItem('edumanager_exam_date') || '2027-06-27';
-  });
-  const [isEditingExamDate, setIsEditingExamDate] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    // Load from cloud (SWR)
-    getSetting('exam_date', '2027-06-27', false).then(localDate => {
-      if (localDate) {
-        setExamDateStr(localDate);
-      }
-      getSetting('exam_date', '2027-06-27', true).then(remoteDate => {
-        if (remoteDate && remoteDate !== examDateStr) {
-          setExamDateStr(remoteDate);
-          localStorage.setItem('edumanager_exam_date', remoteDate);
-        }
-      });
-    }).catch(err => console.error('getSetting error:', err));
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000); // Cập nhật mỗi phút để đổi ngày tự động lúc nửa đêm
-    return () => clearInterval(timer);
-  }, []);
-
-  const examDateObj = new Date(examDateStr + 'T00:00:00');
-  const timeDiff = examDateObj.getTime() - currentTime.getTime();
-  const daysLeft = Math.max(0, Math.ceil(timeDiff / (1000 * 3600 * 24)));
-  const examYear = examDateObj.getFullYear();
-
-  const handleExamDateChange = (e) => {
-    const newDate = e.target.value;
-    setExamDateStr(newDate);
-    localStorage.setItem('edumanager_exam_date', newDate);
-    saveSetting('exam_date', newDate).catch(err => console.error('saveSetting error:', err));
-    setIsEditingExamDate(false);
-  };
 
   // Tính toán % tiến độ thực tế theo từng chương an toàn
   const validCurriculum = Array.isArray(currentCurriculum) ? currentCurriculum : GRADE_12_CURRICULUM;
@@ -700,44 +692,40 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="hero-countdown" style={{ position: 'relative' }}>
-          <div className="countdown-icon">
-            <Flame size={28} color="#fef08a" />
+        <div className="hero-profile" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255, 255, 255, 0.1)', padding: '0.75rem 1.25rem', borderRadius: '12px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+          <div className="profile-info" style={{ textAlign: 'right', color: 'white' }}>
+            <div style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.02em' }}>
+              {isTeacher ? 'Thầy Công Chức' : 'Nguyễn Văn A'}
+            </div>
+            <div style={{ fontSize: '0.8rem', opacity: 0.9, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+              {isTeacher ? (
+                <><Award size={14} /> Quản trị viên & Giáo viên</>
+              ) : (
+                <><GraduationCap size={14} /> Khối {studentInfo.grade || '12'} • HS-2027</>
+              )}
+            </div>
           </div>
-          <div className="countdown-info">
-            <span className="countdown-days">{daysLeft} Ngày</span>
-            {isEditingExamDate && isTeacher ? (
-              <input 
-                type="date" 
-                value={examDateStr} 
-                onChange={handleExamDateChange}
-                onBlur={() => setIsEditingExamDate(false)}
-                autoFocus
-                style={{
-                  background: 'rgba(255,255,255,0.2)',
-                  border: 'none',
-                  color: 'white',
-                  borderRadius: '4px',
-                  padding: '2px 4px',
-                  fontSize: '0.85rem',
-                  outline: 'none',
-                  marginTop: '2px'
-                }}
-              />
-            ) : (
-              <span className="countdown-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                Đến Kỳ Thi Tốt Nghiệp THPT {examYear}
-                {isTeacher && (
-                  <button 
-                    onClick={() => setIsEditingExamDate(true)}
-                    style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', padding: 0, display: 'flex' }}
-                    title="Đổi ngày thi"
-                  >
-                    <Edit2 size={12} />
-                  </button>
-                )}
-              </span>
-            )}
+          
+          <div 
+            className="profile-avatar-wrapper" 
+            style={{ position: 'relative', cursor: 'pointer', transition: 'transform 0.2s ease' }}
+            onClick={() => setShowAvatarModal(true)}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <div style={{
+              width: '56px', 
+              height: '56px', 
+              borderRadius: '50%', 
+              overflow: 'hidden',
+              backgroundColor: 'white',
+              ...FRAME_OPTIONS.find(f => f.id === userFrame)?.style
+            }}>
+              <img src={userAvatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#3b82f6', borderRadius: '50%', padding: '4px', border: '2px solid white', display: 'flex' }}>
+              <Edit2 size={12} color="white" />
+            </div>
           </div>
         </div>
       </div>
@@ -1497,6 +1485,76 @@ const Dashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Avatar Modal */}
+      {showAvatarModal && (
+        <div className="modal-overlay" onClick={() => setShowAvatarModal(false)}>
+          <div 
+            className="modal-content" 
+            style={{ maxWidth: '600px', width: '92%' }} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>Tùy chỉnh Hồ sơ cá nhân</h3>
+              <button className="close-btn" onClick={() => setShowAvatarModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{ padding: '1.5rem' }}>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>Chọn Avatar</h4>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {AVATAR_OPTIONS.map((avatar, idx) => (
+                    <div 
+                      key={idx}
+                      onClick={() => setUserAvatar(avatar)}
+                      style={{ 
+                        width: '64px', height: '64px', borderRadius: '50%', cursor: 'pointer',
+                        border: userAvatar === avatar ? '3px solid var(--primary-color)' : '3px solid transparent',
+                        transition: 'transform 0.2s', transform: userAvatar === avatar ? 'scale(1.1)' : 'scale(1)',
+                        backgroundColor: 'white'
+                      }}
+                    >
+                      <img src={avatar} alt={`Avatar ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.75rem' }}>Chọn Khung viền (Frame)</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
+                  {FRAME_OPTIONS.map((frame) => (
+                    <div 
+                      key={frame.id}
+                      onClick={() => setUserFrame(frame.id)}
+                      style={{ 
+                        padding: '0.75rem', borderRadius: 'var(--radius-md)', cursor: 'pointer',
+                        textAlign: 'center', fontSize: '0.85rem', fontWeight: 500,
+                        border: userFrame === frame.id ? '2px solid var(--primary-color)' : '1px solid var(--border-color)',
+                        background: userFrame === frame.id ? 'var(--bg-color)' : 'transparent',
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      <div style={{ 
+                        width: '48px', height: '48px', margin: '0 auto 0.5rem', borderRadius: '50%',
+                        ...frame.style
+                      }}></div>
+                      {frame.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', padding: '0 1.5rem 1.5rem' }}>
+              <button className="btn btn-secondary" onClick={() => setShowAvatarModal(false)}>Đóng</button>
+              <button className="btn btn-primary" onClick={() => saveAvatarSettings(userAvatar, userFrame)}>Lưu thay đổi</button>
+            </div>
           </div>
         </div>
       )}
