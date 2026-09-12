@@ -412,6 +412,8 @@ function rowToExam(row) {
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    pointsConfig: row.points_config,
+    latexBulkCode: row.latex_bulk_code,
   };
 }
 
@@ -429,6 +431,8 @@ function examToRow(exam) {
     topic_id: exam.topicId || null,
     is_published: exam.isPublished !== undefined ? exam.isPublished : true,
     created_by: exam.createdBy || null,
+    points_config: exam.pointsConfig || null,
+    latex_bulk_code: exam.latexBulkCode || null,
   };
   return row;
 }

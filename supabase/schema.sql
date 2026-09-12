@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS exams (
   topic_id        TEXT,
   is_published    BOOLEAN NOT NULL DEFAULT TRUE,
   created_by      TEXT,
+  points_config   JSONB,
+  latex_bulk_code TEXT,
   created_at      TIMESTAMPTZ DEFAULT NOW(),
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
