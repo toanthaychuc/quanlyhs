@@ -1334,30 +1334,7 @@ const Exams = () => {
 
     return (
       <div className="exam-taking-view">
-        <div className="exam-taking-header glass">
-          <div className="exam-title-box">
-            <h3 className="exam-live-title">{currentExam.title}</h3>
-            <span className="exam-question-progress">
-              {Object.keys(userAnswers).length} / {currentExam.questions.length} câu đã làm
-            </span>
-          </div>
 
-          <div className="exam-timer-box">
-            <Clock size={20} className={timeLeft < 180 ? 'timer-icon-warning' : ''} />
-            <span className={`timer-text ${timeLeft < 180 ? 'timer-warning' : ''}`}>
-              {formatTime(timeLeft)}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button className="btn btn-outline" onClick={() => setExamMode('list')} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ArrowLeft size={18} /> Tạm dừng
-            </button>
-            <button className="btn btn-submit-exam" onClick={() => handleSubmitExam(false)}>
-              <CheckCircle size={18} /> Nộp bài thi
-            </button>
-          </div>
-        </div>
 
         <div className="exam-taking-body">
           <div className="exam-questions-list" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto', paddingRight: '10px' }}>
@@ -1538,6 +1515,31 @@ const Exams = () => {
           </div>
 
           <div className="questions-palette-sidebar card">
+            <div className="sidebar-exam-info" style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '15px', paddingBottom: '15px', borderBottom: '1px solid var(--border-color)' }}>
+              <div>
+                <h3 className="exam-live-title" style={{ fontSize: '1.1rem', marginBottom: '4px', lineHeight: '1.4' }}>{currentExam.title}</h3>
+                <span className="exam-question-progress" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  {Object.keys(userAnswers).length} / {currentExam.questions.length} câu đã làm
+                </span>
+              </div>
+              
+              <div className="exam-timer-box" style={{ background: 'var(--bg-color)', padding: '10px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', border: '1px solid var(--border-color)' }}>
+                <Clock size={20} className={timeLeft < 180 ? 'timer-icon-warning' : 'text-primary'} style={{ color: timeLeft < 180 ? '' : 'var(--primary-color)' }} />
+                <span className={`timer-text ${timeLeft < 180 ? 'timer-warning' : ''}`} style={{ fontSize: '1.2rem', fontWeight: 'bold', color: timeLeft < 180 ? '' : 'var(--primary-color)' }}>
+                  {formatTime(timeLeft)}
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <button className="btn btn-outline" onClick={() => setExamMode('list')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px', fontSize: '0.9rem' }}>
+                  <ArrowLeft size={16} /> Tạm dừng
+                </button>
+                <button className="btn btn-submit-exam" onClick={() => handleSubmitExam(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px', background: 'var(--emerald-600, #10b981)', color: 'white', border: 'none', borderRadius: 'var(--radius-md)', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer' }}>
+                  <CheckCircle size={16} /> Nộp bài
+                </button>
+              </div>
+            </div>
+
             <h4 className="palette-title">Danh sách câu hỏi</h4>
             <div className="palette-grid">
               {currentExam.questions.map((item, idx) => {
