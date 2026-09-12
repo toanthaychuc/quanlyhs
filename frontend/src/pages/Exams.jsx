@@ -1721,10 +1721,10 @@ const Exams = () => {
     <div className="exams-page">
       <div className="page-header">
         <div>
-          <h2 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h1 className="page-title" style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <CheckSquare className="text-primary" size={28} />
             PHÒNG THI THỬ
-          </h2>
+          </h1>
 
         </div>
 
