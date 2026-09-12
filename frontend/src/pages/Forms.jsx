@@ -81,7 +81,7 @@ const Forms = () => {
         <div className="forms-title-area">
           <h1>
             <FileText className="text-primary" size={28} />
-            Biểu Mẫu & Khảo Sát
+            BIỂU MẪU & KHẢO SÁT
           </h1>
 
         </div>

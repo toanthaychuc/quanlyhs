@@ -722,7 +722,7 @@ const Classes = () => {
         <div className="classes-title-area">
           <h1>
             <Users className="text-primary" size={28} />
-            Quản lý lớp học
+            QUẢN LÝ LỚP HỌC
           </h1>
 
         </div>

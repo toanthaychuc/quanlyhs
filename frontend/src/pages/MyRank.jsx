@@ -35,7 +35,7 @@ const MyRank = () => {
         <div className="title-area">
           <h1>
             <Shield className="text-primary" size={28} />
-            Thành Tựu & Huy Hiệu
+            THÀNH TỰU & HUY HIỆU
           </h1>
 
         </div>

@@ -70,7 +70,7 @@ const Forum = () => {
         <div className="forum-title-area">
           <h1>
             <MessageCircle className="text-primary" size={28} />
-            Hỏi Đáp & Liên Hệ
+            HỎI ĐÁP & LIÊN HỆ
           </h1>
 
         </div>

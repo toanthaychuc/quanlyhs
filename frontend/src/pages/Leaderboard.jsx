@@ -130,7 +130,7 @@ const Leaderboard = () => {
         <div className="title-area">
           <h1>
             <Award className="text-primary" size={28} />
-            Bảng Xếp Hạng Học Tập
+            BẢNG XẾP HẠNG HỌC TẬP
           </h1>
 
         </div>

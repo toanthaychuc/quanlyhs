@@ -240,7 +240,10 @@ const Documents = () => {
       <div className="page-header">
         <div>
           <div className="title-with-badge">
-            <h2 className="page-title">Thư viện Tài liệu</h2>
+            <h2 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Folder className="text-primary" size={28} />
+              THƯ VIỆN TÀI LIỆU
+            </h2>
             {!isTeacher && (
               <span className="student-view-pill">
                 <Eye size={13} /> Chế độ xem học sinh
