@@ -132,9 +132,7 @@ const Leaderboard = () => {
             <Award className="text-primary" size={28} />
             Bảng Xếp Hạng Học Tập
           </h1>
-          <p className="subtitle">
-            Dựa trên số lượng bài tập và đề thi đã hoàn thành trên hệ thống.
-          </p>
+
         </div>
 
         {isTeacher && classes.length > 0 && (

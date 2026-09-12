@@ -739,11 +739,7 @@ const Assignments = () => {
             <BookOpen className="text-primary" size={28} />
             Quản Lý Giao Bài Tập & Báo Cáo Tiến Độ Lớp
           </h1>
-          <p className="assignments-subtitle">
-            {isTeacher 
-              ? 'Giao bài tập theo lớp: Làm trực tiếp trên web (đề chuẩn LaTeX) hoặc Nộp file PDF/Hình ảnh tự luận.'
-              : `Nhiệm vụ & Bài tập được giáo viên giao cho ${currentClass?.name || 'lớp bạn'}.`}
-          </p>
+
         </div>
 
         {isTeacher && (

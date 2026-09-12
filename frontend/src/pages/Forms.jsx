@@ -83,9 +83,7 @@ const Forms = () => {
             <FileText className="text-primary" size={28} />
             Biểu Mẫu & Khảo Sát
           </h1>
-          <p className="forms-subtitle">
-            Truy cập các biểu mẫu, đơn từ và khảo sát nhanh do giáo viên cung cấp.
-          </p>
+
         </div>
         
         {isTeacher && !editing && (

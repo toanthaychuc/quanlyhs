@@ -724,9 +724,7 @@ const Classes = () => {
             <Users className="text-primary" size={28} />
             Quản Lý Lớp Học & Học Sinh
           </h1>
-          <p className="classes-subtitle">
-            Hệ thống phân lớp theo đơn vị: <strong>Trung tâm NP (NP)</strong> và <strong>Trung học Thực hành (THTH)</strong>
-          </p>
+
         </div>
 
         {isTeacher && (

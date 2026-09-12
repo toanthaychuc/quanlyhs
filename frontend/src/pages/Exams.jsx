@@ -1722,9 +1722,7 @@ const Exams = () => {
       <div className="page-header">
         <div>
           <h2 className="page-title">Phòng Thi Thử & Kiểm Tra Trực Tuyến</h2>
-          <p className="page-subtitle">
-            Hệ thống bài kiểm tra theo từng bài học (SGK Kết Nối Tri Thức), kiểm tra chương, THPT Quốc Gia & VACT chuẩn LaTeX
-          </p>
+
         </div>
 
         {isTeacher && (

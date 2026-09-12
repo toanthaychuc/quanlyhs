@@ -72,9 +72,7 @@ const Forum = () => {
             <MessageCircle className="text-primary" size={28} />
             Hỏi Đáp & Liên Hệ
           </h1>
-          <p className="forum-subtitle">
-            Kênh liên lạc trực tiếp với giáo viên để được giải đáp thắc mắc và hỗ trợ học tập.
-          </p>
+
         </div>
         {isTeacher && !editing && (
           <button className="btn btn-primary" onClick={handleEdit}>

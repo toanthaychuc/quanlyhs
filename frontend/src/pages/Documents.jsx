@@ -247,12 +247,7 @@ const Documents = () => {
               </span>
             )}
           </div>
-          <p className="page-subtitle">
-            {isTeacher 
-              ? 'Quản lý giáo trình, tài liệu chuyên đề và sổ tay kiến thức cho học sinh'
-              : 'Tra cứu sách giáo khoa, bài giảng chuyên đề và sổ tay kiến thức mọi lúc mọi nơi'
-            }
-          </p>
+
         </div>
 
         {/* Nút thêm tài liệu chỉ hiện cho Giáo viên */}

@@ -37,9 +37,7 @@ const MyRank = () => {
             <Shield className="text-primary" size={28} />
             Thành Tựu & Huy Hiệu
           </h1>
-          <p className="subtitle">
-            Theo dõi quá trình rèn luyện, tích luỹ kinh nghiệm và thăng hạng của bạn.
-          </p>
+
         </div>
       </div>
 
