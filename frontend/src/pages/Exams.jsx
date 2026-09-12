@@ -1940,20 +1940,25 @@ const Exams = () => {
                                       </div>
                                     </div>
                                     {history.length > 0 && isStudent && (
-                                      <div className="sub-exam-history-badges" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', padding: '0 0.2rem' }}>
-                                        {history.map((h, i) => (
-                                          <span 
-                                            key={i} 
-                                            className="badge" 
-                                            onClick={() => handleReviewHistory(h, ex)}
-                                            title="Bấm để xem lại chi tiết bài làm"
-                                            style={{ backgroundColor: '#f3f4f6', color: '#4b5563', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }}
-                                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e5e7eb'; e.currentTarget.style.borderColor = '#d1d5db'; }}
-                                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
-                                          >
-                                            Lần {i + 1}: <strong>{h.score}đ</strong> <span style={{fontSize:'0.65rem', opacity:0.8}}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
-                                          </span>
-                                        ))}
+                                      <div className="sub-exam-history-badges" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', padding: '0 0.2rem', marginTop: '0.3rem' }}>
+                                        <div style={{ fontSize: '0.7rem', color: '#9ca3af', fontStyle: 'italic', marginBottom: '-0.2rem' }}>
+                                          <Eye size={12} style={{ display: 'inline', marginRight: '3px', verticalAlign: 'text-bottom' }}/> Bấm vào lần thi để xem lại chi tiết bài làm
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                          {history.map((h, i) => (
+                                            <span 
+                                              key={i} 
+                                              className="badge" 
+                                              onClick={() => handleReviewHistory(h, ex)}
+                                              title="Bấm để xem lại chi tiết bài làm"
+                                              style={{ backgroundColor: '#f3f4f6', color: '#4b5563', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }}
+                                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e5e7eb'; e.currentTarget.style.borderColor = '#d1d5db'; }}
+                                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
+                                            >
+                                              Lần {i + 1}: <strong>{h.score}đ</strong> <span style={{fontSize:'0.65rem', opacity:0.8}}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
+                                            </span>
+                                          ))}
+                                        </div>
                                       </div>
                                     )}
                                     {teacherExamStats[ex.id]?.length > 0 && isTeacher && (
@@ -2060,7 +2065,9 @@ const Exams = () => {
                 
                 {history.length > 0 && isStudent && (
                   <div className="exam-history-section" style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.6rem', marginTop: '0.6rem' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500' }}>Lịch sử làm bài:</div>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500' }}>
+                      Lịch sử làm bài: <span style={{ fontSize: '0.7rem', color: '#9ca3af', fontWeight: 'normal', fontStyle: 'italic', marginLeft: '4px' }}><Eye size={12} style={{ display: 'inline', marginRight: '2px', verticalAlign: 'text-bottom' }}/> Bấm vào để xem lại</span>
+                    </div>
                     <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                       {history.map((h, i) => (
                         <span 
