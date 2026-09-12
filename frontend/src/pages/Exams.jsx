@@ -1973,7 +1973,15 @@ const Exams = () => {
                                         {expandedTeacherStats[ex.id] && (
                                           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', maxHeight: '150px', overflowY: 'auto' }}>
                                             {teacherExamStats[ex.id].map((h, i) => (
-                                              <span key={i} className="badge" style={{ backgroundColor: '#f3f4f6', color: '#1f2937', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                              <span 
+                                                key={i} 
+                                                className="badge" 
+                                                onClick={() => handleReviewHistory(h, ex)}
+                                                title="Bấm để xem lại bài làm của học sinh này"
+                                                style={{ backgroundColor: '#f3f4f6', color: '#1f2937', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e5e7eb'; e.currentTarget.style.borderColor = '#d1d5db'; }}
+                                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
+                                              >
                                                 <span style={{ fontWeight: 600 }}>{h.studentName}</span>
                                                 <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
                                                 <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
@@ -2098,7 +2106,15 @@ const Exams = () => {
                     {expandedTeacherStats[exam.id] && (
                       <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', maxHeight: '180px', overflowY: 'auto' }}>
                         {teacherExamStats[exam.id].map((h, i) => (
-                          <span key={i} className="badge" style={{ backgroundColor: '#f8fafc', color: '#1e293b', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                          <span 
+                            key={i} 
+                            className="badge" 
+                            onClick={() => handleReviewHistory(h, exam)}
+                            title="Bấm để xem lại bài làm của học sinh này"
+                            style={{ backgroundColor: '#f8fafc', color: '#1e293b', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                          >
                             <span style={{ fontWeight: 600 }}>{h.studentName}</span>
                             <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
                             <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
