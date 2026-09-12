@@ -473,7 +473,7 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\allowdisplaybreaks\b/g, '');
   text = text.replace(/\\begin\{eqnarray\*?\}([\s\S]*?)\\end\{eqnarray\*?\}/g, (match, inner) => {
     let fixedInner = inner.replace(/&&/g, '&');
-    fixedInner = fixedInner.replace(/&([^&\n\r]+)&/g, '&$1');
+    fixedInner = fixedInner.replace(/&([^&\n\r]+)&/g, '&$1 ');
     return `\\begin{aligned}${fixedInner}\\end{aligned}`;
   });
 
