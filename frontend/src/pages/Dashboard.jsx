@@ -44,6 +44,7 @@ import { getClasses } from '../services/classService';
 import { getExams, getStudentHistory, getGamification } from '../services/examService';
 import { getNotices, saveNotice, deleteNotice } from '../services/noticeService';
 import { getSetting, saveSetting } from '../services/settingService';
+import { calculateRank } from '../utils/rankUtils';
 import './Dashboard.css';
 
 const CURRICULUM_MAP = {
@@ -170,7 +171,7 @@ const Dashboard = () => {
         for (const cls of (classes || [])) {
           const found = cls.students?.find(s => s.id === currentStudentId);
           if (found) {
-            setStudentInfo({ grade: cls.grade || '12', className: cls.name, school: cls.school, classId: cls.id });
+            setStudentInfo({ grade: cls.grade || '12', className: cls.name, school: cls.school, classId: cls.id, name: found.name });
             break;
           }
         }
@@ -734,7 +735,7 @@ const Dashboard = () => {
           {/* User Info */}
           <div>
             <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 0.5rem 0', letterSpacing: '0.02em', textShadow: '0 2px 4px rgba(0,0,0,0.3)', color: '#ffffff' }}>
-              {isTeacher ? 'Thầy Công Chức' : 'Nguyễn Văn A'}
+              {isTeacher ? 'Thầy Công Chức' : (studentInfo.name || 'Học sinh')}
             </h1>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {isTeacher ? (
@@ -746,9 +747,8 @@ const Dashboard = () => {
               ) : (
                 <>
                   <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>LỚP {studentInfo.grade || '12'}</span>
-                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>THÁCH ĐẤU V</span>
-                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}><BookOpen size={10} /> Thí sinh Tự Do</span>
-                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>ID: 27020982</span>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)', color: calculateRank(gamificationData.xp).currentRank.color }}>{calculateRank(gamificationData.xp).currentRank.name.toUpperCase()}</span>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>ID: {currentStudentId}</span>
                 </>
               )}
             </div>
