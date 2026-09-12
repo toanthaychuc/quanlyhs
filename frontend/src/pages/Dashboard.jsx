@@ -26,7 +26,10 @@ import {
   Trash2,
   X,
   Medal,
-  Users
+  Users,
+  EyeOff,
+  RefreshCw,
+  Wand2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -678,55 +681,93 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      {/* Hero Welcome & Countdown Banner */}
-      <div className="dashboard-hero">
-        <div className="hero-text">
-          <h1>
-            <Sparkles size={24} color="#fef08a" />
-            {isTeacher ? 'Bảng Điều Khiển Giảng Dạy & Quản Trị' : 'Bảng Điều Khiển Học Tập'}
-          </h1>
-          <p>
-            {isTeacher 
-              ? 'Theo dõi toàn bộ tiến độ lớp học, sĩ số và kết quả rèn luyện của học sinh.'
-              : 'Chào mừng bạn trở lại! Hãy duy trì nhịp độ ôn tập để sẵn sàng bứt phá điểm số.'}
-          </p>
+      {/* Profile Hero Banner Redesign */}
+      <div className="dashboard-hero profile-mode" style={{ 
+        position: 'relative', 
+        overflow: 'hidden', 
+        padding: '1.5rem 2rem', 
+        borderRadius: 'var(--radius-lg)', 
+        background: 'linear-gradient(135deg, #1e3a8a 0%, #312e81 100%)', 
+        color: 'white',
+        boxShadow: '0 10px 25px -5px rgba(30, 58, 138, 0.4)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.25rem'
+      }}>
+        {/* Background Decorative Arcs */}
+        <div style={{ position: 'absolute', right: '-10%', top: '-20%', width: '300px', height: '300px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+        <div style={{ position: 'absolute', right: '-5%', top: '-10%', width: '250px', height: '250px', border: '2px solid rgba(255,255,255,0.05)', borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)' }}></div>
+
+        {/* Top Bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.35rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>
+            <span style={{ fontSize: '1rem' }}>🎓</span> 
+            {isTeacher ? 'Trang Quản Trị Giáo Viên' : 'Mở app ra học là đã hơn hôm qua'}
+            <button style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '0.25rem', cursor: 'pointer' }}><RefreshCw size={12} /></button>
+          </div>
+          <button 
+            onClick={() => setShowAvatarModal(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.3)', border: 'none', color: 'white', padding: '0.4rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.5)'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.3)'}
+          >
+            <Wand2 size={14} /> Trang trí
+          </button>
         </div>
 
-        <div className="hero-profile" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255, 255, 255, 0.1)', padding: '0.75rem 1.25rem', borderRadius: '12px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
-          <div className="profile-info" style={{ textAlign: 'right', color: 'white' }}>
-            <div style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '0.02em' }}>
+        {/* Center Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', zIndex: 1, marginTop: '0.5rem', flexWrap: 'wrap' }}>
+          {/* Squircle Avatar */}
+          <div 
+            style={{ 
+              position: 'relative', 
+              width: '85px', 
+              height: '85px', 
+              borderRadius: '24px', 
+              backgroundColor: 'white',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+              cursor: 'pointer',
+              ...FRAME_OPTIONS.find(f => f.id === userFrame)?.style,
+              border: userFrame === 'default' ? '3px solid rgba(255,255,255,0.8)' : FRAME_OPTIONS.find(f => f.id === userFrame)?.style.border
+            }}
+            onClick={() => setShowAvatarModal(true)}
+          >
+            <img src={userAvatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: userFrame === 'rainbow' ? '21px' : '20px' }} />
+            {userFrame === 'gold' && <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(45deg, #fbbf24, #f59e0b)', borderRadius: '50%', padding: '2px', border: '2px solid white' }}><Award size={14} color="white" /></div>}
+          </div>
+
+          {/* User Info */}
+          <div>
+            <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 0.5rem 0', letterSpacing: '0.02em', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
               {isTeacher ? 'Thầy Công Chức' : 'Nguyễn Văn A'}
-            </div>
-            <div style={{ fontSize: '0.8rem', opacity: 0.9, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+            </h1>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               {isTeacher ? (
-                <><Award size={14} /> Quản trị viên & Giáo viên</>
+                <>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>QUẢN TRỊ VIÊN</span>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>GIÁO VIÊN TOÁN</span>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}><Award size={10} /> ID: GV-001</span>
+                </>
               ) : (
-                <><GraduationCap size={14} /> Khối {studentInfo.grade || '12'} • HS-2027</>
+                <>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>LỚP {studentInfo.grade || '12'}</span>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>THÁCH ĐẤU V</span>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}><BookOpen size={10} /> Thí sinh Tự Do</span>
+                  <span style={{ background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>ID: 27020982</span>
+                </>
               )}
             </div>
           </div>
-          
-          <div 
-            className="profile-avatar-wrapper" 
-            style={{ position: 'relative', cursor: 'pointer', transition: 'transform 0.2s ease' }}
-            onClick={() => setShowAvatarModal(true)}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            <div style={{
-              width: '56px', 
-              height: '56px', 
-              borderRadius: '50%', 
-              overflow: 'hidden',
-              backgroundColor: 'white',
-              ...FRAME_OPTIONS.find(f => f.id === userFrame)?.style
-            }}>
-              <img src={userAvatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-            <div style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#3b82f6', borderRadius: '50%', padding: '4px', border: '2px solid white', display: 'flex' }}>
-              <Edit2 size={12} color="white" />
-            </div>
-          </div>
+        </div>
+
+        {/* Bottom Actions */}
+        <div style={{ display: 'flex', gap: '0.75rem', zIndex: 1, marginTop: '0.5rem', flexWrap: 'wrap' }}>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.85rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}>
+            <EyeOff size={14} /> Ẩn danh
+          </button>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.85rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}>
+            <Bell size={14} /> Bật thông báo
+          </button>
         </div>
       </div>
 
