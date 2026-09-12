@@ -1639,10 +1639,14 @@ const Exams = () => {
                 {q.questionType === 'short_answer' && (
                   <div className="sa-review-box">
                     <div className="sa-review-pill">
-                      <span>Đáp án đúng: <strong>{q.correctAnswer}</strong></span>
+                      <span>Đáp án đúng: <strong style={{ color: '#059669' }}>{q.correctAnswer}</strong></span>
                     </div>
                     <div className="sa-review-user">
-                      <span>Bạn đã điền: <strong>{userChoice || 'Chưa điền'}</strong></span>
+                      <span style={{ 
+                        color: (userChoice || '').trim() === (q.correctAnswer || '').trim() ? '#059669' : '#ef4444' 
+                      }}>
+                        Bạn đã điền: <strong>{userChoice || 'Chưa điền'}</strong>
+                      </span>
                     </div>
                   </div>
                 )}
