@@ -698,11 +698,11 @@ const Dashboard = () => {
         <div style={{ position: 'absolute', right: '-10%', top: '-20%', width: '300px', height: '300px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', pointerEvents: 'none' }}></div>
         <div style={{ position: 'absolute', right: '-5%', top: '-10%', width: '250px', height: '250px', border: '2px solid rgba(255,255,255,0.05)', borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)' }}></div>
 
-        {/* Top Bar */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', zIndex: 1 }}>
+        {/* Top Right Action */}
+        <div style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', zIndex: 2 }}>
           <button 
             onClick={() => setShowAvatarModal(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.3)', border: 'none', color: 'white', padding: '0.4rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
             onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.5)'}
             onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.3)'}
           >
@@ -711,7 +711,7 @@ const Dashboard = () => {
         </div>
 
         {/* Center Profile */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', zIndex: 1, marginTop: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', zIndex: 1, flexWrap: 'wrap' }}>
           {/* Squircle Avatar */}
           <div 
             style={{ 
