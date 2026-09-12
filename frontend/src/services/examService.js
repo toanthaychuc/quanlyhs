@@ -164,6 +164,9 @@ export async function getAllExamSessions() {
         correctCount: s.correct_count,
         totalQuestions: s.total_questions,
         completedAt: s.submitted_at,
+        answers: s.answers,
+        flagged: s.flagged,
+        timeSpent: s.time_spent,
       });
     }
     return history;
