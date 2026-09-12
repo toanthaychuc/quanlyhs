@@ -45,19 +45,10 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
   const [teacherError, setTeacherError] = useState('');
   const [teacherSuccess, setTeacherSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedClassId, setSelectedClassId] = useState(() => classesData[0]?.id || 'np-10t8');
+  const [selectedClassId, setSelectedClassId] = useState('');
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [studentCodeInput, setStudentCodeInput] = useState('');
   const [studentError, setStudentError] = useState('');
-
-  // Tự động chọn lớp hợp lệ khi classesData được tải về từ Supabase
-  React.useEffect(() => {
-    if (classesData && classesData.length > 0) {
-      if (!selectedClassId || !classesData.some(c => c.id === selectedClassId)) {
-        setSelectedClassId(classesData[0].id);
-      }
-    }
-  }, [classesData, selectedClassId]);
 
   if (!isOpen) return null;
 
@@ -136,6 +127,10 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
   // Xử lý học sinh trong danh sách lớp xác nhận danh tính & đối chiếu Mã học sinh
   const handleStudentSelectConfirm = (e) => {
     e.preventDefault();
+    if (!selectedClassId) {
+      setStudentError('Vui lòng chọn Lớp Học của bạn trước!');
+      return;
+    }
     if (!selectedStudentId) {
       setStudentError('Vui lòng chọn tên học sinh của bạn trong danh sách lớp!');
       return;
@@ -291,6 +286,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
                     setStudentError('');
                   }}
                 >
+                  <option value="">-- Chọn Lớp Học --</option>
                   {classesData.map(cls => (
                     <option key={cls.id} value={cls.id}>
                       {cls.name} - {cls.schoolFullName}
