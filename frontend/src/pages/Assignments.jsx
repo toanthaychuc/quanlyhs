@@ -849,9 +849,7 @@ const Assignments = () => {
                     </div>
                     <div>
                       <div className="flex items-center gap-2" style={{ marginBottom: '0.2rem' }}>
-                        <span className={`badge-tag ${isOnline ? 'type-online' : 'type-file'}`}>
-                          {isOnline ? '💻 Trực Tuyến (LaTeX)' : '📁 Nộp File PDF / Ảnh'}
-                        </span>
+
                         {isTeacher && asg.isHidden && (
                           <span className="badge-tag" style={{ background: '#fee2e2', color: '#dc2626' }}>
                             🔒 Đang ẩn với học sinh
