@@ -644,7 +644,7 @@ const Exams = () => {
           const classes = JSON.parse(savedClasses);
           classes.forEach(cls => {
             cls.students?.forEach(s => {
-              enrolledStudents[s.id] = s.name;
+              enrolledStudents[s.id] = { name: s.name, className: cls.name };
             });
           });
         } catch (e) {
@@ -657,10 +657,11 @@ const Exams = () => {
         Object.keys(allHistory).forEach(examId => {
           const validSessions = allHistory[examId]
             .filter(session => enrolledStudents[session.studentId])
-            .map(session => ({
-              ...session,
-              studentName: enrolledStudents[session.studentId]
-            }));
+              .map(session => ({
+                ...session,
+                studentName: enrolledStudents[session.studentId]?.name || 'Ẩn danh',
+                className: enrolledStudents[session.studentId]?.className || ''
+              }));
           
           if (validSessions.length > 0) {
             stats[examId] = validSessions;
@@ -1982,7 +1983,7 @@ const Exams = () => {
                                                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e5e7eb'; e.currentTarget.style.borderColor = '#d1d5db'; }}
                                                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
                                               >
-                                                <span style={{ fontWeight: 600 }}>{h.studentName}</span>
+                                                <span style={{ fontWeight: 600 }}>{h.studentName} {h.className && <span style={{fontSize: '0.7rem', fontWeight: 400, color: '#6b7280'}}>({h.className})</span>}</span>
                                                 <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
                                                 <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
                                               </span>
@@ -2115,7 +2116,7 @@ const Exams = () => {
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                           >
-                            <span style={{ fontWeight: 600 }}>{h.studentName}</span>
+                            <span style={{ fontWeight: 600 }}>{h.studentName} {h.className && <span style={{fontSize: '0.7rem', fontWeight: 400, color: '#6b7280'}}>({h.className})</span>}</span>
                             <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
                             <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
                           </span>
