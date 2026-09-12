@@ -1721,7 +1721,7 @@ const Exams = () => {
     <div className="exams-page">
       <div className="page-header">
         <div>
-          <h2 className="page-title">Phòng Thi Thử & Kiểm Tra Trực Tuyến</h2>
+          <h2 className="page-title">Phòng thi thử</h2>
 
         </div>
 

@@ -737,7 +737,7 @@ const Assignments = () => {
         <div className="assignments-title-area">
           <h1>
             <BookOpen className="text-primary" size={28} />
-            Quản Lý Giao Bài Tập & Báo Cáo Tiến Độ Lớp
+            Bài tập
           </h1>
 
         </div>
