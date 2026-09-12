@@ -286,7 +286,7 @@
     left: 0;
     bottom: 0;
     height: 100vh;
-    z-index: 100;
+    z-index: 1001;
     transform: translateX(-100%);
   }
   .sidebar.open {
