@@ -1437,7 +1437,7 @@ const Dashboard = () => {
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSaveNotice} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+            <form onSubmit={handleSaveNotice} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem 1.5rem 1.5rem' }}>
               <div className="form-group">
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>Tiêu đề thông báo</label>
                 <input 
@@ -1488,7 +1488,7 @@ const Dashboard = () => {
                 <label htmlFor="isPinned" style={{ fontSize: '0.875rem', cursor: 'pointer', userSelect: 'none' }}>Ghim thông báo lên đầu (Màu đỏ)</label>
               </div>
 
-              <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowNoticeModal(false)}>
                   Hủy
                 </button>
