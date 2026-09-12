@@ -1869,9 +1869,6 @@ const Exams = () => {
                     </div>
 
                     <div className="chapter-header-right">
-                      <span className="item-count-text">
-                        {chapter.items.length} bài kiểm tra
-                      </span>
                       {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                     </div>
                   </div>
