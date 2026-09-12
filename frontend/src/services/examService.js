@@ -236,8 +236,6 @@ export async function getStudentHistory(studentId) {
   }
 }
 
-}
-
 export async function deleteExamSession(sessionId, studentId, examId, completedAt) {
   // Try to delete from Supabase if ready and has ID
   if (isSupabaseReady() && sessionId) {
