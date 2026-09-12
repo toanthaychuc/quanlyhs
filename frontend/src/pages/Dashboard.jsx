@@ -25,7 +25,8 @@ import {
   Edit2,
   Trash2,
   X,
-  Medal
+  Medal,
+  Users
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -571,6 +572,118 @@ const Dashboard = () => {
     ? notices 
     : notices.filter(n => !n.targetClass || n.targetClass === 'ALL' || n.targetClass === studentInfo.className);
 
+  // --- TEACHER SPECIFIC DATA ---
+  const teacherStats = {
+    totalClasses: classList.length,
+    totalStudents: classList.reduce((sum, cls) => sum + (cls.students?.length || 0), 0),
+    totalExams: allExamsList.length,
+    recentAssignments: [],
+    needsAttention: [],
+    classAverages: []
+  };
+
+  if (isTeacher) {
+    try {
+      const asgRaw = localStorage.getItem('edumanager_class_assignments_v2');
+      if (asgRaw) {
+        const allAssignments = JSON.parse(asgRaw).filter(a => !a.isHidden);
+        const sorted = [...allAssignments].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        
+        teacherStats.recentAssignments = sorted.slice(0, 3).map(asg => {
+          const cls = classList.find(c => c.id === asg.classId);
+          const totalStudents = cls?.students?.length || 1;
+          const submissionsCount = Object.keys(asg.submissions || {}).length;
+          return {
+            ...asg,
+            className: cls?.name || 'Không rõ',
+            submitted: submissionsCount,
+            total: totalStudents,
+            percent: Math.min(100, Math.round((submissionsCount / totalStudents) * 100))
+          };
+        });
+
+        const now = new Date();
+        allAssignments.forEach(asg => {
+          if (!asg.deadline) return;
+          const deadlineDate = new Date(asg.deadline);
+          if (now > deadlineDate) {
+            const cls = classList.find(c => c.id === asg.classId);
+            if (cls && cls.students) {
+              cls.students.forEach(st => {
+                const sub1 = (asg.submissions || {})[st.id];
+                const sub2 = (asg.submissions || {})[st.id.replace('10T8-', 'HS')];
+                const sub3 = (asg.submissions || {})[st.id.replace('HS', '10T8-')];
+                if (!sub1 && !sub2 && !sub3) {
+                  const diffDays = (now - deadlineDate) / (1000 * 3600 * 24);
+                  if (diffDays <= 7) {
+                    teacherStats.needsAttention.push({
+                      studentId: st.id,
+                      studentName: st.name,
+                      className: cls.name,
+                      reason: `Chưa nộp bài: ${asg.title}`,
+                      type: 'warning'
+                    });
+                  }
+                }
+              });
+            }
+          }
+        });
+      }
+
+      const completedExamsRaw = localStorage.getItem('edumanager_completed_exams');
+      if (completedExamsRaw) {
+        const completedMap = JSON.parse(completedExamsRaw);
+        classList.forEach(cls => {
+          if (!cls.students || cls.students.length === 0) return;
+          let totalScore = 0;
+          let count = 0;
+          cls.students.forEach(st => {
+            const studentExams = completedMap[st.id] || {};
+            Object.values(studentExams).forEach(record => {
+              if (record.score !== undefined) {
+                totalScore += record.score;
+                count++;
+                
+                const completedDate = new Date(record.completedAt);
+                const diffDays = (new Date() - completedDate) / (1000 * 3600 * 24);
+                if (diffDays <= 7 && record.score < 5.0) {
+                  teacherStats.needsAttention.push({
+                    studentId: st.id,
+                    studentName: st.name,
+                    className: cls.name,
+                    reason: `Điểm kém (${record.score}đ) đợt thi gần nhất`,
+                    type: 'danger'
+                  });
+                }
+              }
+            });
+          });
+          
+          if (count > 0) {
+            teacherStats.classAverages.push({
+              className: cls.name,
+              avg: parseFloat((totalScore / count).toFixed(1))
+            });
+          }
+        });
+      }
+      
+      const uniqueAttention = [];
+      const seenStudents = new Set();
+      teacherStats.needsAttention.forEach(item => {
+        if (!seenStudents.has(item.studentId)) {
+          seenStudents.add(item.studentId);
+          uniqueAttention.push(item);
+        }
+      });
+      teacherStats.needsAttention = uniqueAttention.slice(0, 5);
+
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   return (
     <div className="dashboard">
       {/* Hero Welcome & Countdown Banner */}
@@ -680,7 +793,8 @@ const Dashboard = () => {
       )}
 
       {/* Row 1: Tổng quan tiến độ, Mục tiêu cá nhân & Bảng tin thông báo */}
-      <div className="overview-grid">
+      {!isTeacher && (
+        <div className="overview-grid">
         {/* 1. Tiến độ học theo chuyên đề */}
         <div className="card">
           <div className="card-title-bar">
@@ -1031,7 +1145,236 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* TEACHER DASHBOARD */}
+      {isTeacher && (
+        <>
+          {/* 4 Thẻ KPI */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="card hover-lift flex items-center gap-4" style={{ padding: '1.25rem' }}>
+              <div style={{ background: '#e0e7ff', color: '#4338ca', padding: '0.75rem', borderRadius: '50%' }}>
+                <Layers size={24} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>TỔNG SỐ LỚP</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>{teacherStats.totalClasses}</div>
+              </div>
+            </div>
+            <div className="card hover-lift flex items-center gap-4" style={{ padding: '1.25rem' }}>
+              <div style={{ background: '#ecfdf5', color: '#047857', padding: '0.75rem', borderRadius: '50%' }}>
+                <Users size={24} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>TỔNG SĨ SỐ</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>{teacherStats.totalStudents}</div>
+              </div>
+            </div>
+            <div className="card hover-lift flex items-center gap-4" style={{ padding: '1.25rem' }}>
+              <div style={{ background: '#fef3c7', color: '#b45309', padding: '0.75rem', borderRadius: '50%' }}>
+                <BookOpen size={24} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>TỔNG ĐỀ THI</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>{teacherStats.totalExams}</div>
+              </div>
+            </div>
+            <div className="card hover-lift flex items-center gap-4" style={{ padding: '1.25rem' }}>
+              <div style={{ background: '#fdf2f8', color: '#db2777', padding: '0.75rem', borderRadius: '50%' }}>
+                <Target size={24} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>ĐIỂM TB CÁC LỚP</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  {teacherStats.classAverages.length > 0 
+                    ? (teacherStats.classAverages.reduce((a,b) => a + b.avg, 0) / teacherStats.classAverages.length).toFixed(1)
+                    : '-'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="overview-grid">
+            {/* Học sinh cần chú ý */}
+            <div className="card">
+              <div className="card-title-bar">
+                <h3>
+                  <AlertCircle size={18} color="#ef4444" />
+                  Học Sinh Cần Chú Ý
+                </h3>
+                <span className="text-xs font-semibold text-rose-500">{teacherStats.needsAttention.length} cảnh báo</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingRight: '0.25rem', maxHeight: '280px', overflowY: 'auto' }}>
+                {teacherStats.needsAttention.length === 0 ? (
+                  <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 1rem', fontSize: '0.85rem' }}>
+                    Tất cả học sinh đều đang hoàn thành tốt nhiệm vụ!
+                  </div>
+                ) : (
+                  teacherStats.needsAttention.map((student, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', background: student.type === 'danger' ? '#fef2f2' : '#fffbeb', border: `1px solid ${student.type === 'danger' ? '#fecaca' : '#fef08a'}`, borderRadius: 'var(--radius-md)' }}>
+                      <div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: student.type === 'danger' ? '#b91c1c' : '#b45309' }}>
+                          {student.studentName} <span style={{ fontSize: '0.75rem', fontWeight: 400 }}>({student.className})</span>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: student.type === 'danger' ? '#dc2626' : '#d97706', marginTop: '0.1rem' }}>
+                          {student.reason}
+                        </div>
+                      </div>
+                      <button className={`btn ${student.type === 'danger' ? 'btn-danger' : 'btn-secondary'}`} style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', backgroundColor: student.type === 'danger' ? '#ef4444' : '#f59e0b', color: 'white', border: 'none' }} onClick={() => navigate('/classes')}>
+                        Xem lớp
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Bảng Tin (Dành cho Giáo viên) */}
+            <div className="card">
+              <div className="card-title-bar">
+                <h3>
+                  <Bell size={18} color="#f59e0b" />
+                  Quản Lý Bảng Tin Lớp
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 font-semibold">{displayedNotices.length} tin</span>
+                  <button 
+                    className="btn btn-primary" 
+                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px' }}
+                    onClick={() => handleOpenNoticeModal()}
+                  >
+                    <Plus size={14} /> Thêm tin
+                  </button>
+                </div>
+              </div>
+              <div className="notice-list" style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+                {displayedNotices.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    Chưa có thông báo nào.
+                  </div>
+                ) : (
+                  displayedNotices.map(n => (
+                    <div key={n.id} className={`notice-item ${n.isPinned ? 'pinned' : ''}`} style={{ position: 'relative' }}>
+                      <div className="notice-title-row">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="notice-title">{n.title}</span>
+                          {n.targetClass && n.targetClass !== 'ALL' && (
+                            <span style={{ fontSize: '0.675rem', fontWeight: '700', background: '#e0e7ff', color: '#4338ca', padding: '1px 6px', borderRadius: '4px' }}>
+                              {n.targetClass}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2" style={{ marginLeft: 'auto', flexShrink: 0 }}>
+                          <span className="notice-time">{n.date}</span>
+                          <div className="flex items-center gap-1.5" style={{ marginLeft: '4px' }}>
+                            <button 
+                              onClick={() => handleOpenNoticeModal(n)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4f46e5', padding: '2px' }}
+                              title="Sửa"
+                            >
+                              <Edit2 size={13} />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteNotice(n.id)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '2px' }}
+                              title="Xóa"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <p style={{ margin: '0.35rem 0 0 0', color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.4, whiteSpace: 'pre-wrap' }}>
+                        {n.content}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="dashboard-main-grid">
+            {/* Bài tập / Đề thi mới giao */}
+            <div className="card flex flex-col gap-4">
+              <div className="card-title-bar">
+                <h3>
+                  <CheckCircle2 size={18} color="#10b981" />
+                  Tiến Độ Nộp Bài Tập Gần Đây
+                </h3>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {teacherStats.recentAssignments.length === 0 ? (
+                  <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '1rem' }}>
+                    Chưa có bài tập nào được giao gần đây.
+                  </div>
+                ) : (
+                  teacherStats.recentAssignments.map(asg => (
+                    <div key={asg.id} style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <div>
+                          <strong style={{ fontSize: '0.9rem', color: '#1e293b' }}>{asg.title}</strong>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                            Lớp: <span style={{ fontWeight: 600, color: '#4f46e5' }}>{asg.className}</span> • {asg.questionsCount || 0} câu
+                          </div>
+                        </div>
+                        <button className="btn btn-secondary" style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }} onClick={() => navigate('/assignments')}>Chi tiết</button>
+                      </div>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem', fontWeight: 600 }}>
+                        <span style={{ color: '#475569' }}>Tiến độ nộp bài</span>
+                        <span style={{ color: asg.percent >= 80 ? '#10b981' : asg.percent >= 50 ? '#f59e0b' : '#ef4444' }}>
+                          {asg.submitted} / {asg.total} ({asg.percent}%)
+                        </span>
+                      </div>
+                      <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${asg.percent}%`, background: asg.percent >= 80 ? '#10b981' : asg.percent >= 50 ? '#f59e0b' : '#ef4444', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Phân tích chất lượng các lớp */}
+            <div className="card flex flex-col gap-4">
+              <div className="card-title-bar">
+                <h3>
+                  <BarChart2 size={18} color="#6366f1" />
+                  Điểm Trung Bình Các Lớp
+                </h3>
+              </div>
+              <div className="chart-container-custom" style={{ width: '100%', height: 250, padding: '1rem 0' }}>
+                {teacherStats.classAverages.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={teacherStats.classAverages} margin={{ top: 15, right: 30, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="className" tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                      <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: '#64748b' }} domain={[0, 10]} />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: 'var(--shadow-md)' }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="avg" 
+                        name="Điểm TB"
+                        stroke="#6366f1" 
+                        strokeWidth={4} 
+                        dot={{ r: 6, fill: '#fff', stroke: '#6366f1', strokeWidth: 2 }}
+                        activeDot={{ r: 8, fill: '#6366f1', stroke: '#fff', strokeWidth: 2 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    Chưa có đủ dữ liệu điểm số từ các lớp.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Row 3: Menu Truy Cập Nhanh (Quick Navigation) */}
       <div className="card">
