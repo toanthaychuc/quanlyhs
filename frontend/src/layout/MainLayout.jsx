@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useOutlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -35,6 +35,7 @@ import './MainLayout.css';
 const MainLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const currentOutlet = useOutlet();
   const { 
     role, 
     setRole, 
@@ -434,7 +435,7 @@ const MainLayout = () => {
               transition={{ duration: 0.3, ease: 'easeInOut' }}
               style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
             >
-              <Outlet />
+              {currentOutlet}
             </motion.div>
           </AnimatePresence>
         </div>
