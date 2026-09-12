@@ -700,7 +700,7 @@ const Dashboard = () => {
 
         {/* Top Bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.35rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.35rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600, color: '#ffffff' }}>
             <span style={{ fontSize: '1rem' }}>🎓</span> 
             {isTeacher ? 'Trang Quản Trị Giáo Viên' : 'Mở app ra học là đã hơn hôm qua'}
             <button style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '0.25rem', cursor: 'pointer' }}><RefreshCw size={12} /></button>
@@ -738,7 +738,7 @@ const Dashboard = () => {
 
           {/* User Info */}
           <div>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 0.5rem 0', letterSpacing: '0.02em', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+            <h1 style={{ fontSize: '1.8rem', fontWeight: 800, margin: '0 0 0.5rem 0', letterSpacing: '0.02em', textShadow: '0 2px 4px rgba(0,0,0,0.3)', color: '#ffffff' }}>
               {isTeacher ? 'Thầy Công Chức' : 'Nguyễn Văn A'}
             </h1>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
