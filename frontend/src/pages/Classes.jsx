@@ -1081,24 +1081,7 @@ const Classes = () => {
                 </button>
               )}
 
-              {isTeacher && (
-                <button 
-                  className="btn-icon" 
-                  style={{ fontSize: '0.8rem', padding: '0.4rem 0.6rem', color: '#64748b' }}
-                  onClick={() => {
-                    if (window.confirm('Đặt lại tất cả các lớp về trạng thái danh sách trống để giáo viên chủ động nhập từ đầu?')) {
-                      setClasses(INITIAL_CLASSES_DATA);
-                      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(INITIAL_CLASSES_DATA));
-                      saveAllClasses(INITIAL_CLASSES_DATA);
-                      setSelectedStudentIds([]);
-                    }
-                  }}
-                  title="Đặt lại danh sách học sinh rỗng để nhập mới"
-                >
-                  <RotateCcw size={14} />
-                  <span style={{ marginLeft: '4px' }}>Làm trống để nhập mới</span>
-                </button>
-              )}
+
 
               <span className="text-xs text-gray-500" style={{ marginLeft: '0.5rem' }}>
                 Hiển thị <strong>{sortedAndFilteredStudents.length}</strong> / {(currentClass?.students?.length || 0)} HS
