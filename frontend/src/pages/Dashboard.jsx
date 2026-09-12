@@ -760,15 +760,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Bottom Actions */}
-        <div style={{ display: 'flex', gap: '0.75rem', zIndex: 1, marginTop: '0.5rem', flexWrap: 'wrap' }}>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.85rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}>
-            <EyeOff size={14} /> Ẩn danh
-          </button>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.85rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}>
-            <Bell size={14} /> Bật thông báo
-          </button>
-        </div>
       </div>
 
       {/* Gamification Bar (Chỉ Học Sinh) */}
