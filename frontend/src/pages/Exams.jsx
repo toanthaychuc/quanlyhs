@@ -579,6 +579,7 @@ const Exams = () => {
   const [flaggedQuestions, setFlaggedQuestions] = useState({});
   const [timeLeft, setTimeLeft] = useState(0);
   const [examResult, setExamResult] = useState(null);
+  const [showKeypad, setShowKeypad] = useState(false);
   const timerRef = useRef(null);
 
   const handleReviewHistory = (historySession, exam) => {
@@ -1404,15 +1405,54 @@ const Exams = () => {
                   {q.questionType === 'short_answer' && (
                     <div className="short-ans-taking-box">
                       <label className="sa-input-label">Trả lời:</label>
-                      <div className="sa-input-wrap">
-                        <input 
-                          type="text"
-                          className="input sa-taking-input"
-                          placeholder="VD: 59 hoặc -2.5"
-                          maxLength={4}
-                          value={currentAnswer || ''}
-                          onChange={(e) => handleInputShortAns(q.id, e.target.value)}
-                        />
+                      <div className="sa-input-wrap" style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                        <div style={{ position: 'relative', flex: 1, maxWidth: '250px' }}>
+                          <input 
+                            type="text"
+                            className="input sa-taking-input"
+                            placeholder="VD: 59 hoặc -2.5"
+                            maxLength={8}
+                            value={currentAnswer || ''}
+                            onChange={(e) => handleInputShortAns(q.id, e.target.value)}
+                            onFocus={() => setShowKeypad(false)}
+                          />
+                          {showKeypad && (
+                            <div className="virtual-keypad card" style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', zIndex: 50, padding: '10px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', width: '220px', backgroundColor: 'var(--bg-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+                              {['1','2','3','4','5','6','7','8','9','-','0',','].map(key => (
+                                <button 
+                                  key={key} 
+                                  className="btn-secondary" 
+                                  style={{ padding: '8px 0', fontSize: '1.1rem', fontWeight: '600' }}
+                                  onClick={() => handleInputShortAns(q.id, (currentAnswer || '') + key)}
+                                >
+                                  {key}
+                                </button>
+                              ))}
+                              <button 
+                                className="btn-secondary" 
+                                style={{ gridColumn: 'span 2', padding: '8px 0', fontSize: '0.9rem', color: 'var(--danger-color)', fontWeight: 500 }}
+                                onClick={() => handleInputShortAns(q.id, (currentAnswer || '').slice(0, -1))}
+                              >
+                                Xóa (Del)
+                              </button>
+                              <button 
+                                className="btn-primary" 
+                                style={{ padding: '8px 0', fontSize: '0.9rem' }}
+                                onClick={() => setShowKeypad(false)}
+                              >
+                                Xong
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <button 
+                          className={`btn-secondary ${showKeypad ? 'active' : ''}`}
+                          style={{ padding: '0.7rem', flexShrink: 0, backgroundColor: showKeypad ? 'var(--primary-color)' : '', color: showKeypad ? 'white' : '' }}
+                          onClick={() => setShowKeypad(!showKeypad)}
+                          title="Bàn phím số"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="7" y1="9" x2="7" y2="9"></line><line x1="12" y1="9" x2="12" y2="9"></line><line x1="17" y1="9" x2="17" y2="9"></line><line x1="7" y1="13" x2="7" y2="13"></line><line x1="12" y1="13" x2="12" y2="13"></line><line x1="17" y1="13" x2="17" y2="13"></line><line x1="7" y1="17" x2="17" y2="17"></line></svg>
+                        </button>
                       </div>
                     </div>
                   )}
