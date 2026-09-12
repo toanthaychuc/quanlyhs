@@ -430,6 +430,25 @@ const MainLayout = () => {
         </div>
       </main>
 
+      {/* Mobile Bottom Navigation (Native App Feel) */}
+      <nav className="mobile-bottom-nav">
+        <NavLink to="/" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '/')}>
+          <LayoutDashboard size={20} /><span>Trang chủ</span>
+        </NavLink>
+        <NavLink to="/classes" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '/classes')}>
+          <Users size={20} /><span>Lớp học</span>
+        </NavLink>
+        <NavLink to="/assignments" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '/assignments')}>
+          <BookOpen size={20} /><span>Bài tập</span>
+        </NavLink>
+        <NavLink to="/exams" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '/exams')}>
+          <GraduationCap size={20} /><span>Thi thử</span>
+        </NavLink>
+        <button className="bottom-nav-item" onClick={() => setIsMobileMenuOpen(true)}>
+          <Menu size={20} /><span>Mở rộng</span>
+        </button>
+      </nav>
+
       {/* Modal Đăng nhập Email */}
       {showLoginModal && (
         <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
