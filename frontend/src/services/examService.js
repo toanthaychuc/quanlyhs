@@ -122,7 +122,7 @@ export async function submitExamSession({
   };
 
   // Always save to localStorage first (instant)
-  saveSessionToLocal({ examId, studentId, score, correctCount, totalQuestions });
+  saveSessionToLocal({ examId, studentId, score, correctCount, totalQuestions, answers, flagged, timeSpent });
 
   if (!isSupabaseReady()) {
     return { success: true };
@@ -203,7 +203,7 @@ export async function getStudentHistory(studentId) {
   try {
     const { data, error } = await supabase
       .from('exam_sessions')
-      .select('exam_id, score, correct_count, total_questions, submitted_at')
+      .select('exam_id, score, correct_count, total_questions, submitted_at, answers, flagged, time_spent')
       .eq('student_id', studentId)
       .not('submitted_at', 'is', null);
 
@@ -219,6 +219,9 @@ export async function getStudentHistory(studentId) {
         correctCount: s.correct_count,
         totalQuestions: s.total_questions,
         completedAt: s.submitted_at,
+        answers: s.answers,
+        flagged: s.flagged,
+        timeSpent: s.time_spent,
       });
     }
     // Ensure chronological order
@@ -428,7 +431,7 @@ function deleteExamFromLocal(examId) {
   } catch (_) {}
 }
 
-function saveSessionToLocal({ examId, studentId, score, correctCount, totalQuestions }) {
+function saveSessionToLocal({ examId, studentId, score, correctCount, totalQuestions, answers, flagged, timeSpent }) {
   try {
     const prev = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
     if (!prev[studentId]) prev[studentId] = {};
@@ -440,7 +443,7 @@ function saveSessionToLocal({ examId, studentId, score, correctCount, totalQuest
     }
     
     prev[studentId][examId].push({
-      examId, score, correctCount, totalQuestions,
+      examId, score, correctCount, totalQuestions, answers, flagged, timeSpent,
       completedAt: new Date().toISOString(),
     });
     localStorage.setItem(HISTORY_KEY, JSON.stringify(prev));

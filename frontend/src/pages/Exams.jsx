@@ -581,6 +581,20 @@ const Exams = () => {
   const [examResult, setExamResult] = useState(null);
   const timerRef = useRef(null);
 
+  const handleReviewHistory = (historySession, exam) => {
+    setCurrentExam(exam);
+    setUserAnswers(historySession.answers || {});
+    setFlaggedQuestions(historySession.flagged || {});
+    setExamResult({
+      score: historySession.score,
+      correctCount: historySession.correctCount,
+      totalQuestions: historySession.totalQuestions,
+      timeSpentSeconds: historySession.timeSpent || 0
+    });
+    setExamMode('result');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Modal Soạn đề LaTeX
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editorQuestions, setEditorQuestions] = useState([]);
@@ -1888,7 +1902,15 @@ const Exams = () => {
                                     {history.length > 0 && isStudent && (
                                       <div className="sub-exam-history-badges" style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', padding: '0 0.2rem' }}>
                                         {history.map((h, i) => (
-                                          <span key={i} className="badge" style={{ backgroundColor: '#f3f4f6', color: '#4b5563', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb' }}>
+                                          <span 
+                                            key={i} 
+                                            className="badge" 
+                                            onClick={() => handleReviewHistory(h, ex)}
+                                            title="Bấm để xem lại chi tiết bài làm"
+                                            style={{ backgroundColor: '#f3f4f6', color: '#4b5563', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', cursor: 'pointer', transition: 'all 0.2s' }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e5e7eb'; e.currentTarget.style.borderColor = '#d1d5db'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
+                                          >
                                             Lần {i + 1}: <strong>{h.score}đ</strong> <span style={{fontSize:'0.65rem', opacity:0.8}}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
                                           </span>
                                         ))}
@@ -2001,7 +2023,15 @@ const Exams = () => {
                     <div style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500' }}>Lịch sử làm bài:</div>
                     <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                       {history.map((h, i) => (
-                        <span key={i} className="badge" style={{ backgroundColor: '#f8fafc', color: '#475569', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+                        <span 
+                          key={i} 
+                          className="badge" 
+                          onClick={() => handleReviewHistory(h, exam)}
+                          title="Bấm để xem lại chi tiết bài làm"
+                          style={{ backgroundColor: '#f8fafc', color: '#475569', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.2s' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                        >
                           Lần {i + 1}: <strong style={{color: '#059669'}}>{h.score}đ</strong> <span style={{fontSize:'0.65rem', opacity:0.8}}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
                         </span>
                       ))}
