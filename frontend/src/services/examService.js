@@ -153,11 +153,11 @@ export async function getAllExamSessions() {
 
     if (error) throw error;
     
-    // Group into arrays per exam
     const history = {};
     for (const s of (data || [])) {
       if (!history[s.exam_id]) history[s.exam_id] = [];
       history[s.exam_id].push({
+        id: s.id,
         studentId: s.student_id,
         examId: s.exam_id,
         score: s.score,
@@ -200,12 +200,12 @@ export async function getStudentHistory(studentId) {
     return getStudentHistoryFromLocal(studentId);
   }
 
-  try {
-    const { data, error } = await supabase
-      .from('exam_sessions')
-      .select('exam_id, score, correct_count, total_questions, submitted_at, answers, flagged, time_spent')
-      .eq('student_id', studentId)
-      .not('submitted_at', 'is', null);
+    try {
+      const { data, error } = await supabase
+        .from('exam_sessions')
+        .select('id, exam_id, score, correct_count, total_questions, submitted_at, answers, flagged, time_spent')
+        .eq('student_id', studentId)
+        .not('submitted_at', 'is', null);
 
     if (error) throw error;
 
@@ -214,6 +214,7 @@ export async function getStudentHistory(studentId) {
     for (const s of (data || [])) {
       if (!history[s.exam_id]) history[s.exam_id] = [];
       history[s.exam_id].push({
+        id: s.id,
         examId: s.exam_id,
         score: s.score,
         correctCount: s.correct_count,
@@ -232,6 +233,45 @@ export async function getStudentHistory(studentId) {
   } catch (err) {
     console.error('[examService] getStudentHistory error:', err);
     return getStudentHistoryFromLocal(studentId);
+  }
+}
+
+}
+
+export async function deleteExamSession(sessionId, studentId, examId, completedAt) {
+  // Try to delete from Supabase if ready and has ID
+  if (isSupabaseReady() && sessionId) {
+    try {
+      const { error } = await supabase
+        .from('exam_sessions')
+        .delete()
+        .eq('id', sessionId);
+      if (error) throw error;
+    } catch (err) {
+      console.error('[examService] deleteExamSession error:', err);
+      throw err;
+    }
+  }
+
+  // Also delete from local storage as fallback or sync
+  try {
+    const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+    if (all[studentId] && all[studentId][examId]) {
+      const sessions = Array.isArray(all[studentId][examId]) 
+        ? all[studentId][examId] 
+        : [all[studentId][examId]];
+      
+      const updatedSessions = sessions.filter(s => s.completedAt !== completedAt);
+      
+      if (updatedSessions.length === 0) {
+        delete all[studentId][examId];
+      } else {
+        all[studentId][examId] = updatedSessions;
+      }
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(all));
+    }
+  } catch (err) {
+    console.error('[examService] deleteExamSession local error:', err);
   }
 }
 

@@ -16,7 +16,7 @@ import { GRADE_12_CURRICULUM } from '../data/grade12Curriculum';
 import './Exams.css';
 import {
   getExams, saveExam, deleteExam,
-  submitExamSession, getStudentHistory, getAllExamSessions,
+  submitExamSession, getStudentHistory, getAllExamSessions, deleteExamSession,
   updateGamification, getGamification,
   saveUnfinishedExam, getUnfinishedExam, clearUnfinishedExam
 } from '../services/examService';
@@ -1131,6 +1131,25 @@ const Exams = () => {
     setExams(prev => prev.map(ex => ex.id === examId ? { ...ex, isHidden: !ex.isHidden } : ex));
   };
 
+  const handleDeleteStudentSession = async (e, session, examId) => {
+    e.stopPropagation();
+    if (!window.confirm(`Bạn có chắc muốn xóa bài làm của học sinh ${session.studentName}?`)) return;
+
+    try {
+      await deleteExamSession(session.id, session.studentId, examId, session.completedAt);
+      
+      setTeacherExamStats(prev => {
+        const stats = { ...prev };
+        if (stats[examId]) {
+          stats[examId] = stats[examId].filter(s => s.completedAt !== session.completedAt || s.studentId !== session.studentId);
+        }
+        return stats;
+      });
+    } catch (err) {
+      alert('Có lỗi xảy ra khi xóa. Vui lòng thử lại.');
+    }
+  };
+
   const handleGradeChangeInModal = (newGrade) => {
     const cur = ALL_CURRICULA[newGrade]?.data;
     const firstChap = cur ? cur[0] : null;
@@ -1979,13 +1998,25 @@ const Exams = () => {
                                                 className="badge" 
                                                 onClick={() => handleReviewHistory(h, ex)}
                                                 title="Bấm để xem lại bài làm của học sinh này"
-                                                style={{ backgroundColor: '#f3f4f6', color: '#1f2937', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                                style={{ backgroundColor: '#f3f4f6', color: '#1f2937', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}
                                                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e5e7eb'; e.currentTarget.style.borderColor = '#d1d5db'; }}
                                                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
                                               >
                                                 <span style={{ fontWeight: 600 }}>{h.studentName} {h.className && <span style={{fontSize: '0.7rem', fontWeight: 400, color: '#6b7280'}}>({h.className})</span>}</span>
                                                 <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
                                                 <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
+                                                <button 
+                                                  onClick={(e) => handleDeleteStudentSession(e, h, ex.id)}
+                                                  title="Xóa bài làm này"
+                                                  style={{
+                                                    background: 'none', border: 'none', padding: '2px', 
+                                                    cursor: 'pointer', display: 'flex', alignItems: 'center', 
+                                                    justifyContent: 'center', color: '#ef4444', marginLeft: '2px',
+                                                    borderRadius: '50%', hover: { backgroundColor: '#fee2e2' }
+                                                  }}
+                                                >
+                                                  <X size={12} strokeWidth={3} />
+                                                </button>
                                               </span>
                                             ))}
                                           </div>
@@ -2112,13 +2143,25 @@ const Exams = () => {
                             className="badge" 
                             onClick={() => handleReviewHistory(h, exam)}
                             title="Bấm để xem lại bài làm của học sinh này"
-                            style={{ backgroundColor: '#f8fafc', color: '#1e293b', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                            style={{ backgroundColor: '#f8fafc', color: '#1e293b', fontSize: '0.75rem', padding: '0.15rem 0.4rem', borderRadius: '4px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                           >
                             <span style={{ fontWeight: 600 }}>{h.studentName} {h.className && <span style={{fontSize: '0.7rem', fontWeight: 400, color: '#6b7280'}}>({h.className})</span>}</span>
                             <span style={{ color: '#059669', fontWeight: 600 }}>{h.score}đ</span>
                             <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>({new Date(h.completedAt).toLocaleDateString('vi-VN')})</span>
+                            <button 
+                              onClick={(e) => handleDeleteStudentSession(e, h, exam.id)}
+                              title="Xóa bài làm này"
+                              style={{
+                                background: 'none', border: 'none', padding: '2px', 
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', 
+                                justifyContent: 'center', color: '#ef4444', marginLeft: '2px',
+                                borderRadius: '50%', hover: { backgroundColor: '#fee2e2' }
+                              }}
+                            >
+                              <X size={12} strokeWidth={3} />
+                            </button>
                           </span>
                         ))}
                       </div>
