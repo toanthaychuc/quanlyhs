@@ -1822,9 +1822,6 @@ const Exams = () => {
                 onChange={(e) => setSearchLessonQuery(e.target.value)}
               />
             </div>
-            <span className="curriculum-stat-badge">
-              {getCurriculumStatText()}
-            </span>
           </div>
 
           {/* Thanh cuộn nhanh đến Chương & Kiểm tra định kì */}
