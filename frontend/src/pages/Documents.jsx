@@ -244,11 +244,6 @@ const Documents = () => {
               <Folder className="text-primary" size={28} />
               THƯ VIỆN TÀI LIỆU
             </h1>
-            {!isTeacher && (
-              <span className="student-view-pill">
-                <Eye size={13} /> Chế độ xem học sinh
-              </span>
-            )}
           </div>
 
         </div>
