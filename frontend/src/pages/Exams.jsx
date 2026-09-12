@@ -1366,7 +1366,7 @@ const Exams = () => {
               const isFlagged = !!flaggedQuestions[q.id];
 
               return (
-                <div key={q.id} id={`question-${index}`} className="question-display-card card" style={{ scrollMarginTop: '20px' }}>
+                <div key={q.id} id={`question-${index}`} className="question-display-card card" style={{ scrollMarginTop: '20px', position: 'relative', zIndex: showKeypad === q.id ? 100 : 1 }}>
                   <div className="question-card-header">
                     <div className="question-number-badge">
                       Câu {index + 1} {getQuestionTypeBadge(q.questionType)}
