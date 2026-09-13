@@ -351,49 +351,6 @@ const MainLayout = () => {
               </div>
             )}
 
-            {/* Nút Đăng nhập / Tài khoản Email (Chỉ hiển thị khi là Giáo viên) */}
-            {isTeacher && (
-              <button 
-                className="btn btn-outline flex items-center gap-2"
-                style={{ 
-                  padding: '0.4rem 0.75rem', 
-                  fontSize: '0.8rem',
-                  borderRadius: 'var(--radius-full)',
-                  backgroundColor: isTeacherAccount ? 'rgba(79, 70, 229, 0.08)' : 'var(--bg-color)',
-                  borderColor: isTeacherAccount ? 'var(--primary-color)' : 'var(--border-color)',
-                  color: isTeacherAccount ? 'var(--primary-color)' : 'var(--text-primary)'
-                }}
-                onClick={handleOpenLogin}
-                title="Nhấn để đăng nhập hoặc đổi tài khoản email"
-              >
-                <Mail size={15} />
-                <span style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 600 }}>
-                  {currentUserEmail || 'Đăng nhập Email'}
-                </span>
-              </button>
-            )}
-
-            {/* Bộ chuyển đổi vai trò (Role Switcher) */}
-            <div className="role-switcher-container">
-              <div className="role-switcher">
-                <button 
-                  className={`role-btn ${isTeacher ? 'active teacher' : ''}`}
-                  onClick={() => setRole('teacher')}
-                  title={isTeacherAccount ? "Chuyển sang chế độ Giáo viên" : "Chỉ tài khoản lecongchuc02@gmail.com mới được phép"}
-                >
-                  <ShieldCheck size={15} />
-                  <span>Giáo viên</span>
-                </button>
-                <button 
-                  className={`role-btn ${!isTeacher ? 'active student' : ''}`}
-                  onClick={() => setRole('student')}
-                  title="Chuyển sang chế độ Học sinh"
-                >
-                  <GraduationCap size={15} />
-                  <span>Học sinh</span>
-                </button>
-              </div>
-            </div>
 
             <div 
               className={`user-profile ${!isTeacher ? 'student-avatar' : ''}`}
