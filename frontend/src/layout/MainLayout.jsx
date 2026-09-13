@@ -29,6 +29,7 @@ import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import WelcomeLandingModal from '../components/WelcomeLandingModal';
 import SettingsModal from '../components/SettingsModal';
 import StudentName from '../components/StudentName';
+import NotificationBell from '../components/NotificationBell';
 import { getClasses } from '../services/classService';
 import './MainLayout.css';
 
@@ -351,6 +352,8 @@ const MainLayout = () => {
               </div>
             )}
 
+
+            <NotificationBell />
 
             <div 
               className={`user-profile ${!isTeacher ? 'student-avatar' : ''}`}
