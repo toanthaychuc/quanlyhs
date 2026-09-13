@@ -1465,11 +1465,6 @@ const Assignments = () => {
                                   <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
                                     Câu {qIdx + 1}
                                   </span>
-                                  {isTeacher && q.tags && q.tags.map((tag, idx) => (
-                                    <span key={idx} style={{ background: '#e0e7ff', color: '#3730a3', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', marginLeft: '0.5rem', border: '1px solid #c7d2fe' }}>
-                                      ID: {tag}
-                                    </span>
-                                  ))}
                                   {q.questionType === 'multiple_choice' && q.correctAnswer && (
                                     <span style={{ color: '#059669', fontSize: '0.75rem', fontWeight: 700 }}>
                                       Đáp án đúng: <strong>{q.correctAnswer}</strong>

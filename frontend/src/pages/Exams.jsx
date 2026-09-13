@@ -2510,9 +2510,6 @@ const Exams = () => {
                         >
                           <div className="compiled-q-header">
                             <span className="compiled-q-badge">Câu {qIdx + 1} {getQuestionTypeBadge(question.questionType)}</span>
-                            {isTeacher && question.tags && question.tags.map((tag, idx) => (
-                              <span key={idx} className="compiled-q-badge" style={{ background: '#e0e7ff', color: '#3730a3', marginLeft: '0.5rem', border: '1px solid #c7d2fe' }}>ID: {tag}</span>
-                            ))}
                             {question.questionType === 'multiple_choice' && (
                               <span className="compiled-correct-badge">
                                 Đáp án đúng: <strong>{question.correctAnswer}</strong>
