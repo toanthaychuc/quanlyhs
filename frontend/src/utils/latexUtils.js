@@ -291,7 +291,7 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/^[ \t]+/gm, '');
 
   // Loại bỏ cặp ngoặc nhọn bao quanh toàn bộ hình vẽ TikZ (do người dùng hay gõ nhóm hình)
-  const tikzBraceRegex = /\{\s*((?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture\}[^]*?\\end\{tikzpicture\})\s*\}/gi;
+  const tikzBraceRegex = /\{\s*(?:\\(?:par|centering|noindent|raggedright|raggedleft|hfill|vspace\b\*?(?:\{[^}]*\})?|hspace\b\*?(?:\{[^}]*\})?)\s*)*((?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture\}[^]*?\\end\{tikzpicture\})\s*(?:\\(?:par|centering|noindent|raggedright|raggedleft|hfill|vspace\b\*?(?:\{[^}]*\})?|hspace\b\*?(?:\{[^}]*\})?)\s*)*\}/gi;
   let prevText = text;
   while (true) {
     text = text.replace(tikzBraceRegex, '$1');
