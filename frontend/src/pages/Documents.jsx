@@ -8,11 +8,11 @@ import { useRole } from '../context/RoleContext';
 import { getDocuments, saveAllDocuments, deleteDocument } from '../services/documentService';
 import './Documents.css';
 
-const CATEGORIES = [
-  { id: 'grade-10', label: 'Lớp 10', icon: <GraduationCap size={18} /> },
-  { id: 'grade-11', label: 'Lớp 11', icon: <GraduationCap size={18} /> },
-  { id: 'grade-12', label: 'Lớp 12', icon: <GraduationCap size={18} /> },
-  { id: 'handbook', label: 'Sổ tay', icon: <Bookmark size={18} /> },
+const DEFAULT_CATEGORIES = [
+  { id: 'grade-10', label: 'Lớp 10', icon: <GraduationCap size={18} />, isDefault: true },
+  { id: 'grade-11', label: 'Lớp 11', icon: <GraduationCap size={18} />, isDefault: true },
+  { id: 'grade-12', label: 'Lớp 12', icon: <GraduationCap size={18} />, isDefault: true },
+  { id: 'handbook', label: 'Sổ tay', icon: <Bookmark size={18} />, isDefault: true },
 ];
 
 const SUB_CATEGORIES = [
@@ -26,6 +26,46 @@ const STORAGE_KEY = 'edumanager_teacher_documents';
 const Documents = () => {
   const { isTeacher, isStudent, currentStudentId } = useRole();
   const [activeCategory, setActiveCategory] = useState('grade-12');
+  const [categories, setCategories] = useState(() => {
+    try {
+      const saved = localStorage.getItem('edumanager_custom_doc_categories');
+      if (saved) {
+        return [...DEFAULT_CATEGORIES, ...JSON.parse(saved)];
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return DEFAULT_CATEGORIES;
+  });
+
+  const saveCustomCategories = (newCustomCats) => {
+    localStorage.setItem('edumanager_custom_doc_categories', JSON.stringify(newCustomCats));
+    setCategories([...DEFAULT_CATEGORIES, ...newCustomCats]);
+  };
+
+  const handleAddCategory = () => {
+    const catName = window.prompt('Nhập tên nhóm tài liệu mới:');
+    if (!catName || !catName.trim()) return;
+    
+    const newCat = {
+      id: `custom-${Date.now()}`,
+      label: catName.trim(),
+      isDefault: false
+    };
+    
+    const currentCustom = categories.filter(c => !c.isDefault);
+    saveCustomCategories([...currentCustom, newCat]);
+  };
+
+  const handleDeleteCategory = (catId) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa nhóm này? Các tài liệu trong nhóm cũng sẽ không hiển thị nữa.')) {
+      const currentCustom = categories.filter(c => !c.isDefault && c.id !== catId);
+      saveCustomCategories(currentCustom);
+      if (activeCategory === catId) {
+        setActiveCategory('grade-12');
+      }
+    }
+  };
 
   useEffect(() => {
     if (isStudent) {
@@ -257,23 +297,34 @@ const Documents = () => {
         )}
       </div>
 
-      {/* Main Category Tabs: Lớp 10, Lớp 11, Lớp 12, Sổ tay */}
+      {/* Main Category Tabs */}
       <div className="category-tabs-container">
         <div className="category-tabs">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              className={`category-tab ${activeCategory === cat.id ? 'active' : ''}`}
-              onClick={() => {
-                setActiveCategory(cat.id);
-                setActiveSubCategory('all');
-              }}
-            >
-              {cat.icon}
-              <span>{cat.label}</span>
-              <span className="count-badge">{getDocCountByCategory(cat.id)}</span>
-            </button>
+          {categories.map(cat => (
+            <div key={cat.id} className="category-tab-wrapper">
+              <button
+                className={`category-tab ${activeCategory === cat.id ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveCategory(cat.id);
+                  setActiveSubCategory('all');
+                }}
+              >
+                {cat.icon || <Folder size={18} />}
+                <span>{cat.label}</span>
+                <span className="count-badge">{getDocCountByCategory(cat.id)}</span>
+              </button>
+              {isTeacher && !cat.isDefault && (
+                <button className="delete-cat-btn" onClick={() => handleDeleteCategory(cat.id)} title="Xóa nhóm">
+                  <X size={12} />
+                </button>
+              )}
+            </div>
           ))}
+          {isTeacher && (
+            <button className="btn-add-cat" onClick={handleAddCategory}>
+              <Plus size={16} /> Thêm nhóm
+            </button>
+          )}
         </div>
       </div>
 
@@ -355,7 +406,7 @@ const Documents = () => {
           <Folder size={48} className="empty-icon" />
           <h3>Chưa có tài liệu nào</h3>
           <p>
-            Hiện chưa có tài liệu nào trong mục <strong>{CATEGORIES.find(c => c.id === activeCategory)?.label}</strong>
+            Hiện chưa có tài liệu nào trong mục <strong>{categories.find(c => c.id === activeCategory)?.label}</strong>
             {activeCategory !== 'handbook' && activeSubCategory !== 'all' && ` - ${SUB_CATEGORIES.find(s => s.id === activeSubCategory)?.label}`}.
           </p>
           {isTeacher && (
@@ -394,10 +445,9 @@ const Documents = () => {
                       });
                     }}
                   >
-                    <option value="grade-10">Lớp 10</option>
-                    <option value="grade-11">Lớp 11</option>
-                    <option value="grade-12">Lớp 12</option>
-                    <option value="handbook">Sổ tay</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.label}</option>
+                    ))}
                   </select>
                 </div>
 

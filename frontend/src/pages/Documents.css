@@ -78,6 +78,61 @@
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
 }
 
+.category-tab-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.delete-cat-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  opacity: 0;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.category-tab-wrapper:hover .delete-cat-btn {
+  opacity: 1;
+}
+
+.delete-cat-btn:hover {
+  transform: scale(1.1);
+}
+
+.btn-add-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-lg);
+  background-color: transparent;
+  border: 1px dashed var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-add-cat:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
 .count-badge {
   font-size: 0.75rem;
   padding: 0.15rem 0.5rem;
