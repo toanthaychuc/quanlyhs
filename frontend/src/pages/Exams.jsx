@@ -46,7 +46,11 @@ const questionsToLatexString = (questions) => {
     
     if (q.clusterContext && q.clusterLength > 1) {
       latexLines.push(`%%%=== Cụm câu ${i + 1} đến ${i + q.clusterLength} ===%%%`);
-      latexLines.push(`\\begin{ex}`);
+      let exLine = `\\begin{ex}`;
+      if (q.tags && q.tags.length > 0) {
+        exLine += `%[${q.tags.join('][')}]`;
+      }
+      latexLines.push(exLine);
       latexLines.push(`\\sochc{${q.clusterLength}}`);
       latexLines.push(`${q.clusterContext}`);
       
@@ -82,7 +86,11 @@ const questionsToLatexString = (questions) => {
       i += q.clusterLength;
     } else {
       latexLines.push(`%%%=== Câu ${i + 1} ===%%%`);
-      latexLines.push(`\\begin{ex}`);
+      let exLine = `\\begin{ex}`;
+      if (q.tags && q.tags.length > 0) {
+        exLine += `%[${q.tags.join('][')}]`;
+      }
+      latexLines.push(exLine);
       latexLines.push(`\t${q.content}`);
       
       if (q.questionType === 'true_false') {
