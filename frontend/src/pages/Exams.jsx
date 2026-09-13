@@ -167,6 +167,14 @@ const parseLatexStringToQuestions = (rawText) => {
 
   return expandedBlocks.map((rawBlockObj, index) => {
     let block = rawBlockObj.text.trim();
+    
+    // Trích xuất ID câu hỏi (VD: %[1D1H5-5] hoặc [1D1H5-5]) 
+    let tags = [];
+    block = block.replace(/^\s*(?:%?\s*\[([^\]]+)\]\s*)+/g, (match, tag) => {
+        tags.push(tag.trim());
+        return '';
+    }).trim();
+    
     // Bỏ qua các tag phân loại câu hỏi dạng [thm], [2D1B1-1] ở đầu khối nếu còn sót
     block = block.replace(/^\s*(?:\[[^\]]*\]\s*)+/g, '').trim();
     block = block.replace(/\\par\s*(?=\\shortans)/gi, '').trim();
@@ -322,7 +330,8 @@ const parseLatexStringToQuestions = (rawText) => {
         explanation: explanation || 'Xem lại kiến thức lý thuyết và phương pháp giải.',
         _searchSnippet: rawBlockObj.text,
         clusterContext: rawBlockObj.clusterContext,
-        clusterLength: rawBlockObj.clusterLength
+        clusterLength: rawBlockObj.clusterLength,
+        tags: tags.length > 0 ? tags : undefined
       });
     });
   } catch (err) {
@@ -2501,6 +2510,9 @@ const Exams = () => {
                         >
                           <div className="compiled-q-header">
                             <span className="compiled-q-badge">Câu {qIdx + 1} {getQuestionTypeBadge(question.questionType)}</span>
+                            {question.tags && question.tags.map((tag, idx) => (
+                              <span key={idx} className="compiled-q-badge" style={{ background: '#e0e7ff', color: '#3730a3', marginLeft: '0.5rem', border: '1px solid #c7d2fe' }}>ID: {tag}</span>
+                            ))}
                             {question.questionType === 'multiple_choice' && (
                               <span className="compiled-correct-badge">
                                 Đáp án đúng: <strong>{question.correctAnswer}</strong>

@@ -3,7 +3,7 @@
 export const stripLatexComments = (text = '') => {
   if (!text) return '';
   return text
-    .replace(/(^|[^\\])%.*$/gm, '$1')
+    .replace(/(^|[^\\])%(?!\s*\[).*$/gm, '$1')
     .trim();
 };
 

@@ -105,6 +105,13 @@ const parseLatexStringToQuestions = (rawText) => {
 
     return expandedBlocks.map((rawBlockObj, index) => {
       let block = rawBlockObj.text.trim();
+
+      let tags = [];
+      block = block.replace(/^\s*(?:%?\s*\[([^\]]+)\]\s*)+/g, (match, tag) => {
+          tags.push(tag.trim());
+          return '';
+      }).trim();
+
       block = block.replace(/^\s*(?:\[[^\]]*\]\s*)+/g, '').trim();
       block = block.replace(/\\par\s*(?=\\shortans)/gi, '').trim();
 
@@ -201,7 +208,8 @@ const parseLatexStringToQuestions = (rawText) => {
         correctAnswer,
         explanation,
         clusterContext: rawBlockObj.clusterContext,
-        clusterLength: rawBlockObj.clusterLength
+        clusterLength: rawBlockObj.clusterLength,
+        tags: tags.length > 0 ? tags : undefined
       });
     });
   } catch (err) {
@@ -1457,6 +1465,11 @@ const Assignments = () => {
                                   <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
                                     Câu {qIdx + 1}
                                   </span>
+                                  {q.tags && q.tags.map((tag, idx) => (
+                                    <span key={idx} style={{ background: '#e0e7ff', color: '#3730a3', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', marginLeft: '0.5rem', border: '1px solid #c7d2fe' }}>
+                                      ID: {tag}
+                                    </span>
+                                  ))}
                                   {q.questionType === 'multiple_choice' && q.correctAnswer && (
                                     <span style={{ color: '#059669', fontSize: '0.75rem', fontWeight: 700 }}>
                                       Đáp án đúng: <strong>{q.correctAnswer}</strong>
