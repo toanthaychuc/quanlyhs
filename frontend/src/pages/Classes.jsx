@@ -19,13 +19,16 @@ import {
   UserX,
   ChevronLeft,
   ChevronRight,
-  FolderPlus
+  FolderPlus,
+  Wand2
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import StudentName from '../components/StudentName';
 import { exportStudentsToExcel, downloadTemplateExcel, parseStudentExcelFile } from '../utils/excelUtils';
 import { getClasses, saveAllClasses, deleteClass } from '../services/classService';
 import { getSetting, saveSetting } from '../services/settingService';
+import { getExams, getAllExamSessions } from '../services/examService';
+import { computeClassAnalytics, getWeakTopics } from '../utils/analyticsUtils';
 import './Classes.css';
 
 const DEFAULT_SCORE_COLUMNS = [
@@ -238,6 +241,13 @@ const Classes = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+
+  // States cho Phân Tích Lớp (AI)
+  const [showClassAnalytics, setShowClassAnalytics] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [classAnalyticsData, setClassAnalyticsData] = useState(null);
+  const [classWeakTopics, setClassWeakTopics] = useState([]);
+
   const [studentForm, setStudentForm] = useState({
     id: '', name: '', dob: '', gender: 'Nam', phone: '', email: '', note: '', scores: {}
   });
@@ -1016,6 +1026,31 @@ const Classes = () => {
                   >
                     <FileSpreadsheet size={16} className="text-emerald-600" />
                     <span>Nhập từ Excel</span>
+                  </button>
+
+                  <button 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      if (!currentClass) return;
+                      setIsAnalyzing(true);
+                      setShowClassAnalytics(true);
+                      
+                      Promise.all([getAllExamSessions(), getExams()])
+                        .then(([allSessions, allExams]) => {
+                          const stats = computeClassAnalytics(allSessions || {}, allExams || [], currentClass.id);
+                          setClassAnalyticsData(stats);
+                          setClassWeakTopics(getWeakTopics(stats, 3));
+                          setIsAnalyzing(false);
+                        })
+                        .catch(err => {
+                          console.error(err);
+                          setIsAnalyzing(false);
+                        });
+                    }}
+                    title="Phân tích năng lực lớp (AI)"
+                  >
+                    <Wand2 size={16} className="text-purple-600" />
+                    <span>Phân Tích Lớp</span>
                   </button>
 
                   <button 
@@ -1917,6 +1952,77 @@ const Classes = () => {
           </div>
         </div>
       )}
+      {/* CLASS ANALYTICS MODAL */}
+      {showClassAnalytics && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{ maxWidth: '600px', width: '90%' }}>
+            <div className="modal-header">
+              <h2>Phân Tích Năng Lực Lớp: {currentClass?.name}</h2>
+              <button className="close-btn" onClick={() => setShowClassAnalytics(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="modal-content" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '200px' }}>
+              {isAnalyzing ? (
+                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+                  <Wand2 size={32} className="text-purple-600" style={{ margin: '0 auto 1rem', animation: 'spin 2s linear infinite' }} />
+                  Đang tổng hợp và phân tích dữ liệu...
+                </div>
+              ) : (
+                classAnalyticsData && (classAnalyticsData.bySubject['D'] || classAnalyticsData.bySubject['H']) ? (
+                  <>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>AI đã tổng hợp dữ liệu làm bài của toàn bộ học sinh trong lớp để đánh giá năng lực:</p>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      {['D', 'H'].map(code => {
+                        const subj = classAnalyticsData.bySubject[code];
+                        if (!subj) return null;
+                        const accuracy = subj.total > 0 ? Math.round((subj.correct / subj.total) * 100) : 0;
+                        return (
+                          <div key={code} style={{ flex: 1, minWidth: '120px', background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{subj.name}</div>
+                            <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#8b5cf6', marginTop: '0.25rem' }}>{accuracy}%</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Tổng đúng {subj.correct}/{subj.total} lượt</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {classWeakTopics && classWeakTopics.length > 0 && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Phần Khổ Của Lớp (Tỉ lệ làm sai nhiều nhất):</h4>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {classWeakTopics.map(topic => (
+                            <li key={topic.topicId} style={{ background: '#fee2e2', color: '#991b1b', padding: '0.8rem 1rem', borderRadius: '8px', fontSize: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <AlertCircle size={16} />
+                                <span style={{ fontWeight: 600 }}>{topic.label}</span>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                <span style={{ fontWeight: 800 }}>{Math.round(topic.accuracy * 100)}%</span>
+                                <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>Dựa trên {topic.total} lượt làm</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    Chưa đủ dữ liệu (học sinh chưa làm bài tập có gắn thẻ ID) để phân tích lớp này.
+                  </div>
+                )
+              )}
+            </div>
+            <div className="modal-footer" style={{ justifyContent: 'center' }}>
+              <button type="button" className="btn btn-primary" onClick={() => setShowClassAnalytics(false)}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

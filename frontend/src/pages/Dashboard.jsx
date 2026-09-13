@@ -45,6 +45,7 @@ import { getExams, getStudentHistory, getGamification } from '../services/examSe
 import { getNotices, saveNotice, deleteNotice } from '../services/noticeService';
 import { getSetting, saveSetting } from '../services/settingService';
 import { calculateRank } from '../utils/rankUtils';
+import { computeStudentAnalytics, getWeakTopics } from '../utils/analyticsUtils';
 import './Dashboard.css';
 
 const CURRICULUM_MAP = {
@@ -160,6 +161,10 @@ const Dashboard = () => {
   const [classList, setClassList] = useState([]);
   const [showNoticeModal, setShowNoticeModal] = useState(false);
   const [editingNotice, setEditingNotice] = useState(null);
+  
+  // State for ID Analytics
+  const [analyticsStats, setAnalyticsStats] = useState(null);
+  const [weakTopics, setWeakTopics] = useState([]);
   const [noticeForm, setNoticeForm] = useState({
     title: '',
     content: '',
@@ -190,6 +195,10 @@ const Dashboard = () => {
         if (isStudent && currentStudentId) {
           const history = await getStudentHistory(currentStudentId);
           setCompletedExamsMap(history || {});
+
+          const stats = computeStudentAnalytics(history || {}, exams || []);
+          setAnalyticsStats(stats);
+          setWeakTopics(getWeakTopics(stats, 3));
 
           // 4. Gamification
           const myGami = await getGamification(currentStudentId);
@@ -855,7 +864,58 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
-
+        {/* 2. Phân tích năng lực (AI) */}
+        <div className="card">
+          <div className="card-title-bar">
+            <h3>
+              <Wand2 size={18} color="#8b5cf6" />
+              Phân Tích Năng Lực (AI)
+            </h3>
+            <span className="text-xs text-gray-500 font-semibold">Dựa trên kết quả bài tập</span>
+          </div>
+          
+          <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {analyticsStats && (analyticsStats.bySubject['D'] || analyticsStats.bySubject['H']) ? (
+              <>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {['D', 'H'].map(code => {
+                    const subj = analyticsStats.bySubject[code];
+                    if (!subj) return null;
+                    const accuracy = subj.total > 0 ? Math.round((subj.correct / subj.total) * 100) : 0;
+                    return (
+                      <div key={code} style={{ flex: 1, minWidth: '120px', background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{subj.name}</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#8b5cf6', marginTop: '0.25rem' }}>{accuracy}%</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Đúng {subj.correct}/{subj.total}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {weakTopics && weakTopics.length > 0 && (
+                  <div>
+                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Gợi Ý Ôn Tập Trọng Tâm:</h4>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {weakTopics.map(topic => (
+                        <li key={topic.topicId} style={{ background: '#fee2e2', color: '#991b1b', padding: '0.6rem 0.8rem', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <AlertCircle size={14} />
+                            <span style={{ fontWeight: 600 }}>{topic.label}</span>
+                          </div>
+                          <span style={{ fontWeight: 700 }}>{Math.round(topic.accuracy * 100)}%</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                Chưa đủ dữ liệu bài tập có gắn thẻ ID để phân tích.
+              </div>
+            )}
+          </div>
+        </div>
 
 
         {/* 3. Bảng tin (Notice Board) */}
