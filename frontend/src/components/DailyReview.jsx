@@ -6,6 +6,7 @@ import './DailyReview.css';
 
 const DailyReview = ({ studentId, studentGrade }) => {
   const [reviewState, setReviewState] = useState(null);
+  const [sessionQuestions, setSessionQuestions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -37,7 +38,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
     );
   }
 
-  if (pendingQuestions.length === 0) {
+  if (pendingQuestions.length === 0 && !isModalOpen) {
     return (
       <div className="daily-review-card empty">
         <div className="dr-icon-wrapper success">
@@ -52,6 +53,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
   }
 
   const handleStart = () => {
+    setSessionQuestions([...pendingQuestions]);
     setCurrentIndex(0);
     setSelectedAnswer(null);
     setShowResult(false);
@@ -67,16 +69,17 @@ const DailyReview = ({ studentId, studentGrade }) => {
     setSelectedAnswer(key);
   };
 
+  const currentQ = sessionQuestions[currentIndex];
+
   const handleSubmit = () => {
-    if (!selectedAnswer) return;
+    if (!selectedAnswer || !currentQ) return;
     
-    const currentQ = pendingQuestions[currentIndex];
     const correct = selectedAnswer === currentQ.correctAnswer;
     
     setIsCorrect(correct);
     setShowResult(true);
     
-    // Ghi nhận vào localStorage
+    // Ghi nhận vào localStorage nhưng sessionQuestions trong phiên vẫn giữ nguyên không bị dịch chuyển
     const newState = submitDailyReviewAnswer(studentId, currentQ.id, correct);
     if (newState) {
       setReviewState(newState);
@@ -84,21 +87,14 @@ const DailyReview = ({ studentId, studentGrade }) => {
   };
 
   const handleNext = () => {
-    if (currentIndex < pendingQuestions.length - 1) {
-      // Vì mảng pendingQuestions đã bị filter đi câu vừa rồi trong state, 
-      // nhưng ở component này state pendingQuestions vẫn chưa cập nhật ngay lập tức nếu dùng index cũ.
-      // Cần chú ý: vì submitDailyReviewAnswer thay đổi mảng pendingQuestions, currentIndex có thể bị lệch.
-      // Cách an toàn nhất là luôn giữ currentIndex = 0 và lấy câu hỏi đầu tiên.
+    if (currentIndex < sessionQuestions.length - 1) {
+      setCurrentIndex(prev => prev + 1);
       setSelectedAnswer(null);
       setShowResult(false);
     } else {
       setIsModalOpen(false);
     }
   };
-
-  // Vì pendingQuestions bị thay đổi (xóa đi câu vừa làm) sau khi ấn Submit,
-  // nên câu hỏi tiếp theo luôn luôn nằm ở vị trí index 0.
-  const currentQ = pendingQuestions[0];
 
   return (
     <>
@@ -122,7 +118,12 @@ const DailyReview = ({ studentId, studentGrade }) => {
         <div className="dr-modal-overlay">
           <div className="dr-modal">
             <div className="dr-modal-header">
-              <h3><BookOpen size={18}/> Ôn tập mỗi ngày</h3>
+              <h3>
+                <BookOpen size={18}/> Ôn tập mỗi ngày 
+                <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)', marginLeft: '8px' }}>
+                  (Câu {currentIndex + 1}/{sessionQuestions.length})
+                </span>
+              </h3>
               <button className="close-btn" onClick={handleClose}><X size={20}/></button>
             </div>
             
@@ -198,7 +199,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
                 </button>
               ) : (
                 <button className="dr-next-btn" onClick={handleNext}>
-                  {pendingQuestions.length > 1 ? 'Câu tiếp theo' : 'Hoàn thành'} <ArrowRight size={16}/>
+                  {currentIndex < sessionQuestions.length - 1 ? 'Câu tiếp theo' : 'Hoàn thành'} <ArrowRight size={16}/>
                 </button>
               )}
             </div>
