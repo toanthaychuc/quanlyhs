@@ -195,78 +195,73 @@ const MainLayout = () => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-tools" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+          <div className="sidebar-tools" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             {/* Nút Cài đặt Hệ thống (Dành riêng cho Giáo viên) */}
             {isTeacher && (
               <button 
-                className="btn btn-outline flex items-center gap-1.5"
+                className="btn btn-outline flex items-center justify-center"
                 style={{ 
-                  padding: '0.4rem 0.75rem', 
-                  fontSize: '0.8rem',
+                  width: '38px', height: '38px', padding: 0,
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'rgba(99, 102, 241, 0.08)',
                   borderColor: 'rgba(99, 102, 241, 0.3)',
-                  color: 'var(--primary-color)',
-                  fontWeight: 600,
-                  width: '100%',
-                  justifyContent: 'flex-start'
+                  color: 'var(--primary-color)'
                 }}
                 onClick={() => setShowSettingsModal(true)}
                 title="Cài đặt hệ thống: API Key AI, Model & Preamble LaTeX"
               >
-                <Sliders size={15} />
-                <span>Cài đặt hệ thống</span>
+                <Sliders size={18} />
               </button>
             )}
 
             {/* Nút Mô Phỏng Mobile (Chỉ Giáo viên và không ở trong iframe) */}
             {isTeacher && !isIframe && (
               <button 
-                className="btn btn-outline flex items-center gap-1.5"
+                className="btn btn-outline flex items-center justify-center"
                 style={{ 
-                  padding: '0.4rem 0.75rem', 
-                  fontSize: '0.8rem',
+                  width: '38px', height: '38px', padding: 0,
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'rgba(245, 158, 11, 0.08)',
                   borderColor: 'rgba(245, 158, 11, 0.3)',
-                  color: '#d97706',
-                  fontWeight: 600,
-                  width: '100%',
-                  justifyContent: 'flex-start'
+                  color: '#d97706'
                 }}
                 onClick={() => setIsMobileSimulator(true)}
                 title="Mô phỏng Giao diện Điện thoại"
               >
-                <Smartphone size={15} />
-                <span>Mobile Preview</span>
+                <Smartphone size={18} />
               </button>
             )}
 
             {/* Nút Đổi Theme (Giao diện Sáng/Tối) */}
             <button 
-              className="btn btn-outline flex items-center gap-1.5"
+              className="btn btn-outline flex items-center justify-center"
               style={{ 
-                padding: '0.4rem 0.75rem', 
-                fontSize: '0.8rem',
+                width: '38px', height: '38px', padding: 0,
                 borderRadius: 'var(--radius-md)',
                 backgroundColor: 'var(--bg-color)',
                 borderColor: 'var(--border-color)',
-                color: 'var(--text-secondary)',
-                fontWeight: 600,
-                width: '100%',
-                justifyContent: 'flex-start'
+                color: 'var(--text-secondary)'
               }}
               onClick={toggleTheme}
               title={theme === 'light' ? 'Chuyển sang giao diện Tối' : 'Chuyển sang giao diện Sáng'}
             >
-              <ThemeToggleIcon size={15} isDark={theme === 'light'} />
-              <span>{theme === 'light' ? 'Giao diện Tối' : 'Giao diện Sáng'}</span>
+              <ThemeToggleIcon size={18} isDark={theme === 'light'} />
             </button>
-          </div>
 
-          <div className="current-mode-indicator">
-            <span className="mode-dot"></span>
-            <span>Chế độ: <strong>{isTeacher ? 'Giáo viên' : 'Học sinh'}</strong></span>
+            {/* Chế độ hiện tại */}
+            <div 
+              className="current-mode-indicator flex items-center justify-center"
+              style={{ 
+                width: '38px', height: '38px', padding: 0,
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'var(--bg-color)',
+                border: '1px solid var(--border-color)',
+                cursor: 'help'
+              }}
+              title={isTeacher ? 'Chế độ: Giáo viên' : 'Chế độ: Học sinh'}
+            >
+              {isTeacher ? <ShieldCheck size={18} style={{ color: 'var(--secondary-color)' }} /> : <User size={18} style={{ color: 'var(--primary-color)' }} />}
+            </div>
           </div>
         </div>
       </aside>
