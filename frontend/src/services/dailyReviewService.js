@@ -1,6 +1,6 @@
 import { getExams, getStudentHistory } from './examService';
 
-const DAILY_REVIEW_KEY = 'edumanager_daily_review_v1';
+const DAILY_REVIEW_KEY = 'edumanager_daily_review_v2';
 
 export const getDailyReviewState = (studentId) => {
   try {
@@ -70,14 +70,21 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
   const exams = await getExams() || [];
   const history = await getStudentHistory(studentId) || {};
 
-  // Lọc đề thi theo khối
+  // Lọc đề thi theo khối của học sinh
   const validExams = exams.filter(exam => {
-    const taskGrade = exam.grade ? exam.grade.toLowerCase() : '';
-    if (!taskGrade) return true; // Hoặc false tùy logic, giả sử true
-    if ((taskGrade.includes('12') || taskGrade.includes('dgnl') || taskGrade.includes('thptqg')) && studentGrade !== '12') return false;
-    if (taskGrade.includes('11') && studentGrade !== '11') return false;
-    if (taskGrade.includes('10') && studentGrade !== '10') return false;
-    return true;
+    const taskGrade = exam.grade ? String(exam.grade).toLowerCase() : '';
+    if (!taskGrade) return false; // Không có khối thì bỏ qua luôn để tránh nhầm lẫn
+
+    if (String(studentGrade) === '12') {
+      return taskGrade.includes('12') || taskGrade.includes('dgnl') || taskGrade.includes('thptqg') || taskGrade.includes('vact');
+    }
+    if (String(studentGrade) === '11') {
+      return taskGrade.includes('11');
+    }
+    if (String(studentGrade) === '10') {
+      return taskGrade.includes('10');
+    }
+    return false;
   });
 
   // Tìm các câu sai và danh sách tag của câu sai
