@@ -11,7 +11,6 @@ import {
   Award,
   ClipboardList,
   LogOut,
-  Menu,
   ShieldCheck,
   User,
   Mail,
@@ -23,16 +22,53 @@ import {
   Smartphone,
   Sun,
   Moon,
-  Shield
+  Shield,
+  Menu
 } from 'lucide-react';
+import { 
+  LayoutDashboard as I_LayoutDashboard, LayoutGrid as I_LayoutGrid,
+  Users as I_Users, UserCheck as I_UserCheck,
+  BookOpen as I_BookOpen, BookOpenCheck as I_BookOpenCheck,
+  GraduationCap as I_GraduationCap, BookA as I_BookA,
+  FileText as I_FileText, Files as I_Files,
+  ClipboardList as I_ClipboardList, ClipboardCheck as I_ClipboardCheck,
+  MessageSquare as I_MessageSquare, MessageCircle as I_MessageCircle,
+  Award as I_Award, Trophy as I_Trophy,
+  Shield as I_Shield, ShieldCheck as I_ShieldCheck,
+  Sliders as I_Sliders, Settings as I_Settings,
+  Smartphone as I_Smartphone, Tablet as I_Tablet,
+  Menu as I_Menu, X as I_X
+} from 'lucide';
 import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import WelcomeLandingModal from '../components/WelcomeLandingModal';
 import SettingsModal from '../components/SettingsModal';
 import StudentName from '../components/StudentName';
 import NotificationBell from '../components/NotificationBell';
 import { ThemeToggleIcon } from '../components/ThemeToggleIcon';
+import AnimatedIcon from '../components/AnimatedIcon';
 import { getClasses } from '../services/classService';
 import './MainLayout.css';
+
+const NavItemRenderer = ({ item, onClick }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  return (
+    <NavLink 
+      to={item.path} 
+      className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+      onClick={(e) => onClick(e, item.path)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <AnimatedIcon 
+        defaultIcon={item.iconDefault} 
+        hoverIcon={item.iconHover} 
+        size={20} 
+        isHoveredExternal={isHovered} 
+      />
+      <span>{item.label}</span>
+    </NavLink>
+  );
+};
 
 const MainLayout = () => {
   const location = useLocation();
@@ -147,15 +183,15 @@ const MainLayout = () => {
   );
 
   const navItems = [
-    { path: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-    { path: '/classes', icon: <Users size={20} />, label: 'Lớp học' },
-    { path: '/assignments', icon: <BookOpen size={20} />, label: 'Bài tập' },
-    { path: '/exams', icon: <GraduationCap size={20} />, label: 'Thi thử' },
-    { path: '/documents', icon: <FileText size={20} />, label: 'Tài liệu' },
-    { path: '/forms', icon: <ClipboardList size={20} />, label: 'Biểu mẫu' },
-    { path: '/forum', icon: <MessageSquare size={20} />, label: 'Hỏi đáp' },
-    { path: '/leaderboard', icon: <Award size={20} />, label: 'Xếp hạng' },
-    ...(!isTeacher ? [{ path: '/my-rank', icon: <Shield size={20} />, label: 'Huy hiệu' }] : []),
+    { path: '/', iconDefault: I_LayoutDashboard, iconHover: I_LayoutGrid, label: 'Dashboard' },
+    { path: '/classes', iconDefault: I_Users, iconHover: I_UserCheck, label: 'Lớp học' },
+    { path: '/assignments', iconDefault: I_BookOpen, iconHover: I_BookOpenCheck, label: 'Bài tập' },
+    { path: '/exams', iconDefault: I_GraduationCap, iconHover: I_BookA, label: 'Thi thử' },
+    { path: '/documents', iconDefault: I_FileText, iconHover: I_Files, label: 'Tài liệu' },
+    { path: '/forms', iconDefault: I_ClipboardList, iconHover: I_ClipboardCheck, label: 'Biểu mẫu' },
+    { path: '/forum', iconDefault: I_MessageSquare, iconHover: I_MessageCircle, label: 'Hỏi đáp' },
+    { path: '/leaderboard', iconDefault: I_Award, iconHover: I_Trophy, label: 'Xếp hạng' },
+    ...(!isTeacher ? [{ path: '/my-rank', iconDefault: I_Shield, iconHover: I_ShieldCheck, label: 'Huy hiệu' }] : []),
   ];
 
   return (
@@ -182,15 +218,7 @@ const MainLayout = () => {
 
         <nav className="sidebar-nav">
           {navItems.map((item) => (
-            <NavLink 
-              key={item.path} 
-              to={item.path} 
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-              onClick={(e) => handleNavClick(e, item.path)}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </NavLink>
+            <NavItemRenderer key={item.path} item={item} onClick={handleNavClick} />
           ))}
         </nav>
 
@@ -199,7 +227,7 @@ const MainLayout = () => {
             {/* Nút Cài đặt Hệ thống (Dành riêng cho Giáo viên) */}
             {isTeacher && (
               <button 
-                className="btn btn-outline flex items-center justify-center"
+                className="btn btn-outline flex items-center justify-center group"
                 style={{ 
                   width: '38px', height: '38px', padding: 0,
                   borderRadius: 'var(--radius-md)',
@@ -210,14 +238,14 @@ const MainLayout = () => {
                 onClick={() => setShowSettingsModal(true)}
                 title="Cài đặt hệ thống: API Key AI, Model & Preamble LaTeX"
               >
-                <Sliders size={18} />
+                <AnimatedIcon defaultIcon={I_Sliders} hoverIcon={I_Settings} size={18} />
               </button>
             )}
 
             {/* Nút Mô Phỏng Mobile (Chỉ Giáo viên và không ở trong iframe) */}
             {isTeacher && !isIframe && (
               <button 
-                className="btn btn-outline flex items-center justify-center"
+                className="btn btn-outline flex items-center justify-center group"
                 style={{ 
                   width: '38px', height: '38px', padding: 0,
                   borderRadius: 'var(--radius-md)',
@@ -228,7 +256,7 @@ const MainLayout = () => {
                 onClick={() => setIsMobileSimulator(true)}
                 title="Mô phỏng Giao diện Điện thoại"
               >
-                <Smartphone size={18} />
+                <AnimatedIcon defaultIcon={I_Smartphone} hoverIcon={I_Tablet} size={18} />
               </button>
             )}
 
@@ -271,10 +299,10 @@ const MainLayout = () => {
         <header className="top-header glass">
           <div className="header-left">
             <button 
-              className="mobile-menu-btn"
+              className="mobile-menu-btn group"
               onClick={() => setIsMobileMenuOpen(true)}
             >
-              <Menu size={24} />
+              <AnimatedIcon defaultIcon={I_Menu} hoverIcon={I_X} size={24} />
             </button>
 
             {/* Mobile Header Logo (Hidden on Desktop) */}

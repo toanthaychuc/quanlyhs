@@ -7,8 +7,12 @@ import { getExams, getStudentHistory } from '../services/examService';
 import { getAssignments } from '../services/assignmentService';
 import './NotificationBell.css';
 
+import { Bell as I_Bell, BellRing as I_BellRing } from 'lucide';
+import AnimatedIcon from './AnimatedIcon';
+
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
@@ -156,11 +160,13 @@ const NotificationBell = () => {
   return (
     <div className="notification-container" ref={dropdownRef}>
       <button 
-        className="bell-btn" 
+        className="bell-btn group" 
         onClick={handleOpenDropdown}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         title="Thông báo"
       >
-        <Bell size={20} />
+        <AnimatedIcon defaultIcon={I_Bell} hoverIcon={I_BellRing} size={20} isHoveredExternal={isOpen || isHovered || unreadCount > 0} />
         {unreadCount > 0 && (
           <span className="notification-badge">
             {unreadCount > 99 ? '99+' : unreadCount}

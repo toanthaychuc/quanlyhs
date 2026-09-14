@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Award, Trophy, Medal, Search, Filter } from 'lucide-react';
+import { Award, Trophy, Medal, Filter } from 'lucide-react';
+import { Search as I_Search, ScanSearch as I_ScanSearch } from 'lucide';
+import AnimatedIcon from '../components/AnimatedIcon';
 import { useRole } from '../context/RoleContext';
 import StudentName from '../components/StudentName';
 import './Leaderboard.css';
@@ -199,8 +201,8 @@ const Leaderboard = () => {
 
           {/* Search bar */}
           <div className="toolbar">
-            <div className="search-box">
-              <Search size={16} />
+            <div className="search-box group">
+              <AnimatedIcon defaultIcon={I_Search} hoverIcon={I_ScanSearch} size={16} className="text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
               <input 
                 type="text" 
                 className="input" 

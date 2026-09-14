@@ -4,8 +4,10 @@ import {
   GraduationCap, Clock, HelpCircle, CheckCircle, XCircle, X,
   Award, Play, RotateCcw, ArrowLeft, ArrowRight, Plus, 
   Trash2, Edit, Save, FileText, Check, AlertTriangle, Sparkles, 
-  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, CheckSquare, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2, Download
+  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, CheckSquare, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2
 } from 'lucide-react';
+import { Download as I_Download, ArrowDownToLine as I_ArrowDownToLine } from 'lucide';
+import AnimatedIcon from '../components/AnimatedIcon';
 import { useRole } from '../context/RoleContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MathView from '../components/MathView';
