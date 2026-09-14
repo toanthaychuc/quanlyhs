@@ -40,6 +40,7 @@ import { useRole } from '../context/RoleContext';
 import { GRADE_10_CURRICULUM } from '../data/grade10Curriculum';
 import { GRADE_11_CURRICULUM } from '../data/grade11Curriculum';
 import { GRADE_12_CURRICULUM } from '../data/grade12Curriculum';
+import DailyReview from '../components/DailyReview';
 import { getClasses } from '../services/classService';
 import { getExams, getStudentHistory, getGamification } from '../services/examService';
 import { getNotices, saveNotice, deleteNotice } from '../services/noticeService';
@@ -825,6 +826,8 @@ const Dashboard = () => {
       {/* Row 1: Tổng quan tiến độ, Mục tiêu cá nhân & Bảng tin thông báo */}
       {!isTeacher && (
         <>
+          <DailyReview studentId={currentStudentId} studentGrade={studentInfo.grade} />
+          
           <div className="dashboard-grid">
             {/* CỘT TRÁI */}
             <div className="flex flex-col gap-4">
