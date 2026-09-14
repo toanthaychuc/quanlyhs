@@ -134,7 +134,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
               </div>
 
               <div className="dr-question-content">
-                <MathView content={currentQ.content} />
+                <MathView text={currentQ.content} />
               </div>
 
               <div className="dr-options-grid">
@@ -158,7 +158,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
                       disabled={showResult}
                     >
                       <span className="dr-option-label">{opt.key}</span>
-                      <div className="dr-option-text"><MathView content={opt.text} /></div>
+                      <div className="dr-option-text"><MathView text={opt.text} /></div>
                     </button>
                   );
                 })}
@@ -174,7 +174,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
                   {currentQ.explanation && (
                     <div className="dr-explanation">
                       <strong>Lời giải:</strong>
-                      <MathView content={currentQ.explanation} />
+                      <MathView text={currentQ.explanation} />
                     </div>
                   )}
                 </div>
