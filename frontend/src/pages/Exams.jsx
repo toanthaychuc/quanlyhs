@@ -1969,11 +1969,11 @@ const Exams = () => {
                                         {isTeacher && (
                                           <div className="teacher-sub-btn-group">
                                             <button 
-                                              className="icon-btn"
+                                              className="icon-btn group"
                                               onClick={() => handleDownloadTex(ex)}
                                               title="Tải file .tex để lưu trữ"
                                             >
-                                              <Download size={14} />
+                                              <AnimatedIcon defaultIcon={I_Download} hoverIcon={I_ArrowDownToLine} size={14} />
                                             </button>
                                             <button 
                                               className="icon-btn"
