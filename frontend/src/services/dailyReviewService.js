@@ -47,8 +47,11 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
     currentState = {
       lastUpdateDate: '',
       pendingQuestions: [],
-      masteredQuestionIds: [] // Những câu đã làm đúng trong Daily Review
+      masteredQuestionIds: [], // Những câu đã làm đúng trong Daily Review
+      failedReviewItems: [] // Những câu học sinh làm sai trong Daily Review: [{ id, tags, failedAt }]
     };
+  } else if (!currentState.failedReviewItems) {
+    currentState.failedReviewItems = [];
   }
 
   // Nếu pending >= 10, không cộng thêm
@@ -151,17 +154,43 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
   // Chọn câu hỏi
   const selected = [];
 
-  // Ưu tiên 1: Câu làm sai
-  // Trộn ngẫu nhiên câu sai
-  wrongQuestions.sort(() => 0.5 - Math.random());
-  for (const q of wrongQuestions) {
+  // Ưu tiên 0: Học sinh ôn tập và làm sai câu nào hôm trước -> Hôm sau hỏi lại câu đó HOẶC hỏi câu cùng dạng
+  const failedReviewItems = currentState.failedReviewItems || [];
+  const shuffledFailed = [...failedReviewItems].sort(() => 0.5 - Math.random());
+
+  for (const item of shuffledFailed) {
     if (selected.length >= needed) break;
-    if (!selected.some(sq => sq.id === q.id)) {
-      selected.push({ ...q, reviewReason: 'wrong' });
+
+    const exactQ = allValidQuestions.find(q => q.id === item.id && !selected.some(sq => sq.id === q.id));
+    const sameTagQs = allValidQuestions.filter(q => 
+      q.id !== item.id && 
+      !selected.some(sq => sq.id === q.id) &&
+      (q.tags || []).some(t => (item.tags || []).includes(t))
+    );
+
+    // 50% cơ hội hỏi lại chính câu đó, 50% cơ hội bốc câu cùng dạng (nếu có)
+    const chooseSameTag = sameTagQs.length > 0 && (Math.random() > 0.5 || !exactQ);
+
+    if (chooseSameTag && sameTagQs.length > 0) {
+      const picked = sameTagQs[Math.floor(Math.random() * sameTagQs.length)];
+      selected.push({ ...picked, reviewReason: 'same_tag_failed' });
+    } else if (exactQ) {
+      selected.push({ ...exactQ, reviewReason: 'failed_in_review' });
     }
   }
 
-  // Ưu tiên 2: Cùng dạng (tag)
+  // Ưu tiên 1: Câu làm sai trong đề thi thử
+  if (selected.length < needed) {
+    wrongQuestions.sort(() => 0.5 - Math.random());
+    for (const q of wrongQuestions) {
+      if (selected.length >= needed) break;
+      if (!selected.some(sq => sq.id === q.id)) {
+        selected.push({ ...q, reviewReason: 'wrong' });
+      }
+    }
+  }
+
+  // Ưu tiên 2: Cùng dạng (tag) với câu sai trong đề thi thử
   if (selected.length < needed) {
     const sameTagQs = allValidQuestions.filter(q => {
       if (selected.some(sq => sq.id === q.id)) return false;
@@ -194,18 +223,47 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
 };
 
 // Hàm gọi khi học sinh trả lời 1 câu trong mục Ôn tập
-export const submitDailyReviewAnswer = (studentId, questionId, isCorrect) => {
+export const submitDailyReviewAnswer = (studentId, questionId, isCorrect, tags = []) => {
   const currentState = getDailyReviewState(studentId);
   if (!currentState) return;
+
+  if (!currentState.failedReviewItems) currentState.failedReviewItems = [];
+  if (!currentState.masteredQuestionIds) currentState.masteredQuestionIds = [];
 
   // Loại câu hỏi này khỏi pending
   currentState.pendingQuestions = currentState.pendingQuestions.filter(q => q.id !== questionId);
 
-  // Nếu đúng thì thêm vào mastered
-  if (isCorrect) {
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  if (!isCorrect) {
+    // Làm sai trong Ôn tập: ghi nhận để ngày hôm sau hỏi lại câu đó hoặc cùng dạng
+    const existingIndex = currentState.failedReviewItems.findIndex(item => item.id === questionId);
+    if (existingIndex >= 0) {
+      currentState.failedReviewItems[existingIndex].failedAt = todayStr;
+    } else {
+      currentState.failedReviewItems.push({
+        id: questionId,
+        tags: tags || [],
+        failedAt: todayStr
+      });
+    }
+    // Xóa khỏi mastered nếu có
+    currentState.masteredQuestionIds = currentState.masteredQuestionIds.filter(id => id !== questionId);
+  } else {
+    // Làm đúng:
+    // 1. Thêm vào mastered
     if (!currentState.masteredQuestionIds.includes(questionId)) {
       currentState.masteredQuestionIds.push(questionId);
     }
+    // 2. Nếu đã hoàn thành đúng, gỡ bỏ khỏi danh sách câu sai của Ôn tập
+    currentState.failedReviewItems = currentState.failedReviewItems.filter(item => {
+      if (item.id === questionId) return false;
+      // Nếu câu vừa làm đúng có cùng tag với câu làm sai trước đó, cũng coi như đã vượt qua dạng này
+      if (tags && tags.length > 0 && item.tags && item.tags.some(t => tags.includes(t))) {
+        return false;
+      }
+      return true;
+    });
   }
 
   saveDailyReviewState(studentId, currentState);

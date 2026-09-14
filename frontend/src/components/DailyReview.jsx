@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Target, X, Check, ArrowRight, Play, BookOpen, AlertCircle } from 'lucide-react';
 import { generateDailyReviewQuestions, submitDailyReviewAnswer } from '../services/dailyReviewService';
+import { decodeQuestionId } from '../utils/idDecoder';
 import MathView from './MathView';
 import './DailyReview.css';
 
@@ -80,7 +81,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
     setShowResult(true);
     
     // Ghi nhận vào localStorage nhưng sessionQuestions trong phiên vẫn giữ nguyên không bị dịch chuyển
-    const newState = submitDailyReviewAnswer(studentId, currentQ.id, correct);
+    const newState = submitDailyReviewAnswer(studentId, currentQ.id, correct, currentQ.tags || []);
     if (newState) {
       setReviewState(newState);
     }
@@ -95,6 +96,8 @@ const DailyReview = ({ studentId, studentGrade }) => {
       setIsModalOpen(false);
     }
   };
+
+  const decodedTag = currentQ?.tags && currentQ.tags.length > 0 ? decodeQuestionId(currentQ.tags[0]) : null;
 
   return (
     <>
@@ -129,10 +132,31 @@ const DailyReview = ({ studentId, studentGrade }) => {
             
             <div className="dr-modal-body">
               <div className="dr-question-reason">
-                {currentQ.reviewReason === 'wrong' && <span className="badge warning"><AlertCircle size={14}/> Câu đã làm sai</span>}
-                {currentQ.reviewReason === 'same_tag' && <span className="badge info">Cùng dạng với câu đã sai</span>}
-                {currentQ.reviewReason === 'random' && <span className="badge plain">Câu hỏi ngẫu nhiên</span>}
+                {currentQ.reviewReason === 'failed_in_review' && (
+                  <span className="badge danger"><AlertCircle size={14}/> Ôn lại: Câu đã làm sai hôm trước</span>
+                )}
+                {currentQ.reviewReason === 'same_tag_failed' && (
+                  <span className="badge warning"><AlertCircle size={14}/> Cùng dạng với câu vừa sai hôm trước</span>
+                )}
+                {currentQ.reviewReason === 'wrong' && (
+                  <span className="badge warning"><AlertCircle size={14}/> Câu đã làm sai trong đề thi</span>
+                )}
+                {currentQ.reviewReason === 'same_tag' && (
+                  <span className="badge info"><AlertCircle size={14}/> Cùng dạng với câu đã sai</span>
+                )}
+                {currentQ.reviewReason === 'random' && (
+                  <span className="badge plain">Câu hỏi ngẫu nhiên</span>
+                )}
               </div>
+
+              {decodedTag && decodedTag.subjectCode !== 'OTHER' && (
+                <div className="dr-question-tags-info">
+                  <span className="dr-tag-pill">
+                    🏷️ {decodedTag.subjectName} • {decodedTag.chapter} • {decodedTag.lesson} {decodedTag.format ? `• ${decodedTag.format}` : ''}
+                  </span>
+                  {decodedTag.level && <span className="dr-level-pill">{decodedTag.level}</span>}
+                </div>
+              )}
 
               <div className="dr-question-content">
                 {currentQ.clusterContext && (

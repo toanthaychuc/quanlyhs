@@ -165,9 +165,39 @@
   font-weight: 600;
 }
 
+.badge.danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
 .badge.warning { background-color: rgba(245, 158, 11, 0.1); color: #d97706; }
 .badge.info { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
 .badge.plain { background-color: var(--border-color); color: var(--text-secondary); }
+
+.dr-question-tags-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.dr-tag-pill {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4f46e5;
+  background-color: rgba(79, 70, 229, 0.08);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.dr-level-pill {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #059669;
+  background-color: rgba(16, 185, 129, 0.08);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
 
 .dr-question-content {
   font-size: 1.1rem;
