@@ -102,6 +102,8 @@
   transition: background-color 0.2s ease;
   cursor: pointer;
   text-decoration: none;
+  position: relative;
+  padding-right: 32px;
 }
 
 .notification-item:last-child {
@@ -177,4 +179,30 @@
   text-align: center;
   color: var(--text-secondary);
   font-size: 0.85rem;
+}
+
+.delete-notif-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.notification-item:hover .delete-notif-btn {
+  opacity: 1;
+}
+
+.delete-notif-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
 }

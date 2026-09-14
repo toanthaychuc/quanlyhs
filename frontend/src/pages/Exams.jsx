@@ -716,6 +716,36 @@ const Exams = () => {
     }
   }, [location.state, trackingId, exams, navigate, location.pathname, examMode]);
 
+  // Handle start exam from Notification
+  const hasHandledTargetRef = useRef(false);
+  useEffect(() => {
+    if (hasHandledTargetRef.current) return;
+    const targetExamId = location.state?.targetExamId;
+    if (targetExamId && exams.length > 0) {
+      hasHandledTargetRef.current = true;
+      const ex = exams.find(e => e.id === targetExamId);
+      if (ex && examMode === 'list') {
+        // Automatically start the exam taking flow without waiting for user action
+        // Call handleStartExam or reproduce its logic if it's hoisted?
+        // Since handleStartExam is defined below, we can duplicate the start logic here to be safe
+        // Or wait, handleStartExam is just a function. Actually, we can just do what auto-resume does:
+        if (ex.questions && ex.questions.length > 0) {
+          setCurrentExam(ex);
+          setCurrentQuestionIndex(0);
+          setUserAnswers({});
+          setFlaggedQuestions({});
+          setTimeLeft(ex.duration * 60);
+          setExamMode('taking');
+        } else {
+          alert('Đề thi này chưa có câu hỏi hoặc đang được cập nhật.');
+        }
+        
+        // Clear state to avoid reopening on reload
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    }
+  }, [location.state, exams, examMode, navigate, location.pathname]);
+
   // Cập nhật banner trạng thái đề đang làm dở khi ở màn hình danh sách
   useEffect(() => {
     if (examMode === 'list' && trackingId) {

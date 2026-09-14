@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, BookOpen, MessageSquare, AlertCircle } from 'lucide-react';
+import { Bell, BookOpen, MessageSquare, AlertCircle, X, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { getNotices } from '../services/noticeService';
 import { getExams, getStudentHistory } from '../services/examService';
 import { getAssignments } from '../services/assignmentService';
+import { getDocuments } from '../services/documentService';
 import './NotificationBell.css';
 
 import { Bell as I_Bell, BellRing as I_BellRing } from 'lucide';
@@ -19,6 +20,39 @@ const NotificationBell = () => {
   const navigate = useNavigate();
   
   const { currentStudentId, isStudent, isTeacher, currentUserEmail } = useRole();
+
+  // Helper to extract grade from student ID or class name
+  const getStudentGrade = (studentId) => {
+    if (!studentId) return null;
+    const match = studentId.match(/^(\d{2})/);
+    return match ? match[1] : null; // returns '10', '11', '12'
+  };
+
+  const getStudentClass = (studentId) => {
+    if (!studentId) return null;
+    const match = studentId.match(/^([A-Za-z0-9]+)-/);
+    return match ? match[1] : null; // returns '10T8' from '10T8-01'
+  };
+
+  // Lấy danh sách ID thông báo đã xóa
+  const getDeletedNotifIds = () => {
+    const key = `edumanager_deleted_notifs_${isTeacher ? currentUserEmail : currentStudentId}`;
+    try {
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    } catch {
+      return [];
+    }
+  };
+
+  const addDeletedNotifId = (id) => {
+    const key = `edumanager_deleted_notifs_${isTeacher ? currentUserEmail : currentStudentId}`;
+    const deleted = getDeletedNotifIds();
+    if (!deleted.includes(id)) {
+      deleted.push(id);
+      localStorage.setItem(key, JSON.stringify(deleted));
+    }
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
 
   // Đóng dropdown khi click bên ngoài
   useEffect(() => {
@@ -35,29 +69,49 @@ const NotificationBell = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
+        const studentGrade = isStudent ? getStudentGrade(currentStudentId) : null;
+        const studentClass = isStudent ? getStudentClass(currentStudentId) : null;
+        const deletedIds = getDeletedNotifIds();
+
         const notices = await getNotices();
         const allNotices = Array.isArray(notices) ? notices : [];
 
         let notifs = [];
         
         // 1. Thêm Bảng tin (Notices)
-        // Với giáo viên: thấy tất cả. Với học sinh: thấy ALL hoặc lớp của mình.
         allNotices.forEach(notice => {
-          notifs.push({
-            id: `notice_${notice.id}`,
-            type: 'notice',
-            title: 'Bảng tin mới',
-            desc: notice.title,
-            time: notice.date || '',
-            createdAt: new Date().getTime() - Math.random() * 86400000, // Mock timestamp nếu ko có
-            link: '/' // Dashboard
-          });
+          let shouldAdd = isTeacher;
+          if (isStudent) {
+            const target = notice.targetClass || 'ALL';
+            if (target === 'ALL') {
+              shouldAdd = true;
+            } else if (target.toLowerCase().startsWith('khoi ')) {
+              const targetGrade = target.split(' ')[1]; // 'Khoi 12' -> '12'
+              if (targetGrade === studentGrade) shouldAdd = true;
+            } else if (target === studentClass) {
+              shouldAdd = true;
+            }
+          }
+
+          if (shouldAdd) {
+            notifs.push({
+              id: `notice_${notice.id}`,
+              type: 'notice',
+              title: `Bảng tin: ${notice.title}`,
+              desc: notice.content ? (notice.content.substring(0, 50) + '...') : '',
+              time: notice.date || 'Gần đây',
+              createdAt: new Date(notice.createdAt || Date.now()).getTime(),
+              link: '/',
+              isNotice: true
+            });
+          }
         });
 
-        // 2. Với học sinh: Bài tập & Đề thi sắp đến hạn
+        // 2. Với học sinh: Bài tập, Đề thi, Tài liệu
         if (isStudent && currentStudentId) {
           const exams = await getExams() || [];
           const assignments = await getAssignments() || [];
+          const documents = await getDocuments() || [];
           const history = await getStudentHistory(currentStudentId) || {};
           
           const submittedExamIds = new Set(Object.keys(history));
@@ -66,48 +120,94 @@ const NotificationBell = () => {
           const tasks = [...exams, ...assignments];
           
           tasks.forEach(task => {
-            if (!task.deadline) return;
-            if (submittedExamIds.has(task.id)) return; // Đã nộp
-            
-            // Tính số ngày còn lại
-            const parts = task.deadline.split('/');
-            let deadlineDate = null;
-            if (parts.length === 3) {
-              deadlineDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T23:59:59`);
-            } else {
-              deadlineDate = new Date(task.deadline);
+            // Kiểm tra grade
+            const taskGrade = task.grade; // e.g. '12', '11', '10', 'DGNL', 'THPTQG'
+            if (taskGrade) {
+              const tG = taskGrade.toLowerCase();
+              if ((tG === '12' || tG === 'dgnl' || tG === 'thptqg') && studentGrade !== '12') return;
+              if (tG === '11' && studentGrade !== '11') return;
+              if (tG === '10' && studentGrade !== '10') return;
             }
-            
-            if (isNaN(deadlineDate.getTime())) return;
-            
-            const now = new Date();
-            const timeDiff = deadlineDate - now;
-            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            
-            // Nếu còn hạn và dưới 3 ngày -> báo sắp đến hạn
-            if (daysDiff >= 0 && daysDiff <= 3) {
-              notifs.push({
-                id: `due_${task.id}`,
-                type: 'exam',
-                title: 'Sắp đến hạn',
-                desc: `${task.title} (Hạn: ${task.deadline})`,
-                time: 'Sắp tới hạn',
-                createdAt: deadlineDate.getTime() - 1000,
-                link: task.isAssignment ? '/assignments' : '/exams'
-              });
-            } else if (daysDiff > 3) {
-              notifs.push({
-                id: `new_${task.id}`,
+
+            if (task.deadline) {
+              if (submittedExamIds.has(task.id)) return; // Đã nộp
+              
+              const parts = task.deadline.split('/');
+              let deadlineDate = null;
+              if (parts.length === 3) {
+                deadlineDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T23:59:59`);
+              } else {
+                deadlineDate = new Date(task.deadline);
+              }
+              
+              if (isNaN(deadlineDate.getTime())) return;
+              
+              const now = new Date();
+              const timeDiff = deadlineDate - now;
+              const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+              
+              if (daysDiff >= 0 && daysDiff <= 3) {
+                notifs.push({
+                  id: `due_${task.id}`,
+                  type: 'exam',
+                  title: `Sắp đến hạn: ${task.title}`,
+                  desc: task.isAssignment ? 'Bạn có bài tập sắp đến hạn nộp.' : 'Bạn có đề thi sắp đến hạn.',
+                  time: `Hạn: ${task.deadline}`,
+                  createdAt: deadlineDate.getTime() - 1000,
+                  link: task.isAssignment ? '/assignments' : '/exams',
+                  targetState: { targetExamId: task.id }
+                });
+              } else if (daysDiff > 3) {
+                notifs.push({
+                  id: `new_${task.id}`,
+                  type: 'assignment',
+                  title: task.isAssignment ? `Bài tập mới: ${task.title}` : `Đề thi mới: ${task.title}`,
+                  desc: 'Giáo viên vừa giao bài tập/đề thi mới cho bạn.',
+                  time: `Hạn: ${task.deadline}`,
+                  createdAt: new Date(task.createdAt || Date.now()).getTime(),
+                  link: task.isAssignment ? '/assignments' : '/exams',
+                  targetState: { targetExamId: task.id }
+                });
+              }
+            } else {
+               // Không có hạn -> coi như đề thi mới bình thường, không tính nộp hay chưa nộp ở đây để đơn giản
+               // Hoặc chỉ hiện nếu mới tạo trong tuần
+               notifs.push({
+                id: `new_no_dl_${task.id}`,
                 type: 'assignment',
-                title: task.isAssignment ? 'Bài tập mới' : 'Đề thi mới',
-                desc: task.title,
-                time: `Hạn: ${task.deadline}`,
-                createdAt: Date.now() - Math.random() * 86400000, // Mock timestamp
-                link: task.isAssignment ? '/assignments' : '/exams'
+                title: task.isAssignment ? `Bài tập mới: ${task.title}` : `Đề thi mới: ${task.title}`,
+                desc: 'Giáo viên vừa giao bài mới (Không giới hạn thời gian).',
+                time: 'Mới đây',
+                createdAt: new Date(task.createdAt || Date.now()).getTime(),
+                link: task.isAssignment ? '/assignments' : '/exams',
+                targetState: { targetExamId: task.id }
               });
             }
           });
+
+          // Tài liệu mới
+          documents.forEach(doc => {
+            const cat = doc.category || ''; // 'grade-12', 'grade-11', 'grade-10', 'handbook'
+            if (cat === 'grade-12' && studentGrade !== '12') return;
+            if (cat === 'grade-11' && studentGrade !== '11') return;
+            if (cat === 'grade-10' && studentGrade !== '10') return;
+
+            notifs.push({
+              id: `doc_${doc.id}`,
+              type: 'document',
+              title: `Tài liệu mới: ${doc.title}`,
+              desc: doc.subject ? `Chuyên đề: ${doc.subject}` : 'Giáo viên vừa thêm tài liệu mới.',
+              time: 'Mới đây',
+              createdAt: new Date(doc.createdAt || Date.now()).getTime(),
+              link: '/documents', // hoặc doc.driveLink nếu muốn
+              isDoc: true,
+              driveLink: doc.driveLink
+            });
+          });
         }
+
+        // Lọc bỏ thông báo đã xóa
+        notifs = notifs.filter(n => !deletedIds.includes(n.id));
 
         // Sắp xếp mới nhất lên đầu
         notifs.sort((a, b) => b.createdAt - a.createdAt);
@@ -116,11 +216,6 @@ const NotificationBell = () => {
 
         // Lấy thời gian đọc cuối cùng
         const storageKey = `edumanager_last_read_notif_${isTeacher ? currentUserEmail : currentStudentId}`;
-        const lastRead = localStorage.getItem(storageKey) || 0;
-        
-        // Tính số lượng chưa đọc (giả sử tất cả notices đều có createdAt giả lập mới)
-        // Trong ứng dụng thực tế, nên lưu ID của notice đã đọc
-        // Ở đây ta đơn giản hóa: đếm số thông báo từ localStorage
         const readIds = JSON.parse(localStorage.getItem(`${storageKey}_ids`) || '[]');
         
         const unread = notifs.filter(n => !readIds.includes(n.id)).length;
@@ -150,11 +245,20 @@ const NotificationBell = () => {
     }
   };
 
-  const handleNotificationClick = (link) => {
+  const handleNotificationClick = (notif) => {
     setIsOpen(false);
-    if (link) {
-      navigate(link);
+    if (notif.isDoc && notif.driveLink) {
+      // Mở tài liệu ở tab mới hoặc chuyển hướng
+      window.open(notif.driveLink, '_blank');
+      // Cũng có thể điều hướng sang trang documents: navigate('/documents');
+    } else if (notif.link) {
+      navigate(notif.link, { state: notif.targetState });
     }
+  };
+
+  const handleDeleteNotification = (e, id) => {
+    e.stopPropagation();
+    addDeletedNotifId(id);
   };
 
   return (
@@ -191,11 +295,12 @@ const NotificationBell = () => {
                 <li 
                   key={notif.id + index} 
                   className="notification-item"
-                  onClick={() => handleNotificationClick(notif.link)}
+                  onClick={() => handleNotificationClick(notif)}
                 >
                   <div className={`notification-icon ${notif.type}`}>
                     {notif.type === 'notice' ? <MessageSquare size={16} /> : 
                      notif.type === 'exam' ? <AlertCircle size={16} /> : 
+                     notif.type === 'document' ? <BookOpen size={16} /> :
                      <BookOpen size={16} />}
                   </div>
                   <div className="notification-content">
@@ -203,6 +308,13 @@ const NotificationBell = () => {
                     <p className="notification-desc">{notif.desc}</p>
                     <span className="notification-time">{notif.time}</span>
                   </div>
+                  <button 
+                    className="delete-notif-btn" 
+                    onClick={(e) => handleDeleteNotification(e, notif.id)}
+                    title="Xóa thông báo này"
+                  >
+                    <X size={14} />
+                  </button>
                 </li>
               ))}
             </ul>
