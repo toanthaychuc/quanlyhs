@@ -1,0 +1,43 @@
+.classic-theme-toggle {
+  --duration: 400ms;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+}
+
+.classic-theme-toggle .clip-path-path {
+  transition: d var(--duration), translate var(--duration);
+}
+
+.classic-theme-toggle.is-dark .clip-path-path {
+  transition-delay: calc(var(--duration) * 0.15);
+  d: path("M0 2h13a1 1 0 0 0 10 10v14H0Z");
+}
+
+@supports not (d: path("M0 0")) {
+  .classic-theme-toggle.is-dark .clip-path-path {
+    translate: -3.25px 0.5px;
+  }
+}
+
+.classic-theme-toggle .sun-core {
+  transform-origin: center;
+  transition: transform var(--duration);
+}
+
+.classic-theme-toggle.is-dark .sun-core {
+  transform: scale(1.7);
+}
+
+.classic-theme-toggle .sun-ray {
+  transform-box: view-box;
+  transform-origin: center;
+  transition: transform var(--duration), opacity var(--duration);
+  transition-delay: calc(var(--duration) * 0.15);
+}
+
+.classic-theme-toggle.is-dark .sun-ray {
+  transform: scale(0);
+  opacity: 0;
+  transition-delay: 0s;
+}

@@ -30,6 +30,7 @@ import WelcomeLandingModal from '../components/WelcomeLandingModal';
 import SettingsModal from '../components/SettingsModal';
 import StudentName from '../components/StudentName';
 import NotificationBell from '../components/NotificationBell';
+import { ThemeToggleIcon } from '../components/ThemeToggleIcon';
 import { getClasses } from '../services/classService';
 import './MainLayout.css';
 
@@ -258,7 +259,7 @@ const MainLayout = () => {
               onClick={toggleTheme}
               title={theme === 'light' ? 'Chuyển sang giao diện Tối' : 'Chuyển sang giao diện Sáng'}
             >
-              {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+              <ThemeToggleIcon size={15} isDark={theme === 'light'} />
               <span>{theme === 'light' ? 'Giao diện Tối' : 'Giao diện Sáng'}</span>
             </button>
           </div>
