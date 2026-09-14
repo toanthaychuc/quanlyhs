@@ -825,7 +825,9 @@ const Dashboard = () => {
       {/* Row 1: Tổng quan tiến độ, Mục tiêu cá nhân & Bảng tin thông báo */}
       {!isTeacher && (
         <>
-          <div className="overview-grid">
+          <div className="dashboard-grid">
+            {/* CỘT TRÁI */}
+            <div className="flex flex-col gap-4">
         {/* 1. Tiến độ học theo chuyên đề */}
         <div className="card">
           <div className="card-title-bar">
@@ -864,141 +866,7 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
-        {/* 2. Phân tích năng lực (AI) */}
-        <div className="card">
-          <div className="card-title-bar">
-            <h3>
-              <Wand2 size={18} color="#8b5cf6" />
-              Phân Tích Năng Lực (AI)
-            </h3>
-            <span className="text-xs text-gray-500 font-semibold">Dựa trên kết quả bài tập</span>
-          </div>
-          
-          <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {analyticsStats && (analyticsStats.bySubject['D'] || analyticsStats.bySubject['H']) ? (
-              <>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                  {['D', 'H'].map(code => {
-                    const subj = analyticsStats.bySubject[code];
-                    if (!subj) return null;
-                    const accuracy = subj.total > 0 ? Math.round((subj.correct / subj.total) * 100) : 0;
-                    return (
-                      <div key={code} style={{ flex: 1, minWidth: '120px', background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{subj.name}</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#8b5cf6', marginTop: '0.25rem' }}>{accuracy}%</div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Đúng {subj.correct}/{subj.total}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-                
-                {weakTopics && weakTopics.length > 0 && (
-                  <div>
-                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Gợi Ý Ôn Tập Trọng Tâm:</h4>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {weakTopics.map(topic => (
-                        <li key={topic.topicId} style={{ background: '#fee2e2', color: '#991b1b', padding: '0.6rem 0.8rem', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <AlertCircle size={14} />
-                            <span style={{ fontWeight: 600 }}>{topic.label}</span>
-                          </div>
-                          <span style={{ fontWeight: 700 }}>{Math.round(topic.accuracy * 100)}%</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                Chưa đủ dữ liệu bài tập có gắn thẻ ID để phân tích.
-              </div>
-            )}
-          </div>
-        </div>
-
-
-        {/* 3. Bảng tin (Notice Board) */}
-        <div className="card">
-          <div className="card-title-bar">
-            <h3>
-              <Bell size={18} color="#f59e0b" />
-              Bảng Tin {isTeacher ? 'Lớp Học' : 'Giáo Viên'}
-            </h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 font-semibold">{displayedNotices.length} tin</span>
-              {isTeacher && (
-                <button 
-                  className="btn btn-primary" 
-                  style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px' }}
-                  onClick={() => handleOpenNoticeModal()}
-                >
-                  <Plus size={14} /> Thêm tin
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="notice-list" style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '0.25rem' }}>
-            {displayedNotices.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                Chưa có thông báo nào.
-              </div>
-            ) : (
-              displayedNotices.map(n => (
-                <div key={n.id} className={`notice-item ${n.isPinned ? 'pinned' : ''}`} style={{ position: 'relative' }}>
-                  <div className="notice-title-row">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="notice-title">{n.title}</span>
-                      {n.targetClass && n.targetClass !== 'ALL' && (
-                        <span style={{ 
-                          fontSize: '0.675rem', 
-                          fontWeight: '700', 
-                          background: '#e0e7ff', 
-                          color: '#4338ca', 
-                          padding: '1px 6px', 
-                          borderRadius: '4px' 
-                        }}>
-                          {n.targetClass}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2" style={{ marginLeft: 'auto', flexShrink: 0 }}>
-                      <span className="notice-time">{n.date}</span>
-                      {isTeacher && (
-                        <div className="flex items-center gap-1.5" style={{ marginLeft: '4px' }}>
-                          <button 
-                            onClick={() => handleOpenNoticeModal(n)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4f46e5', padding: '2px' }}
-                            title="Sửa"
-                          >
-                            <Edit2 size={13} />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteNotice(n.id)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '2px' }}
-                            title="Xóa"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <p style={{ margin: '0.35rem 0 0 0', color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.4, whiteSpace: 'pre-wrap' }}>
-                    {n.content}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Row 2: To-Do List, Lịch thi thử & Phân tích phong độ Analytics */}
-      <div className="dashboard-main-grid">
-        {/* Cột Trái: Quản lý nhiệm vụ (To-Do list) & Bài đang làm dở */}
-        <div className="flex flex-col gap-4">
+        
           {/* Bài tập sắp đến hạn */}
           <div className="card">
             <div className="card-title-bar">
@@ -1137,8 +1005,139 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Cột Phải: Phân tích phong độ Analytics (Biểu đồ đường & Đánh giá năng lực) */}
-        <div className="flex flex-col gap-4">
+        {/* CỘT PHẢI */}
+            <div className="flex flex-col gap-4">
+              {/* 2. Phân tích năng lực (AI) */}
+        <div className="card">
+          <div className="card-title-bar">
+            <h3>
+              <Wand2 size={18} color="#8b5cf6" />
+              Phân Tích Năng Lực (AI)
+            </h3>
+            <span className="text-xs text-gray-500 font-semibold">Dựa trên kết quả bài tập</span>
+          </div>
+          
+          <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {analyticsStats && (analyticsStats.bySubject['D'] || analyticsStats.bySubject['H']) ? (
+              <>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  {['D', 'H'].map(code => {
+                    const subj = analyticsStats.bySubject[code];
+                    if (!subj) return null;
+                    const accuracy = subj.total > 0 ? Math.round((subj.correct / subj.total) * 100) : 0;
+                    return (
+                      <div key={code} style={{ flex: 1, minWidth: '120px', background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{subj.name}</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#8b5cf6', marginTop: '0.25rem' }}>{accuracy}%</div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Đúng {subj.correct}/{subj.total}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {weakTopics && weakTopics.length > 0 && (
+                  <div>
+                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Gợi Ý Ôn Tập Trọng Tâm:</h4>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {weakTopics.map(topic => (
+                        <li key={topic.topicId} style={{ background: '#fee2e2', color: '#991b1b', padding: '0.6rem 0.8rem', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <AlertCircle size={14} />
+                            <span style={{ fontWeight: 600 }}>{topic.label}</span>
+                          </div>
+                          <span style={{ fontWeight: 700 }}>{Math.round(topic.accuracy * 100)}%</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                Chưa đủ dữ liệu bài tập có gắn thẻ ID để phân tích.
+              </div>
+            )}
+          </div>
+        </div>
+
+
+        {/* 3. Bảng tin (Notice Board) */}
+        <div className="card">
+          <div className="card-title-bar">
+            <h3>
+              <Bell size={18} color="#f59e0b" />
+              Bảng Tin {isTeacher ? 'Lớp Học' : 'Giáo Viên'}
+            </h3>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500 font-semibold">{displayedNotices.length} tin</span>
+              {isTeacher && (
+                <button 
+                  className="btn btn-primary" 
+                  style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '2px' }}
+                  onClick={() => handleOpenNoticeModal()}
+                >
+                  <Plus size={14} /> Thêm tin
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="notice-list" style={{ maxHeight: '280px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+            {displayedNotices.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                Chưa có thông báo nào.
+              </div>
+            ) : (
+              displayedNotices.map(n => (
+                <div key={n.id} className={`notice-item ${n.isPinned ? 'pinned' : ''}`} style={{ position: 'relative' }}>
+                  <div className="notice-title-row">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="notice-title">{n.title}</span>
+                      {n.targetClass && n.targetClass !== 'ALL' && (
+                        <span style={{ 
+                          fontSize: '0.675rem', 
+                          fontWeight: '700', 
+                          background: '#e0e7ff', 
+                          color: '#4338ca', 
+                          padding: '1px 6px', 
+                          borderRadius: '4px' 
+                        }}>
+                          {n.targetClass}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2" style={{ marginLeft: 'auto', flexShrink: 0 }}>
+                      <span className="notice-time">{n.date}</span>
+                      {isTeacher && (
+                        <div className="flex items-center gap-1.5" style={{ marginLeft: '4px' }}>
+                          <button 
+                            onClick={() => handleOpenNoticeModal(n)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4f46e5', padding: '2px' }}
+                            title="Sửa"
+                          >
+                            <Edit2 size={13} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteNotice(n.id)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '2px' }}
+                            title="Xóa"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <p style={{ margin: '0.35rem 0 0 0', color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.4, whiteSpace: 'pre-wrap' }}>
+                    {n.content}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      
+              {/* Cột Phải: Phân tích phong độ Analytics (Biểu đồ đường & Đánh giá năng lực) */}
           {/* Biểu đồ đường thể hiện phong độ thi thử */}
           <div className="card">
             <div className="card-title-bar">
@@ -1278,8 +1277,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="overview-grid">
-            {/* Học sinh cần chú ý */}
+          <div className="dashboard-grid">
+            {/* CỘT TRÁI */}
+            <div className="flex flex-col gap-4">
+              {/* Học sinh cần chú ý */}
             <div className="card">
               <div className="card-title-bar">
                 <h3>
@@ -1313,7 +1314,51 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Bảng Tin (Dành cho Giáo viên) */}
+                        {/* Bài tập / Đề thi mới giao */}
+            <div className="card flex flex-col gap-4">
+              <div className="card-title-bar">
+                <h3>
+                  <CheckCircle2 size={18} color="#10b981" />
+                  Tiến Độ Nộp Bài Tập Gần Đây
+                </h3>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {teacherStats.recentAssignments.length === 0 ? (
+                  <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '1rem' }}>
+                    Chưa có bài tập nào được giao gần đây.
+                  </div>
+                ) : (
+                  teacherStats.recentAssignments.map(asg => (
+                    <div key={asg.id} style={{ background: 'var(--bg-color)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <div>
+                          <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{asg.title}</strong>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                            Lớp: <span style={{ fontWeight: 600, color: '#4f46e5' }}>{asg.className}</span> • {asg.questionsCount || 0} câu
+                          </div>
+                        </div>
+                        <button className="btn btn-secondary" style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }} onClick={() => navigate('/assignments')}>Chi tiết</button>
+                      </div>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem', fontWeight: 600 }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>Tiến độ nộp bài</span>
+                        <span style={{ color: asg.percent >= 80 ? '#10b981' : asg.percent >= 50 ? '#f59e0b' : '#ef4444' }}>
+                          {asg.submitted} / {asg.total} ({asg.percent}%)
+                        </span>
+                      </div>
+                      <div style={{ height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${asg.percent}%`, background: asg.percent >= 80 ? '#10b981' : asg.percent >= 50 ? '#f59e0b' : '#ef4444', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            </div>
+            {/* CỘT PHẢI */}
+            <div className="flex flex-col gap-4">
+              {/* Bảng Tin (Dành cho Giáo viên) */}
             <div className="card">
               <div className="card-title-bar">
                 <h3>
@@ -1376,51 +1421,8 @@ const Dashboard = () => {
                 )}
               </div>
             </div>
-          </div>
-
-          <div className="dashboard-main-grid">
-            {/* Bài tập / Đề thi mới giao */}
-            <div className="card flex flex-col gap-4">
-              <div className="card-title-bar">
-                <h3>
-                  <CheckCircle2 size={18} color="#10b981" />
-                  Tiến Độ Nộp Bài Tập Gần Đây
-                </h3>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {teacherStats.recentAssignments.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '1rem' }}>
-                    Chưa có bài tập nào được giao gần đây.
-                  </div>
-                ) : (
-                  teacherStats.recentAssignments.map(asg => (
-                    <div key={asg.id} style={{ background: 'var(--bg-color)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <div>
-                          <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{asg.title}</strong>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                            Lớp: <span style={{ fontWeight: 600, color: '#4f46e5' }}>{asg.className}</span> • {asg.questionsCount || 0} câu
-                          </div>
-                        </div>
-                        <button className="btn btn-secondary" style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }} onClick={() => navigate('/assignments')}>Chi tiết</button>
-                      </div>
-                      
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.25rem', fontWeight: 600 }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>Tiến độ nộp bài</span>
-                        <span style={{ color: asg.percent >= 80 ? '#10b981' : asg.percent >= 50 ? '#f59e0b' : '#ef4444' }}>
-                          {asg.submitted} / {asg.total} ({asg.percent}%)
-                        </span>
-                      </div>
-                      <div style={{ height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${asg.percent}%`, background: asg.percent >= 80 ? '#10b981' : asg.percent >= 50 ? '#f59e0b' : '#ef4444', borderRadius: '3px', transition: 'width 0.5s ease' }}></div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Phân tích chất lượng các lớp */}
+          
+              {/* Phân tích chất lượng các lớp */}
             <div className="card flex flex-col gap-4">
               <div className="card-title-bar">
                 <h3>
@@ -1456,6 +1458,7 @@ const Dashboard = () => {
                 )}
               </div>
             </div>
+          </div>
           </div>
         </>
       )}
