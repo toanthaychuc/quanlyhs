@@ -33,7 +33,7 @@ import {
   ChevronRight,
   Copy
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { getClasses } from '../services/classService';
 import { getAssignments, saveAllAssignments, deleteAssignment } from '../services/assignmentService';
@@ -246,6 +246,7 @@ const renderTextWithLinks = (text) => {
 
 const Assignments = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isTeacher, isStudent, currentStudentId } = useRole();
 
   const [classesList, setClassesList] = useState([]);
@@ -253,6 +254,26 @@ const Assignments = () => {
   const [isCloudSynced, setIsCloudSynced] = useState(false);
   const asgSaveTimeoutRef = useRef(null);
   const hasLocalChangesRef = useRef(false);
+  
+  // Tự động chuyển lớp và cuộn đến bài tập khi click từ thông báo
+  useEffect(() => {
+    const targetAsgId = location.state?.targetAssignmentId;
+    const targetClassId = location.state?.targetClassId;
+    if (targetClassId) {
+      setActiveClassId(targetClassId);
+    }
+    if (targetAsgId) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`asg-${targetAsgId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('highlight-target-asg');
+          setTimeout(() => el.classList.remove('highlight-target-asg'), 3500);
+        }
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
   
   const [assignments, setAssignments] = useState(() => {
     try {
@@ -845,7 +866,7 @@ const Assignments = () => {
             const isOnline = asg.type === 'online_latex';
 
             return (
-              <div key={asg.id} className="assignment-item-card">
+              <div key={asg.id} id={`asg-${asg.id}`} className="assignment-item-card">
                 <div className="assignment-top-row">
                   <div className="assignment-title-group">
                     <div className="assignment-type-icon" style={{ background: isOnline ? '#eef2ff' : '#fef3c7', color: isOnline ? '#4f46e5' : '#b45309' }}>

@@ -487,3 +487,14 @@
     align-items: flex-start;
   }
 }
+
+@keyframes targetAsgPulse {
+  0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+}
+
+.highlight-target-asg {
+  border: 2px solid #4f46e5 !important;
+  animation: targetAsgPulse 1.2s ease-in-out infinite;
+}

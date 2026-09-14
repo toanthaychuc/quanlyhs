@@ -717,18 +717,16 @@ const Exams = () => {
   }, [location.state, trackingId, exams, navigate, location.pathname, examMode]);
 
   // Handle start exam from Notification
-  const hasHandledTargetRef = useRef(false);
+  const lastHandledTargetIdRef = useRef(null);
   useEffect(() => {
-    if (hasHandledTargetRef.current) return;
     const targetExamId = location.state?.targetExamId;
-    if (targetExamId && exams.length > 0) {
-      hasHandledTargetRef.current = true;
+    if (!targetExamId) return;
+    if (lastHandledTargetIdRef.current === targetExamId) return;
+
+    if (exams.length > 0) {
+      lastHandledTargetIdRef.current = targetExamId;
       const ex = exams.find(e => e.id === targetExamId);
       if (ex && examMode === 'list') {
-        // Automatically start the exam taking flow without waiting for user action
-        // Call handleStartExam or reproduce its logic if it's hoisted?
-        // Since handleStartExam is defined below, we can duplicate the start logic here to be safe
-        // Or wait, handleStartExam is just a function. Actually, we can just do what auto-resume does:
         if (ex.questions && ex.questions.length > 0) {
           setCurrentExam(ex);
           setCurrentQuestionIndex(0);
