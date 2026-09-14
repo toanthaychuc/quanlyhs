@@ -121,12 +121,12 @@ const NotificationBell = () => {
           
           tasks.forEach(task => {
             // Kiểm tra grade
-            const taskGrade = task.grade; // e.g. '12', '11', '10', 'DGNL', 'THPTQG'
+            const taskGrade = task.grade; // e.g. 'grade-12', 'grade-11', 'grade-10', 'grade-thptqg', 'grade-dgnl'
             if (taskGrade) {
               const tG = taskGrade.toLowerCase();
-              if ((tG === '12' || tG === 'dgnl' || tG === 'thptqg') && studentGrade !== '12') return;
-              if (tG === '11' && studentGrade !== '11') return;
-              if (tG === '10' && studentGrade !== '10') return;
+              if ((tG.includes('12') || tG.includes('dgnl') || tG.includes('thptqg')) && studentGrade !== '12') return;
+              if (tG.includes('11') && studentGrade !== '11') return;
+              if (tG.includes('10') && studentGrade !== '10') return;
             }
 
             if (task.deadline) {
