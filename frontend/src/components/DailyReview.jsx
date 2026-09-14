@@ -134,6 +134,12 @@ const DailyReview = ({ studentId, studentGrade }) => {
               </div>
 
               <div className="dr-question-content">
+                {currentQ.clusterContext && (
+                  <div className="dr-cluster-context-box">
+                    <div className="dr-cluster-context-badge">Dữ liệu bài toán:</div>
+                    <MathView text={currentQ.clusterContext} />
+                  </div>
+                )}
                 <MathView text={currentQ.content} />
               </div>
 

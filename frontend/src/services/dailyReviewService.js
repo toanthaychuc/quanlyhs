@@ -1,6 +1,6 @@
 import { getExams, getStudentHistory } from './examService';
 
-const DAILY_REVIEW_KEY = 'edumanager_daily_review_v2';
+const DAILY_REVIEW_KEY = 'edumanager_daily_review_v3';
 
 export const getDailyReviewState = (studentId) => {
   try {
@@ -70,13 +70,18 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
   const exams = await getExams() || [];
   const history = await getStudentHistory(studentId) || {};
 
-  // Lọc đề thi theo khối của học sinh
+  // Lọc đề thi theo khối của học sinh:
+  // - Lớp 12: chỉ lấy các đề của thi thử khối 12 và THPTQG, tuyệt đối KHÔNG lấy trong VACT.
+  // - Lớp 11: chỉ lấy của khối 11.
+  // - Lớp 10: chỉ lấy của khối 10.
   const validExams = exams.filter(exam => {
     const taskGrade = exam.grade ? String(exam.grade).toLowerCase() : '';
-    if (!taskGrade) return false; // Không có khối thì bỏ qua luôn để tránh nhầm lẫn
+    if (!taskGrade) return false;
 
     if (String(studentGrade) === '12') {
-      return taskGrade.includes('12') || taskGrade.includes('dgnl') || taskGrade.includes('thptqg') || taskGrade.includes('vact');
+      const isGrade12OrTHPT = taskGrade.includes('12') || taskGrade.includes('thptqg');
+      const isVact = taskGrade.includes('vact') || taskGrade.includes('dgnl');
+      return isGrade12OrTHPT && !isVact;
     }
     if (String(studentGrade) === '11') {
       return taskGrade.includes('11');
@@ -98,7 +103,25 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
     const latestSession = examSessions.length > 0 ? examSessions[examSessions.length - 1] : null;
     const userAnswers = latestSession ? (latestSession.answers || {}) : {};
 
+    let currentClusterContext = null;
+    let clusterRemaining = 0;
+
     (exam.questions || []).forEach(q => {
+      // Bảo tồn clusterContext cho các câu trong cùng chùm/cụm
+      if (q.clusterContext) {
+        currentClusterContext = q.clusterContext;
+        clusterRemaining = q.clusterLength || 1;
+      }
+
+      const effectiveClusterContext = q.clusterContext || (clusterRemaining > 0 ? currentClusterContext : null);
+
+      if (clusterRemaining > 0) {
+        clusterRemaining--;
+        if (clusterRemaining === 0) {
+          currentClusterContext = null;
+        }
+      }
+
       // Chỉ xử lý trắc nghiệm 4 phương án
       if (!isMultipleChoice(q)) return;
 
@@ -106,13 +129,18 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
       if (currentState.pendingQuestions.some(pq => pq.id === q.id)) return;
       if (currentState.masteredQuestionIds.includes(q.id)) return;
 
-      allValidQuestions.push(q);
+      const qWithContext = {
+        ...q,
+        clusterContext: effectiveClusterContext
+      };
+
+      allValidQuestions.push(qWithContext);
 
       if (latestSession) {
         const uAns = userAnswers[q.id];
         // Nếu đã trả lời và trả lời sai
         if (uAns && uAns !== q.correctAnswer) {
-          wrongQuestions.push(q);
+          wrongQuestions.push(qWithContext);
           const tags = getQuestionTags(q);
           tags.forEach(t => wrongTags.add(t));
         }
