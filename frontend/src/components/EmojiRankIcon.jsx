@@ -33,8 +33,8 @@ const EmojiRankIcon = ({ rank, size = 32, style = {}, className = "" }) => {
             width: '100%', 
             height: '100%', 
             objectFit: 'contain', 
-            mixBlendMode: 'multiply',
-            borderRadius: '50%'
+            borderRadius: '50%',
+            backgroundColor: '#ffffff'
           }} 
         />
       ) : (
