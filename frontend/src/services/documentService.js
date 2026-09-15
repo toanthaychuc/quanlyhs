@@ -18,6 +18,7 @@ function rowToDoc(row) {
     subject: row.subject,
     coverUrl: row.cover_url,
     driveLink: row.drive_link,
+    createdAt: row.created_at,
   };
 }
 

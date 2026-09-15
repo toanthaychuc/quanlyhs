@@ -137,6 +137,9 @@ const NotificationBell = () => {
         const notices = await getNotices() || [];
         const allNotices = Array.isArray(notices) ? notices : [];
 
+        const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+        const nowMs = Date.now();
+
         let notifs = [];
 
         // 1. BẢNG TIN (NOTICES)
@@ -159,16 +162,18 @@ const NotificationBell = () => {
             if (notice.createdAt) noticeTime = new Date(notice.createdAt).getTime();
             else if (notice.date) noticeTime = new Date(notice.date).getTime();
 
-            notifs.push({
-              id: `notice_${notice.id}`,
-              type: 'notice',
-              title: `Bản tin: ${notice.title}`,
-              desc: notice.content ? (notice.content.substring(0, 65) + '...') : 'Giáo viên vừa đăng thông báo mới.',
-              deadlineText: null,
-              createdAt: noticeTime,
-              link: '/',
-              isNotice: true
-            });
+            if (nowMs - noticeTime <= SEVEN_DAYS) {
+              notifs.push({
+                id: `notice_${notice.id}`,
+                type: 'notice',
+                title: `Bản tin: ${notice.title}`,
+                desc: notice.content ? (notice.content.substring(0, 65) + '...') : 'Giáo viên vừa đăng thông báo mới.',
+                deadlineText: null,
+                createdAt: noticeTime,
+                link: '/',
+                isNotice: true
+              });
+            }
           }
         });
 
@@ -207,16 +212,18 @@ const NotificationBell = () => {
 
             const deadlineText = asg.deadline ? formatDeadline(asg.deadline) : null;
 
-            notifs.push({
-              id: `asg_${asg.id}`,
-              type: 'assignment',
-              title: `Bài tập mới: ${asg.title}`,
-              desc: `Lớp ${asg.className || studentClassName || ''} • Giáo viên vừa giao bài tập.`,
-              deadlineText,
-              createdAt: asgTime,
-              link: '/assignments',
-              targetState: { targetAssignmentId: asg.id, targetClassId: asg.classId }
-            });
+            if (nowMs - asgTime <= SEVEN_DAYS) {
+              notifs.push({
+                id: `asg_${asg.id}`,
+                type: 'assignment',
+                title: `Bài tập mới: ${asg.title}`,
+                desc: `Lớp ${asg.className || studentClassName || ''} • Giáo viên vừa giao bài tập.`,
+                deadlineText,
+                createdAt: asgTime,
+                link: '/assignments',
+                targetState: { targetAssignmentId: asg.id, targetClassId: asg.classId }
+              });
+            }
           });
 
           // B. ĐỀ THI THỬ (EXAMS) - PHÂN BIỆT RÕ VỚI BÀI TẬP
@@ -250,16 +257,18 @@ const NotificationBell = () => {
 
             const deadlineText = exam.deadline ? formatDeadline(exam.deadline) : null;
 
-            notifs.push({
-              id: `exam_${exam.id}`,
-              type: 'exam',
-              title: `Đề thi mới: ${exam.title}`,
-              desc: `Khối ${exam.grade ? exam.grade.replace('grade-', '').toUpperCase() : studentGrade || ''} • Thời gian làm bài: ${exam.duration || 45} phút.`,
-              deadlineText,
-              createdAt: examTime,
-              link: '/exams',
-              targetState: { targetExamId: exam.id }
-            });
+            if (nowMs - examTime <= SEVEN_DAYS) {
+              notifs.push({
+                id: `exam_${exam.id}`,
+                type: 'exam',
+                title: `Đề thi mới: ${exam.title}`,
+                desc: `Khối ${exam.grade ? exam.grade.replace('grade-', '').toUpperCase() : studentGrade || ''} • Thời gian làm bài: ${exam.duration || 45} phút.`,
+                deadlineText,
+                createdAt: examTime,
+                link: '/exams',
+                targetState: { targetExamId: exam.id }
+              });
+            }
           });
 
           // C. TÀI LIỆU (DOCUMENTS)
@@ -272,17 +281,19 @@ const NotificationBell = () => {
             let docTime = Date.now();
             if (doc.createdAt) docTime = new Date(doc.createdAt).getTime();
 
-            notifs.push({
-              id: `doc_${doc.id}`,
-              type: 'document',
-              title: `Tài liệu mới: ${doc.title}`,
-              desc: doc.subject ? `Chuyên đề: ${doc.subject}` : 'Giáo viên vừa thêm tài liệu mới.',
-              deadlineText: null,
-              createdAt: docTime,
-              link: '/documents',
-              isDoc: true,
-              driveLink: doc.driveLink
-            });
+            if (nowMs - docTime <= SEVEN_DAYS) {
+              notifs.push({
+                id: `doc_${doc.id}`,
+                type: 'document',
+                title: `Tài liệu mới: ${doc.title}`,
+                desc: doc.subject ? `Chuyên đề: ${doc.subject}` : 'Giáo viên vừa thêm tài liệu mới.',
+                deadlineText: null,
+                createdAt: docTime,
+                link: '/documents',
+                isDoc: true,
+                driveLink: doc.driveLink
+              });
+            }
           });
         }
 
