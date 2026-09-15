@@ -301,9 +301,9 @@ const MainLayout = () => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-user-section" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 0.25rem' }}>
+          <div className="sidebar-user-section">
             
-            <div className="sidebar-user-profile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', overflow: 'hidden' }}>
+            <div className="sidebar-user-profile">
               <div 
                 className={`user-profile ${!isTeacher ? 'student-avatar' : ''}`}
                 onClick={isTeacher ? handleOpenLogin : undefined}
