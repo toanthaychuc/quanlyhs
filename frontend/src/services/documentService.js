@@ -58,7 +58,6 @@ export async function getDocuments(forceSync = false) {
     return getLocalDocuments();
   } catch (err) {
     console.error('[documentService] getDocuments error:', err);
-    alert('Lỗi tải tài liệu từ máy chủ: ' + err.message);
     return getLocalDocuments();
   }
 }
