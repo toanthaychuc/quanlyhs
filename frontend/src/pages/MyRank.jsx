@@ -4,6 +4,7 @@ import { useRole } from '../context/RoleContext';
 import { RANKS, calculateRank } from '../utils/rankUtils';
 import { BADGES_CONFIG, parseUserBadges } from '../utils/badgeUtils';
 import EmojiRankIcon from '../components/EmojiRankIcon';
+import { getGamification } from '../services/examService';
 import './MyRank.css';
 
 const MyRank = () => {
@@ -13,9 +14,19 @@ const MyRank = () => {
 
   useEffect(() => {
     if (currentStudentId) {
-      const gamiKey = 'edumanager_gamification';
-      const allGami = JSON.parse(localStorage.getItem(gamiKey) || '{}');
-      setGamification(allGami[currentStudentId] || { xp: 0, streak: 0, badges: [] });
+      // Tải dữ liệu từ Supabase hoặc cache
+      getGamification(currentStudentId).then(data => {
+        setGamification(data);
+      });
+
+      // Lắng nghe sự kiện cập nhật để render lại ngay lập tức
+      const handleGamificationUpdated = async () => {
+        const myGami = await getGamification(currentStudentId);
+        setGamification(myGami);
+      };
+      
+      window.addEventListener('gamification_updated', handleGamificationUpdated);
+      return () => window.removeEventListener('gamification_updated', handleGamificationUpdated);
     }
   }, [currentStudentId]);
 

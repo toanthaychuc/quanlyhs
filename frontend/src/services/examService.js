@@ -337,13 +337,20 @@ export async function getGamification(studentId) {
     if (error && error.code !== 'PGRST116') throw error; // PGRST116 = not found
     if (!data) return { xp: 0, streak: 0, badges: [] };
 
-    return {
+    const fetchedData = {
       xp: data.xp,
       streak: data.streak,
       lastLoginDate: data.last_login_date,
       lastActiveDate: data.last_active_date,
       badges: data.badges || [],
     };
+
+    // Cache locally so it syncs across tabs/components
+    const allGami = JSON.parse(localStorage.getItem(GAMI_KEY) || '{}');
+    allGami[studentId] = fetchedData;
+    localStorage.setItem(GAMI_KEY, JSON.stringify(allGami));
+
+    return fetchedData;
   } catch (err) {
     console.error('[examService] getGamification error:', err);
     const allGami = JSON.parse(localStorage.getItem(GAMI_KEY) || '{}');
