@@ -316,6 +316,7 @@ const Dashboard = () => {
     localStorage.setItem('edumanager_avatar', avatar);
     localStorage.setItem('edumanager_frame', frameId);
     setShowAvatarModal(false);
+    window.dispatchEvent(new Event('avatar_updated'));
   };
 
   // Mục tiêu điểm thi mong muốn của học sinh

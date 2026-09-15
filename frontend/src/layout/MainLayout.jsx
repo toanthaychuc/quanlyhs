@@ -113,6 +113,25 @@ const MainLayout = () => {
   const [isMobileSimulator, setIsMobileSimulator] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
+  // Avatar Sync State
+  const getDefaultAvatar = () => {
+    return isTeacher 
+      ? "https://ui-avatars.com/api/?name=Cong+Chuc&background=4f46e5&color=fff" 
+      : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentStudent?.name || 'Hoc Sinh')}&background=10b981&color=fff`;
+  };
+
+  const [userAvatar, setUserAvatar] = useState(() => {
+    return localStorage.getItem('edumanager_avatar') || getDefaultAvatar();
+  });
+
+  useEffect(() => {
+    const handleAvatarUpdate = () => {
+      setUserAvatar(localStorage.getItem('edumanager_avatar') || getDefaultAvatar());
+    };
+    window.addEventListener('avatar_updated', handleAvatarUpdate);
+    return () => window.removeEventListener('avatar_updated', handleAvatarUpdate);
+  }, [isTeacher, currentStudent]);
+
   // Theme State
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'light';
@@ -292,10 +311,7 @@ const MainLayout = () => {
                 title={isTeacher ? `Giáo viên: ${currentUserEmail}` : `${currentStudent?.name || 'Học sinh'}`}
               >
                 <img 
-                  src={isTeacher 
-                    ? "https://ui-avatars.com/api/?name=Cong+Chuc&background=4f46e5&color=fff" 
-                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentStudent?.name || 'Hoc Sinh')}&background=10b981&color=fff`
-                  } 
+                  src={userAvatar}
                   alt="Profile" 
                   className="avatar" 
                   style={{ width: '40px', height: '40px' }}
