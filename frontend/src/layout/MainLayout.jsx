@@ -24,7 +24,9 @@ import {
   Sun,
   Moon,
   Shield,
-  Menu
+  Menu,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { 
   LayoutDashboard as I_LayoutDashboard, LayoutGrid as I_LayoutGrid,
@@ -287,7 +289,7 @@ const MainLayout = () => {
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             title={isSidebarCollapsed ? 'Mở rộng menu' : 'Thu gọn menu'}
           >
-            <Menu size={18} />
+            {isSidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             <span className="collapse-text">Thu gọn</span>
           </button>
           
