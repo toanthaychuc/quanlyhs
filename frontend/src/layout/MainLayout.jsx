@@ -262,6 +262,19 @@ const MainLayout = () => {
           </div>
         </div>
 
+        <div className="sidebar-menu-header">
+          <button 
+            className="sidebar-collapse-btn"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            title={isSidebarCollapsed ? 'Mở rộng menu' : 'Thu gọn menu'}
+          >
+            <Menu size={18} />
+            <span className="collapse-text">Thu gọn</span>
+          </button>
+          
+          <div className="sidebar-menu-label">MENU</div>
+        </div>
+
         <nav className="sidebar-nav">
           {navItems.map((item) => (
             <NavItemRenderer key={item.path} item={item} onClick={handleNavClick} />
@@ -334,15 +347,6 @@ const MainLayout = () => {
               onClick={() => setIsMobileMenuOpen(true)}
             >
               <AnimatedIcon defaultIcon={I_Menu} hoverIcon={I_X} size={24} />
-            </button>
-
-            {/* Desktop Sidebar Collapse Button */}
-            <button 
-              className="desktop-collapse-btn"
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              title={isSidebarCollapsed ? 'Mở rộng menu' : 'Thu gọn menu'}
-            >
-              <Menu size={20} />
             </button>
 
             {/* Mobile Header Logo (Hidden on Desktop) */}
