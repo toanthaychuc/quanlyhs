@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, MessageSquare, AlertCircle, X, Trash2, CheckSquare, FileText } from 'lucide-react';
+import { BookOpen, MessageSquare, AlertCircle, X, Trash2, CheckSquare, FileText, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { getClasses } from '../services/classService';
@@ -312,6 +312,20 @@ const NotificationBell = () => {
         // Sắp xếp mới nhất lên đầu theo thời gian tạo
         finalNotifs.sort((a, b) => b.createdAt - a.createdAt);
 
+        if (isStudent && currentStudentId) {
+          finalNotifs.unshift({
+            id: 'daily_review_pinned',
+            type: 'daily_review',
+            title: '📌 Ôn tập mỗi ngày',
+            desc: 'Nhấn vào đây để làm 5 câu hỏi ôn tập chuyên đề hôm nay nhé!',
+            deadlineText: null,
+            createdAt: Date.now(),
+            link: '/',
+            targetState: { action: 'startDailyReview' },
+            isPinned: true
+          });
+        }
+
         setNotifications(finalNotifs);
 
         // Lấy thời gian đọc cuối cùng
@@ -396,6 +410,7 @@ const NotificationBell = () => {
                     {notif.type === 'notice' ? <MessageSquare size={16} /> : 
                      notif.type === 'assignment' ? <CheckSquare size={16} /> : 
                      notif.type === 'exam' ? <FileText size={16} /> : 
+                     notif.type === 'daily_review' ? <Target size={16} /> :
                      <BookOpen size={16} />}
                   </div>
                   <div className="notification-content">
@@ -408,13 +423,15 @@ const NotificationBell = () => {
                       <span className="notification-deadline">{notif.deadlineText}</span>
                     )}
                   </div>
-                  <button 
-                    className="delete-notif-btn" 
-                    onClick={(e) => handleDeleteNotification(e, notif.id)}
-                    title="Xóa thông báo này"
-                  >
-                    <X size={14} />
-                  </button>
+                  {!notif.isPinned && (
+                    <button 
+                      className="delete-notif-btn" 
+                      onClick={(e) => handleDeleteNotification(e, notif.id)}
+                      title="Xóa thông báo này"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

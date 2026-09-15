@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Target, X, Check, ArrowRight, Play, BookOpen, AlertCircle } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { generateDailyReviewQuestions, submitDailyReviewAnswer } from '../services/dailyReviewService';
 import { decodeQuestionId } from '../utils/idDecoder';
 import MathView from './MathView';
@@ -15,6 +16,9 @@ const DailyReview = ({ studentId, studentGrade }) => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (!studentId) return;
     
@@ -29,6 +33,22 @@ const DailyReview = ({ studentId, studentGrade }) => {
   }, [studentId, studentGrade]);
 
   const pendingQuestions = reviewState?.pendingQuestions || [];
+
+  const handleStart = () => {
+    setSessionQuestions([...pendingQuestions]);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setIsModalOpen(true);
+  };
+
+  useEffect(() => {
+    if (location.state?.action === 'startDailyReview' && pendingQuestions.length > 0 && !isLoading) {
+      // Clear the state so it doesn't reopen on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+      handleStart();
+    }
+  }, [location.state, pendingQuestions, isLoading, navigate, location.pathname]);
   
   if (isLoading) {
     return (
@@ -52,14 +72,6 @@ const DailyReview = ({ studentId, studentGrade }) => {
       </div>
     );
   }
-
-  const handleStart = () => {
-    setSessionQuestions([...pendingQuestions]);
-    setCurrentIndex(0);
-    setSelectedAnswer(null);
-    setShowResult(false);
-    setIsModalOpen(true);
-  };
 
   const handleClose = () => {
     setIsModalOpen(false);
