@@ -275,7 +275,7 @@ const MainLayout = () => {
               <button 
                 className="btn btn-outline flex items-center justify-center group"
                 style={{ 
-                  width: '38px', height: '38px', padding: 0,
+                  width: '44px', height: '44px', padding: 0,
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'rgba(99, 102, 241, 0.08)',
                   borderColor: 'rgba(99, 102, 241, 0.3)',
@@ -284,7 +284,7 @@ const MainLayout = () => {
                 onClick={() => setShowSettingsModal(true)}
                 title="Cài đặt hệ thống: API Key AI, Model & Preamble LaTeX"
               >
-                <AnimatedIcon defaultIcon={I_Sliders} hoverIcon={I_Settings} size={18} />
+                <AnimatedIcon defaultIcon={I_Sliders} hoverIcon={I_Settings} size={22} />
               </button>
             )}
 
@@ -293,7 +293,7 @@ const MainLayout = () => {
               <button 
                 className="btn btn-outline flex items-center justify-center group"
                 style={{ 
-                  width: '38px', height: '38px', padding: 0,
+                  width: '44px', height: '44px', padding: 0,
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'rgba(245, 158, 11, 0.08)',
                   borderColor: 'rgba(245, 158, 11, 0.3)',
@@ -302,7 +302,7 @@ const MainLayout = () => {
                 onClick={() => setIsMobileSimulator(true)}
                 title="Mô phỏng Giao diện Điện thoại"
               >
-                <AnimatedIcon defaultIcon={I_Smartphone} hoverIcon={I_Tablet} size={18} />
+                <AnimatedIcon defaultIcon={I_Smartphone} hoverIcon={I_Tablet} size={22} />
               </button>
             )}
 
@@ -310,7 +310,7 @@ const MainLayout = () => {
             <button 
               className="btn btn-outline flex items-center justify-center"
               style={{ 
-                width: '38px', height: '38px', padding: 0,
+                width: '44px', height: '44px', padding: 0,
                 borderRadius: 'var(--radius-md)',
                 backgroundColor: 'var(--bg-color)',
                 borderColor: 'var(--border-color)',
@@ -319,23 +319,8 @@ const MainLayout = () => {
               onClick={toggleTheme}
               title={theme === 'light' ? 'Chuyển sang giao diện Tối' : 'Chuyển sang giao diện Sáng'}
             >
-              <ThemeToggleIcon size={18} isDark={theme === 'light'} />
+              <ThemeToggleIcon size={22} isDark={theme === 'light'} />
             </button>
-
-            {/* Chế độ hiện tại */}
-            <div 
-              className="current-mode-indicator flex items-center justify-center"
-              style={{ 
-                width: '38px', height: '38px', padding: 0,
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'var(--bg-color)',
-                border: '1px solid var(--border-color)',
-                cursor: 'help'
-              }}
-              title={isTeacher ? 'Chế độ: Giáo viên' : 'Chế độ: Học sinh'}
-            >
-              {isTeacher ? <ShieldCheck size={18} style={{ color: 'var(--secondary-color)' }} /> : <User size={18} style={{ color: 'var(--primary-color)' }} />}
-            </div>
           </div>
         </div>
       </aside>
