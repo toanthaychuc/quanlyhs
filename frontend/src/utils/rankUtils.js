@@ -3,15 +3,15 @@ const getIconUrl = (filename) => {
 };
 
 export const RANKS = [
-  { id: 'iron', name: 'Sắt', minXP: 0, color: '#a19d94', bg: 'rgba(161, 157, 148, 0.15)', icon: getIconUrl('emblem-iron.png') },
-  { id: 'bronze', name: 'Đồng', minXP: 500, color: '#ab6f53', bg: 'rgba(171, 111, 83, 0.15)', icon: getIconUrl('emblem-bronze.png') },
-  { id: 'silver', name: 'Bạc', minXP: 1500, color: '#a0aeb2', bg: 'rgba(160, 174, 178, 0.15)', icon: getIconUrl('emblem-silver.png') },
-  { id: 'gold', name: 'Vàng', minXP: 3000, color: '#f1c356', bg: 'rgba(241, 195, 86, 0.15)', icon: getIconUrl('emblem-gold.png') },
-  { id: 'platinum', name: 'Bạch Kim', minXP: 5000, color: '#4e9996', bg: 'rgba(78, 153, 150, 0.15)', icon: getIconUrl('emblem-platinum.png') },
-  { id: 'diamond', name: 'Kim Cương', minXP: 8000, color: '#576bce', bg: 'rgba(87, 107, 206, 0.15)', icon: getIconUrl('emblem-diamond.png') },
-  { id: 'master', name: 'Cao Thủ', minXP: 12000, color: '#9d48e0', bg: 'rgba(157, 72, 224, 0.15)', icon: getIconUrl('emblem-master.png') },
-  { id: 'grandmaster', name: 'Đại Cao Thủ', minXP: 16000, color: '#e84141', bg: 'rgba(232, 65, 65, 0.15)', icon: getIconUrl('emblem-grandmaster.png') },
-  { id: 'challenger', name: 'Thách Đấu', minXP: 20000, color: '#f4c874', bg: 'rgba(244, 200, 116, 0.15)', icon: getIconUrl('emblem-challenger.png') }
+  { id: 'rank1', name: 'Trứng Cú Nhỏ', minXP: 0, color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.2)', baseEmoji: '🥚', accessoryEmoji: null },
+  { id: 'rank2', name: 'Cú Chập Chững', minXP: 500, color: '#fca5a5', bg: 'rgba(252, 165, 165, 0.2)', baseEmoji: '🦉', accessoryEmoji: '🎒' },
+  { id: 'rank3', name: 'Cú Kính Cận', minXP: 1500, color: '#6ee7b7', bg: 'rgba(110, 231, 183, 0.2)', baseEmoji: '🦉', accessoryEmoji: '🤓' },
+  { id: 'rank4', name: 'Cú Chăm Chỉ', minXP: 3000, color: '#fcd34d', bg: 'rgba(252, 211, 77, 0.2)', baseEmoji: '🦉', accessoryEmoji: '📖' },
+  { id: 'rank5', name: 'Cú Thông Thái', minXP: 5000, color: '#93c5fd', bg: 'rgba(147, 197, 253, 0.2)', baseEmoji: '🦉', accessoryEmoji: '🎓' },
+  { id: 'rank6', name: 'Cú Uyên Bác', minXP: 8000, color: '#c4b5fd', bg: 'rgba(196, 181, 253, 0.2)', baseEmoji: '🦉', accessoryEmoji: '✨' },
+  { id: 'rank7', name: 'Cú Học Bá', minXP: 12000, color: '#f9a8d4', bg: 'rgba(249, 168, 212, 0.2)', baseEmoji: '🦉', accessoryEmoji: '🔮' },
+  { id: 'rank8', name: 'Cú Thần Đồng', minXP: 16000, color: '#5eead4', bg: 'rgba(94, 234, 212, 0.2)', baseEmoji: '🦉', accessoryEmoji: '🪽' },
+  { id: 'rank9', name: 'Cú Thủ Khoa', minXP: 20000, color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', baseEmoji: '🦉', accessoryEmoji: '👑' }
 ];
 
 export const calculateRank = (xp) => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Target, Trophy, Flame, Zap, ArrowUp, Star } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { RANKS, calculateRank } from '../utils/rankUtils';
+import EmojiRankIcon from '../components/EmojiRankIcon';
 import './MyRank.css';
 
 const MyRank = () => {
@@ -45,8 +46,8 @@ const MyRank = () => {
         {/* Khu vực Bậc Hiện Tại & Thanh Tiến Trình */}
         <div className="current-rank-card glass" style={{ borderColor: currentRank.color, boxShadow: `0 8px 32px ${currentRank.bg}` }}>
           <div className="rank-display">
-            <div className="rank-icon-large" style={{ color: currentRank.color, backgroundColor: currentRank.bg, borderColor: currentRank.color }}>
-              <img src={currentRank.icon} alt={currentRank.name} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(5.5)' }} />
+            <div className="rank-icon-large" style={{ backgroundColor: 'transparent' }}>
+              <EmojiRankIcon rank={currentRank} size={100} />
             </div>
             <div className="rank-info-main">
               <span className="rank-label">Bậc Hiện Tại</span>
@@ -121,12 +122,15 @@ const MyRank = () => {
                 return (
                   <div key={rank.id} className={`roadmap-item ${isCurrent ? 'current' : ''} ${isPassed ? 'passed' : 'locked'}`}>
                     <div className="roadmap-icon" style={{ 
-                      backgroundColor: isPassed ? rank.color : 'var(--bg-color)',
-                      color: isPassed ? 'white' : 'var(--text-secondary)',
-                      border: `2px solid ${isPassed ? rank.color : 'var(--border-color)'}`,
-                      overflow: 'hidden'
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      overflow: 'visible',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      filter: isPassed ? 'none' : 'grayscale(100%) opacity(50%)'
                     }}>
-                      <img src={rank.icon} alt={rank.name} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(4.5)', filter: isPassed ? 'none' : 'grayscale(100%) opacity(50%)' }} />
+                      <EmojiRankIcon rank={rank} size={48} />
                     </div>
                     <div className="roadmap-details">
                       <h4 style={{ color: isPassed ? rank.color : 'var(--text-secondary)' }}>

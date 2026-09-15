@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOutlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import { 
   LayoutDashboard, 
   Users, 
@@ -127,6 +128,7 @@ const MainLayout = () => {
   const isIframe = window.self !== window.top;
   const [emailInput, setEmailInput] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [levelUpData, setLevelUpData] = useState(null);
 
   // Lấy danh sách lớp và học sinh từ Supabase để học sinh chọn đúng lớp
   const [classesData, setClassesData] = useState([]);
@@ -141,6 +143,48 @@ const MainLayout = () => {
       }).catch(err => console.error('Background sync classes error:', err));
     }).catch(err => console.error('MainLayout getClasses error:', err));
   }, [role, hasEnteredApp]);
+
+  // Nghe sự kiện thăng hạng
+  useEffect(() => {
+    const handleLevelUp = (e) => {
+      const { newRank } = e.detail;
+      setLevelUpData(newRank);
+      
+      // Kích hoạt pháo giấy 3 lần cho hoành tráng
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#fca5a5', '#6ee7b7', '#fcd34d', '#93c5fd', '#c4b5fd']
+        });
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#fca5a5', '#6ee7b7', '#fcd34d', '#93c5fd', '#c4b5fd']
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+      
+      // Tự động ẩn popup sau 5 giây
+      setTimeout(() => {
+        setLevelUpData(null);
+      }, 5000);
+    };
+
+    window.addEventListener('level_up', handleLevelUp);
+    return () => window.removeEventListener('level_up', handleLevelUp);
+  }, []);
 
   const handleOpenLogin = () => {
     setEmailInput(currentUserEmail || '');
@@ -513,6 +557,49 @@ const MainLayout = () => {
         onClose={() => setHasEnteredApp(true)} 
         classesData={classesData} 
       />
+
+      {/* Popup chúc mừng thăng hạng */}
+      <AnimatePresence>
+        {levelUpData && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            style={{
+              position: 'fixed',
+              bottom: '40px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 9999,
+              background: 'white',
+              padding: '20px 40px',
+              borderRadius: '24px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              border: `4px solid ${levelUpData.color}`
+            }}
+          >
+            <div style={{ fontSize: '48px', lineHeight: 1, position: 'relative' }}>
+              {levelUpData.baseEmoji}
+              {levelUpData.accessoryEmoji && <span style={{ fontSize: '0.5em', position: 'absolute', bottom: 0, right: 0 }}>{levelUpData.accessoryEmoji}</span>}
+            </div>
+            <div>
+              <h2 style={{ margin: 0, color: 'var(--primary-color)', fontSize: '1.2rem' }}>Chúc Mừng Thăng Hạng! 🎉</h2>
+              <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Bạn đã đạt cấp <strong>{levelUpData.name}</strong></p>
+            </div>
+            <button 
+              onClick={() => setLevelUpData(null)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '8px'
+              }}
+            >
+              <X size={20} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Modal Cài đặt Hệ thống (Chỉ Giáo viên) */}
       <SettingsModal 

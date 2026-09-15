@@ -4,6 +4,7 @@
  * Falls back to localStorage if Supabase is not configured.
  */
 import supabase from '../lib/supabase';
+import { calculateRank } from '../utils/rankUtils';
 
 const EXAMS_KEY     = 'edumanager_exams_data_v8';
 const HISTORY_KEY   = 'edumanager_completed_exams';
@@ -284,8 +285,17 @@ export async function deleteExamSession(sessionId, studentId, examId, completedA
 export async function updateGamification(studentId, gamiData) {
   // Always update local first
   const allGami = JSON.parse(localStorage.getItem(GAMI_KEY) || '{}');
+  const oldGami = allGami[studentId] || { xp: 0, streak: 0 };
+  
+  const oldRank = calculateRank(oldGami.xp || 0).currentRank;
+  const newRank = calculateRank(gamiData.xp || 0).currentRank;
+
   allGami[studentId] = gamiData;
   localStorage.setItem(GAMI_KEY, JSON.stringify(allGami));
+  
+  if (newRank.minXP > oldRank.minXP) {
+    window.dispatchEvent(new CustomEvent('level_up', { detail: { newRank } }));
+  }
   window.dispatchEvent(new Event('gamification_updated'));
 
   if (!isSupabaseReady()) return { success: true };

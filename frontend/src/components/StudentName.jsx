@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Flame } from 'lucide-react';
 import { calculateRank } from '../utils/rankUtils';
 
+import EmojiRankIcon from './EmojiRankIcon';
+
 const StudentName = ({ studentId, name, showRank = true, style, className }) => {
   const [rank, setRank] = useState(null);
   const [streak, setStreak] = useState(0);
@@ -42,30 +44,7 @@ const StudentName = ({ studentId, name, showRank = true, style, className }) => 
         </span>
       )}
       {rank && (
-        <span style={{ 
-          width: '32px', 
-          height: '32px', 
-          display: 'inline-flex', 
-          justifyContent: 'center', 
-          alignItems: 'center',
-          overflow: 'hidden',
-          borderRadius: '50%',
-          flexShrink: 0,
-          marginLeft: '4px'
-        }}>
-          <img 
-            src={rank.icon} 
-            alt={rank.name} 
-            title={`Hạng: ${rank.name}`}
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'contain', 
-              transform: 'scale(5)',
-              filter: `drop-shadow(0 0 2px ${rank.color}) drop-shadow(0 0 6px ${rank.color})`
-            }} 
-          />
-        </span>
+        <EmojiRankIcon rank={rank} size={32} style={{ marginLeft: '4px' }} />
       )}
     </span>
   );
