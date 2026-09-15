@@ -203,11 +203,6 @@ const Dashboard = () => {
 
           // 4. Gamification
           const myGami = await getGamification(currentStudentId);
-          const today = new Date().toLocaleDateString('en-CA');
-          if (myGami.lastActiveDate && myGami.lastActiveDate !== today) {
-            const diffDays = Math.ceil(Math.abs(new Date(today) - new Date(myGami.lastActiveDate)) / (1000 * 60 * 60 * 24));
-            if (diffDays > 1) myGami.streak = 0;
-          }
           setGamificationData(myGami);
         }
       } catch (err) {
@@ -216,6 +211,18 @@ const Dashboard = () => {
     };
     loadData();
   }, [currentStudentId, role, isStudent]);
+
+  useEffect(() => {
+    if (isStudent && currentStudentId) {
+      const handleGamificationUpdated = async () => {
+        const myGami = await getGamification(currentStudentId);
+        setGamificationData(myGami);
+      };
+      
+      window.addEventListener('gamification_updated', handleGamificationUpdated);
+      return () => window.removeEventListener('gamification_updated', handleGamificationUpdated);
+    }
+  }, [currentStudentId, isStudent]);
 
   const handleOpenNoticeModal = (notice = null) => {
     if (notice) {

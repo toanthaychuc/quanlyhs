@@ -342,6 +342,56 @@ export async function getGamification(studentId) {
 }
 
 /**
+ * Process daily login for streak tracking
+ */
+export async function processDailyLogin(studentId) {
+  if (!studentId || studentId === 'khach_tudolamde@gmail.com') return null;
+  
+  const studentGami = await getGamification(studentId);
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = today.toISOString();
+  
+  let lastLoginDate = null;
+  if (studentGami.lastLoginDate) {
+    lastLoginDate = new Date(studentGami.lastLoginDate);
+    lastLoginDate.setHours(0, 0, 0, 0);
+  }
+
+  let updated = false;
+
+  if (!lastLoginDate) {
+    studentGami.streak = 1;
+    studentGami.lastLoginDate = todayStr;
+    updated = true;
+  } else {
+    const diffTime = today.getTime() - lastLoginDate.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    if (diffDays === 1) {
+      studentGami.streak = (studentGami.streak || 0) + 1;
+      studentGami.lastLoginDate = todayStr;
+      
+      if (studentGami.streak >= 2) {
+        studentGami.xp = (studentGami.xp || 0) + 100;
+      }
+      updated = true;
+    } else if (diffDays > 1) {
+      studentGami.streak = 1;
+      studentGami.lastLoginDate = todayStr;
+      updated = true;
+    }
+  }
+
+  if (updated) {
+    await updateGamification(studentId, studentGami);
+  }
+  
+  return studentGami;
+}
+
+/**
  * Subscribe to new exam submissions (realtime, for teacher dashboard).
  * Returns the channel object — call channel.unsubscribe() to clean up.
  */

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { processDailyLogin } from '../services/examService';
 
 const RoleContext = createContext();
 
@@ -44,56 +45,11 @@ export const RoleProvider = ({ children }) => {
     
     // Xử lý Streak (chuỗi đăng nhập) khi học sinh đăng nhập
     if (role === 'student' && currentStudentId && currentStudentId !== 'khach_tudolamde@gmail.com') {
-      const gamiMap = JSON.parse(localStorage.getItem('edumanager_gamification') || '{}');
-      const studentGami = gamiMap[currentStudentId] || { xp: 0, streak: 0, badges: [] };
-      
-      const today = new Date();
-      // Reset về đầu ngày để so sánh chính xác theo ngày
-      today.setHours(0, 0, 0, 0);
-      const todayStr = today.toISOString();
-      
-      let lastLoginDate = null;
-      if (studentGami.lastLoginDate) {
-        lastLoginDate = new Date(studentGami.lastLoginDate);
-        lastLoginDate.setHours(0, 0, 0, 0);
-      }
-
-      let updated = false;
-
-      if (!lastLoginDate) {
-        // Lần đầu đăng nhập
-        studentGami.streak = 1;
-        studentGami.lastLoginDate = todayStr;
-        updated = true;
-      } else {
-        const diffTime = Math.abs(today - lastLoginDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-        
-        if (diffDays === 1) {
-          // Đăng nhập liên tiếp
-          studentGami.streak = (studentGami.streak || 0) + 1;
-          studentGami.lastLoginDate = todayStr;
-          
-          // Cộng 100XP từ ngày thứ 2 trở đi
-          if (studentGami.streak >= 2) {
-            studentGami.xp = (studentGami.xp || 0) + 100;
-          }
-          updated = true;
-        } else if (diffDays > 1) {
-          // Chuỗi bị đứt gãy
-          studentGami.streak = 1;
-          studentGami.lastLoginDate = todayStr;
-          updated = true;
-        }
-        // diffDays === 0 nghĩa là đã đăng nhập trong hôm nay, không làm gì cả
-      }
-
-      if (updated) {
-        gamiMap[currentStudentId] = studentGami;
-        localStorage.setItem('edumanager_gamification', JSON.stringify(gamiMap));
-        // Kích hoạt custom event để các component khác (như StudentName) biết mà render lại
-        window.dispatchEvent(new Event('gamification_updated'));
-      }
+      processDailyLogin(currentStudentId).then(() => {
+        // trigger event if needed, but processDailyLogin already calls updateGamification which dispatches 'gamification_updated'
+      }).catch(err => {
+        console.error('Error processing daily login:', err);
+      });
     }
   }, [currentStudentId, role]);
 
