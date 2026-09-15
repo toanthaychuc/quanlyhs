@@ -349,25 +349,26 @@ export async function processDailyLogin(studentId) {
   
   const studentGami = await getGamification(studentId);
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayStr = today.toISOString();
+  // Lấy ngày hiện tại theo chuẩn YYYY-MM-DD local time (vd: Vietnam)
+  const todayStr = new Date().toLocaleDateString('en-CA');
   
-  let lastLoginDate = null;
-  if (studentGami.lastLoginDate) {
-    lastLoginDate = new Date(studentGami.lastLoginDate);
-    lastLoginDate.setHours(0, 0, 0, 0);
+  let lastLoginDateStr = studentGami.lastLoginDate;
+  // Đổi format cũ (nếu có T) thành YYYY-MM-DD
+  if (lastLoginDateStr && lastLoginDateStr.includes('T')) {
+    lastLoginDateStr = new Date(lastLoginDateStr).toLocaleDateString('en-CA');
   }
 
   let updated = false;
 
-  if (!lastLoginDate) {
+  if (!lastLoginDateStr) {
     studentGami.streak = 1;
     studentGami.lastLoginDate = todayStr;
     updated = true;
-  } else {
-    const diffTime = today.getTime() - lastLoginDate.getTime();
-    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); 
+  } else if (lastLoginDateStr !== todayStr) {
+    // So sánh ngày bằng cách chuyển về chung chuẩn UTC midnight
+    const t = new Date(todayStr).getTime();
+    const l = new Date(lastLoginDateStr).getTime();
+    const diffDays = Math.round((t - l) / (1000 * 60 * 60 * 24)); 
     
     if (diffDays === 1) {
       studentGami.streak = (studentGami.streak || 0) + 1;
@@ -382,6 +383,7 @@ export async function processDailyLogin(studentId) {
       studentGami.lastLoginDate = todayStr;
       updated = true;
     }
+    // Nếu diffDays === 0 hoặc âm (lỗi giờ), không làm gì cả
   }
 
   if (updated) {
