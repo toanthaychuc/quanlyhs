@@ -8,6 +8,14 @@
     <meta name="description" content="Hệ thống Quản lý Học tập Toán Thầy Công Chức" />
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
     <title>Toán thầy Công Chức</title>
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme') || 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
