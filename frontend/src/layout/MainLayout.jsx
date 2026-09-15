@@ -50,6 +50,7 @@ import NotificationBell from '../components/NotificationBell';
 import { ThemeToggleIcon } from '../components/ThemeToggleIcon';
 import AnimatedIcon from '../components/AnimatedIcon';
 import { getClasses } from '../services/classService';
+import { getGamification } from '../services/examService';
 import { calculateRank } from '../utils/rankUtils';
 import './MainLayout.css';
 
@@ -112,6 +113,26 @@ const MainLayout = () => {
   // State modal đăng nhập email
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [studentXP, setStudentXP] = useState(0);
+
+  useEffect(() => {
+    if (!isTeacher && currentStudentId) {
+      const fetchXP = async () => {
+        try {
+          const gami = await getGamification(currentStudentId);
+          setStudentXP(gami?.xp || 0);
+        } catch (err) {
+          console.error('Error fetching gamification in layout:', err);
+        }
+      };
+      fetchXP();
+
+      const handleUpdate = () => fetchXP();
+      window.addEventListener('gamification_updated', handleUpdate);
+      return () => window.removeEventListener('gamification_updated', handleUpdate);
+    }
+  }, [currentStudentId, isTeacher]);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSimulator, setIsMobileSimulator] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -326,7 +347,7 @@ const MainLayout = () => {
                   {isTeacher ? 'Thầy Công Chức' : (currentStudent?.name || 'Học sinh')}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {isTeacher ? 'Quản trị viên' : (currentStudent ? calculateRank(currentStudent.points || 0).currentRank.name : 'Học sinh')}
+                  {isTeacher ? 'Quản trị viên' : calculateRank(studentXP).currentRank.name}
                 </span>
               </div>
             </div>
