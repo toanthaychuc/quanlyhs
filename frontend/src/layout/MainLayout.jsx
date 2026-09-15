@@ -59,6 +59,7 @@ const NavItemRenderer = ({ item, onClick }) => {
       onClick={(e) => onClick(e, item.path)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      title={item.label}
     >
       <AnimatedIcon 
         defaultIcon={item.iconDefault} 
@@ -110,6 +111,7 @@ const MainLayout = () => {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSimulator, setIsMobileSimulator] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   // Theme State
   const [theme, setTheme] = useState(() => {
@@ -249,7 +251,7 @@ const MainLayout = () => {
       )}
 
       {/* Sidebar */}
-      <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+      <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''} ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="logo-container">
             <div className="logo-icon">LC</div>
@@ -347,6 +349,15 @@ const MainLayout = () => {
               onClick={() => setIsMobileMenuOpen(true)}
             >
               <AnimatedIcon defaultIcon={I_Menu} hoverIcon={I_X} size={24} />
+            </button>
+
+            {/* Desktop Sidebar Collapse Button */}
+            <button 
+              className="desktop-collapse-btn"
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              title={isSidebarCollapsed ? 'Mở rộng menu' : 'Thu gọn menu'}
+            >
+              <Menu size={20} />
             </button>
 
             {/* Mobile Header Logo (Hidden on Desktop) */}

@@ -273,6 +273,70 @@
   display: none;
 }
 
+/* Sidebar Collapse Styles */
+.sidebar.collapsed {
+  width: 80px;
+}
+.sidebar.collapsed .logo-text-wrapper {
+  display: none;
+}
+.sidebar.collapsed .logo-container {
+  gap: 0;
+  justify-content: center;
+  width: 100%;
+}
+.sidebar.collapsed .sidebar-header {
+  padding: 0;
+  justify-content: center;
+}
+.sidebar.collapsed .sidebar-nav {
+  align-items: center;
+}
+.sidebar.collapsed .nav-item {
+  width: 48px;
+  height: 48px;
+  justify-content: center;
+  padding: 0;
+  border-radius: var(--radius-md);
+}
+.sidebar.collapsed .nav-item span {
+  display: none;
+}
+.sidebar.collapsed .sidebar-footer {
+  padding: 1.25rem 0.5rem;
+}
+.sidebar.collapsed .sidebar-tools {
+  flex-direction: column !important;
+  align-items: center;
+}
+.sidebar.collapsed .current-mode-indicator {
+  padding: 0;
+  width: 38px;
+  justify-content: center;
+}
+
+/* Desktop Collapse Button */
+.desktop-collapse-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.desktop-collapse-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+}
+[data-theme='dark'] .desktop-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 @media (max-width: 900px) {
   .role-switcher-label {
     display: none;
@@ -300,7 +364,13 @@
     backdrop-filter: blur(2px);
   }
   .mobile-menu-btn {
-    display: none; /* We will use bottom nav for menu instead */
+    display: flex; /* Hiển thị lại nút mobile menu */
+  }
+  .desktop-collapse-btn {
+    display: none !important; /* Ẩn nút collapse desktop trên mobile */
+  }
+  .sidebar.collapsed {
+    width: 260px; /* Bỏ qua collapse trên mobile */
   }
   .top-header {
     padding: 0.75rem 1rem;
