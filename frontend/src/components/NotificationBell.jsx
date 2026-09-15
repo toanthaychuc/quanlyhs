@@ -317,7 +317,7 @@ const NotificationBell = () => {
             id: 'daily_review_pinned',
             type: 'daily_review',
             title: '📌 Ôn tập mỗi ngày',
-            desc: 'Nhấn vào đây để làm 5 câu hỏi ôn tập chuyên đề hôm nay nhé!',
+            desc: 'Nhấn vào đây để làm các câu hỏi ôn tập chuyên đề hôm nay nhé!',
             deadlineText: null,
             createdAt: Date.now(),
             link: '/',
