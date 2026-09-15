@@ -22,6 +22,7 @@ import {
   updateGamification, getGamification,
   saveUnfinishedExam, getUnfinishedExam, clearUnfinishedExam
 } from '../services/examService';
+import { parseUserBadges, encodeUserBadges } from '../utils/badgeUtils';
 
 const EXAMS_STORAGE_KEY = 'edumanager_exams_data_v8';
 
@@ -866,6 +867,8 @@ const Exams = () => {
 
     let correctCount = 0;
     let totalCalculatedScore = 0;
+    let hardQCount = 0;
+    let hardQCorrect = 0;
     const hasPointsConfig = !!currentExam.pointsConfig;
     const pConfig = currentExam.pointsConfig || {
       multipleChoice: 0,
@@ -874,7 +877,8 @@ const Exams = () => {
     };
 
     currentExam.questions.forEach((q) => {
-      const uAns = userAnswers[q.id];
+      let isQuestionCorrect = false;
+
       if (q.questionType === 'true_false') {
         let subCorrect = 0;
         (q.options || []).forEach(opt => {
@@ -883,7 +887,7 @@ const Exams = () => {
           if (userPick === expected) subCorrect += 1;
         });
 
-        if (subCorrect === 4 && uAns) correctCount += 1;
+        if (subCorrect === 4 && uAns) { correctCount += 1; isQuestionCorrect = true; }
 
         if (hasPointsConfig && uAns) {
           if (subCorrect === 1) totalCalculatedScore += pConfig.trueFalse.correct1;
@@ -896,12 +900,32 @@ const Exams = () => {
         const cleanTarget = String(q.correctAnswer || '').trim().replace(/,/g, '.');
         if (cleanUser === cleanTarget) {
           correctCount += 1;
+          isQuestionCorrect = true;
           if (hasPointsConfig) totalCalculatedScore += pConfig.shortAnswer;
         }
       } else {
         if (uAns === q.correctAnswer) {
           correctCount += 1;
+          isQuestionCorrect = true;
           if (hasPointsConfig) totalCalculatedScore += pConfig.multipleChoice;
+        }
+      }
+
+      // Kiểm tra Kính Vạn Hoa (câu hỏi khó)
+      let isHard = false;
+      if (q.tags && q.tags.length > 0) {
+        const tag = q.tags[0];
+        const match = tag.trim().match(/^([0-9])([DHC])([0-9])([YNBHVKCG])([0-9]+)-([0-9]+)$/i);
+        if (match && ['V', 'K', 'C', 'G'].includes(match[4].toUpperCase())) {
+          isHard = true;
+        } else if (tag.toUpperCase().includes('VDC') || tag.toUpperCase().includes('VD')) {
+          isHard = true;
+        }
+      }
+      if (isHard) {
+        hardQCount++;
+        if (isQuestionCorrect) {
+          hardQCorrect++;
         }
       }
     });
@@ -922,6 +946,14 @@ const Exams = () => {
 
     // Lưu kết quả lên Supabase và cập nhật gamification
     try {
+      // Tính Lội Ngược Dòng (Cần check điểm cũ TRƯỚC KHI lưu)
+      let bestPastScore = -1;
+      if (isStudent && currentStudentId) {
+        const examHistory = await getStudentHistory(currentStudentId);
+        const pastAttempts = examHistory[currentExam.id] || [];
+        bestPastScore = pastAttempts.reduce((max, a) => Math.max(max, Number(a.score)), -1);
+      }
+
       // 1. Lưu phiên thi
       if (isStudent && currentStudentId) {
         await submitExamSession({
@@ -958,18 +990,46 @@ const Exams = () => {
         // Tính XP
         let gainedXP = Math.floor(Number(score) * 10);
         let isSpeedster = false;
-        if (timeSpentSeconds <= (currentExam.duration * 60) * 0.5) {
-          gainedXP += 50;
-          isSpeedster = true;
+        if (timeSpentSeconds <= (currentExam.duration * 60) * 0.8) {
+          if (Number(score) >= 8.5) isSpeedster = true;
+          // XP bonus for speed
+          if (timeSpentSeconds <= (currentExam.duration * 60) * 0.5) gainedXP += 50; 
         }
         myGami.xp = (myGami.xp || 0) + gainedXP;
 
-        // Huy hiệu
-        const currentBadges = new Set(myGami.badges || []);
-        if (Number(score) === 10) currentBadges.add('Điểm Tuyệt Đối');
-        if (isSpeedster)           currentBadges.add('Tốc Độ');
-        if (myGami.streak >= 3)    currentBadges.add('Chăm Chỉ');
-        myGami.badges = Array.from(currentBadges);
+        // Xử lý Huy hiệu nâng cao
+        const parsedBadges = parseUserBadges(myGami.badges);
+
+        // 1. Tốc Độ (time <= 80%, score >= 8.5)
+        if (isSpeedster && !parsedBadges.speed.unlocked) {
+          parsedBadges.speed.progress++;
+        }
+
+        // 2. Ong Chăm Chỉ & Thợ Săn Chuỗi
+        if (!parsedBadges.hardworking_bee.unlocked) {
+          parsedBadges.hardworking_bee.progress = Math.min(myGami.streak, 7);
+        }
+        if (!parsedBadges.streak_hunter.unlocked) {
+          parsedBadges.streak_hunter.progress = Math.min(myGami.streak, 14);
+        }
+
+        // 3. Bách Phát Bách Trúng (10/10)
+        if (Number(score) === 10 && !parsedBadges.perfect_shot.unlocked) {
+          parsedBadges.perfect_shot.progress++;
+        }
+
+        // 4. Lội Ngược Dòng (< 5 lên >= 8.5)
+        if (bestPastScore >= 0 && bestPastScore < 5 && Number(score) >= 8.5 && !parsedBadges.comeback.unlocked) {
+          parsedBadges.comeback.progress++;
+        }
+
+        // 5. Kính Vạn Hoa (100% câu khó đúng)
+        if (hardQCount > 0 && hardQCorrect === hardQCount && !parsedBadges.kaleidoscope.unlocked) {
+          parsedBadges.kaleidoscope.progress++;
+        }
+
+        // Lưu lại badges
+        myGami.badges = encodeUserBadges(parsedBadges);
 
         await updateGamification(currentStudentId, myGami);
       }

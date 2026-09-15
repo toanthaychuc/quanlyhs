@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Target, Trophy, Flame, Zap, ArrowUp, Star } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { RANKS, calculateRank } from '../utils/rankUtils';
+import { BADGES_CONFIG, parseUserBadges } from '../utils/badgeUtils';
 import EmojiRankIcon from '../components/EmojiRankIcon';
 import './MyRank.css';
 
@@ -29,6 +30,12 @@ const MyRank = () => {
   }
 
   const { currentRank, nextRank, progressPercent, xpNeeded } = calculateRank(gamification.xp);
+  
+  const parsedBadges = parseUserBadges(gamification.badges || []);
+  const badgesList = BADGES_CONFIG.map(b => ({
+    ...b,
+    ...parsedBadges[b.id]
+  }));
 
   return (
     <div className="rank-page">
@@ -90,25 +97,44 @@ const MyRank = () => {
           {/* Huy hiệu cá nhân */}
           <div className="card my-badges-card">
             <h3><Star size={18} color="#f59e0b" /> Bộ Sưu Tập Huy Hiệu</h3>
-            {gamification.badges && gamification.badges.length > 0 ? (
-              <div className="badge-grid">
-                {gamification.badges.map((b, i) => (
-                  <div key={i} className="badge-item hover-lift">
-                    <div className="badge-icon">
-                      {b.includes('Tuyệt Đối') ? <Trophy size={20} color="#eab308" /> : 
-                       b.includes('Tốc Độ') ? <Zap size={20} color="#3b82f6" /> : 
-                       <Flame size={20} color="#ef4444" />}
-                    </div>
-                    <span className="badge-name">{b}</span>
+            <div className="badge-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '1rem' }}>
+              {badgesList.map((b) => (
+                <div 
+                  key={b.id} 
+                  className={`badge-item hover-lift ${!b.unlocked ? 'locked' : ''}`}
+                  title={b.description}
+                  style={{
+                    filter: b.unlocked ? 'none' : 'grayscale(100%) opacity(0.6)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    background: 'var(--bg-color)',
+                    padding: '0.75rem',
+                    borderRadius: '12px',
+                    border: `1px solid ${b.unlocked ? b.color + '40' : 'var(--border-color)'}`,
+                    boxShadow: b.unlocked ? `0 4px 12px ${b.color}20` : 'none',
+                    cursor: 'help'
+                  }}
+                >
+                  <div className="badge-icon" style={{ fontSize: '32px', marginBottom: '8px' }}>
+                    {b.icon}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="no-badges">
-                <p>Bạn chưa đạt huy hiệu nào.</p>
-                <span className="hint">Hãy làm bài đạt 10 điểm, nộp sớm hoặc giữ chuỗi ngày để mở khoá!</span>
-              </div>
-            )}
+                  <span className="badge-name" style={{ fontSize: '0.8rem', textAlign: 'center', fontWeight: b.unlocked ? '600' : '500', color: b.unlocked ? b.color : 'var(--text-secondary)' }}>
+                    {b.name}
+                  </span>
+                  {!b.unlocked && b.maxProgress > 1 && (
+                    <div style={{ width: '100%', marginTop: '6px' }}>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', textAlign: 'center', marginBottom: '2px' }}>
+                        {b.progress}/{b.maxProgress}
+                      </div>
+                      <div style={{ width: '100%', height: '4px', background: 'var(--border-color)', borderRadius: '2px', overflow: 'hidden' }}>
+                        <div style={{ width: `${(b.progress / b.maxProgress) * 100}%`, height: '100%', background: b.color }}></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
           
           {/* Lộ Trình Thăng Hạng */}
