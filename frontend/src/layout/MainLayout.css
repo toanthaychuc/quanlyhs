@@ -373,14 +373,20 @@
   height: 48px;
 }
 
-.sidebar.collapsed .sidebar-user-info {
-  display: none;
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .sidebar-logout-btn {
+  display: none !important;
 }
 
 .sidebar.collapsed .sidebar-user-section {
   flex-direction: column !important;
   justify-content: center !important;
-  gap: 0.75rem;
+  padding: 0 !important;
+}
+
+.sidebar.collapsed .sidebar-user-profile {
+  justify-content: center;
+  width: 100%;
 }
 
 @media (max-width: 900px) {
