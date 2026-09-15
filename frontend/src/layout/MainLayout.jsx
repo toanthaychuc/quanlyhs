@@ -463,6 +463,22 @@ const MainLayout = () => {
             </div>
 
             <NotificationBell />
+
+            <button 
+              className="btn btn-outline flex items-center justify-center group"
+              style={{ 
+                width: '38px', height: '38px', padding: 0,
+                borderRadius: 'var(--radius-full)',
+                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                borderColor: 'rgba(239, 68, 68, 0.2)',
+                color: '#ef4444',
+                marginLeft: '0.25rem'
+              }}
+              onClick={logout}
+              title="Đăng xuất"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
         </header>
         
