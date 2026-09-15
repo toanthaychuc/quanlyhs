@@ -282,58 +282,45 @@ const MainLayout = () => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-tools" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            {/* Nút Cài đặt Hệ thống (Dành riêng cho Giáo viên) */}
-            {isTeacher && (
-              <button 
-                className="btn btn-outline flex items-center justify-center group"
-                style={{ 
-                  width: '44px', height: '44px', padding: 0,
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'rgba(99, 102, 241, 0.08)',
-                  borderColor: 'rgba(99, 102, 241, 0.3)',
-                  color: 'var(--primary-color)'
-                }}
-                onClick={() => setShowSettingsModal(true)}
-                title="Cài đặt hệ thống: API Key AI, Model & Preamble LaTeX"
+          <div className="sidebar-user-section" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 0.25rem' }}>
+            
+            <div className="sidebar-user-profile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', overflow: 'hidden' }}>
+              <div 
+                className={`user-profile ${!isTeacher ? 'student-avatar' : ''}`}
+                onClick={isTeacher ? handleOpenLogin : undefined}
+                style={{ cursor: isTeacher ? 'pointer' : 'default', flexShrink: 0 }}
+                title={isTeacher ? `Giáo viên: ${currentUserEmail}` : `${currentStudent?.name || 'Học sinh'}`}
               >
-                <AnimatedIcon defaultIcon={I_Sliders} hoverIcon={I_Settings} size={22} />
-              </button>
-            )}
+                <img 
+                  src={isTeacher 
+                    ? "https://ui-avatars.com/api/?name=Cong+Chuc&background=4f46e5&color=fff" 
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentStudent?.name || 'Hoc Sinh')}&background=10b981&color=fff`
+                  } 
+                  alt="Profile" 
+                  className="avatar" 
+                  style={{ width: '40px', height: '40px' }}
+                />
+              </div>
 
-            {/* Nút Mô Phỏng Mobile (Chỉ Giáo viên và không ở trong iframe) */}
-            {isTeacher && !isIframe && (
-              <button 
-                className="btn btn-outline flex items-center justify-center group"
-                style={{ 
-                  width: '44px', height: '44px', padding: 0,
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                  borderColor: 'rgba(245, 158, 11, 0.3)',
-                  color: '#d97706'
-                }}
-                onClick={() => setIsMobileSimulator(true)}
-                title="Mô phỏng Giao diện Điện thoại"
-              >
-                <AnimatedIcon defaultIcon={I_Smartphone} hoverIcon={I_Tablet} size={22} />
-              </button>
-            )}
+              <div className="sidebar-user-info" style={{ display: 'flex', flexDirection: 'column', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                  {isTeacher ? 'Thầy Công Chức' : (currentStudent?.name || 'Học sinh')}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                  {isTeacher ? 'Quản trị viên' : (currentStudent?.rank?.name || currentStudent?.rank || 'Học sinh')}
+                </span>
+              </div>
+            </div>
 
-            {/* Nút Đổi Theme (Giao diện Sáng/Tối) */}
             <button 
-              className="btn btn-outline flex items-center justify-center"
-              style={{ 
-                width: '44px', height: '44px', padding: 0,
-                borderRadius: 'var(--radius-md)',
-                backgroundColor: 'var(--bg-color)',
-                borderColor: 'var(--border-color)',
-                color: 'var(--text-secondary)'
-              }}
-              onClick={toggleTheme}
-              title={theme === 'light' ? 'Chuyển sang giao diện Tối' : 'Chuyển sang giao diện Sáng'}
+              className="btn-icon sidebar-logout-btn"
+              style={{ color: '#ef4444', flexShrink: 0, padding: '0.4rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)' }}
+              onClick={logout}
+              title="Đăng xuất"
             >
-              <ThemeToggleIcon size={22} isDark={theme === 'light'} />
+              <LogOut size={18} />
             </button>
+            
           </div>
         </div>
       </aside>
@@ -421,35 +408,61 @@ const MainLayout = () => {
             )}
 
 
-            <NotificationBell />
+            <div className="header-tools" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginRight: '0.5rem' }}>
+              {/* Nút Cài đặt Hệ thống (Dành riêng cho Giáo viên) */}
+              {isTeacher && (
+                <button 
+                  className="btn btn-outline flex items-center justify-center group"
+                  style={{ 
+                    width: '38px', height: '38px', padding: 0,
+                    borderRadius: 'var(--radius-full)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                    borderColor: 'rgba(99, 102, 241, 0.3)',
+                    color: 'var(--primary-color)'
+                  }}
+                  onClick={() => setShowSettingsModal(true)}
+                  title="Cài đặt hệ thống"
+                >
+                  <AnimatedIcon defaultIcon={I_Sliders} hoverIcon={I_Settings} size={20} />
+                </button>
+              )}
 
-            <div 
-              className={`user-profile ${!isTeacher ? 'student-avatar' : ''}`}
-              onClick={isTeacher ? handleOpenLogin : undefined}
-              style={{ cursor: isTeacher ? 'pointer' : 'default' }}
-              title={isTeacher ? `Giáo viên: ${currentUserEmail}` : `${currentStudent?.name || 'Học sinh'}`}
-            >
-              <img 
-                src={isTeacher 
-                  ? "https://ui-avatars.com/api/?name=Cong+Chuc&background=4f46e5&color=fff" 
-                  : `https://ui-avatars.com/api/?name=${encodeURIComponent(currentStudent?.name || 'Hoc Sinh')}&background=10b981&color=fff`
-                } 
-                alt="Profile" 
-                className="avatar" 
-              />
+              {/* Nút Mô Phỏng Mobile (Chỉ Giáo viên và không ở trong iframe) */}
+              {isTeacher && !isIframe && (
+                <button 
+                  className="btn btn-outline flex items-center justify-center group"
+                  style={{ 
+                    width: '38px', height: '38px', padding: 0,
+                    borderRadius: 'var(--radius-full)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                    borderColor: 'rgba(245, 158, 11, 0.3)',
+                    color: '#d97706'
+                  }}
+                  onClick={() => setIsMobileSimulator(true)}
+                  title="Mô phỏng Giao diện Điện thoại"
+                >
+                  <AnimatedIcon defaultIcon={I_Smartphone} hoverIcon={I_Tablet} size={20} />
+                </button>
+              )}
+
+              {/* Nút Đổi Theme (Giao diện Sáng/Tối) */}
+              <button 
+                className="btn btn-outline flex items-center justify-center"
+                style={{ 
+                  width: '38px', height: '38px', padding: 0,
+                  borderRadius: 'var(--radius-full)',
+                  backgroundColor: 'var(--bg-color)',
+                  borderColor: 'var(--border-color)',
+                  color: 'var(--text-secondary)'
+                }}
+                onClick={toggleTheme}
+                title={theme === 'light' ? 'Chuyển sang giao diện Tối' : 'Chuyển sang giao diện Sáng'}
+              >
+                <ThemeToggleIcon size={20} isDark={theme === 'light'} />
+              </button>
             </div>
 
-
-
-            {/* Nút Đăng xuất / Mở lại Màn hình Chào mừng */}
-            <button 
-              className="btn-icon"
-              style={{ color: '#64748b' }}
-              onClick={logout}
-              title="Đăng xuất / Mở lại màn hình chào mừng"
-            >
-              <LogOut size={18} />
-            </button>
+            <NotificationBell />
           </div>
         </header>
         
