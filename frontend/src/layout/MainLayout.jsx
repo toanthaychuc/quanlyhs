@@ -50,6 +50,7 @@ import NotificationBell from '../components/NotificationBell';
 import { ThemeToggleIcon } from '../components/ThemeToggleIcon';
 import AnimatedIcon from '../components/AnimatedIcon';
 import { getClasses } from '../services/classService';
+import { calculateRank } from '../utils/rankUtils';
 import './MainLayout.css';
 
 const NavItemRenderer = ({ item, onClick }) => {
@@ -325,7 +326,7 @@ const MainLayout = () => {
                   {isTeacher ? 'Thầy Công Chức' : (currentStudent?.name || 'Học sinh')}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {isTeacher ? 'Quản trị viên' : (currentStudent?.rank?.name || currentStudent?.rank || 'Học sinh')}
+                  {isTeacher ? 'Quản trị viên' : (currentStudent ? calculateRank(currentStudent.points || 0).currentRank.name : 'Học sinh')}
                 </span>
               </div>
             </div>
