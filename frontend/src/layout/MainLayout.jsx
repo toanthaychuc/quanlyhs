@@ -278,7 +278,7 @@ const MainLayout = () => {
           <div className="logo-container">
             <div className="logo-icon">LC</div>
             <div className="logo-text-wrapper">
-              <span className="logo-text-top">Toán thầy</span>
+              <span className="logo-text-top">TOÁN THẦY</span>
               <span className="logo-text-main">Công Chức</span>
             </div>
           </div>
@@ -359,7 +359,7 @@ const MainLayout = () => {
             <div className="mobile-header-logo">
               <div className="logo-icon" style={{ width: '32px', height: '32px', fontSize: '0.9rem', borderRadius: '8px' }}>LC</div>
               <div className="logo-text-wrapper" style={{ lineHeight: 1.1 }}>
-                <span className="logo-text-top" style={{ fontSize: '0.65rem' }}>Toán thầy</span>
+                <span className="logo-text-top" style={{ fontSize: '0.65rem' }}>TOÁN THẦY</span>
                 <span className="logo-text-main" style={{ fontSize: '0.95rem' }}>Công Chức</span>
               </div>
             </div>
