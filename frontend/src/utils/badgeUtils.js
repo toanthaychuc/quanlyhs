@@ -46,6 +46,62 @@ export const BADGES_CONFIG = [
     description: 'Duy trì chuỗi làm bài 14 ngày liên tiếp',
     maxProgress: 14,
     color: '#f97316'
+  },
+  {
+    id: 'iron_discipline',
+    name: 'Kỷ Luật Thép',
+    icon: '🛡️',
+    description: 'Duy trì chuỗi đăng nhập và làm bài đều đặn trong suốt 15 ngày',
+    maxProgress: 15,
+    color: '#64748b'
+  },
+  {
+    id: 'night_owl',
+    name: 'Cú Đêm Học Bài',
+    icon: '🦉',
+    description: 'Nộp bài kiểm tra đạt từ 8.0 trở lên trong khung giờ 21:00 - 23:30',
+    maxProgress: 1,
+    color: '#312e81'
+  },
+  {
+    id: 'early_bird',
+    name: 'Dậy Sớm Đỗ Đạt',
+    icon: '🌅',
+    description: 'Hoàn thành bài tập trước 6:30 sáng',
+    maxProgress: 1,
+    color: '#f59e0b'
+  },
+  {
+    id: 'eagle_eye',
+    name: 'Mắt Cú Tinh Tường',
+    icon: '👁️',
+    description: 'Làm đúng liên tiếp 12 câu hỏi trắc nghiệm 4 phương án không sai',
+    maxProgress: 1,
+    color: '#10b981'
+  },
+  {
+    id: 'explorer',
+    name: 'Nhà Thám Hiểm',
+    icon: '🧭',
+    description: 'Hoàn thành ít nhất 10 đề thi khác nhau trên hệ thống',
+    maxProgress: 10,
+    color: '#059669'
+  },
+  {
+    id: 'master_of_hard',
+    name: 'Chiến Thần Vận Dụng',
+    icon: '⚔️',
+    description: 'Trả lời đúng toàn bộ các câu hỏi ở đề thi thử mục THPTQG',
+    maxProgress: 1,
+    color: '#b91c1c'
+  },
+  {
+    id: 'unyielding_warrior',
+    name: 'Chiến Binh Không Bỏ Cuộc',
+    icon: '🛡️⚔️',
+    description: 'Hoàn thành trọn vẹn 1 đề thi thử có độ dài ≥ 22 câu mà không bỏ sót',
+    maxProgress: 1,
+    color: '#4338ca'
   }
 ];
 

@@ -869,6 +869,8 @@ const Exams = () => {
     let totalCalculatedScore = 0;
     let hardQCount = 0;
     let hardQCorrect = 0;
+    let maxConsecutiveMC = 0;
+    let currentConsecutiveMC = 0;
     const hasPointsConfig = !!currentExam.pointsConfig;
     const pConfig = currentExam.pointsConfig || {
       multipleChoice: 0,
@@ -928,6 +930,16 @@ const Exams = () => {
           hardQCorrect++;
         }
       }
+
+      // Kiểm tra Mắt Cú Tinh Tường
+      if (q.questionType === 'multiple_choice') {
+        if (isQuestionCorrect) {
+          currentConsecutiveMC++;
+          maxConsecutiveMC = Math.max(maxConsecutiveMC, currentConsecutiveMC);
+        } else {
+          currentConsecutiveMC = 0;
+        }
+      }
     });
 
     const totalQuestions = currentExam.questions.length;
@@ -946,12 +958,16 @@ const Exams = () => {
 
     // Lưu kết quả lên Supabase và cập nhật gamification
     try {
-      // Tính Lội Ngược Dòng (Cần check điểm cũ TRƯỚC KHI lưu)
+      // Tính Lội Ngược Dòng & Nhà Thám Hiểm (Cần check điểm cũ TRƯỚC KHI lưu)
       let bestPastScore = -1;
+      let totalUniqueExams = 0;
       if (isStudent && currentStudentId) {
         const examHistory = await getStudentHistory(currentStudentId);
         const pastAttempts = examHistory[currentExam.id] || [];
         bestPastScore = pastAttempts.reduce((max, a) => Math.max(max, Number(a.score)), -1);
+        
+        totalUniqueExams = Object.keys(examHistory).length;
+        if (pastAttempts.length === 0) totalUniqueExams++; // Đề thi này là mới tinh
       }
 
       // 1. Lưu phiên thi
@@ -1005,12 +1021,15 @@ const Exams = () => {
           parsedBadges.speed.progress++;
         }
 
-        // 2. Ong Chăm Chỉ & Thợ Săn Chuỗi
+        // 2. Ong Chăm Chỉ, Thợ Săn Chuỗi, Kỷ Luật Thép
         if (!parsedBadges.hardworking_bee.unlocked) {
           parsedBadges.hardworking_bee.progress = Math.min(myGami.streak, 7);
         }
         if (!parsedBadges.streak_hunter.unlocked) {
           parsedBadges.streak_hunter.progress = Math.min(myGami.streak, 14);
+        }
+        if (!parsedBadges.iron_discipline.unlocked) {
+          parsedBadges.iron_discipline.progress = Math.min(myGami.streak, 15);
         }
 
         // 3. Bách Phát Bách Trúng (10/10)
@@ -1026,6 +1045,39 @@ const Exams = () => {
         // 5. Kính Vạn Hoa (100% câu khó đúng)
         if (hardQCount > 0 && hardQCorrect === hardQCount && !parsedBadges.kaleidoscope.unlocked) {
           parsedBadges.kaleidoscope.progress++;
+        }
+
+        // 6. Mắt Cú Tinh Tường (12 câu trắc nghiệm đúng liên tiếp)
+        if (maxConsecutiveMC >= 12 && !parsedBadges.eagle_eye.unlocked) {
+          parsedBadges.eagle_eye.progress++;
+        }
+
+        // 7. Cú Đêm Học Bài & Dậy Sớm Đỗ Đạt
+        const hour = new Date().getHours();
+        const min = new Date().getMinutes();
+        const timeFloat = hour + (min / 60);
+        if (timeFloat >= 21.0 && timeFloat <= 23.5 && Number(score) >= 8.0 && !parsedBadges.night_owl.unlocked) {
+          parsedBadges.night_owl.progress++;
+        }
+        if (timeFloat <= 6.5 && !parsedBadges.early_bird.unlocked) {
+          parsedBadges.early_bird.progress++;
+        }
+
+        // 8. Nhà Thám Hiểm (10 đề thi khác nhau)
+        if (!parsedBadges.explorer.unlocked) {
+          parsedBadges.explorer.progress = Math.min(totalUniqueExams, 10);
+        }
+
+        // 9. Chiến Thần Vận Dụng (THPTQG đạt 10/10)
+        const isTHPTQG = currentExam.category === 'grade-thptqg' || (currentExam.title && (currentExam.title.toUpperCase().includes('THPTQG') || currentExam.title.toUpperCase().includes('TỐT NGHIỆP') || currentExam.title.toUpperCase().includes('ĐẠI HỌC')));
+        if (isTHPTQG && Number(score) === 10 && !parsedBadges.master_of_hard.unlocked) {
+          parsedBadges.master_of_hard.progress++;
+        }
+
+        // 10. Chiến Binh Không Bỏ Cuộc (>= 22 câu, không bỏ sót)
+        const answeredCount = Object.keys(userAnswers).length;
+        if (totalQuestions >= 22 && answeredCount === totalQuestions && !parsedBadges.unyielding_warrior.unlocked) {
+          parsedBadges.unyielding_warrior.progress++;
         }
 
         // Lưu lại badges
