@@ -177,10 +177,8 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
         {/* Step 1: Slide Landing Chính */}
         {modalStep === 'landing' && (
           <div className="welcome-slide-content">
-            {/* Hai logo trường + Icon LC */}
+            {/* Hai logo trường: Logo đỏ THTH trước, Logo xanh NP bên cạnh */}
             <div className="welcome-school-logos">
-              <div className="welcome-logo-badge">LC</div>
-              <div className="logo-divider"></div>
               <div className="school-logo-item logo-red-wrapper" title="Trường Trung học Thực hành - ĐH Sư phạm TP.HCM (THTH)">
                 <img src={`${import.meta.env.BASE_URL}logos/logo_thth.jpg`} alt="Logo Trường THTH" className="school-logo-img" />
               </div>
@@ -189,10 +187,15 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
               </div>
             </div>
 
+            {/* Logo Icon LC */}
+            <div className="welcome-logo-badge">
+              <span>LC</span>
+            </div>
+
             {/* Tiêu đề lớn gradient */}
             <h1 className="welcome-main-title">
               <span className="break-line-mobile">Kỷ luật mỗi ngày - </span>
-              <span className="break-line-mobile title-highlight">Làm chủ phòng thi</span>
+              <span className="break-line-mobile">Làm chủ phòng thi</span>
             </h1>
 
             {/* Tên thương hiệu phụ */}
