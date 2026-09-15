@@ -604,7 +604,9 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
               </div>
             </div>
           </div>
+        )}
         </motion.div>
+      </motion.div>
       )}
     </AnimatePresence>
   );
