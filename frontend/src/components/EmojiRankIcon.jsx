@@ -25,20 +25,21 @@ const EmojiRankIcon = ({ rank, size = 32, style = {}, className = "" }) => {
       }}
       title={`Hạng: ${rank.name}`}
     >
-      <span style={{ fontSize: `${fontSize}px`, lineHeight: 1 }}>
-        {rank.baseEmoji}
-      </span>
-      
-      {rank.accessoryEmoji && (
-        <span style={{ 
-          position: 'absolute', 
-          bottom: '0px', 
-          right: '-4px', 
-          fontSize: `${accessorySize}px`,
-          lineHeight: 1,
-          filter: 'drop-shadow(0px 1px 2px rgba(0,0,0,0.2))'
-        }}>
-          {rank.accessoryEmoji}
+      {rank.image ? (
+        <img 
+          src={rank.image} 
+          alt={rank.name} 
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'contain', 
+            mixBlendMode: 'multiply',
+            borderRadius: '50%'
+          }} 
+        />
+      ) : (
+        <span style={{ fontSize: `${fontSize}px`, lineHeight: 1 }}>
+          {rank.baseEmoji}
         </span>
       )}
     </div>
