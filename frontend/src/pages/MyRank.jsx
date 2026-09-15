@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Target, Trophy, Flame, Zap, ArrowUp, Star } from 'lucide-react';
+import { Shield, Target, Trophy, Flame, Zap, ArrowUp, Star, X, Info } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { RANKS, calculateRank } from '../utils/rankUtils';
 import { BADGES_CONFIG, parseUserBadges } from '../utils/badgeUtils';
@@ -9,6 +9,7 @@ import './MyRank.css';
 const MyRank = () => {
   const { currentStudentId, isTeacher } = useRole();
   const [gamification, setGamification] = useState({ xp: 0, streak: 0, badges: [] });
+  const [selectedBadge, setSelectedBadge] = useState(null);
 
   useEffect(() => {
     if (currentStudentId) {
@@ -102,7 +103,7 @@ const MyRank = () => {
                 <div 
                   key={b.id} 
                   className={`badge-item hover-lift ${!b.unlocked ? 'locked' : ''}`}
-                  title={b.description}
+                  onClick={() => setSelectedBadge(b)}
                   style={{
                     filter: b.unlocked ? 'none' : 'grayscale(100%) opacity(0.6)',
                     display: 'flex',
@@ -113,7 +114,7 @@ const MyRank = () => {
                     borderRadius: '12px',
                     border: `1px solid ${b.unlocked ? b.color + '40' : 'var(--border-color)'}`,
                     boxShadow: b.unlocked ? `0 4px 12px ${b.color}20` : 'none',
-                    cursor: 'help'
+                    cursor: 'pointer'
                   }}
                 >
                   <div className="badge-icon" style={{ fontSize: '32px', marginBottom: '8px' }}>
@@ -172,6 +173,64 @@ const MyRank = () => {
           </div>
         </div>
       </div>
+
+      {/* Badge Detail Modal */}
+      {selectedBadge && (
+        <div className="badge-modal-overlay" onClick={() => setSelectedBadge(null)}>
+          <div className="badge-modal-content" onClick={e => e.stopPropagation()}>
+            <button className="badge-modal-close" onClick={() => setSelectedBadge(null)}>
+              <X size={20} />
+            </button>
+            <div className="badge-modal-header">
+              <div 
+                className="badge-modal-icon" 
+                style={{ 
+                  filter: selectedBadge.unlocked ? 'none' : 'grayscale(100%) opacity(0.8)'
+                }}
+              >
+                {selectedBadge.icon}
+              </div>
+              <h2>{selectedBadge.name}</h2>
+              <span 
+                className="badge-modal-status" 
+                style={{ 
+                  color: selectedBadge.unlocked ? selectedBadge.color : 'var(--text-secondary)',
+                  backgroundColor: selectedBadge.unlocked ? `${selectedBadge.color}15` : 'var(--bg-color)'
+                }}
+              >
+                {selectedBadge.unlocked ? 'Đã Sở Hữu' : 'Chưa Đạt'}
+              </span>
+            </div>
+            
+            <div className="badge-modal-body">
+              <div className="badge-modal-desc-box">
+                <Info size={18} color="var(--primary-color)" />
+                <p>{selectedBadge.description}</p>
+              </div>
+              
+              {!selectedBadge.unlocked && (
+                <div className="badge-modal-progress">
+                  <div className="badge-modal-progress-header">
+                    <span>Tiến độ hiện tại:</span>
+                    <span style={{ color: selectedBadge.color, fontWeight: 'bold' }}>
+                      {selectedBadge.progress} / {selectedBadge.maxProgress}
+                    </span>
+                  </div>
+                  <div className="badge-modal-progress-bar">
+                    <div 
+                      className="badge-modal-progress-fill" 
+                      style={{ 
+                        width: `${(selectedBadge.progress / selectedBadge.maxProgress) * 100}%`,
+                        backgroundColor: selectedBadge.color
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
