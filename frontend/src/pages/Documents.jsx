@@ -216,6 +216,35 @@ const Documents = () => {
     setPasteSuccess(false);
   };
 
+  const compressImage = (file, callback) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400;
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Nén thành JPEG chất lượng 70% để giảm dung lượng
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        callback(dataUrl);
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Xử lý paste ảnh từ Clipboard
   const handlePasteImage = (e) => {
     const items = e.clipboardData?.items;
@@ -225,13 +254,11 @@ const Documents = () => {
       if (items[i].type.indexOf('image') !== -1) {
         e.preventDefault();
         const blob = items[i].getAsFile();
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setNewDoc(prev => ({ ...prev, coverUrl: event.target.result }));
+        compressImage(blob, (compressedBase64) => {
+          setNewDoc(prev => ({ ...prev, coverUrl: compressedBase64 }));
           setPasteSuccess(true);
           setTimeout(() => setPasteSuccess(false), 2500);
-        };
-        reader.readAsDataURL(blob);
+        });
         break;
       }
     }
@@ -240,11 +267,9 @@ const Documents = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setNewDoc(prev => ({ ...prev, coverUrl: event.target.result }));
-      };
-      reader.readAsDataURL(file);
+      compressImage(file, (compressedBase64) => {
+        setNewDoc(prev => ({ ...prev, coverUrl: compressedBase64 }));
+      });
     }
   };
 
