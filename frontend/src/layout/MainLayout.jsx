@@ -285,6 +285,17 @@ const MainLayout = () => {
 
   return (
     <div className="layout-container">
+      <motion.div
+        className="app-morph-wrapper"
+        initial={false}
+        animate={{
+          scale: hasEnteredApp ? 1 : 0.95,
+          opacity: hasEnteredApp ? 1 : 0,
+          filter: hasEnteredApp ? 'blur(0px)' : 'blur(10px)'
+        }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+        style={{ width: '100%', height: '100%', display: 'flex' }}
+      >
       {/* Overlay cho Mobile Menu */}
       {isMobileMenuOpen && (
         <div 
@@ -556,6 +567,7 @@ const MainLayout = () => {
           <Menu size={20} /><span>Mở rộng</span>
         </button>
       </nav>
+      </motion.div>
 
       {/* Modal Đăng nhập Email */}
       {showLoginModal && (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, 
   GraduationCap, 
@@ -170,10 +171,24 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
   const classStudents = currentClassObj?.students || [];
 
   return (
-    <div className="welcome-overlay">
-      <div className="welcome-backdrop-glow"></div>
-      
-      <div className="welcome-card-container">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          className="welcome-overlay"
+          initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+          animate={{ opacity: 1, backdropFilter: 'blur(20px)' }}
+          exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <div className="welcome-backdrop-glow"></div>
+          
+          <motion.div 
+            className="welcome-card-container"
+            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 1.1, y: -20, opacity: 0, filter: 'blur(10px)' }}
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          >
         {/* Step 1: Slide Landing Chính */}
         {modalStep === 'landing' && (
           <div className="welcome-slide-content">
@@ -589,9 +604,9 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
               </div>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
