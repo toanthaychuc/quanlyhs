@@ -194,7 +194,8 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
 
             {/* Tiêu đề lớn gradient */}
             <h1 className="welcome-main-title">
-              Kỷ luật mỗi ngày - Làm chủ phòng thi
+              <span className="break-line-mobile">Kỷ luật mỗi ngày - </span>
+              <span className="break-line-mobile">Làm chủ phòng thi</span>
             </h1>
 
             {/* Tên thương hiệu phụ */}

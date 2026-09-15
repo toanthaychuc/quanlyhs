@@ -322,8 +322,31 @@
 }
 
 @media (max-width: 768px) {
+  .welcome-school-logos {
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .school-logo-item {
+    width: 100px;
+    height: 100px;
+    padding: 4px;
+  }
+  .welcome-logo-badge {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
   .welcome-main-title {
-    font-size: 2.25rem;
+    font-size: 1.75rem;
+    line-height: 1.35;
+  }
+  .break-line-mobile {
+    display: block;
+  }
+  .welcome-subtitle {
+    margin-top: 0.5rem;
+    margin-bottom: 2rem;
   }
   .welcome-actions-group {
     flex-direction: column;
