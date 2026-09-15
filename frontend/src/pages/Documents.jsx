@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plus, X, Link as LinkIcon, Image as ImageIcon, Book, Edit, Trash2, 
   Upload, Clipboard, Check, Folder, Bookmark, GraduationCap, BookOpen, ExternalLink,
-  Lock, Eye
+  Lock, Eye, RefreshCw
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
-import { getDocuments, saveAllDocuments, deleteDocument } from '../services/documentService';
+import { getDocuments, saveAllDocuments, deleteDocument, saveDocument } from '../services/documentService';
 import './Documents.css';
 
 const DEFAULT_CATEGORIES = [
@@ -361,6 +361,21 @@ const Documents = () => {
               <Plus size={16} /> Thêm nhóm
             </button>
           )}
+          <button 
+            className="btn-add-cat" 
+            style={{background: 'rgba(255,255,255,0.1)'}}
+            onClick={async () => {
+              try {
+                const fresh = await getDocuments(true);
+                alert(`Đã làm mới! Lấy được ${fresh ? fresh.length : 0} tài liệu từ máy chủ.`);
+                if (fresh && fresh.length > 0) setDocuments(fresh);
+              } catch(e) {
+                alert('Lỗi: ' + e.message);
+              }
+            }}
+          >
+            <RefreshCw size={16} /> Làm mới
+          </button>
         </div>
       </div>
 
