@@ -798,8 +798,20 @@ const Dashboard = () => {
           
           {/* Streak */}
           <div style={{ flex: 1, minWidth: '150px', background: 'var(--surface-color)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', padding: '0.5rem', borderRadius: '50%' }}>
-              <Flame size={24} />
+            <div style={{ position: 'relative', width: '48px', height: '48px' }}>
+              <svg width="48" height="48" viewBox="0 0 48 48" style={{ transform: 'rotate(-90deg)' }}>
+                <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(239, 68, 68, 0.15)" strokeWidth="4" />
+                <circle 
+                  cx="24" cy="24" r="20" fill="none" stroke="#ef4444" strokeWidth="4" 
+                  strokeDasharray={2 * Math.PI * 20} 
+                  strokeDashoffset={2 * Math.PI * 20 * (1 - Math.min(gamificationData.streak || 0, 365) / 365)} 
+                  strokeLinecap="round" 
+                  style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+                />
+              </svg>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+                <Flame size={20} />
+              </div>
             </div>
             <div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>CHUỖI NGÀY</div>
