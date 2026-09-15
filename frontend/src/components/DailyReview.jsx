@@ -109,7 +109,12 @@ const DailyReview = ({ studentId, studentGrade }) => {
           <h3>Ôn tập mỗi ngày</h3>
           <p>Bạn có <strong>{pendingQuestions.length}</strong> câu hỏi cần ôn tập.</p>
           <div className="dr-progress-bar">
-             <div className="dr-progress-fill" style={{ width: `${(10 - pendingQuestions.length) * 10}%` }}></div>
+             <div 
+               className="dr-progress-fill" 
+               style={{ 
+                 width: `${reviewState?.totalAssigned ? Math.max(0, ((reviewState.totalAssigned - pendingQuestions.length) / reviewState.totalAssigned) * 100) : 0}%` 
+               }}
+             ></div>
           </div>
         </div>
         <button className="dr-start-btn" onClick={handleStart}>

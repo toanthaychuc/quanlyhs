@@ -40,6 +40,10 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
 
   // Nếu hôm nay đã cấp câu hỏi rồi thì trả về state hiện tại
   if (currentState && currentState.lastUpdateDate === todayStr) {
+    if (currentState.totalAssigned === undefined) {
+      currentState.totalAssigned = Math.max(currentState.pendingQuestions.length, 3);
+      saveDailyReviewState(studentId, currentState);
+    }
     return currentState;
   }
 
@@ -57,6 +61,7 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
   // Nếu pending >= 10, không cộng thêm
   if (currentState.pendingQuestions.length >= 10) {
     currentState.lastUpdateDate = todayStr;
+    currentState.totalAssigned = currentState.pendingQuestions.length;
     saveDailyReviewState(studentId, currentState);
     return currentState;
   }
@@ -65,6 +70,7 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
   const needed = Math.min(3, 10 - currentState.pendingQuestions.length);
   if (needed <= 0) {
     currentState.lastUpdateDate = todayStr;
+    currentState.totalAssigned = currentState.pendingQuestions.length;
     saveDailyReviewState(studentId, currentState);
     return currentState;
   }
@@ -217,6 +223,7 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
   // Cập nhật state
   currentState.pendingQuestions = [...currentState.pendingQuestions, ...selected];
   currentState.lastUpdateDate = todayStr;
+  currentState.totalAssigned = currentState.pendingQuestions.length;
   saveDailyReviewState(studentId, currentState);
 
   return currentState;
