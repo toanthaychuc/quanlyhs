@@ -8,5 +8,8 @@
     "dev:backend": "cd backend && npm start",
     "build": "cd frontend && npm run build",
     "deploy": "cd frontend && npm run deploy"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0"
   }
 }

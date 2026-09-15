@@ -152,15 +152,26 @@ const Documents = () => {
   });
   const [editId, setEditId] = useState(null);
 
-  const handleAddDocument = (e) => {
+  const handleAddDocument = async (e) => {
     e.preventDefault();
     if (!newDoc.title.trim() || !newDoc.driveLink.trim()) return;
 
     hasLocalChangesRef.current = true;
     if (editId) {
-      setDocuments(documents.map(doc => doc.id === editId ? { ...doc, ...newDoc } : doc));
+      const docToSave = { ...newDoc, id: editId };
+      const updated = documents.map(d => d.id === editId ? docToSave : d);
+      setDocuments(updated);
+      const res = await saveDocument(docToSave);
+      if (res && !res.success) {
+        alert("Lỗi khi đồng bộ tài liệu lên đám mây: " + (res.error || "Unknown"));
+      }
     } else {
-      setDocuments([...documents, { id: Date.now(), ...newDoc }]);
+      const docToSave = { ...newDoc, id: `doc_${Date.now()}` };
+      setDocuments([docToSave, ...documents]);
+      const res = await saveDocument(docToSave);
+      if (res && !res.success) {
+        alert("Lỗi khi đồng bộ tài liệu lên đám mây: " + (res.error || "Unknown"));
+      }
     }
 
     closeModal();
