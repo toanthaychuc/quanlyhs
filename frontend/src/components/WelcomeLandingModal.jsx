@@ -277,7 +277,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
           <div className="welcome-step-card">
             <div className="step-header">
               <div className="flex items-center gap-2">
-                <GraduationCap size={22} color="var(--primary-color)" />
+                <GraduationCap size={22} color="#ffffff" />
                 <h3>Chọn Lớp & Họ Tên Học Sinh</h3>
               </div>
               <button className="btn-icon" onClick={() => setModalStep('landing')}>
@@ -286,7 +286,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
             </div>
 
             <form onSubmit={handleStudentSelectConfirm} className="step-body">
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0' }}>
+              <p style={{ fontSize: '0.85rem', color: '#a1a1aa', margin: '0 0 1rem 0' }}>
                 Vui lòng chọn lớp bạn đang theo học và tên của bạn để theo dõi tiến độ và nhận bài tập riêng:
               </p>
 
@@ -375,7 +375,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
           <div className="welcome-step-card">
             <div className="step-header">
               <div className="flex items-center gap-2">
-                <ShieldCheck size={22} color="var(--primary-color)" />
+                <ShieldCheck size={22} color="#ffffff" />
                 <h3>Đăng Nhập Google Giáo Viên</h3>
               </div>
               <button className="btn-icon" onClick={() => setModalStep('landing')}>
@@ -408,7 +408,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
                     <button 
                       type="button" 
                       className="btn-text" 
-                      style={{ fontSize: '0.75rem', color: 'var(--primary-color)', padding: 0, textDecoration: 'underline', cursor: 'pointer', border: 'none', background: 'none' }}
+                      style={{ fontSize: '0.75rem', color: '#a1a1aa', padding: 0, textDecoration: 'underline', cursor: 'pointer', border: 'none', background: 'none' }}
                       onClick={() => {
                         setTeacherError('');
                         setTeacherSuccess('');
@@ -445,8 +445,8 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
                 </div>
               ) : (
                 /* Nếu LẦN ĐẦU CHƯA CÓ MẬT KHẨU -> Tùy chọn Tạo Mật Khẩu */
-                <div className="form-group" style={{ background: 'var(--bg-color)', padding: '0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <div className="flex items-center gap-1.5" style={{ marginBottom: '0.5rem', color: 'var(--primary-color)', fontWeight: 600, fontSize: '0.825rem' }}>
+                <div className="form-group" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '0.85rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <div className="flex items-center gap-1.5" style={{ marginBottom: '0.5rem', color: '#ffffff', fontWeight: 600, fontSize: '0.825rem' }}>
                     <KeyRound size={15} />
                     <span>Tạo Mật Khẩu Bảo Vệ (Lần đầu - Tùy chọn)</span>
                   </div>
@@ -504,7 +504,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
           <div className="welcome-step-card">
             <div className="step-header">
               <div className="flex items-center gap-2">
-                <KeyRound size={22} color="var(--primary-color)" />
+                <KeyRound size={22} color="#ffffff" />
                 <h3>Quản Lý Mật Khẩu Giáo Viên</h3>
               </div>
               <button className="btn-icon" onClick={() => setModalStep('google_teacher')}>
@@ -516,7 +516,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
               {/* Tab 1: Đổi mật khẩu */}
               <form onSubmit={handleChangePasswordSubmit} style={{ marginBottom: '1.5rem', paddingBottom: '1.25rem', borderBottom: '1px solid var(--border-color)' }}>
                 <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <RefreshCw size={15} color="var(--primary-color)" /> 1. Đổi Mật Khẩu Mới
+                  <RefreshCw size={15} color="#ffffff" /> 1. Đổi Mật Khẩu Mới
                 </h4>
                 <div className="form-group">
                   <label>Mật khẩu hiện tại *</label>
@@ -558,8 +558,8 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
 
               {/* Tab 2: Xóa mật khẩu */}
               <form onSubmit={handleRemovePasswordSubmit}>
-                <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: 'var(--danger-color)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Trash2 size={15} color="var(--danger-color)" /> 2. Xóa Mật Khẩu (Đăng nhập không cần mật khẩu)
+                <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: '#f87171', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Trash2 size={15} color="#f87171" /> 2. Xóa Mật Khẩu (Đăng nhập không cần mật khẩu)
                 </h4>
                 <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)', margin: '0 0 0.75rem 0' }}>
                   Nhập mật khẩu hiện tại để xác nhận hủy tính năng khóa mật khẩu:
@@ -576,8 +576,8 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
                 </div>
                 <button 
                   type="submit" 
-                  className="btn" 
-                  style={{ width: '100%', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger-color)', border: '1px solid rgba(239, 68, 68, 0.3)', fontWeight: 600 }}
+                  className="btn bg-danger-subtle text-danger" 
+                  style={{ width: '100%', fontWeight: 600 }}
                 >
                   <Trash2 size={16} /> Xác Nhận Xóa Mật Khẩu
                 </button>
@@ -591,7 +591,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
               )}
 
               {teacherSuccess && (
-                <div className="flex items-center gap-2" style={{ background: 'rgba(34, 197, 94, 0.1)', color: 'var(--secondary-color)', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '0.65rem 0.85rem', borderRadius: '8px', fontSize: '0.825rem', marginTop: '1rem' }}>
+                <div className="flex items-center gap-2 bg-success-subtle text-success p-3 rounded-lg mt-3" style={{ fontSize: '0.825rem' }}>
                   <CheckCircle2 size={16} />
                   <span>{teacherSuccess}</span>
                 </div>
