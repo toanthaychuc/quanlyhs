@@ -128,9 +128,12 @@ const Documents = () => {
     });
   }, []);
 
-  // Tự động đồng bộ lên Supabase (debounced)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+    } catch (e) {
+      console.warn('Could not save to local storage (quota exceeded):', e);
+    }
     if (!isCloudSynced) return;
     
     if (docSaveTimeoutRef.current) clearTimeout(docSaveTimeoutRef.current);

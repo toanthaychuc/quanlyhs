@@ -52,7 +52,11 @@ export async function getDocuments(forceSync = false) {
     if (error) throw error;
     if (Array.isArray(data)) {
       const formatted = data.map(rowToDoc);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(formatted));
+      try {
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(formatted));
+      } catch (e) {
+        console.warn('Could not save documents to localStorage:', e);
+      }
       return formatted;
     }
     return getLocalDocuments();

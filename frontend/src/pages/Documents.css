@@ -200,9 +200,14 @@
 }
 
 .book-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.1);
   border-color: rgba(79, 70, 229, 0.25);
+}
+
+@media (hover: hover) {
+  .book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.1);
+  }
 }
 
 /* Clean Frontal Book Cover */
@@ -258,8 +263,25 @@
   z-index: 3;
 }
 
-.book-card:hover .book-cover-hover-overlay {
-  opacity: 1;
+@media (hover: hover) {
+  .book-card:hover .book-cover-hover-overlay {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  /* On touch devices, just always show a subtle indicator instead of requiring hover */
+  .book-cover-hover-overlay {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.8) 0%, transparent 50%);
+    backdrop-filter: none;
+    align-items: flex-end;
+    padding-bottom: 1rem;
+  }
+  .btn-open-doc {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .btn-open-doc {
