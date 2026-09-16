@@ -192,6 +192,22 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
         {/* Step 1: Slide Landing Chính */}
         {modalStep === 'landing' && (
           <div className="welcome-slide-content">
+            {/* Logos Pill Container */}
+            <div className="welcome-logos-pill">
+              <div className="welcome-logo-badge">
+                <span>LC</span>
+              </div>
+              <div className="welcome-logos-divider"></div>
+              <div className="welcome-school-logos">
+                <div className="school-logo-item logo-red-wrapper" title="Trường Trung học Thực hành - ĐH Sư phạm TP.HCM (THTH)">
+                  <img src={`${import.meta.env.BASE_URL}logos/logo_thth.jpg`} alt="Logo Trường THTH" className="school-logo-img" />
+                </div>
+                <div className="school-logo-item logo-blue-wrapper" title="Trung tâm Tri thức NP">
+                  <img src={`${import.meta.env.BASE_URL}logos/logo_np_v2.jpg`} alt="Logo Trung tâm NP" className="school-logo-img" />
+                </div>
+              </div>
+            </div>
+
             {/* 1. Eyebrow */}
             <div className="welcome-eyebrow">
               <Sparkles size={16} />
