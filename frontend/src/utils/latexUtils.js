@@ -320,14 +320,37 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\cautl\b/gi, '\n\n### 📝 PHẦN 4. CÂU HỎI TỰ LUẬN\n\n');
 
   // Xử lý section và subsection
+  const toRoman = (num) => {
+    const lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+    let roman = '';
+    for (let i in lookup) {
+      while (num >= lookup[i]) { roman += i; num -= lookup[i]; }
+    }
+    return roman;
+  };
+  const toAlpha = (num) => String.fromCharCode(96 + num);
+
   let subsectionCounter = 0;
+  let subsubsectionCounter = 0;
+  let paragraphCounter = 0;
+
   text = text.replace(/\\section\*?\{([^}]+)\}/gi, (match, title) => {
-    subsectionCounter = 0; // Reset subsection counter when a new section starts
+    subsectionCounter = 0;
     return `\n\n**${title}**\n\n`;
   });
   text = text.replace(/\\subsection\*?\{([^}]+)\}/gi, (match, title) => {
     subsectionCounter++;
-    return `\n\n**${subsectionCounter}. ${title}**\n\n`;
+    subsubsectionCounter = 0;
+    return `\n\n**${toRoman(subsectionCounter)}. ${title}**\n\n`;
+  });
+  text = text.replace(/\\subsubsection\*?\{([^}]+)\}/gi, (match, title) => {
+    subsubsectionCounter++;
+    paragraphCounter = 0;
+    return `\n\n__SUBSUBSECTION__${subsubsectionCounter}__${title}__END_SUBSUBSECTION__\n\n`;
+  });
+  text = text.replace(/\\paragraph\*?\{([^}]+)\}/gi, (match, title) => {
+    paragraphCounter++;
+    return `\n\n**${toAlpha(paragraphCounter)}) ${title}**\n\n`;
   });
 
   // 3. Khử môi trường bao bọc và căn lề:
@@ -339,17 +362,21 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\setlength\{[^}]*\}\{[^}]*\}/gi, '');
 
   // 4. Xử lý các môi trường khối lý thuyết / bài tập của giáo viên:
+  // Khối multicols
+  text = text.replace(/\\begin\{multicols\}\s*\{2\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_MULTICOLS__\n\n');
+  text = text.replace(/\\end\{multicols\}/gi, '\n\n__END_MULTICOLS__\n\n');
+
   // Khối định nghĩa (dn) - Kiến thức trọng tâm
-  text = text.replace(/\\begin\{dn\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_BOX__\n\n');
-  text = text.replace(/\\end\{dn\}/gi, '\n\n__END_BOX__\n\n');
+  text = text.replace(/\\begin\{(?:dn|boxdn|boxdl)\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_BOX__\n\n');
+  text = text.replace(/\\end\{(?:dn|boxdn|boxdl)\}/gi, '\n\n__END_BOX__\n\n');
 
   // Khối chú ý (chuy)
   text = text.replace(/\\begin\{chuy\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_CHUY__\n\n');
   text = text.replace(/\\end\{chuy\}/gi, '\n\n__END_CHUY__\n\n');
 
-  text = text.replace(/\\begin\{(?:dang|noidung|khung4|boxdl|boxdn|boxkn)\}(?:\[[^\]]*\])?\{([^}]+)\}/gi, '\n**📌 $1**\n');
+  text = text.replace(/\\begin\{(?:dang|noidung|khung4|boxkn)\}(?:\[[^\]]*\])?\{([^}]+)\}/gi, '\n**📌 $1**\n');
   text = text.replace(/\\begin\{(?:vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}(?:\[[^\]]*\])?/gi, '');
-  text = text.replace(/\\end\{(?:dang|noidung|khung4|boxdl|boxdn|boxkn|vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}/gi, '');
+  text = text.replace(/\\end\{(?:dang|noidung|khung4|boxkn|vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}/gi, '');
 
   // 5. Chuyển đổi FontAwesome & Icon symbols sang biểu tượng trực quan
   const iconMap = {
