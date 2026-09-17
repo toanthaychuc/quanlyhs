@@ -719,6 +719,28 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
   });
   segments = newSegments;
 
+  const tabularRegex = /\\begin\{(tabular|xtabular|longtable)\}(?:\[[^\]]*\])?\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}([\s\S]*?)\\end\{\1\}/gi;
+  newSegments = [];
+  segments.forEach(seg => {
+    if (seg.type !== 'content') {
+      newSegments.push(seg);
+      return;
+    }
+    let lastIdx = 0;
+    let tabMatch;
+    while ((tabMatch = tabularRegex.exec(seg.value)) !== null) {
+      if (tabMatch.index > lastIdx) {
+        newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, tabMatch.index) });
+      }
+      newSegments.push({ type: 'tabular', value: tabMatch[2] });
+      lastIdx = tabMatch.index + tabMatch[0].length;
+    }
+    if (lastIdx < seg.value.length) {
+      newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
+    }
+  });
+  segments = newSegments;
+
   const tikzRegex = /(?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\}/gi;
   newSegments = [];
   segments.forEach(seg => {
@@ -734,28 +756,6 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
       }
       newSegments.push({ type: 'tikz', value: tikzMatch[0] });
       lastIdx = tikzMatch.index + tikzMatch[0].length;
-    }
-    if (lastIdx < seg.value.length) {
-      newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
-    }
-  });
-  segments = newSegments;
-
-  const tabularRegex = /\\begin\{(tabular|xtabular|longtable)\}(?:\[[^\]]*\])?\s*\{[^}]*\}([\s\S]*?)\\end\{\1\}/gi;
-  newSegments = [];
-  segments.forEach(seg => {
-    if (seg.type !== 'content') {
-      newSegments.push(seg);
-      return;
-    }
-    let lastIdx = 0;
-    let tabMatch;
-    while ((tabMatch = tabularRegex.exec(seg.value)) !== null) {
-      if (tabMatch.index > lastIdx) {
-        newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, tabMatch.index) });
-      }
-      newSegments.push({ type: 'tabular', value: tabMatch[2] });
-      lastIdx = tabMatch.index + tabMatch[0].length;
     }
     if (lastIdx < seg.value.length) {
       newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
