@@ -154,7 +154,7 @@ export const replaceMacroWithBraces = (text, macroName, transformFn) => {
     }
 
     const content = text.slice(openIdx + 1, closeIdx);
-    
+
     // Bắt thêm đoạn hệ quả đi kèm phía sau (ví dụ: \heva{...} \Rightarrow \vv{AB}=\vv{DC})
     let trailingMath = '';
     let nextIdx = closeIdx + 1;
@@ -286,7 +286,7 @@ export const normalizeLatexString = (str = '') => {
   if (!str) return '';
 
   let text = stripLatexComments(str);
-  
+
   // Khử các khoảng trắng/tab thụt lề thừa từ source code LaTeX ở đầu mỗi dòng
   text = text.replace(/^[ \t]+/gm, '');
 
@@ -331,8 +331,8 @@ export const normalizeLatexString = (str = '') => {
   });
 
   // 3. Khử môi trường bao bọc và căn lề:
-  text = text.replace(/\\begin\{(?:center|flushleft|flushright|multicols|paracol|tcolorbox|window|onlysolution|document)\}(?:\[[^\]]*\])?/gi, '');
-  text = text.replace(/\\end\{(?:center|flushleft|flushright|multicols|paracol|tcolorbox|window|onlysolution|document)\}/gi, '');
+  text = text.replace(/\\begin\{(?:center|flushleft|flushright|paracol|tcolorbox|window|onlysolution|document)\}(?:\[[^\]]*\])?/gi, '');
+  text = text.replace(/\\end\{(?:center|flushleft|flushright|paracol|tcolorbox|window|onlysolution|document)\}/gi, '');
   text = text.replace(/\\(?:centering|noindent|raggedright|raggedleft|leavevmode|unskip|ignorespaces|hfill|dotfill|strut|filbreak|breakIM|vspaceIM|newpage|clearpage|break)\b/gi, '');
   text = text.replace(/\\vspace\*?\{[^}]*\}/gi, '');
   text = text.replace(/\\hspace\*?\{[^}]*\}/gi, '');
@@ -399,9 +399,9 @@ export const normalizeLatexString = (str = '') => {
     text = text.replace(/\\begin\{(enumerate|itemize|itemchoice|listEX|enumEX|enumEXV|taskEX)\}\s*(?:\[([^\]]*)\])?\s*(?:\([^)]*\))?\s*((?:(?!\\begin\{(?:enumerate|itemize|itemchoice|listEX|enumEX|enumEXV|taskEX)\})[\s\S])*?)\\end\{\1\}/gi, (match, envType, opt, inner) => {
       let counter = 0;
       let type = 'bullet';
-      
+
       const envLower = envType.toLowerCase();
-      
+
       if (envLower === 'enumerate' || envLower === 'enumex' || envLower === 'enumexv' || envLower === 'listex' || envLower === 'taskex') {
         type = 'number';
         if (opt) {
@@ -412,12 +412,12 @@ export const normalizeLatexString = (str = '') => {
       } else if (envLower === 'itemchoice') {
         type = 'choice';
       }
-      
+
       let replacedInner = inner.replace(/\\(?:item|itemch|Eitem|Esubitemch)\b(?:\[([^\]]*)\])?\s*/gi, (itemMatch, itemOpt) => {
         if (itemOpt) {
           return `\n• **${itemOpt}** `;
         }
-        
+
         let label = '';
         if (type === 'alpha') {
           label = String.fromCharCode(97 + (counter % 26)) + ')';
@@ -425,7 +425,7 @@ export const normalizeLatexString = (str = '') => {
           label = String.fromCharCode(65 + (counter % 26)) + ')';
         } else if (type === 'roman') {
           const romans = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii'];
-          label = (romans[counter] || (counter+1)) + ')';
+          label = (romans[counter] || (counter + 1)) + ')';
         } else if (type === 'number') {
           label = (counter + 1) + '.';
         } else if (type === 'choice') {
@@ -444,7 +444,7 @@ export const normalizeLatexString = (str = '') => {
   // Fallback dự phòng cho các thẻ lỗi hoặc chưa đóng
   text = text.replace(/\\begin\{(?:itemchoice|listEX|enumEX|enumEXV|taskEX|enumerate|itemize)\}\s*(?:\[[^\]]*\])?\s*(?:\([^)]*\))?/gi, '');
   text = text.replace(/\\end\{(?:itemchoice|listEX|enumEX|enumEXV|taskEX|enumerate|itemize)\}/gi, '');
-  
+
   let itemchCounter = 0;
   text = text.replace(/\\itemch\b\s*/gi, () => {
     const chars = ['a) ', 'b) ', 'c) ', 'd) '];
@@ -452,7 +452,7 @@ export const normalizeLatexString = (str = '') => {
     itemchCounter++;
     return `\n**${bullet}**`;
   });
-  
+
   text = text.replace(/\\(?:item|Eitem|Esubitemch)\b\s*/gi, '\n• ');
 
   // 8. Xử lý các dạng \immini, \imminiL kèm mọi tuỳ chọn [thm], [d]...
@@ -521,13 +521,17 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\circEX(?:\[[^\]]*\])?\{([^}]+)\}/g, '($1)');
   text = text.replace(/\\squareEX(?:\[[^\]]*\])?\{([^}]+)\}/g, '[$1]');
   text = text.replace(/\\boxEX(?:\[[^\]]*\])?\{([^}]+)\}/g, '$1');
-  
+
   // Xóa các macro định dạng không được hỗ trợ để tránh rác text
   text = replaceTwoArgMacro(text, '\\scalebox', (arg1, arg2) => arg2);
   text = replaceTwoArgMacro(text, '\\textcolor', (arg1, arg2) => arg2);
   text = text.replace(/\{\s*\\color\s*\{[^}]+\}\s*([^}]+)\}/g, '$1');
-  text = replaceMacroWithBraces(text, '\\color', c => '');
   text = replaceMacroWithBraces(text, '\\fbox', c => c);
+  text = replaceMacroWithBraces(text, '\\mbox', c => c);
+  
+  // Loại bỏ cặp ngoặc nhọn kẹp \par\centering
+  text = text.replace(/\{\s*\\(?:par|centering|noindent|vspace\{[^}]*\})+\s*([\s\S]*?)\s*(?:\\par\s*)?\}/gi, (match, inner) => inner);
+  text = text.replace(/\{\s*\\(?:par|centering|noindent|vspace\{[^}]*\})*\s*([\s\S]*?)\s*\\(?:par|centering)\s*\}/gi, (match, inner) => inner);
   text = text.replace(/\\tagEX\{([^}]+)\}/g, ' ($1)');
 
   // 15. Dấu xuống dòng \\ và lệnh \par trong văn bản

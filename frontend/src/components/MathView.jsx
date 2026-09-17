@@ -180,17 +180,17 @@ const TikzDiagramViewer = ({ tikzCode }) => {
   React.useEffect(() => {
     if (showLightbox && lightboxSvgRef.current) {
       if (useFallback) {
-         // Nếu dùng fallback thì renderFallbackSvg() trả về React node, containerRef sẽ rỗng innerHTML.
-         // Do đó ta cần gán lại HTML từ node được render hoặc xử lý khác.
-         // Một cách đơn giản là clone nội dung từ thẻ SVG hiển thị thực tế:
-         const displayedSvg = containerRef.current?.querySelector('svg');
-         if (displayedSvg) {
-            lightboxSvgRef.current.innerHTML = displayedSvg.outerHTML;
-         }
+        // Nếu dùng fallback thì renderFallbackSvg() trả về React node, containerRef sẽ rỗng innerHTML.
+        // Do đó ta cần gán lại HTML từ node được render hoặc xử lý khác.
+        // Một cách đơn giản là clone nội dung từ thẻ SVG hiển thị thực tế:
+        const displayedSvg = containerRef.current?.querySelector('svg');
+        if (displayedSvg) {
+          lightboxSvgRef.current.innerHTML = displayedSvg.outerHTML;
+        }
       } else if (containerRef.current) {
-         lightboxSvgRef.current.innerHTML = containerRef.current.innerHTML;
+        lightboxSvgRef.current.innerHTML = containerRef.current.innerHTML;
       }
-      
+
       const svg = lightboxSvgRef.current.querySelector('svg');
       if (svg) {
         svg.style.width = 'auto';
@@ -208,7 +208,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
   // Đóng bằng phím Escape, phím +/- để zoom
   React.useEffect(() => {
     if (!showLightbox) return;
-    const handleKey = (e) => { 
+    const handleKey = (e) => {
       if (e.key === 'Escape') setShowLightbox(false);
       if (e.key === '+' || e.key === '=') setZoomScale(s => Math.min(s + 0.25, 4));
       if (e.key === '-' || e.key === '_') setZoomScale(s => Math.max(s - 0.25, 0.5));
@@ -231,40 +231,40 @@ const TikzDiagramViewer = ({ tikzCode }) => {
         try {
           const storedPreamble = localStorage.getItem('app_teacher_latex_preamble');
           const apiUrl = import.meta.env.VITE_API_URL || '';
-          
+
           if (!apiUrl) {
-             throw new Error('Offline Mode'); // Force fallback
+            throw new Error('Offline Mode'); // Force fallback
           }
 
           const res = await fetch(`${apiUrl}/api/compile-tikz`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               tikzCode,
               preamble: storedPreamble || undefined
             }),
             signal
           });
-          
+
           const data = await res.json();
           if (!res.ok) {
             throw new Error(data.error || 'Server error');
           }
-          
+
           if (containerRef.current) {
             containerRef.current.innerHTML = data.svg;
           }
         } catch (err) {
           if (err.name === 'AbortError') return;
           console.error("TikZ API Error:", err);
-          
+
           if (!import.meta.env.VITE_API_URL) {
             console.warn("No VITE_API_URL, switching to offline fallback viewer.");
             setUseFallback(true);
           } else {
             setErrorMsg(`Lỗi Backend: ${err.message}`);
           }
-          
+
           if (containerRef.current) {
             containerRef.current.innerHTML = '';
           }
@@ -272,11 +272,11 @@ const TikzDiagramViewer = ({ tikzCode }) => {
           setLoading(false);
         }
       };
-      
+
       const debounceTimer = setTimeout(() => {
         compileTikz();
       }, 500);
-      
+
       return () => {
         clearTimeout(debounceTimer);
         controller.abort();
@@ -304,7 +304,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
   return (
     <>
       <div className="tikz-diagram-container" style={{ margin: '0.75rem 0', textAlign: 'center' }}>
-        <div 
+        <div
           className="tikz-render-output-box"
           onClick={() => hasSvg && setShowLightbox(true)}
           style={{
@@ -324,7 +324,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
             cursor: hasSvg ? 'zoom-in' : 'default',
             transition: 'box-shadow 0.2s, transform 0.15s',
           }}
-          onMouseEnter={e => { if (hasSvg) { e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.18)'; e.currentTarget.style.transform = 'scale(1.01)'; }}}
+          onMouseEnter={e => { if (hasSvg) { e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.18)'; e.currentTarget.style.transform = 'scale(1.01)'; } }}
           onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'scale(1)'; }}
           title={hasSvg ? 'Nhấn để phóng to hình vẽ' : ''}
         >
@@ -333,7 +333,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
               <span style={{ fontSize: '0.85rem', color: '#4f46e5', fontWeight: 600 }}>Đang biên dịch pdflatex...</span>
             </div>
           )}
-          
+
           {errorMsg && !useFallback && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'rgba(254, 226, 226, 0.9)', zIndex: 20 }}>
               <span style={{ fontSize: '0.8rem', color: '#b91c1c', textAlign: 'center' }}>{errorMsg}</span>
@@ -347,8 +347,8 @@ const TikzDiagramViewer = ({ tikzCode }) => {
             </div>
           )}
 
-          <div 
-            ref={containerRef} 
+          <div
+            ref={containerRef}
             className="tikzjax-wrapper"
             style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%', overflow: 'visible', opacity: (loading || (errorMsg && !useFallback)) ? 0.3 : 1 }}
           >
@@ -493,7 +493,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
             </div>
 
             {/* Vùng hiển thị SVG có hỗ trợ cuộn đầy đủ cả trên lẫn dưới khi zoom to */}
-            <div 
+            <div
               style={{
                 width: '100%',
                 flex: 1,
@@ -573,7 +573,7 @@ const TabularViewer = ({ code }) => {
                 {cells.map((cell, cIdx) => {
                   let colSpan = 1;
                   let content = cell.trim();
-                  
+
                   // Unwrap outer braces if the entire cell content is wrapped in {}
                   while (content.startsWith('{') && content.endsWith('}')) {
                     let depth = 0;
@@ -592,7 +592,7 @@ const TabularViewer = ({ code }) => {
                       break;
                     }
                   }
-                  
+
                   // Phân tích \multicolumn{cols}{align}{content}
                   const mcMatch = content.match(/\\multicolumn\s*\{(\d+)\}\s*\{[^{}]*\}\s*\{([\s\S]*?)\}\s*$/);
                   if (mcMatch) {
@@ -621,7 +621,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
   const normalized = isNormalized ? rawText : normalizeLatexString(rawText);
 
   let segments = [{ type: 'content', value: normalized }];
-  
+
   // Extract dn (box) and chuy environments
   const boxRegex = /\s*__BEGIN_BOX__\s*([\s\S]*?)\s*__END_BOX__\s*/g;
   let newSegments = [];
@@ -667,7 +667,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
     if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
   });
   segments = newSegments;
-  
+
   const tikzRegex = /(?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\}/gi;
   newSegments = [];
   segments.forEach(seg => {
@@ -776,7 +776,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
           const raw = mathMatch[0];
           let isBlock = false;
           let math = raw;
-          
+
           if (raw.startsWith('$$')) {
             isBlock = true;
             math = raw.slice(2, -2).trim();
@@ -904,10 +904,10 @@ const TkzTabViewer = ({ tikzCode }) => {
 
   const rows = initMatch[1].split(',').map(s => s.split('/')[0].trim());
   const xVals = initMatch[2].split(',').map(s => s.trim());
-  
+
   const lineMatch = tikzCode.match(/\\tkzTabLine\s*\{([^}]+)\}/);
   const signs = lineMatch ? lineMatch[1].split(',').map(s => s.trim()) : [];
-  
+
   const varMatch = tikzCode.match(/\\tkzTabVar\s*\{([^}]+)\}/);
   const vars = varMatch ? varMatch[1].split(',').map(s => s.trim()) : [];
 
@@ -920,130 +920,130 @@ const TkzTabViewer = ({ tikzCode }) => {
     let leftPos = pos || '';
     let rightPos = pos || '';
     if (pos && pos.includes('D')) {
-       const parts = pos.split('D');
-       leftPos = parts[0] || '';
-       rightPos = parts[1] || '';
+      const parts = pos.split('D');
+      leftPos = parts[0] || '';
+      rightPos = parts[1] || '';
     }
     return { index: i, leftPos, rightPos, val1, val2 };
   });
 
   return (
     <div className="tkz-tab-container" style={{ overflowX: 'auto', margin: '14px 0', fontFamily: 'system-ui', width: '100%' }}>
-       <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '380px', border: '1.5px solid #1e293b' }}>
-          <tbody>
-            <tr>
-               <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center', width: '80px' }}>
-                 <RenderMathSegment rawText={rows[0]} />
-               </td>
-               {Array.from({ length: colCount }).map((_, i) => (
-                 <td key={`x-${i}`} style={{ borderBottom: '1.5px solid #1e293b', padding: '12px 4px', textAlign: 'center' }}>
-                   {i % 2 === 0 ? <RenderMathSegment rawText={xVals[Math.floor(i / 2)]} /> : null}
-                 </td>
-               ))}
-            </tr>
-            
-            {rows.length > 1 && (
-            <tr>
-               <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center' }}>
-                 <RenderMathSegment rawText={rows[1]} />
-               </td>
-               {Array.from({ length: colCount }).map((_, i) => {
-                 let content = signs[i] || '';
-                 if (content === '0') content = '0';
-                 if (content === 'd') content = '||';
-                 if (content === 'h') content = '';
-                 
-                 return (
-                   <td key={`s-${i}`} style={{ borderBottom: '1.5px solid #1e293b', padding: '12px 4px', textAlign: 'center' }}>
-                     {content === '||' ? (
-                       <div style={{ borderLeft: '1px solid #1e293b', borderRight: '1px solid #1e293b', height: '24px', width: '4px', margin: '0 auto' }} />
-                     ) : (
-                       <RenderMathSegment rawText={content} />
-                     )}
-                   </td>
-                 );
-               })}
-            </tr>
-            )}
+      <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '380px', border: '1.5px solid #1e293b' }}>
+        <tbody>
+          <tr>
+            <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center', width: '80px' }}>
+              <RenderMathSegment rawText={rows[0]} />
+            </td>
+            {Array.from({ length: colCount }).map((_, i) => (
+              <td key={`x-${i}`} style={{ borderBottom: '1.5px solid #1e293b', padding: '12px 4px', textAlign: 'center' }}>
+                {i % 2 === 0 ? <RenderMathSegment rawText={xVals[Math.floor(i / 2)]} /> : null}
+              </td>
+            ))}
+          </tr>
 
-            {rows.length > 2 && (
+          {rows.length > 1 && (
             <tr>
-               <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center' }}>
-                 <RenderMathSegment rawText={rows[2]} />
-               </td>
-               {Array.from({ length: colCount }).map((_, i) => {
-                  if (i % 2 !== 0) {
-                     const leftVar = points[Math.floor(i / 2)];
-                     const rightVar = points[Math.ceil(i / 2)];
-                     if (!leftVar || !rightVar) return <td key={`v-${i}`} />;
-                     
-                     const isUp = (leftVar.rightPos === '-' && rightVar.leftPos === '+') || (leftVar.rightPos === '-' && rightVar.leftPos === 'R') || (leftVar.rightPos === 'R' && rightVar.leftPos === '+');
-                     const isDown = (leftVar.rightPos === '+' && rightVar.leftPos === '-') || (leftVar.rightPos === '+' && rightVar.leftPos === 'R') || (leftVar.rightPos === 'R' && rightVar.leftPos === '-');
-                     
-                     return (
-                       <td key={`v-${i}`} style={{ position: 'relative', minWidth: '60px', height: '110px', padding: 0 }}>
-                         {(isUp || isDown) && (
-                            <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible' }}>
-                              <defs>
-                                <marker id={`arrow-${uniqueId}-${i}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-                                  <path d="M 0 1 L 9 5 L 0 9 z" fill="#1e293b" />
-                                </marker>
-                              </defs>
-                              <line 
-                                x1="10%" y1={isUp ? "85%" : "15%"} 
-                                x2="90%" y2={isUp ? "15%" : "85%"} 
-                                stroke="#1e293b" strokeWidth="1.2" 
-                                markerEnd={`url(#arrow-${uniqueId}-${i})`} 
-                              />
-                            </svg>
-                         )}
-                       </td>
-                     );
-                  } else {
-                     const pt = points[Math.floor(i / 2)];
-                     if (!pt) return <td key={`v-${i}`} />;
-                     const isDoubleBar = pt.leftPos.includes('D') || pt.rightPos.includes('D');
-                     
-                     return (
-                       <td key={`v-${i}`} style={{ position: 'relative', width: '40px', height: '110px', padding: 0 }}>
-                         {isDoubleBar && (
-                           <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '4px', transform: 'translateX(-50%)', borderLeft: '1px solid #1e293b', borderRight: '1px solid #1e293b' }} />
-                         )}
-                         
-                         {pt.val1 && (
-                           <div style={{ 
-                              position: 'absolute',
-                              right: isDoubleBar ? '50%' : 'auto',
-                              left: isDoubleBar ? 'auto' : '50%',
-                              marginRight: isDoubleBar ? '6px' : '0',
-                              transform: isDoubleBar ? 'none' : 'translateX(-50%)',
-                              top: pt.leftPos === '+' ? '12px' : 'auto',
-                              bottom: pt.leftPos === '-' ? '12px' : 'auto',
-                              marginTop: (pt.leftPos !== '+' && pt.leftPos !== '-' && !isDoubleBar) ? '40px' : 0
-                           }}>
-                              <RenderMathSegment rawText={pt.val1} />
-                           </div>
-                         )}
-                         
-                         {(pt.val2) && (
-                           <div style={{ 
-                              position: 'absolute',
-                              left: '50%',
-                              marginLeft: '6px',
-                              top: pt.rightPos === '+' ? '12px' : 'auto',
-                              bottom: pt.rightPos === '-' ? '12px' : 'auto'
-                           }}>
-                              <RenderMathSegment rawText={pt.val2} />
-                           </div>
-                         )}
-                       </td>
-                     );
-                  }
-               })}
+              <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center' }}>
+                <RenderMathSegment rawText={rows[1]} />
+              </td>
+              {Array.from({ length: colCount }).map((_, i) => {
+                let content = signs[i] || '';
+                if (content === '0') content = '0';
+                if (content === 'd') content = '||';
+                if (content === 'h') content = '';
+
+                return (
+                  <td key={`s-${i}`} style={{ borderBottom: '1.5px solid #1e293b', padding: '12px 4px', textAlign: 'center' }}>
+                    {content === '||' ? (
+                      <div style={{ borderLeft: '1px solid #1e293b', borderRight: '1px solid #1e293b', height: '24px', width: '4px', margin: '0 auto' }} />
+                    ) : (
+                      <RenderMathSegment rawText={content} />
+                    )}
+                  </td>
+                );
+              })}
             </tr>
-            )}
-          </tbody>
-       </table>
+          )}
+
+          {rows.length > 2 && (
+            <tr>
+              <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center' }}>
+                <RenderMathSegment rawText={rows[2]} />
+              </td>
+              {Array.from({ length: colCount }).map((_, i) => {
+                if (i % 2 !== 0) {
+                  const leftVar = points[Math.floor(i / 2)];
+                  const rightVar = points[Math.ceil(i / 2)];
+                  if (!leftVar || !rightVar) return <td key={`v-${i}`} />;
+
+                  const isUp = (leftVar.rightPos === '-' && rightVar.leftPos === '+') || (leftVar.rightPos === '-' && rightVar.leftPos === 'R') || (leftVar.rightPos === 'R' && rightVar.leftPos === '+');
+                  const isDown = (leftVar.rightPos === '+' && rightVar.leftPos === '-') || (leftVar.rightPos === '+' && rightVar.leftPos === 'R') || (leftVar.rightPos === 'R' && rightVar.leftPos === '-');
+
+                  return (
+                    <td key={`v-${i}`} style={{ position: 'relative', minWidth: '60px', height: '110px', padding: 0 }}>
+                      {(isUp || isDown) && (
+                        <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible' }}>
+                          <defs>
+                            <marker id={`arrow-${uniqueId}-${i}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                              <path d="M 0 1 L 9 5 L 0 9 z" fill="#1e293b" />
+                            </marker>
+                          </defs>
+                          <line
+                            x1="10%" y1={isUp ? "85%" : "15%"}
+                            x2="90%" y2={isUp ? "15%" : "85%"}
+                            stroke="#1e293b" strokeWidth="1.2"
+                            markerEnd={`url(#arrow-${uniqueId}-${i})`}
+                          />
+                        </svg>
+                      )}
+                    </td>
+                  );
+                } else {
+                  const pt = points[Math.floor(i / 2)];
+                  if (!pt) return <td key={`v-${i}`} />;
+                  const isDoubleBar = pt.leftPos.includes('D') || pt.rightPos.includes('D');
+
+                  return (
+                    <td key={`v-${i}`} style={{ position: 'relative', width: '40px', height: '110px', padding: 0 }}>
+                      {isDoubleBar && (
+                        <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '4px', transform: 'translateX(-50%)', borderLeft: '1px solid #1e293b', borderRight: '1px solid #1e293b' }} />
+                      )}
+
+                      {pt.val1 && (
+                        <div style={{
+                          position: 'absolute',
+                          right: isDoubleBar ? '50%' : 'auto',
+                          left: isDoubleBar ? 'auto' : '50%',
+                          marginRight: isDoubleBar ? '6px' : '0',
+                          transform: isDoubleBar ? 'none' : 'translateX(-50%)',
+                          top: pt.leftPos === '+' ? '12px' : 'auto',
+                          bottom: pt.leftPos === '-' ? '12px' : 'auto',
+                          marginTop: (pt.leftPos !== '+' && pt.leftPos !== '-' && !isDoubleBar) ? '40px' : 0
+                        }}>
+                          <RenderMathSegment rawText={pt.val1} />
+                        </div>
+                      )}
+
+                      {(pt.val2) && (
+                        <div style={{
+                          position: 'absolute',
+                          left: '50%',
+                          marginLeft: '6px',
+                          top: pt.rightPos === '+' ? '12px' : 'auto',
+                          bottom: pt.rightPos === '-' ? '12px' : 'auto'
+                        }}>
+                          <RenderMathSegment rawText={pt.val2} />
+                        </div>
+                      )}
+                    </td>
+                  );
+                }
+              })}
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
