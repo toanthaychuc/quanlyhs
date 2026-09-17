@@ -880,11 +880,7 @@ const Assignments = () => {
                             🔒 Đang ẩn với học sinh
                           </span>
                         )}
-                        {isTeacher && !asg.isHidden && (
-                          <span className="badge-tag" style={{ background: '#dcfce7', color: '#15803d' }}>
-                            🌐 Đang mở cho học sinh
-                          </span>
-                        )}
+
                         <h3 className="assignment-name" style={{ margin: 0 }}>{asg.title}</h3>
                       </div>
                       <div className="assignment-meta-tags">
