@@ -622,16 +622,16 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
 
   let segments = [{ type: 'content', value: normalized }];
 
-  // Extract subsubsection
-  const subsubRegex = /\s*__SUBSUBSECTION__(\d+)__([\s\S]*?)__END_SUBSUBSECTION__\s*/g;
+  // Extract subsection and subsubsection
+  const headingRegex = /\s*__(SUBSECTION|SUBSUBSECTION)__([^_]+)__([\s\S]*?)__END_\1__\s*/g;
   let newSegments = [];
   segments.forEach(seg => {
     if (seg.type !== 'content') { newSegments.push(seg); return; }
     let lastIdx = 0;
     let match;
-    while ((match = subsubRegex.exec(seg.value)) !== null) {
+    while ((match = headingRegex.exec(seg.value)) !== null) {
       if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
-      newSegments.push({ type: 'subsubsection', number: match[1], title: match[2].trim() });
+      newSegments.push({ type: match[1].toLowerCase(), number: match[2], title: match[3].trim() });
       lastIdx = match.index + match[0].length;
     }
     if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
@@ -785,9 +785,16 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         if (seg.type === 'tabular') {
           return <TabularViewer key={segIdx} code={seg.value} />;
         }
+        if (seg.type === 'subsection') {
+          return (
+            <div key={segIdx} className="latex-subsection" style={{ margin: '1.5rem 0 0.75rem', padding: '0.6rem 0.85rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)', fontSize: '1.1em' }}>
+              {seg.number}. {seg.title}
+            </div>
+          );
+        }
         if (seg.type === 'subsubsection') {
           return (
-            <div key={segIdx} className="latex-subsubsection" style={{ margin: '1rem 0 0.5rem', padding: '0.5rem 0.75rem', backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', borderRadius: '4px', fontWeight: 700, color: '#1e3a8a' }}>
+            <div key={segIdx} className="latex-subsubsection" style={{ margin: '1rem 0 0.5rem', padding: '0.5rem 0.75rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)' }}>
               {seg.number}. {seg.title}
             </div>
           );

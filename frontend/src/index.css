@@ -12,6 +12,8 @@
   --border-color: #e5e7eb; /* Gray 200 */
   --danger-color: #ef4444; /* Red 500 */
   --bg-color-alt: rgba(0, 0, 0, 0.02);
+  --sub-heading-bg: #eff6ff; /* Blue 50 */
+  --sub-heading-color: #1e3a8a; /* Blue 900 */
   
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -36,6 +38,8 @@
   --border-color: #1f2937; /* Gray 800 */
   --danger-color: #f87171; /* Red 400 */
   --bg-color-alt: rgba(255, 255, 255, 0.05);
+  --sub-heading-bg: rgba(59, 130, 246, 0.15); /* Light blue tint */
+  --sub-heading-color: #93c5fd; /* Blue 300 */
   
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.7);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.5);

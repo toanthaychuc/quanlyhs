@@ -341,7 +341,7 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\subsection\*?\{([^}]+)\}/gi, (match, title) => {
     subsectionCounter++;
     subsubsectionCounter = 0;
-    return `\n\n**${toRoman(subsectionCounter)}. ${title}**\n\n`;
+    return `\n\n__SUBSECTION__${toRoman(subsectionCounter)}__${title}__END_SUBSECTION__\n\n`;
   });
   text = text.replace(/\\subsubsection\*?\{([^}]+)\}/gi, (match, title) => {
     subsubsectionCounter++;
