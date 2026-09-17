@@ -886,7 +886,6 @@ const Assignments = () => {
                         <span>Lớp: <strong>{asg.className}</strong></span>
                         <span>•</span>
                         <span>Thời lượng: {asg.duration} phút</span>
-                        <span>•</span>
                         <span className="flex items-center gap-1">
                           <Calendar size={13} />
                           Hạn nộp: <strong>{new Date(asg.deadline).toLocaleString('vi-VN')}</strong>
