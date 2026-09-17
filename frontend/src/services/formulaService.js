@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import supabase from '../lib/supabase';
 
 export const getFormulas = async () => {
   const { data, error } = await supabase
