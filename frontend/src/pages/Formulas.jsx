@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, LayoutTemplate } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, LayoutTemplate, Search } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { getFormulas, addFormula, updateFormula, deleteFormula, updateFormulaOrders } from '../services/formulaService';
 import MathView from '../components/MathView';
@@ -21,6 +21,82 @@ const Formulas = () => {
   const [dragOverId, setDragOverId] = useState(null);
 
   const fileInputRef = useRef(null);
+  const texTextareaRef = useRef(null);
+  const texSearchInputRef = useRef(null);
+
+  const executeTexSearch = (query, fromIndex = 0) => {
+    if (!texTextareaRef.current || !query) return;
+    const textArea = texTextareaRef.current;
+    const rawText = textArea.value || '';
+    
+    const searchString = query.trim().normalize('NFC');
+    if (!searchString) return;
+
+    const normalizedText = rawText.normalize('NFC');
+    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchWords = searchString.split(/\s+/).map(escapeRegExp);
+    const regexPattern = searchWords.join('\\s+');
+    
+    try {
+      const regex = new RegExp(regexPattern, 'ig');
+      regex.lastIndex = fromIndex;
+      
+      let match = regex.exec(normalizedText);
+      if (!match && fromIndex > 0) {
+         regex.lastIndex = 0;
+         match = regex.exec(normalizedText);
+      }
+      
+      if (match) {
+         const index = match.index;
+         const matchLength = match[0].length;
+         
+         textArea.focus({ preventScroll: true });
+         textArea.setSelectionRange(index, index + matchLength);
+         
+         const textBefore = rawText.substring(0, index);
+         const lines = textBefore.split('\n');
+         let visualLinesBefore = 0;
+         for (let i = 0; i < lines.length; i++) {
+             visualLinesBefore += Math.max(1, Math.ceil(lines[i].length / 90));
+         }
+         
+         setTimeout(() => {
+             const lineHeight = 19.5;
+             textArea.scrollTop = Math.max(0, 16 + (visualLinesBefore - 5) * lineHeight);
+         }, 10);
+      } else {
+         alert(`Không tìm thấy "${query}" trong mã nguồn!`);
+      }
+    } catch (err) {
+      alert(`Không thể tìm kiếm từ khóa này!`);
+    }
+  };
+
+  const handleTexSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const query = texSearchInputRef.current?.value;
+      if (!query) return;
+
+      let startIndex = 0;
+      if (texTextareaRef.current) {
+        if (texTextareaRef.current.selectionStart !== texTextareaRef.current.selectionEnd) {
+          startIndex = texTextareaRef.current.selectionStart + 1;
+        } else {
+          startIndex = texTextareaRef.current.selectionEnd;
+        }
+      }
+      executeTexSearch(query, startIndex);
+    }
+  };
+
+  const handlePreviewDoubleClick = () => {
+    const selection = window.getSelection();
+    if (!selection || !selection.toString().trim()) return;
+    const query = selection.toString().trim();
+    executeTexSearch(query);
+  };
 
   const fetchFormulas = async () => {
     try {
@@ -263,14 +339,14 @@ const Formulas = () => {
 
       {isTeacher && isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content formulas-modal">
+          <div className="modal-content formulas-modal" style={{ maxWidth: '95vw', width: '1200px', height: '90vh' }}>
             <div className="modal-header">
               <h3>{editId ? 'Sửa mục công thức' : 'Thêm mục công thức'}</h3>
               <button className="icon-btn" onClick={() => setIsModalOpen(false)}>
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSave} className="modal-form flex-col h-full" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+            <form onSubmit={handleSave} className="modal-form flex-col h-full" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, padding: '1rem' }}>
               <div className="form-group" style={{ flexShrink: 0 }}>
                 <label>Tên mục <span className="required">*</span></label>
                 <input 
@@ -282,45 +358,79 @@ const Formulas = () => {
                   required
                 />
               </div>
-              
-              <div 
-                className={`form-group file-drop-zone ${isDragging ? 'dragging' : ''}`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0.5rem', marginBottom: '1rem', minHeight: 0 }}
-              >
-                <div className="upload-wrapper" style={{ flexShrink: 0, marginBottom: '0.5rem' }}>
-                  <button type="button" className="btn btn-outline upload-btn" onClick={() => fileInputRef.current?.click()}>
+
+              {/* Toolbar cho search/upload */}
+              <div className="editor-toolbar" style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+                 <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()}>
                     <Upload size={16} /> Nhập từ file .tex
-                  </button>
-                  <input 
+                 </button>
+                 <input 
                     type="file" 
                     accept=".tex,.txt" 
                     ref={fileInputRef} 
                     onChange={handleFileUpload} 
                     style={{display: 'none'}} 
-                  />
-                  <span className="upload-hint">Hoặc dán/nhập, kéo thả file .tex trực tiếp vào đây</span>
-                </div>
-                <div style={{ flex: 1, position: 'relative', width: '100%', minHeight: 0 }}>
+                 />
+                 
+                 <div className="search-bar" style={{ display: 'flex', flex: 1, gap: '0.5rem', alignItems: 'center' }}>
+                    <Search size={18} className="text-muted" style={{ marginLeft: '1rem' }} />
+                    <input 
+                      type="text" 
+                      className="input" 
+                      placeholder="Tìm kiếm trong mã LaTeX (nhấn Enter để tìm tiếp)..." 
+                      ref={texSearchInputRef}
+                      onKeyDown={handleTexSearchKeyDown}
+                      style={{ flex: 1 }}
+                    />
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary"
+                      onClick={() => executeTexSearch(texSearchInputRef.current?.value)}
+                    >
+                      Tìm
+                    </button>
+                 </div>
+                 <div className="hint-text" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                   Mẹo: Bôi đen chữ ở cột xem trước để tìm nhanh
+                 </div>
+              </div>
+
+              <div 
+                className={`split-view-container ${isDragging ? 'dragging' : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                style={{ flex: 1, display: 'flex', gap: '1rem', minHeight: 0, overflow: 'hidden' }}
+              >
+                <div className="editor-pane" style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                   <textarea 
+                    ref={texTextareaRef}
                     className="input textarea latex-editor w-full" 
                     value={formData.content}
                     onChange={(e) => setFormData({...formData, content: e.target.value})}
                     placeholder="Nhập mã LaTeX của bạn vào đây..."
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', resize: 'none', margin: 0 }}
+                    style={{ flex: 1, resize: 'none', margin: 0, padding: '1rem', border: 'none', fontFamily: 'monospace' }}
                   />
+                  {isDragging && (
+                    <div className="drag-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Upload size={48} className="text-primary" />
+                      <p>Thả file .tex vào đây</p>
+                    </div>
+                  )}
                 </div>
-                {isDragging && (
-                  <div className="drag-overlay">
-                    <Upload size={48} className="text-primary" />
-                    <p>Thả file .tex vào đây</p>
-                  </div>
-                )}
+
+                <div className="preview-pane" 
+                     onMouseUp={handlePreviewDoubleClick}
+                     style={{ flex: 1, overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--card-bg)' }}>
+                  {formData.content ? (
+                    <MathView text={formData.content} />
+                  ) : (
+                    <div className="empty-content" style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: '2rem' }}>Chưa có nội dung xem trước.</div>
+                  )}
+                </div>
               </div>
 
-              <div className="modal-actions" style={{ flexShrink: 0, marginTop: 'auto' }}>
+              <div className="modal-actions" style={{ flexShrink: 0, marginTop: '1rem' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Hủy</button>
                 <button type="submit" className="btn btn-primary">
                   <Save size={16} /> Lưu lại
