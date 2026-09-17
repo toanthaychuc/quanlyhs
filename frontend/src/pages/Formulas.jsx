@@ -128,11 +128,13 @@ const Formulas = () => {
 
   return (
     <div className="formulas-page">
-      <div className="page-header">
-        <h1 className="page-title">
-          <LayoutTemplate className="text-primary" size={28} />
-          TRA CỨU CÔNG THỨC
-        </h1>
+      <div className="formulas-header">
+        <div className="formulas-title-area">
+          <h1>
+            <LayoutTemplate className="text-primary" size={28} />
+            TRA CỨU CÔNG THỨC
+          </h1>
+        </div>
         {isTeacher && (
           <button className="btn btn-primary" onClick={openAddModal}>
             <Plus size={20} />
