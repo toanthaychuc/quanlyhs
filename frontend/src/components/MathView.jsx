@@ -654,7 +654,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
   segments = newSegments;
   
   const tikzRegex = /(?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\}/gi;
-  let newSegments = [];
+  newSegments = [];
   segments.forEach(seg => {
     if (seg.type !== 'content') {
       newSegments.push(seg);
