@@ -638,65 +638,84 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
   });
   segments = newSegments;
 
-  // Extract multicols FIRST (since it often wraps other boxes)
-  const multicolsRegex = /\s*__BEGIN_MULTICOLS__\s*([\s\S]*?)\s*__END_MULTICOLS__\s*/g;
-  newSegments = [];
-  segments.forEach(seg => {
-    if (seg.type !== 'content') { newSegments.push(seg); return; }
-    let lastIdx = 0;
-    let match;
-    while ((match = multicolsRegex.exec(seg.value)) !== null) {
-      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
-      newSegments.push({ type: 'multicols', value: match[1].trim() });
-      lastIdx = match.index + match[0].length;
-    }
-    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
-  });
-  segments = newSegments;
+  // Helper to parse nested block environments correctly
+  const parseNestedEnvironments = (text) => {
+    const envTypes = ['MULTICOLS', 'BOX', 'CHUY', 'LIST'];
+    const segs = [];
+    let currentIndex = 0;
 
-  // Extract dn (box) and chuy environments
-  const boxRegex = /\s*__BEGIN_BOX__\s*([\s\S]*?)\s*__END_BOX__\s*/g;
-  newSegments = [];
-  segments.forEach(seg => {
-    if (seg.type !== 'content') { newSegments.push(seg); return; }
-    let lastIdx = 0;
-    let match;
-    while ((match = boxRegex.exec(seg.value)) !== null) {
-      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
-      newSegments.push({ type: 'box', value: match[1].trim() });
-      lastIdx = match.index + match[0].length;
-    }
-    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
-  });
-  segments = newSegments;
+    while (currentIndex < text.length) {
+      let firstMatch = null;
+      let minIndex = Infinity;
 
-  const chuyRegex = /\s*__BEGIN_CHUY__\s*([\s\S]*?)\s*__END_CHUY__\s*/g;
-  newSegments = [];
-  segments.forEach(seg => {
-    if (seg.type !== 'content') { newSegments.push(seg); return; }
-    let lastIdx = 0;
-    let match;
-    while ((match = chuyRegex.exec(seg.value)) !== null) {
-      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
-      newSegments.push({ type: 'chuy', value: match[1].trim() });
-      lastIdx = match.index + match[0].length;
-    }
-    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
-  });
-  segments = newSegments;
+      for (const type of envTypes) {
+        const beginTag = `__BEGIN_${type}__`;
+        const idx = text.indexOf(beginTag, currentIndex);
+        if (idx !== -1 && idx < minIndex) {
+          minIndex = idx;
+          firstMatch = { type, beginTag, idx };
+        }
+      }
 
-  const listRegex = /\s*__BEGIN_LIST__\s*([\s\S]*?)\s*__END_LIST__\s*/g;
+      if (!firstMatch) {
+        segs.push({ type: 'content', value: text.substring(currentIndex) });
+        break;
+      }
+
+      if (minIndex > currentIndex) {
+        segs.push({ type: 'content', value: text.substring(currentIndex, minIndex) });
+      }
+
+      const beginTag = firstMatch.beginTag;
+      const endTag = `__END_${firstMatch.type}__`;
+
+      let depth = 1;
+      let searchIndex = minIndex + beginTag.length;
+      let endIndex = -1;
+
+      while (searchIndex < text.length) {
+        const nextBegin = text.indexOf(beginTag, searchIndex);
+        const nextEnd = text.indexOf(endTag, searchIndex);
+
+        if (nextEnd === -1) {
+          break;
+        }
+
+        if (nextBegin !== -1 && nextBegin < nextEnd) {
+          depth++;
+          searchIndex = nextBegin + beginTag.length;
+        } else {
+          depth--;
+          if (depth === 0) {
+            endIndex = nextEnd;
+            break;
+          }
+          searchIndex = nextEnd + endTag.length;
+        }
+      }
+
+      if (endIndex !== -1) {
+        const innerContent = text.substring(minIndex + beginTag.length, endIndex);
+        let segType = 'box';
+        if (firstMatch.type === 'MULTICOLS') segType = 'multicols';
+        else if (firstMatch.type === 'CHUY') segType = 'chuy';
+        else if (firstMatch.type === 'LIST') segType = 'list';
+
+        segs.push({ type: segType, value: innerContent.trim() });
+        currentIndex = endIndex + endTag.length;
+      } else {
+        segs.push({ type: 'content', value: text.substring(minIndex, minIndex + beginTag.length) });
+        currentIndex = minIndex + beginTag.length;
+      }
+    }
+
+    return segs;
+  };
+
   newSegments = [];
   segments.forEach(seg => {
     if (seg.type !== 'content') { newSegments.push(seg); return; }
-    let lastIdx = 0;
-    let match;
-    while ((match = listRegex.exec(seg.value)) !== null) {
-      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
-      newSegments.push({ type: 'list', value: match[1].trim() });
-      lastIdx = match.index + match[0].length;
-    }
-    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
+    newSegments.push(...parseNestedEnvironments(seg.value));
   });
   segments = newSegments;
 

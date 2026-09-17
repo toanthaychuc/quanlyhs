@@ -360,6 +360,7 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\vspace\*?\{[^}]*\}/gi, '');
   text = text.replace(/\\hspace\*?\{[^}]*\}/gi, '');
   text = text.replace(/\\setlength\{[^}]*\}\{[^}]*\}/gi, '');
+  text = text.replace(/\\columnbreak\b/g, '');
 
   // 4. Xử lý các môi trường khối lý thuyết / bài tập của giáo viên:
   // Khối multicols
