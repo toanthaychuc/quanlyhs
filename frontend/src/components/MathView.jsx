@@ -623,33 +623,33 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
   let segments = [{ type: 'content', value: normalized }];
   
   // Extract dn (box) and chuy environments
-  const boxRegex = /__BEGIN_BOX__([\s\S]*?)__END_BOX__/g;
+  const boxRegex = /\s*__BEGIN_BOX__\s*([\s\S]*?)\s*__END_BOX__\s*/g;
   let newSegments = [];
   segments.forEach(seg => {
     if (seg.type !== 'content') { newSegments.push(seg); return; }
     let lastIdx = 0;
     let match;
     while ((match = boxRegex.exec(seg.value)) !== null) {
-      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index) });
-      newSegments.push({ type: 'box', value: match[1] });
+      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
+      newSegments.push({ type: 'box', value: match[1].trim() });
       lastIdx = match.index + match[0].length;
     }
-    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
+    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
   });
   segments = newSegments;
 
-  const chuyRegex = /__BEGIN_CHUY__([\s\S]*?)__END_CHUY__/g;
+  const chuyRegex = /\s*__BEGIN_CHUY__\s*([\s\S]*?)\s*__END_CHUY__\s*/g;
   newSegments = [];
   segments.forEach(seg => {
     if (seg.type !== 'content') { newSegments.push(seg); return; }
     let lastIdx = 0;
     let match;
     while ((match = chuyRegex.exec(seg.value)) !== null) {
-      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index) });
-      newSegments.push({ type: 'chuy', value: match[1] });
+      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
+      newSegments.push({ type: 'chuy', value: match[1].trim() });
       lastIdx = match.index + match[0].length;
     }
-    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
+    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
   });
   segments = newSegments;
   
@@ -721,14 +721,14 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         }
         if (seg.type === 'box') {
           return (
-            <div key={segIdx} className="latex-framed-box" style={{ border: '2px solid var(--primary-color)', padding: '1rem', borderRadius: '8px', margin: '1.5rem 0', backgroundColor: 'rgba(99, 102, 241, 0.03)' }}>
+            <div key={segIdx} className="latex-framed-box" style={{ border: '2px solid var(--primary-color)', padding: '0.75rem 1rem', borderRadius: '8px', margin: '0.75rem 0', backgroundColor: 'rgba(99, 102, 241, 0.03)' }}>
               <RenderMathSegment rawText={seg.value} isNormalized={true} />
             </div>
           );
         }
         if (seg.type === 'chuy') {
           return (
-            <div key={segIdx} className="latex-chuy-box" style={{ borderLeft: '4px solid #f59e0b', padding: '0.75rem 1rem', margin: '1.5rem 0', backgroundColor: '#fffbeb', borderRadius: '0 8px 8px 0' }}>
+            <div key={segIdx} className="latex-chuy-box" style={{ borderLeft: '4px solid #f59e0b', padding: '0.75rem 1rem', margin: '0.75rem 0', backgroundColor: '#fffbeb', borderRadius: '0 8px 8px 0' }}>
               <strong style={{ color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '1.1em' }}>📌</span> Chú ý
               </strong>
