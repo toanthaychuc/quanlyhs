@@ -182,8 +182,8 @@
 }
 
 .formulas-modal {
-  max-width: 700px !important;
-  width: 90vw;
+  max-width: 900px !important;
+  width: 95vw;
 }
 
 .upload-wrapper {
@@ -201,9 +201,9 @@
 
 .latex-editor {
   font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   resize: vertical;
-  min-height: 200px;
+  min-height: 400px;
 }
 
 @media (max-width: 768px) {

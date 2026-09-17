@@ -263,7 +263,7 @@ const Formulas = () => {
 
       {isTeacher && isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content formulas-modal glass">
+          <div className="modal-content formulas-modal">
             <div className="modal-header">
               <h3>{editId ? 'Sửa mục công thức' : 'Thêm mục công thức'}</h3>
               <button className="icon-btn" onClick={() => setIsModalOpen(false)}>
@@ -289,7 +289,6 @@ const Formulas = () => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                <label>Nội dung (LaTeX) <span className="required">*</span></label>
                 <div className="upload-wrapper">
                   <button type="button" className="btn btn-outline upload-btn" onClick={() => fileInputRef.current?.click()}>
                     <Upload size={16} /> Nhập từ file .tex
