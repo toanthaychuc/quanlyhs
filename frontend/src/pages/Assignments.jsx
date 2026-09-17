@@ -1011,7 +1011,7 @@ const Assignments = () => {
                   {isTeacher && (
                     <button 
                       className="btn btn-secondary"
-                      style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem', minWidth: '130px', justifyContent: 'center' }}
+                      style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem', width: '142px', justifyContent: 'center' }}
                       onClick={() => setExpandedProgressId(isDrawerOpen ? null : asg.id)}
                     >
                       <Users size={15} />
