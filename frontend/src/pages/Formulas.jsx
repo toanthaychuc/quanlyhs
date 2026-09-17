@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, LayoutTemplate } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { getFormulas, addFormula, updateFormula, deleteFormula } from '../services/formulaService';
@@ -8,13 +7,9 @@ import './Formulas.css';
 
 const Formulas = () => {
   const { isTeacher } = useRole();
-  const location = useLocation();
-  const navigate = useNavigate();
   const [formulas, setFormulas] = useState([]);
+  const [activeFormulaId, setActiveFormulaId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
-  const queryParams = new URLSearchParams(location.search);
-  const activeFormulaId = queryParams.get('id');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -28,7 +23,7 @@ const Formulas = () => {
       const data = await getFormulas();
       setFormulas(data || []);
       if (data && data.length > 0 && !activeFormulaId) {
-        navigate(`?id=${data[0].id}`, { replace: true });
+        setActiveFormulaId(data[0].id);
       }
     } catch (error) {
       console.error('Lỗi khi tải công thức:', error);
@@ -39,7 +34,6 @@ const Formulas = () => {
 
   useEffect(() => {
     fetchFormulas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openAddModal = () => {
@@ -58,20 +52,15 @@ const Formulas = () => {
   };
 
   const handleDelete = async (e, id) => {
-    if (e) e.stopPropagation();
+    e.stopPropagation();
     if (!isTeacher) return;
     if (window.confirm('Bạn có chắc chắn muốn xóa mục công thức này?')) {
       try {
         await deleteFormula(id);
         const newData = formulas.filter(f => f.id !== id);
         setFormulas(newData);
-        window.dispatchEvent(new Event('formulas_updated'));
         if (activeFormulaId === id) {
-          if (newData.length > 0) {
-            navigate(`?id=${newData[0].id}`);
-          } else {
-            navigate(`/formulas`);
-          }
+          setActiveFormulaId(newData.length > 0 ? newData[0].id : null);
         }
       } catch (error) {
         alert('Có lỗi xảy ra khi xóa!');
@@ -87,12 +76,10 @@ const Formulas = () => {
       if (editId) {
         const updated = await updateFormula(editId, formData);
         setFormulas(formulas.map(f => f.id === editId ? updated : f));
-        window.dispatchEvent(new Event('formulas_updated'));
       } else {
         const added = await addFormula(formData);
         setFormulas([...formulas, added]);
-        window.dispatchEvent(new Event('formulas_updated'));
-        navigate(`?id=${added.id}`);
+        setActiveFormulaId(added.id);
       }
       setIsModalOpen(false);
     } catch (error) {
@@ -156,23 +143,47 @@ const Formulas = () => {
         )}
       </div>
 
-      <div className="formulas-layout" style={{ gridTemplateColumns: '1fr' }}>
-        <div className="formulas-main glass" style={{ width: '100%', margin: '0 auto', maxWidth: '1000px' }}>
+      <div className="formulas-layout">
+        <div className="formulas-sidebar glass">
+          <h3 className="sidebar-title">Danh mục</h3>
+          {isLoading ? (
+            <div className="loading-state">Đang tải...</div>
+          ) : formulas.length > 0 ? (
+            <ul className="formulas-list">
+              {formulas.map(formula => (
+                <li 
+                  key={formula.id} 
+                  className={`formula-item ${activeFormulaId === formula.id ? 'active' : ''}`}
+                  onClick={() => setActiveFormulaId(formula.id)}
+                >
+                  <div className="formula-item-content">
+                    <FileText size={18} className="item-icon" />
+                    <span className="item-title">{formula.title}</span>
+                  </div>
+                  
+                  {isTeacher && (
+                    <div className="formula-item-actions">
+                      <button className="icon-btn edit-btn" onClick={(e) => openEditModal(e, formula)} title="Sửa">
+                        <Edit size={14} />
+                      </button>
+                      <button className="icon-btn delete-btn" onClick={(e) => handleDelete(e, formula.id)} title="Xóa">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
+                  {activeFormulaId === formula.id && !isTeacher && <ChevronRight size={16} className="active-indicator" />}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="empty-sidebar">Chưa có dữ liệu</div>
+          )}
+        </div>
+
+        <div className="formulas-main glass">
           {activeFormula ? (
             <div className="formula-content-container">
-              <div className="formula-main-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-                <h2 className="formula-main-title" style={{ margin: 0, padding: 0, border: 'none' }}>{activeFormula.title}</h2>
-                {isTeacher && (
-                  <div className="formula-item-actions" style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="btn btn-outline" style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} onClick={(e) => openEditModal(e, activeFormula)}>
-                      <Edit size={16} /> Sửa
-                    </button>
-                    <button className="btn btn-outline" style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }} onClick={(e) => handleDelete(e, activeFormula.id)}>
-                      <Trash2 size={16} /> Xóa
-                    </button>
-                  </div>
-                )}
-              </div>
+              <h2 className="formula-main-title">{activeFormula.title}</h2>
               <div className="formula-viewer">
                 {activeFormula.content ? (
                   <MathView text={activeFormula.content} />
@@ -184,7 +195,7 @@ const Formulas = () => {
           ) : (
             <div className="empty-main">
               <LayoutTemplate size={48} className="empty-icon" />
-              <p>Vui lòng chọn một mục từ menu bên trái để xem công thức</p>
+              <p>Vui lòng chọn một mục để xem công thức</p>
             </div>
           )}
         </div>
