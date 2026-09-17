@@ -885,8 +885,6 @@ const Assignments = () => {
                       <div className="assignment-meta-tags">
                         <span>Lớp: <strong>{asg.className}</strong></span>
                         <span>•</span>
-                        <span>{asg.questionsCount} câu hỏi</span>
-                        <span>•</span>
                         <span>Thời lượng: {asg.duration} phút</span>
                         <span>•</span>
                         <span className="flex items-center gap-1">
