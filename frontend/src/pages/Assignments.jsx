@@ -1142,7 +1142,9 @@ const Assignments = () => {
                           return (
                             <tr key={st.id || i}>
                               <td>{i + 1}</td>
-                              <td style={{ fontFamily: 'monospace', fontWeight: 600, color: '#4f46e5' }}>{st.id}</td>
+                              <td style={{ fontFamily: 'monospace', fontWeight: 600, color: '#4f46e5' }}>
+                                {st.id?.startsWith(`${currentClass?.id}_`) ? st.id.replace(`${currentClass?.id}_`, '') : st.id}
+                              </td>
                               <td style={{ fontWeight: 600 }}>{st.name}</td>
                               <td>
                                 {isDone ? (
