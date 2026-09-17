@@ -26,7 +26,8 @@ import {
   Shield,
   Menu,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react';
 import { 
   LayoutDashboard as I_LayoutDashboard, LayoutGrid as I_LayoutGrid,
@@ -52,28 +53,92 @@ import { ThemeToggleIcon } from '../components/ThemeToggleIcon';
 import AnimatedIcon from '../components/AnimatedIcon';
 import { getClasses } from '../services/classService';
 import { getGamification } from '../services/examService';
+import { getFormulas } from '../services/formulaService';
 import { calculateRank } from '../utils/rankUtils';
 import './MainLayout.css';
 
-const NavItemRenderer = ({ item, onClick }) => {
+const NavItemRenderer = ({ item, onClick, subItems, isExpanded, onToggleExpand, activeSubId }) => {
   const [isHovered, setIsHovered] = useState(false);
   return (
-    <NavLink 
-      to={item.path} 
-      className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-      onClick={(e) => onClick(e, item.path)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      title={item.label}
-    >
-      <AnimatedIcon 
-        defaultIcon={item.iconDefault} 
-        hoverIcon={item.iconHover} 
-        size={20} 
-        isHoveredExternal={isHovered} 
-      />
-      <span>{item.label}</span>
-    </NavLink>
+    <div className="nav-item-container" style={{ position: 'relative' }}>
+      <NavLink 
+        to={item.path} 
+        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        onClick={(e) => onClick(e, item.path)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        title={item.label}
+        style={{ paddingRight: subItems ? '2.5rem' : '' }}
+      >
+        <AnimatedIcon 
+          defaultIcon={item.iconDefault} 
+          hoverIcon={item.iconHover} 
+          size={20} 
+          isHoveredExternal={isHovered} 
+        />
+        <span>{item.label}</span>
+      </NavLink>
+      {subItems && (
+        <button 
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleExpand(); }}
+          style={{
+            position: 'absolute',
+            right: '8px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10
+          }}
+          title="Mở rộng danh mục"
+        >
+          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+        </button>
+      )}
+      <AnimatePresence>
+        {isExpanded && subItems && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', padding: '0.25rem 0 0.5rem 2.8rem', gap: '0.25rem' }}>
+              {subItems.map(sub => (
+                <NavLink
+                  key={sub.id}
+                  to={`${item.path}?id=${sub.id}`}
+                  className="nav-subitem"
+                  style={{ 
+                    fontSize: '0.85rem', 
+                    padding: '0.4rem 0.75rem', 
+                    borderRadius: '6px',
+                    color: activeSubId === sub.id ? 'var(--primary-color)' : 'var(--text-secondary)',
+                    textDecoration: 'none',
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    fontWeight: activeSubId === sub.id ? 600 : 400,
+                    background: activeSubId === sub.id ? 'rgba(99, 102, 241, 0.08)' : 'transparent'
+                  }}
+                  onClick={(e) => onClick(e, `${item.path}?id=${sub.id}`)}
+                  title={sub.title}
+                >
+                  {sub.title}
+                </NavLink>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -170,6 +235,25 @@ const MainLayout = () => {
       }).catch(err => console.error('Background sync classes error:', err));
     }).catch(err => console.error('MainLayout getClasses error:', err));
   }, [role, hasEnteredApp]);
+
+  // Lấy danh sách danh mục tra công thức
+  const [formulas, setFormulas] = useState([]);
+  const [isFormulasExpanded, setIsFormulasExpanded] = useState(false);
+
+  useEffect(() => {
+    const fetchFormulas = async () => {
+      try {
+        const data = await getFormulas();
+        if (Array.isArray(data)) setFormulas(data);
+      } catch (err) {
+        console.error('Error fetching formulas in layout:', err);
+      }
+    };
+    fetchFormulas();
+    window.addEventListener('formulas_updated', fetchFormulas);
+    return () => window.removeEventListener('formulas_updated', fetchFormulas);
+  }, []);
+
 
   // Nghe sự kiện thăng hạng
   useEffect(() => {
@@ -332,9 +416,24 @@ const MainLayout = () => {
         </div>
 
         <nav className="sidebar-nav">
-          {navItems.map((item) => (
-            <NavItemRenderer key={item.path} item={item} onClick={handleNavClick} />
-          ))}
+          {navItems.map((item) => {
+            if (item.path === '/formulas') {
+              const urlParams = new URLSearchParams(location.search);
+              const activeFormulaId = urlParams.get('id');
+              return (
+                <NavItemRenderer 
+                  key={item.path} 
+                  item={item} 
+                  onClick={handleNavClick}
+                  subItems={formulas}
+                  isExpanded={isFormulasExpanded}
+                  onToggleExpand={() => setIsFormulasExpanded(!isFormulasExpanded)}
+                  activeSubId={activeFormulaId}
+                />
+              );
+            }
+            return <NavItemRenderer key={item.path} item={item} onClick={handleNavClick} />;
+          })}
         </nav>
 
         <div className="sidebar-footer">
