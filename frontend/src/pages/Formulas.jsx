@@ -339,7 +339,7 @@ const Formulas = () => {
 
       {isTeacher && isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content formulas-modal" style={{ maxWidth: '95vw', width: '1200px', height: '90vh' }}>
+          <div className="modal-content formulas-modal" style={{ maxWidth: '1700px', width: '98vw', height: '96vh' }}>
             <div className="modal-header">
               <h3>{editId ? 'Sửa mục công thức' : 'Thêm mục công thức'}</h3>
               <button className="icon-btn" onClick={() => setIsModalOpen(false)}>
