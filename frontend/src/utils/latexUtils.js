@@ -319,6 +319,17 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\caukq\b/gi, '\n\n### ✍️ PHẦN 3. CÂU TRẮC NGHIỆM TRẢ LỜI NGẮN\n\n');
   text = text.replace(/\\cautl\b/gi, '\n\n### 📝 PHẦN 4. CÂU HỎI TỰ LUẬN\n\n');
 
+  // Xử lý section và subsection
+  let subsectionCounter = 0;
+  text = text.replace(/\\section\*?\{([^}]+)\}/gi, (match, title) => {
+    subsectionCounter = 0; // Reset subsection counter when a new section starts
+    return `\n\n**${title}**\n\n`;
+  });
+  text = text.replace(/\\subsection\*?\{([^}]+)\}/gi, (match, title) => {
+    subsectionCounter++;
+    return `\n\n**${subsectionCounter}. ${title}**\n\n`;
+  });
+
   // 3. Khử môi trường bao bọc và căn lề:
   text = text.replace(/\\begin\{(?:center|flushleft|flushright|multicols|paracol|tcolorbox|window|onlysolution|document)\}(?:\[[^\]]*\])?/gi, '');
   text = text.replace(/\\end\{(?:center|flushleft|flushright|multicols|paracol|tcolorbox|window|onlysolution|document)\}/gi, '');
@@ -328,9 +339,17 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\setlength\{[^}]*\}\{[^}]*\}/gi, '');
 
   // 4. Xử lý các môi trường khối lý thuyết / bài tập của giáo viên:
+  // Khối định nghĩa (dn) - Kiến thức trọng tâm
+  text = text.replace(/\\begin\{dn\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_BOX__\n\n');
+  text = text.replace(/\\end\{dn\}/gi, '\n\n__END_BOX__\n\n');
+
+  // Khối chú ý (chuy)
+  text = text.replace(/\\begin\{chuy\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_CHUY__\n\n');
+  text = text.replace(/\\end\{chuy\}/gi, '\n\n__END_CHUY__\n\n');
+
   text = text.replace(/\\begin\{(?:dang|noidung|khung4|boxdl|boxdn|boxkn)\}(?:\[[^\]]*\])?\{([^}]+)\}/gi, '\n**📌 $1**\n');
-  text = text.replace(/\\begin\{(?:vidu|luyentap|vandung|baitap|chuy|nx|ghichu|luuy|hd|dn|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}(?:\[[^\]]*\])?/gi, '');
-  text = text.replace(/\\end\{(?:dang|noidung|khung4|boxdl|boxdn|boxkn|vidu|luyentap|vandung|baitap|chuy|nx|ghichu|luuy|hd|dn|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}/gi, '');
+  text = text.replace(/\\begin\{(?:vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}(?:\[[^\]]*\])?/gi, '');
+  text = text.replace(/\\end\{(?:dang|noidung|khung4|boxdl|boxdn|boxkn|vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}/gi, '');
 
   // 5. Chuyển đổi FontAwesome & Icon symbols sang biểu tượng trực quan
   const iconMap = {

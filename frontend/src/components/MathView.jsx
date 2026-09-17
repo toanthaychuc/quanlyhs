@@ -615,13 +615,43 @@ const TabularViewer = ({ code }) => {
   );
 };
 
-// Hàm hiển thị một đoạn văn bản/toán chuẩn KaTeX
-const RenderMathSegment = ({ rawText = '', className = '' }) => {
+const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false }) => {
   if (!rawText) return null;
 
-  const normalized = normalizeLatexString(rawText);
+  const normalized = isNormalized ? rawText : normalizeLatexString(rawText);
 
   let segments = [{ type: 'content', value: normalized }];
+  
+  // Extract dn (box) and chuy environments
+  const boxRegex = /__BEGIN_BOX__([\s\S]*?)__END_BOX__/g;
+  let newSegments = [];
+  segments.forEach(seg => {
+    if (seg.type !== 'content') { newSegments.push(seg); return; }
+    let lastIdx = 0;
+    let match;
+    while ((match = boxRegex.exec(seg.value)) !== null) {
+      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index) });
+      newSegments.push({ type: 'box', value: match[1] });
+      lastIdx = match.index + match[0].length;
+    }
+    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
+  });
+  segments = newSegments;
+
+  const chuyRegex = /__BEGIN_CHUY__([\s\S]*?)__END_CHUY__/g;
+  newSegments = [];
+  segments.forEach(seg => {
+    if (seg.type !== 'content') { newSegments.push(seg); return; }
+    let lastIdx = 0;
+    let match;
+    while ((match = chuyRegex.exec(seg.value)) !== null) {
+      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index) });
+      newSegments.push({ type: 'chuy', value: match[1] });
+      lastIdx = match.index + match[0].length;
+    }
+    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
+  });
+  segments = newSegments;
   
   const tikzRegex = /(?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\}/gi;
   let newSegments = [];
@@ -688,6 +718,23 @@ const RenderMathSegment = ({ rawText = '', className = '' }) => {
         }
         if (seg.type === 'tabular') {
           return <TabularViewer key={segIdx} code={seg.value} />;
+        }
+        if (seg.type === 'box') {
+          return (
+            <div key={segIdx} className="latex-framed-box" style={{ border: '2px solid var(--primary-color)', padding: '1rem', borderRadius: '8px', margin: '1.5rem 0', backgroundColor: 'rgba(99, 102, 241, 0.03)' }}>
+              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+            </div>
+          );
+        }
+        if (seg.type === 'chuy') {
+          return (
+            <div key={segIdx} className="latex-chuy-box" style={{ borderLeft: '4px solid #f59e0b', padding: '0.75rem 1rem', margin: '1.5rem 0', backgroundColor: '#fffbeb', borderRadius: '0 8px 8px 0' }}>
+              <strong style={{ color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '1.1em' }}>📌</span> Chú ý
+              </strong>
+              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+            </div>
+          );
         }
 
         const rawContent = seg.value;
