@@ -740,7 +740,6 @@ const Assignments = () => {
 
   // Học sinh làm bài online trực tiếp
   const handleStudentDoOnline = (asg) => {
-    const randomScore = (8.0 + Math.random() * 2.0).toFixed(1);
     setAssignments(prev => prev.map(a => {
       if (a.id !== asg.id) return a;
       return {
@@ -749,14 +748,14 @@ const Assignments = () => {
           ...a.submissions,
           [currentStudentId]: {
             submittedAt: new Date().toLocaleString('vi-VN'),
-            score: Number(randomScore),
+            score: null,
             status: 'submitted',
             type: 'online'
           }
         }
       };
     }));
-    alert(`🎉 Bạn đã hoàn thành bài tập trực tuyến! Kết quả: ${randomScore}/10 điểm.`);
+    alert(`🎉 Bạn đã nộp bài tập trực tuyến thành công!`);
   };
 
   return (
@@ -902,7 +901,7 @@ const Assignments = () => {
                     <div>
                       {hasSubmitted ? (
                         <span className="badge-tag active">
-                          ✓ Đã nộp bài ({mySubmission.score !== null ? `${mySubmission.score}/10đ` : 'Chờ chấm'})
+                          ✓ Đã nộp bài{mySubmission.score !== null ? ` (${mySubmission.score}/10đ)` : ''}
                         </span>
                       ) : (
                         <span className="badge-tag urgent">
