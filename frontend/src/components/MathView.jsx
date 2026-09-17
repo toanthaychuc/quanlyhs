@@ -767,57 +767,49 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
     "\\vv": "\\overrightarrow{#1}",
     "\\heva": "\\begin{cases} #1 \\end{cases}",
     "\\hoac": "\\left[\\begin{array}{ll} #1 \\end{array}\\right.",
-    "\\goc": "\\widehat{#1}",
-    "\\ang": "#1^\\circ",
-    "\\degree": "^\\circ",
-    "\\vect": "\\overrightarrow{#1}",
-    "\\varparallel": "\\parallel",
-    "\\wideparen": "\\overgroup{#1}",
-    "\\overparen": "\\overgroup{#1}"
-  };
-
-  return (
+    "\\goc":  return (
     <span className={`math-rendered-container ${className}`}>
       {segments.map((seg, segIdx) => {
+        const dataSourceAttr = encodeURIComponent(seg.value || '');
         if (seg.type === 'tikz') {
-          return <TikzDiagramViewer key={segIdx} tikzCode={seg.value} />;
+          return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TikzDiagramViewer tikzCode={seg.value} /></span>;
         }
         if (seg.type === 'tabular') {
-          return <TabularViewer key={segIdx} code={seg.value} />;
+          return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TabularViewer code={seg.value} /></span>;
         }
         if (seg.type === 'subsection') {
           return (
-            <div key={segIdx} className="latex-subsection" style={{ margin: '1.5rem 0 0.75rem', padding: '0.6rem 0.85rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)', fontSize: '1.1em' }}>
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-subsection math-source-block" style={{ margin: '1.5rem 0 0.75rem', padding: '0.6rem 0.85rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)', fontSize: '1.1em' }}>
               {seg.number}. {seg.title}
             </div>
           );
         }
         if (seg.type === 'subsubsection') {
           return (
-            <div key={segIdx} className="latex-subsubsection" style={{ margin: '1rem 0 0.5rem', padding: '0.5rem 0.75rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)' }}>
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-subsubsection math-source-block" style={{ margin: '1rem 0 0.5rem', padding: '0.5rem 0.75rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)' }}>
               {seg.number}. {seg.title}
             </div>
           );
         }
         if (seg.type === 'multicols') {
           return (
-            <div key={segIdx} className="latex-multicols" style={{ columnCount: 2, columnGap: '2rem' }}>
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-multicols math-source-block" style={{ columnCount: 2, columnGap: '2rem' }}>
               <RenderMathSegment rawText={seg.value} isNormalized={true} />
             </div>
           );
         }
         if (seg.type === 'box') {
           return (
-            <div key={segIdx} className="latex-framed-box" style={{ border: '2px solid var(--primary-color)', padding: '0.75rem 1rem', borderRadius: '8px', margin: '0.75rem 0', backgroundColor: 'rgba(99, 102, 241, 0.03)', breakInside: 'avoid' }}>
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-framed-box math-source-block" style={{ border: '2px solid var(--primary-color)', padding: '0.75rem 1rem', borderRadius: '8px', margin: '0.75rem 0', backgroundColor: 'rgba(99, 102, 241, 0.03)', breakInside: 'avoid' }}>
               <RenderMathSegment rawText={seg.value} isNormalized={true} />
             </div>
           );
         }
         if (seg.type === 'chuy') {
           return (
-            <div key={segIdx} className="latex-chuy-box" style={{ borderLeft: '4px solid #f59e0b', padding: '0.75rem 1rem', margin: '0.75rem 0', backgroundColor: '#fffbeb', borderRadius: '0 8px 8px 0' }}>
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-chuy-box math-source-block" style={{ borderLeft: '4px solid #f59e0b', padding: '0.75rem 1rem', margin: '0.75rem 0', backgroundColor: '#fffbeb', borderRadius: '0 8px 8px 0' }}>
               <strong style={{ color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.1em' }}>📌</span> Chú ý
+                <span style={{ fontSize: '1.1em' }}>💡</span> Chú ý
               </strong>
               <RenderMathSegment rawText={seg.value} isNormalized={true} />
             </div>
@@ -825,7 +817,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         }
         if (seg.type === 'list') {
           return (
-            <div key={segIdx} className="latex-list" style={{ paddingLeft: '2rem', margin: '0.5rem 0' }}>
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-list math-source-block" style={{ paddingLeft: '2rem', margin: '0.5rem 0' }}>
               <RenderMathSegment rawText={seg.value} isNormalized={true} />
             </div>
           );
@@ -883,7 +875,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         }
 
         return (
-          <span key={segIdx} className="math-inline-segment">
+          <span key={segIdx} data-source={encodeURIComponent(seg.value || '')} className="math-inline-segment math-source-block">
             {parts.map((part, pIdx) => {
               if (part.type === 'text') {
                 return (
@@ -1130,16 +1122,16 @@ const MathView = ({ text = '', className = '' }) => {
 
     return (
       <div className={`math-rendered-block ${className}`}>
-        {beforeText && <RenderMathSegment rawText={beforeText} />}
+        {beforeText && <MathView text={beforeText} />}
         <div className={`immini-side-by-side-container ${isLeftMode ? 'immini-left-mode' : ''}`}>
           <div className="immini-text-pane">
-            <RenderMathSegment rawText={leftPart} />
+            <MathView text={leftPart} />
           </div>
           <div className="immini-diagram-pane">
-            <RenderMathSegment rawText={rightPart} />
+            <MathView text={rightPart} />
           </div>
         </div>
-        {afterText && <RenderMathSegment rawText={afterText} />}
+        {afterText && <MathView text={afterText} />}
       </div>
     );
   }
@@ -1148,3 +1140,4 @@ const MathView = ({ text = '', className = '' }) => {
 };
 
 export default React.memo(MathView);
+

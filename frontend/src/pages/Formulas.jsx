@@ -61,40 +61,59 @@ const Formulas = () => {
              visualLinesBefore += Math.max(1, Math.ceil(lines[i].length / 90));
          }
          
-         setTimeout(() => {
-             const lineHeight = 19.5;
-             textArea.scrollTop = Math.max(0, 16 + (visualLinesBefore - 5) * lineHeight);
-         }, 10);
-      } else {
-         alert(`Không tìm thấy "${query}" trong mã nguồn!`);
+         const lineHeight = 21;
+         textArea.scrollTop = Math.max(0, visualLinesBefore * lineHeight - 100);
       }
     } catch (err) {
-      alert(`Không thể tìm kiếm từ khóa này!`);
+      console.error(err);
     }
+  };
+
+  const handleSearchAction = () => {
+    const query = texSearchInputRef.current?.value;
+    if (!query) return;
+
+    let startIndex = 0;
+    if (texTextareaRef.current) {
+      if (texTextareaRef.current.selectionStart !== texTextareaRef.current.selectionEnd) {
+        startIndex = texTextareaRef.current.selectionStart + 1;
+      } else {
+        startIndex = texTextareaRef.current.selectionEnd;
+      }
+    }
+    executeTexSearch(query, startIndex);
   };
 
   const handleTexSearchKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const query = texSearchInputRef.current?.value;
-      if (!query) return;
-
-      let startIndex = 0;
-      if (texTextareaRef.current) {
-        if (texTextareaRef.current.selectionStart !== texTextareaRef.current.selectionEnd) {
-          startIndex = texTextareaRef.current.selectionStart + 1;
-        } else {
-          startIndex = texTextareaRef.current.selectionEnd;
-        }
-      }
-      executeTexSearch(query, startIndex);
+      handleSearchAction();
     }
   };
 
-  const handlePreviewDoubleClick = () => {
-    const selection = window.getSelection();
-    if (!selection || !selection.toString().trim()) return;
-    const query = selection.toString().trim();
+  const handlePreviewDoubleClick = (e) => {
+    let query = '';
+    
+    // Nếu click vào một block có chứa data-source (từ MathView)
+    if (e && e.target) {
+      const target = e.target.closest('[data-source]');
+      if (target) {
+        const sourceLatex = decodeURIComponent(target.getAttribute('data-source'));
+        if (sourceLatex) {
+          query = sourceLatex;
+        }
+      }
+    }
+    
+    // Fallback: nếu bôi đen văn bản
+    if (!query) {
+      const selection = window.getSelection();
+      if (selection && selection.toString().trim()) {
+        query = selection.toString().trim();
+      }
+    }
+
+    if (!query) return;
     executeTexSearch(query);
   };
 
@@ -385,7 +404,7 @@ const Formulas = () => {
                     <button 
                       type="button" 
                       className="btn btn-secondary"
-                      onClick={() => executeTexSearch(texSearchInputRef.current?.value)}
+                      onClick={handleSearchAction}
                     >
                       Tìm
                     </button>
