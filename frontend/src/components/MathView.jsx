@@ -622,9 +622,41 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
 
   let segments = [{ type: 'content', value: normalized }];
 
+  // Extract subsubsection
+  const subsubRegex = /\s*__SUBSUBSECTION__(\d+)__([\s\S]*?)__END_SUBSUBSECTION__\s*/g;
+  let newSegments = [];
+  segments.forEach(seg => {
+    if (seg.type !== 'content') { newSegments.push(seg); return; }
+    let lastIdx = 0;
+    let match;
+    while ((match = subsubRegex.exec(seg.value)) !== null) {
+      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
+      newSegments.push({ type: 'subsubsection', number: match[1], title: match[2].trim() });
+      lastIdx = match.index + match[0].length;
+    }
+    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
+  });
+  segments = newSegments;
+
+  // Extract multicols FIRST (since it often wraps other boxes)
+  const multicolsRegex = /\s*__BEGIN_MULTICOLS__\s*([\s\S]*?)\s*__END_MULTICOLS__\s*/g;
+  newSegments = [];
+  segments.forEach(seg => {
+    if (seg.type !== 'content') { newSegments.push(seg); return; }
+    let lastIdx = 0;
+    let match;
+    while ((match = multicolsRegex.exec(seg.value)) !== null) {
+      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
+      newSegments.push({ type: 'multicols', value: match[1].trim() });
+      lastIdx = match.index + match[0].length;
+    }
+    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
+  });
+  segments = newSegments;
+
   // Extract dn (box) and chuy environments
   const boxRegex = /\s*__BEGIN_BOX__\s*([\s\S]*?)\s*__END_BOX__\s*/g;
-  let newSegments = [];
+  newSegments = [];
   segments.forEach(seg => {
     if (seg.type !== 'content') { newSegments.push(seg); return; }
     let lastIdx = 0;
@@ -734,9 +766,23 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         if (seg.type === 'tabular') {
           return <TabularViewer key={segIdx} code={seg.value} />;
         }
+        if (seg.type === 'subsubsection') {
+          return (
+            <div key={segIdx} className="latex-subsubsection" style={{ margin: '1rem 0 0.5rem', padding: '0.5rem 0.75rem', backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', borderRadius: '4px', fontWeight: 700, color: '#1e3a8a' }}>
+              {seg.number}. {seg.title}
+            </div>
+          );
+        }
+        if (seg.type === 'multicols') {
+          return (
+            <div key={segIdx} className="latex-multicols" style={{ columnCount: 2, columnGap: '2rem' }}>
+              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+            </div>
+          );
+        }
         if (seg.type === 'box') {
           return (
-            <div key={segIdx} className="latex-framed-box" style={{ border: '2px solid var(--primary-color)', padding: '0.75rem 1rem', borderRadius: '8px', margin: '0.75rem 0', backgroundColor: 'rgba(99, 102, 241, 0.03)' }}>
+            <div key={segIdx} className="latex-framed-box" style={{ border: '2px solid var(--primary-color)', padding: '0.75rem 1rem', borderRadius: '8px', margin: '0.75rem 0', backgroundColor: 'rgba(99, 102, 241, 0.03)', breakInside: 'avoid' }}>
               <RenderMathSegment rawText={seg.value} isNormalized={true} />
             </div>
           );
