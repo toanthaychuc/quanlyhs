@@ -437,11 +437,11 @@
 
 /* File Upload Zone for PDF / Image */
 .file-drop-zone {
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed var(--border-color);
   border-radius: var(--radius-lg);
   padding: 1.5rem 1rem;
   text-align: center;
-  background: #f8fafc;
+  background: var(--bg-color-alt, rgba(0, 0, 0, 0.02));
   cursor: pointer;
   transition: all var(--transition-fast);
   display: flex;
@@ -452,7 +452,7 @@
 
 .file-drop-zone:hover, .file-drop-zone.dragover {
   border-color: var(--primary-color);
-  background: #eef2ff;
+  background: rgba(99, 102, 241, 0.05);
 }
 
 .file-chip {
