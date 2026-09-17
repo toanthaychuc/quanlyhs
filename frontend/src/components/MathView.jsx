@@ -767,7 +767,16 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
     "\\vv": "\\overrightarrow{#1}",
     "\\heva": "\\begin{cases} #1 \\end{cases}",
     "\\hoac": "\\left[\\begin{array}{ll} #1 \\end{array}\\right.",
-    "\\goc":  return (
+    "\\goc": "\\widehat{#1}",
+    "\\ang": "#1^\\circ",
+    "\\degree": "^\\circ",
+    "\\vect": "\\overrightarrow{#1}",
+    "\\varparallel": "\\parallel",
+    "\\wideparen": "\\overgroup{#1}",
+    "\\overparen": "\\overgroup{#1}"
+  };
+
+  return (
     <span className={`math-rendered-container ${className}`}>
       {segments.map((seg, segIdx) => {
         const dataSourceAttr = encodeURIComponent(seg.value || '');
