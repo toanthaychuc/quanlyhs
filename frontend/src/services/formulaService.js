@@ -1,5 +1,22 @@
 import supabase from '../lib/supabase';
 
+export const updateFormulaOrders = async (formulas) => {
+  const updates = formulas.map((f, index) => {
+    return supabase
+      .from('formulas')
+      .update({ order_index: index })
+      .eq('id', f.id);
+  });
+  
+  const results = await Promise.all(updates);
+  const errors = results.filter(r => r.error).map(r => r.error);
+  if (errors.length > 0) {
+    console.error('Error updating formula orders:', errors);
+    throw new Error('Failed to update formula orders');
+  }
+  return true;
+};
+
 export const getFormulas = async () => {
   const { data, error } = await supabase
     .from('formulas')

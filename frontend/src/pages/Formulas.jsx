@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, LayoutTemplate } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
-import { getFormulas, addFormula, updateFormula, deleteFormula } from '../services/formulaService';
+import { getFormulas, addFormula, updateFormula, deleteFormula, updateFormulaOrders } from '../services/formulaService';
 import MathView from '../components/MathView';
 import './Formulas.css';
 
@@ -15,6 +15,11 @@ const Formulas = () => {
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({ title: '', content: '', order_index: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Drag and drop states for list reordering
+  const [draggedId, setDraggedId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
+
   const fileInputRef = useRef(null);
 
   const fetchFormulas = async () => {
@@ -124,6 +129,55 @@ const Formulas = () => {
     }
   };
 
+  const handleListDragStart = (e, formula) => {
+    if (!isTeacher) return;
+    setDraggedId(formula.id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleListDragOver = (e, formula) => {
+    e.preventDefault();
+    if (!isTeacher || draggedId === formula.id) return;
+    setDragOverId(formula.id);
+  };
+
+  const handleListDragLeave = () => {
+    setDragOverId(null);
+  };
+
+  const handleListDrop = async (e, targetFormula) => {
+    e.preventDefault();
+    setDragOverId(null);
+    if (!isTeacher || !draggedId || draggedId === targetFormula.id) {
+      setDraggedId(null);
+      return;
+    }
+
+    const newFormulas = [...formulas];
+    const draggedIdx = newFormulas.findIndex(f => f.id === draggedId);
+    const targetIdx = newFormulas.findIndex(f => f.id === targetFormula.id);
+
+    const [draggedItem] = newFormulas.splice(draggedIdx, 1);
+    newFormulas.splice(targetIdx, 0, draggedItem);
+
+    setFormulas(newFormulas);
+    setDraggedId(null);
+
+    try {
+      await updateFormulaOrders(newFormulas);
+    } catch (error) {
+      console.error(error);
+      alert('Không thể lưu thứ tự mới!');
+      // Re-fetch to revert if failed
+      fetchFormulas();
+    }
+  };
+
+  const handleListDragEnd = () => {
+    setDraggedId(null);
+    setDragOverId(null);
+  };
+
   const activeFormula = formulas.find(f => f.id === activeFormulaId);
 
   return (
@@ -153,8 +207,14 @@ const Formulas = () => {
               {formulas.map(formula => (
                 <li 
                   key={formula.id} 
-                  className={`formula-item ${activeFormulaId === formula.id ? 'active' : ''}`}
+                  className={`formula-item ${activeFormulaId === formula.id ? 'active' : ''} ${dragOverId === formula.id ? 'drag-over' : ''} ${draggedId === formula.id ? 'dragging-item' : ''}`}
                   onClick={() => setActiveFormulaId(formula.id)}
+                  draggable={isTeacher}
+                  onDragStart={(e) => handleListDragStart(e, formula)}
+                  onDragOver={(e) => handleListDragOver(e, formula)}
+                  onDragLeave={handleListDragLeave}
+                  onDrop={(e) => handleListDrop(e, formula)}
+                  onDragEnd={handleListDragEnd}
                 >
                   <div className="formula-item-content">
                     <FileText size={18} className="item-icon" />
@@ -256,16 +316,6 @@ const Formulas = () => {
                     <p>Thả file .tex vào đây</p>
                   </div>
                 )}
-              </div>
-
-              <div className="form-group">
-                <label>Thứ tự hiển thị</label>
-                <input 
-                  type="number" 
-                  className="input" 
-                  value={formData.order_index}
-                  onChange={(e) => setFormData({...formData, order_index: parseInt(e.target.value) || 0})}
-                />
               </div>
 
               <div className="modal-actions">
