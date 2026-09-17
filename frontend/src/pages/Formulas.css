@@ -184,6 +184,9 @@
 .formulas-modal {
   max-width: 900px !important;
   width: 95vw;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .upload-wrapper {

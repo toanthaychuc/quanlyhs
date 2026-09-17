@@ -270,7 +270,7 @@ const Formulas = () => {
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSave} className="modal-form">
+            <form onSubmit={handleSave} className="modal-form flex-col h-full" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
               <div className="form-group">
                 <label>Tên mục <span className="required">*</span></label>
                 <input 
@@ -288,8 +288,9 @@ const Formulas = () => {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
+                style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1rem', marginBottom: '1rem' }}
               >
-                <div className="upload-wrapper">
+                <div className="upload-wrapper" style={{ flexShrink: 0, marginBottom: '0.75rem' }}>
                   <button type="button" className="btn btn-outline upload-btn" onClick={() => fileInputRef.current?.click()}>
                     <Upload size={16} /> Nhập từ file .tex
                   </button>
@@ -306,8 +307,8 @@ const Formulas = () => {
                   className="input textarea latex-editor" 
                   value={formData.content}
                   onChange={(e) => setFormData({...formData, content: e.target.value})}
-                  rows={10}
                   placeholder="Nhập mã LaTeX của bạn vào đây..."
+                  style={{ flex: 1, height: '100%', minHeight: 0, margin: 0 }}
                 />
                 {isDragging && (
                   <div className="drag-overlay">
@@ -317,7 +318,7 @@ const Formulas = () => {
                 )}
               </div>
 
-              <div className="modal-actions">
+              <div className="modal-actions" style={{ flexShrink: 0, marginTop: 'auto' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Hủy</button>
                 <button type="submit" className="btn btn-primary">
                   <Save size={16} /> Lưu lại
