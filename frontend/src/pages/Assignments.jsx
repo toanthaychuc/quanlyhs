@@ -1011,11 +1011,11 @@ const Assignments = () => {
                   {isTeacher && (
                     <button 
                       className="btn btn-secondary"
-                      style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem', width: '142px', justifyContent: 'center' }}
+                      style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem', width: '115px', justifyContent: 'center', whiteSpace: 'nowrap' }}
                       onClick={() => setExpandedProgressId(isDrawerOpen ? null : asg.id)}
                     >
                       <Users size={15} />
-                      <span>{isDrawerOpen ? 'Thu gọn' : 'Danh sách nộp'}</span>
+                      <span>{isDrawerOpen ? 'Thu gọn' : 'DS nộp'}</span>
                       {isDrawerOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                     </button>
                   )}
