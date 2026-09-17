@@ -134,7 +134,7 @@ const MainLayout = () => {
   }, [currentStudentId, isTeacher]);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobileSimulator, setIsMobileSimulator] = useState(false);
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   // Theme State
@@ -478,23 +478,7 @@ const MainLayout = () => {
                 </button>
               )}
 
-              {/* Nút Mô Phỏng Mobile (Chỉ Giáo viên và không ở trong iframe) */}
-              {isTeacher && !isIframe && (
-                <button 
-                  className="btn btn-outline flex items-center justify-center group"
-                  style={{ 
-                    width: '38px', height: '38px', padding: 0,
-                    borderRadius: 'var(--radius-full)',
-                    backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                    borderColor: 'rgba(245, 158, 11, 0.3)',
-                    color: '#d97706'
-                  }}
-                  onClick={() => setIsMobileSimulator(true)}
-                  title="Mô phỏng Giao diện Điện thoại"
-                >
-                  <AnimatedIcon defaultIcon={I_Smartphone} hoverIcon={I_Tablet} size={20} />
-                </button>
-              )}
+
 
               {/* Nút Đổi Theme (Giao diện Sáng/Tối) */}
               <button 
@@ -688,27 +672,7 @@ const MainLayout = () => {
         onClose={() => setShowSettingsModal(false)} 
       />
 
-      {/* Mobile Simulator Modal */}
-      {isMobileSimulator && (
-        <div className="mobile-simulator-overlay" onClick={() => setIsMobileSimulator(false)}>
-          <div className="mobile-simulator-container" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-simulator-header">
-              <div className="flex items-center gap-2">
-                <Smartphone size={16} />
-                <span>Mô Phỏng Giao Diện Điện Thoại</span>
-              </div>
-              <button className="btn-icon" onClick={() => setIsMobileSimulator(false)} style={{ padding: '0.2rem' }}>
-                <X size={16} />
-              </button>
-            </div>
-            <iframe 
-              src={window.location.href} 
-              className="mobile-simulator-iframe"
-              title="Mobile Simulator"
-            />
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };
