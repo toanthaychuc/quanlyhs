@@ -1013,22 +1013,20 @@ const Assignments = () => {
                 )}
 
                 {/* Hàng nút bấm hành động */}
-                <div className="assignment-actions-row">
-                  <div>
-                    {isTeacher && (
-                      <button 
-                        className="btn btn-secondary"
-                        style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
-                        onClick={() => setExpandedProgressId(isDrawerOpen ? null : asg.id)}
-                      >
-                        <Users size={15} />
-                        <span>{isDrawerOpen ? 'Thu gọn danh sách học sinh' : 'Xem danh sách chi tiết nộp bài'}</span>
-                        {isDrawerOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                      </button>
-                    )}
-                  </div>
+                <div className="assignment-actions-row" style={{ justifyContent: 'flex-start', gap: '0.5rem' }}>
+                  {isTeacher && (
+                    <button 
+                      className="btn btn-secondary"
+                      style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem' }}
+                      onClick={() => setExpandedProgressId(isDrawerOpen ? null : asg.id)}
+                    >
+                      <Users size={15} />
+                      <span>{isDrawerOpen ? 'Thu gọn' : 'Danh sách nộp'}</span>
+                      {isDrawerOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    </button>
+                  )}
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap" style={{ flex: 1, justifyContent: 'flex-end' }}>
                     {isStudent && (
                       isOnline ? (
                         <button 
@@ -1055,12 +1053,12 @@ const Assignments = () => {
                     )}
 
                     {isTeacher && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         {/* Nút bật/tắt Ẩn/Hiện (Public / Hide) */}
                         <button 
                           className="btn btn-secondary"
                           style={{ 
-                            padding: '0.35rem 0.75rem', 
+                            padding: '0.35rem 0.5rem', 
                             fontSize: '0.8rem',
                             backgroundColor: asg.isHidden ? '#fef2f2' : '#f0fdf4',
                             borderColor: asg.isHidden ? '#fecaca' : '#bbf7d0',
@@ -1072,12 +1070,12 @@ const Assignments = () => {
                           {asg.isHidden ? (
                             <>
                               <EyeOff size={15} />
-                              <span>Đang Ẩn (Hide)</span>
+                              <span>Đang Ẩn</span>
                             </>
                           ) : (
                             <>
                               <Eye size={15} />
-                              <span>Công Khai (Public)</span>
+                              <span>Công khai</span>
                             </>
                           )}
                         </button>
@@ -1085,7 +1083,7 @@ const Assignments = () => {
                         {/* Nút Chỉnh sửa đề bài */}
                         <button 
                           className="btn btn-secondary"
-                          style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
+                          style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem' }}
                           onClick={() => handleOpenEditAssignment(asg)}
                           title="Chỉnh sửa đề bài & thông tin nhiệm vụ"
                         >
