@@ -40,7 +40,8 @@ import {
   Shield as I_Shield, ShieldCheck as I_ShieldCheck,
   Sliders as I_Sliders, Settings as I_Settings,
   Smartphone as I_Smartphone, Tablet as I_Tablet,
-  Menu as I_Menu, X as I_X
+  Menu as I_Menu, X as I_X,
+  Library as I_Library, Sigma as I_Sigma
 } from 'lucide';
 import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import WelcomeLandingModal from '../components/WelcomeLandingModal';
@@ -277,6 +278,7 @@ const MainLayout = () => {
     { path: '/assignments', iconDefault: I_BookOpen, iconHover: I_BookOpenCheck, label: 'Bài tập' },
     { path: '/exams', iconDefault: I_GraduationCap, iconHover: I_BookA, label: 'Thi thử' },
     { path: '/documents', iconDefault: I_FileText, iconHover: I_Files, label: 'Tài liệu' },
+    { path: '/formulas', iconDefault: I_Library, iconHover: I_Sigma, label: 'Tra công thức' },
     { path: '/forms', iconDefault: I_ClipboardList, iconHover: I_ClipboardCheck, label: 'Biểu mẫu' },
     { path: '/forum', iconDefault: I_MessageSquare, iconHover: I_MessageCircle, label: 'Hỏi đáp' },
     { path: '/leaderboard', iconDefault: I_Award, iconHover: I_Trophy, label: 'Xếp hạng' },
