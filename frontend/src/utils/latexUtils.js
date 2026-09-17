@@ -415,7 +415,7 @@ export const normalizeLatexString = (str = '') => {
       
       let replacedInner = inner.replace(/\\(?:item|itemch|Eitem|Esubitemch)\b(?:\[([^\]]*)\])?\s*/gi, (itemMatch, itemOpt) => {
         if (itemOpt) {
-          return `\n**${itemOpt}** `;
+          return `\n• **${itemOpt}** `;
         }
         
         let label = '';
@@ -437,7 +437,7 @@ export const normalizeLatexString = (str = '') => {
         counter++;
         return `\n**${label}** `;
       });
-      return replacedInner;
+      return `\n\n__BEGIN_LIST__\n${replacedInner}\n__END_LIST__\n\n`;
     });
   } while (text !== prevTextList);
 

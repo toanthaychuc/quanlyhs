@@ -652,6 +652,21 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
     if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
   });
   segments = newSegments;
+
+  const listRegex = /\s*__BEGIN_LIST__\s*([\s\S]*?)\s*__END_LIST__\s*/g;
+  newSegments = [];
+  segments.forEach(seg => {
+    if (seg.type !== 'content') { newSegments.push(seg); return; }
+    let lastIdx = 0;
+    let match;
+    while ((match = listRegex.exec(seg.value)) !== null) {
+      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
+      newSegments.push({ type: 'list', value: match[1].trim() });
+      lastIdx = match.index + match[0].length;
+    }
+    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
+  });
+  segments = newSegments;
   
   const tikzRegex = /(?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\}/gi;
   newSegments = [];
@@ -732,6 +747,13 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
               <strong style={{ color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '1.1em' }}>📌</span> Chú ý
               </strong>
+              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+            </div>
+          );
+        }
+        if (seg.type === 'list') {
+          return (
+            <div key={segIdx} className="latex-list" style={{ paddingLeft: '2rem', margin: '0.5rem 0' }}>
               <RenderMathSegment rawText={seg.value} isNormalized={true} />
             </div>
           );
