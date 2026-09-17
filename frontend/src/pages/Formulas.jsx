@@ -271,7 +271,7 @@ const Formulas = () => {
               </button>
             </div>
             <form onSubmit={handleSave} className="modal-form flex-col h-full" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-              <div className="form-group">
+              <div className="form-group" style={{ flexShrink: 0 }}>
                 <label>Tên mục <span className="required">*</span></label>
                 <input 
                   type="text" 
@@ -288,9 +288,9 @@ const Formulas = () => {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '1rem', marginBottom: '1rem' }}
+                style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0.5rem', marginBottom: '1rem', minHeight: 0 }}
               >
-                <div className="upload-wrapper" style={{ flexShrink: 0, marginBottom: '0.75rem' }}>
+                <div className="upload-wrapper" style={{ flexShrink: 0, marginBottom: '0.5rem' }}>
                   <button type="button" className="btn btn-outline upload-btn" onClick={() => fileInputRef.current?.click()}>
                     <Upload size={16} /> Nhập từ file .tex
                   </button>
@@ -304,7 +304,7 @@ const Formulas = () => {
                   <span className="upload-hint">Hoặc dán/nhập, kéo thả file .tex trực tiếp vào đây</span>
                 </div>
                 <textarea 
-                  className="input textarea latex-editor" 
+                  className="input textarea latex-editor full-height-textarea w-full" 
                   value={formData.content}
                   onChange={(e) => setFormData({...formData, content: e.target.value})}
                   placeholder="Nhập mã LaTeX của bạn vào đây..."
