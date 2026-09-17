@@ -182,9 +182,9 @@
 }
 
 .formulas-modal {
-  max-width: 900px !important;
-  width: 95vw;
-  height: 90vh;
+  max-width: 1700px !important;
+  width: 98vw;
+  height: 96vh;
   display: flex;
   flex-direction: column;
 }
