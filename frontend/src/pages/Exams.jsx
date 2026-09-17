@@ -879,6 +879,7 @@ const Exams = () => {
     };
 
     currentExam.questions.forEach((q) => {
+      const uAns = userAnswers[q.id];
       let isQuestionCorrect = false;
 
       if (q.questionType === 'true_false') {
