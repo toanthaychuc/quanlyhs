@@ -303,13 +303,15 @@ const Formulas = () => {
                   />
                   <span className="upload-hint">Hoặc dán/nhập, kéo thả file .tex trực tiếp vào đây</span>
                 </div>
-                <textarea 
-                  className="input textarea latex-editor full-height-textarea w-full" 
-                  value={formData.content}
-                  onChange={(e) => setFormData({...formData, content: e.target.value})}
-                  placeholder="Nhập mã LaTeX của bạn vào đây..."
-                  style={{ flex: 1, height: '100%', minHeight: 0, margin: 0 }}
-                />
+                <div style={{ flex: 1, position: 'relative', width: '100%', minHeight: 0 }}>
+                  <textarea 
+                    className="input textarea latex-editor w-full" 
+                    value={formData.content}
+                    onChange={(e) => setFormData({...formData, content: e.target.value})}
+                    placeholder="Nhập mã LaTeX của bạn vào đây..."
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', resize: 'none', margin: 0 }}
+                  />
+                </div>
                 {isDragging && (
                   <div className="drag-overlay">
                     <Upload size={48} className="text-primary" />
