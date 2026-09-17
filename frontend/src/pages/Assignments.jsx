@@ -898,17 +898,19 @@ const Assignments = () => {
                     </div>
                   </div>
 
-                  <div>
-                    {hasSubmitted ? (
-                      <span className="badge-tag active">
-                        ✓ Đã nộp bài ({mySubmission.score !== null ? `${mySubmission.score}/10đ` : 'Chờ chấm'})
-                      </span>
-                    ) : (
-                      <span className="badge-tag urgent">
-                        ⏳ Chưa nộp bài
-                      </span>
-                    )}
-                  </div>
+                  {isStudent && (
+                    <div>
+                      {hasSubmitted ? (
+                        <span className="badge-tag active">
+                          ✓ Đã nộp bài ({mySubmission.score !== null ? `${mySubmission.score}/10đ` : 'Chờ chấm'})
+                        </span>
+                      ) : (
+                        <span className="badge-tag urgent">
+                          ⏳ Chưa nộp bài
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {asg.description && (
