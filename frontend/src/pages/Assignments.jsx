@@ -874,12 +874,6 @@ const Assignments = () => {
                     <div>
                       <div className="flex items-center gap-2" style={{ marginBottom: '0.2rem' }}>
 
-                        {isTeacher && asg.isHidden && (
-                          <span className="badge-tag" style={{ background: '#fee2e2', color: '#dc2626' }}>
-                            🔒 Đang ẩn với học sinh
-                          </span>
-                        )}
-
                         <h3 className="assignment-name" style={{ margin: 0 }}>{asg.title}</h3>
                       </div>
                       <div className="assignment-meta-tags">
