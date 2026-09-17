@@ -9,6 +9,8 @@
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
 }
 
 .title-area h1 {
