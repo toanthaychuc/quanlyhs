@@ -936,9 +936,7 @@ const Assignments = () => {
                       <span>
                         Báo cáo tiến độ nộp bài: <strong>{submittedCount}/{totalStudentsInClass} học sinh</strong> ({submitPercent}%)
                       </span>
-                      <span style={{ color: submitPercent >= 80 ? '#16a34a' : '#b45309' }}>
-                        {submitPercent >= 80 ? 'Tiến độ tốt' : 'Cần đôn đốc thêm'}
-                      </span>
+
                     </div>
 
                     <div className="progress-track" style={{ height: '8px' }}>
