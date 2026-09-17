@@ -11,10 +11,10 @@ const Formulas = () => {
   const [activeFormulaId, setActiveFormulaId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({ title: '', content: '', order_index: 0 });
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
   const fetchFormulas = async () => {
@@ -87,18 +87,41 @@ const Formulas = () => {
     }
   };
 
+  const processFile = (file) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target.result;
+      setFormData(prev => ({ ...prev, content }));
+    };
+    reader.readAsText(file);
+  };
+
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const content = event.target.result;
-        setFormData(prev => ({ ...prev, content }));
-      };
-      reader.readAsText(file);
+      processFile(file);
     }
     // Đặt lại value để có thể tải lên cùng 1 file nhiều lần nếu muốn
     e.target.value = null;
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file);
+    }
   };
 
   const activeFormula = formulas.find(f => f.id === activeFormulaId);
@@ -198,7 +221,12 @@ const Formulas = () => {
                 />
               </div>
               
-              <div className="form-group">
+              <div 
+                className={`form-group file-drop-zone ${isDragging ? 'dragging' : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
                 <label>Nội dung (LaTeX) <span className="required">*</span></label>
                 <div className="upload-wrapper">
                   <button type="button" className="btn btn-outline upload-btn" onClick={() => fileInputRef.current?.click()}>
@@ -211,7 +239,7 @@ const Formulas = () => {
                     onChange={handleFileUpload} 
                     style={{display: 'none'}} 
                   />
-                  <span className="upload-hint">Hoặc dán/nhập trực tiếp nội dung vào ô bên dưới</span>
+                  <span className="upload-hint">Hoặc dán/nhập, kéo thả file .tex trực tiếp vào đây</span>
                 </div>
                 <textarea 
                   className="input textarea latex-editor" 
@@ -220,6 +248,12 @@ const Formulas = () => {
                   rows={10}
                   placeholder="Nhập mã LaTeX của bạn vào đây..."
                 />
+                {isDragging && (
+                  <div className="drag-overlay">
+                    <Upload size={48} className="text-primary" />
+                    <p>Thả file .tex vào đây</p>
+                  </div>
+                )}
               </div>
 
               <div className="form-group">

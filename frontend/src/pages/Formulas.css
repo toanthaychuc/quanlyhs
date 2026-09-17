@@ -185,3 +185,41 @@
     padding: 1rem;
   }
 }
+
+.file-drop-zone {
+  position: relative;
+  transition: all 0.2s;
+}
+
+.file-drop-zone.dragging {
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.file-drop-zone.dragging textarea {
+  opacity: 0.3;
+}
+
+.drag-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.8);
+  border: 2px dashed var(--primary-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  color: var(--text-primary);
+  pointer-events: none;
+}
+
+.drag-overlay p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
