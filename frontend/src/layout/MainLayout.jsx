@@ -398,7 +398,7 @@ const MainLayout = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5" style={{ animation: 'fadeIn 0.5s ease' }}>
+            <div className="header-status-group flex flex-col gap-1.5" style={{ animation: 'fadeIn 0.5s ease' }}>
               <div style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.01em', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ fontSize: '1rem' }}>⛅</span>
                 <span style={{ 

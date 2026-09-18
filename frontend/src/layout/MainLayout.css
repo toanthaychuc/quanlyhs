@@ -475,6 +475,9 @@
   .header-left .page-title {
     display: none !important; /* Ẩn lời chào trên mobile để gọn gàng, dùng !important để đè inline style */
   }
+  .header-status-group {
+    display: none !important;
+  }
   .mobile-header-logo {
     display: flex;
     align-items: center;

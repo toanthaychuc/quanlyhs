@@ -344,27 +344,114 @@ export const normalizeLatexString = (str = '') => {
   let subsubsectionCounter = 0;
   let paragraphCounter = 0;
 
-  text = text.replace(/\\section\*?\{([^}]+)\}/gi, (match, title) => {
+  const extractHeading = (text, type, formatter) => {
+    let result = '';
+    let currentIndex = 0;
+    const regex = new RegExp(`\\\\${type}(?:\\*|\\s)*(?:\\[[^\\]]*\\])?\\s*\\{`, 'gi');
+    
+    while (true) {
+      regex.lastIndex = currentIndex;
+      const match = regex.exec(text);
+      if (!match) {
+        result += text.slice(currentIndex);
+        break;
+      }
+      
+      const startIdx = match.index;
+      result += text.slice(currentIndex, startIdx);
+      
+      const openIdx = match.index + match[0].length - 1; // '{' is the last char of the match
+      let depth = 1;
+      let closeIdx = -1;
+      for (let k = openIdx + 1; k < text.length; k++) {
+        if (text[k] === '{') depth++;
+        else if (text[k] === '}') {
+          depth--;
+          if (depth === 0) {
+            closeIdx = k;
+            break;
+          }
+        }
+      }
+      
+      if (closeIdx !== -1) {
+        const title = text.slice(openIdx + 1, closeIdx);
+        result += formatter(title);
+        currentIndex = closeIdx + 1;
+      } else {
+        result += match[0];
+        currentIndex = openIdx + 1;
+      }
+    }
+    return result;
+  };
+
+  text = extractHeading(text, 'section', (title) => {
     subsectionCounter = 0;
     return `\n\n**${title}**\n\n`;
   });
-  text = text.replace(/\\subsection\*?\{([^}]+)\}/gi, (match, title) => {
+  
+  text = extractHeading(text, 'subsection', (title) => {
     subsectionCounter++;
     subsubsectionCounter = 0;
     return `\n\n__SUBSECTION__${toRoman(subsectionCounter)}__${title}__END_SUBSECTION__\n\n`;
   });
-  text = text.replace(/\\subsubsection\*?\{([^}]+)\}/gi, (match, title) => {
+  
+  text = extractHeading(text, 'subsubsection', (title) => {
     subsubsectionCounter++;
     paragraphCounter = 0;
     return `\n\n__SUBSUBSECTION__${subsubsectionCounter}__${title}__END_SUBSUBSECTION__\n\n`;
   });
-  text = text.replace(/\\paragraph\*?\{([^}]+)\}/gi, (match, title) => {
+  
+  text = extractHeading(text, 'paragraph', (title) => {
     paragraphCounter++;
     return `\n\n**${toAlpha(paragraphCounter)}) ${title}**\n\n`;
   });
 
   // 3. Khử môi trường bao bọc, căn lề và khoảng trắng:
-  text = text.replace(/\\(?:begin|end)\{(?:center|flushleft|flushright|paracol|tcolorbox|window|onlysolution|document)\}(?:\[[^\]]*\])?/gi, '');
+  text = text.replace(/\\begin\{center\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_CENTER__\n\n');
+  text = text.replace(/\\end\{center\}/gi, '\n\n__END_CENTER__\n\n');
+
+  // Parse blocks like {\par\centering ... }
+  let i = 0;
+  while (i < text.length) {
+    const match = text.substring(i).match(/\{\s*(?:\\par\s*)?\\centering\b/);
+    if (!match) break;
+    const startIdx = i + match.index;
+    let depth = 1;
+    let endIdx = -1;
+    for (let k = startIdx + 1; k < text.length; k++) {
+      if (text[k] === '{') depth++;
+      else if (text[k] === '}') {
+        depth--;
+        if (depth === 0) {
+          endIdx = k;
+          break;
+        }
+      }
+    }
+    if (endIdx === -1) {
+      i = startIdx + match[0].length;
+      continue;
+    }
+    let inner = text.slice(startIdx + match[0].length, endIdx);
+    inner = inner.replace(/\\par\s*$/, '');
+    if (inner.trim().startsWith('{') && inner.trim().endsWith('}')) {
+      let innerTrimmed = inner.trim();
+      let innerDepth = 0;
+      let valid = true;
+      for (let j = 0; j < innerTrimmed.length - 1; j++) {
+        if (innerTrimmed[j] === '{') innerDepth++;
+        else if (innerTrimmed[j] === '}') innerDepth--;
+        if (innerDepth === 0) { valid = false; break; }
+      }
+      if (valid) inner = innerTrimmed.slice(1, -1);
+    }
+    text = text.slice(0, startIdx) + '\n\n__BEGIN_CENTER__\n\n' + inner.trim() + '\n\n__END_CENTER__\n\n' + text.slice(endIdx + 1);
+    i = startIdx + 20; // Move past __BEGIN_CENTER__
+  }
+
+  text = text.replace(/\\(?:begin|end)\{(?:flushleft|flushright|paracol|tcolorbox|window|onlysolution|document)\}(?:\[[^\]]*\])?/gi, '');
   text = text.replace(/\\(?:centering|noindent|raggedright|raggedleft|leavevmode|unskip|ignorespaces|hfill|dotfill|strut|filbreak|breakIM|vspaceIM|newpage|clearpage|break|columnbreak)\b/gi, '');
   text = text.replace(/\\(?:vspace|hspace)\*?\{[^}]*\}/gi, '');
   text = text.replace(/\\setlength\{[^}]*\}\{[^}]*\}/gi, '');
@@ -382,8 +469,16 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\begin\{chuy\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_CHUY__\n\n');
   text = text.replace(/\\end\{chuy\}/gi, '\n\n__END_CHUY__\n\n');
 
-  text = text.replace(/\\begin\{(?:dang|noidung|khung4|boxkn)\}(?:\[[^\]]*\])?\{([^}]+)\}/gi, '\n**📌 $1**\n');
-  text = text.replace(/\\(?:begin|end)\{(?:vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}(?:\[[^\]]*\])?/gi, '');
+  // Khối nhận xét (nx)
+  text = text.replace(/\\begin\{nx\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_NX__\n\n');
+  text = text.replace(/\\end\{nx\}/gi, '\n\n__END_NX__\n\n');
+
+  // Khối tính chất (tc)
+  text = text.replace(/\\begin\{tc\}(?:\[[^\]]*\])?/gi, '\n\n__BEGIN_TC__\n\n');
+  text = text.replace(/\\end\{tc\}/gi, '\n\n__END_TC__\n\n');
+
+  text = text.replace(/\\begin\{(?:dang|noidung|khung4|boxkn)\}(?:\[[^\]]*\])?\{([^}]+)\}/gi, '\n**📍 $1**\n');
+  text = text.replace(/\\(?:begin|end)\{(?:vidu|luyentap|vandung|baitap|ghichu|luuy|hd|dl|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}(?:\[[^\]]*\])?/gi, '');
 
   // 5. Chuyển đổi FontAwesome & Icon symbols sang biểu tượng trực quan
   const iconMap = {
@@ -526,7 +621,7 @@ export const normalizeLatexString = (str = '') => {
 
   // Temporarily replace math blocks and tabulars with placeholders to protect internal LaTeX syntax (like \\ inside array/cases/matrix/tabular)
   const mathBlocks = [];
-  text = text.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{(?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array|tabular|xtabular|longtable)\*?\}(?:\[.*?\])?[\s\S]*?\\end\{(?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array|tabular|xtabular|longtable)\*?\}|\$[^\$]+?\$|\\\([\s\S]*?\\\))/g, (match) => {
+  text = text.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{((?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array|tabular|xtabular|longtable)\*?)\}(?:\[.*?\])?[\s\S]*?\\end\{\2\}|\$[^\$]+?\$|\\\([\s\S]*?\\\))/g, (match) => {
     mathBlocks.push(match);
     return `__MATH_BLOCK_PLACEHOLDER_${mathBlocks.length - 1}__`;
   });
@@ -555,9 +650,9 @@ export const normalizeLatexString = (str = '') => {
   text = replaceMacroWithBraces(text, '\\fbox', c => c);
   text = replaceMacroWithBraces(text, '\\mbox', c => c);
   
-  // Loại bỏ cặp ngoặc nhọn kẹp \par\centering
-  text = text.replace(/\{\s*\\(?:par|centering|noindent|vspace\{[^}]*\})+\s*([\s\S]*?)\s*(?:\\par\s*)?\}/gi, (match, inner) => inner);
-  text = text.replace(/\{\s*\\(?:par|centering|noindent|vspace\{[^}]*\})*\s*([\s\S]*?)\s*\\(?:par|centering)\s*\}/gi, (match, inner) => inner);
+  // Loại bỏ cặp ngoặc nhọn kẹp \par\noindent...
+  text = text.replace(/\{\s*\\(?:par|noindent|vspace\{[^}]*\})+\s*([\s\S]*?)\s*(?:\\par\s*)?\}/gi, (match, inner) => inner);
+  text = text.replace(/\{\s*\\(?:par|noindent|vspace\{[^}]*\})*\s*([\s\S]*?)\s*\\(?:par)\s*\}/gi, (match, inner) => inner);
   text = text.replace(/\\tagEX\{([^}]+)\}/g, ' ($1)');
 
   // 15. Dấu xuống dòng \\ và lệnh \par trong văn bản
@@ -569,6 +664,10 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/__MATH_BLOCK_PLACEHOLDER_(\d+)__/g, (match, idx) => {
     return mathBlocks[parseInt(idx, 10)];
   });
+
+  // Chuyển đổi tabular và tikzpicture thành dạng __BEGIN_...__ để parseNestedEnvironments dễ dàng bóc tách theo thứ bậc
+  text = text.replace(/\\begin\{(tabular|xtabular|longtable)\}(?:\[[^\]]*\])?\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}([\s\S]*?)\\end\{\1\}/gi, '\n\n__BEGIN_TABULAR__\n\n$2\n\n__END_TABULAR__\n\n');
+  text = text.replace(/((?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\})/gi, '\n\n__BEGIN_TIKZ__\n\n$1\n\n__END_TIKZ__\n\n');
 
   return text;
 };

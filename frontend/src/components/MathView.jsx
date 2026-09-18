@@ -534,6 +534,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
 const renderFormattedText = (raw) => {
   if (!raw) return null;
   const cleaned = raw
+    .replace(/\\(?:newline|break)\b\s*/gi, '\n')
     .replace(/\\par\b/gi, '')
     .replace(/\\qquad/g, '        ')
     .replace(/\\quad/g, '    ')
@@ -556,9 +557,46 @@ const renderFormattedText = (raw) => {
 
 const TabularViewer = ({ code }) => {
   if (!code) return null;
-  // Loại bỏ \cline{...} để không bị in ra thành text
-  const codeWithoutCline = code.replace(/\\cline\s*\{[^}]*\}/g, '');
-  const rows = codeWithoutCline.split(/\\\\/g).map(r => r.trim()).filter(Boolean);
+  
+  let safeCode = code.replace(/\\cline\s*\{[^}]*\}/g, '')
+                     .replace(/\\rowcolor(?:\[[^\]]*\])?\s*\{[^}]*\}/g, '');
+
+  const unwrapMacro = (macroName) => {
+    let currentIndex = 0;
+    while ((currentIndex = safeCode.indexOf(`\\${macroName}`, currentIndex)) !== -1) {
+      let start = safeCode.indexOf('{', currentIndex);
+      if (start !== -1 && start < currentIndex + macroName.length + 5) {
+        let depth = 1;
+        let end = -1;
+        for (let i = start + 1; i < safeCode.length; i++) {
+          if (safeCode[i] === '{') depth++;
+          else if (safeCode[i] === '}') {
+            depth--;
+            if (depth === 0) {
+              end = i;
+              break;
+            }
+          }
+        }
+        if (end !== -1) {
+          const before = safeCode.substring(0, currentIndex);
+          const inner = safeCode.substring(start + 1, end).replace(/\\\\/g, '\\newline ');
+          const after = safeCode.substring(end + 1);
+          safeCode = before + inner + after;
+          currentIndex = before.length + inner.length;
+        } else {
+          currentIndex++;
+        }
+      } else {
+        currentIndex++;
+      }
+    }
+  };
+
+  unwrapMacro('makecell');
+  unwrapMacro('thead');
+
+  const rows = safeCode.split(/\\\\/g).map(r => r.trim()).filter(Boolean);
   return (
     <div style={{ overflowX: 'auto', margin: '1rem 0' }}>
       <table className="latex-tabular-table" style={{ borderCollapse: 'collapse', margin: '0 auto', fontSize: '0.95em', width: '100%', whiteSpace: 'nowrap' }}>
@@ -647,27 +685,9 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
 
   const normalized = isNormalized ? rawText : normalizeLatexString(rawText);
 
-  let segments = [{ type: 'content', value: normalized }];
-
-  // Extract subsection and subsubsection
-  const headingRegex = /\s*__(SUBSECTION|SUBSUBSECTION)__([^_]+)__([\s\S]*?)__END_\1__\s*/g;
-  let newSegments = [];
-  segments.forEach(seg => {
-    if (seg.type !== 'content') { newSegments.push(seg); return; }
-    let lastIdx = 0;
-    let match;
-    while ((match = headingRegex.exec(seg.value)) !== null) {
-      if (match.index > lastIdx) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, match.index).trimEnd() });
-      newSegments.push({ type: match[1].toLowerCase(), number: match[2], title: match[3].trim() });
-      lastIdx = match.index + match[0].length;
-    }
-    if (lastIdx < seg.value.length) newSegments.push({ type: 'content', value: seg.value.substring(lastIdx).trimStart() });
-  });
-  segments = newSegments;
-
   // Helper to parse nested block environments correctly
   const parseNestedEnvironments = (text) => {
-    const envTypes = ['MULTICOLS', 'BOX', 'CHUY', 'LIST', 'IMMINI_LEFT', 'IMMINI_RIGHT'];
+    const envTypes = ['MULTICOLS', 'BOX', 'CHUY', 'NX', 'TC', 'LIST', 'IMMINI_LEFT', 'IMMINI_RIGHT', 'CENTER', 'TABULAR', 'TIKZ'];
     const segs = [];
     let currentIndex = 0;
 
@@ -685,12 +705,18 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
       }
 
       if (!firstMatch) {
-        segs.push({ type: 'content', value: text.substring(currentIndex) });
+        const textSegment = text.substring(currentIndex);
+        if (textSegment.trim() !== '') {
+          segs.push({ type: 'content', value: textSegment.trim() });
+        }
         break;
       }
 
       if (minIndex > currentIndex) {
-        segs.push({ type: 'content', value: text.substring(currentIndex, minIndex) });
+        const textSegment = text.substring(currentIndex, minIndex);
+        if (textSegment.trim() !== '') {
+          segs.push({ type: 'content', value: textSegment.trim() });
+        }
       }
 
       const beginTag = firstMatch.beginTag;
@@ -723,11 +749,10 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
 
       if (endIndex !== -1) {
         const innerContent = text.substring(minIndex + beginTag.length, endIndex);
-        let segType = 'box';
-        if (firstMatch.type === 'MULTICOLS') segType = 'multicols';
-        else if (firstMatch.type === 'CHUY') segType = 'chuy';
-        else if (firstMatch.type === 'LIST') segType = 'list';
-        else if (firstMatch.type === 'IMMINI_LEFT' || firstMatch.type === 'IMMINI_RIGHT') segType = 'immini';
+        let segType = firstMatch.type.toLowerCase();
+        if (firstMatch.type === 'IMMINI_LEFT' || firstMatch.type === 'IMMINI_RIGHT') {
+          segType = 'immini';
+        }
 
         if (segType === 'immini') {
           const parts = innerContent.split('__MID_IMMINI__');
@@ -745,56 +770,34 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
     return segs;
   };
 
-  newSegments = [];
-  segments.forEach(seg => {
-    if (seg.type !== 'content') { newSegments.push(seg); return; }
-    newSegments.push(...parseNestedEnvironments(seg.value));
-  });
-  segments = newSegments;
+  let parsedSegments = [];
+  try {
+    parsedSegments = parseNestedEnvironments(normalized);
+  } catch (err) {
+    console.error("Lỗi khi parseNestedEnvironments:", err);
+    parsedSegments = [{ type: 'content', value: normalized }];
+  }
 
-  const tabularRegex = /\\begin\{(tabular|xtabular|longtable)\}(?:\[[^\]]*\])?\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}([\s\S]*?)\\end\{\1\}/gi;
-  newSegments = [];
-  segments.forEach(seg => {
-    if (seg.type !== 'content') {
-      newSegments.push(seg);
-      return;
-    }
+  // Extract subsection and subsubsection AFTER parsing environments
+  const headingRegex = /\s*__(SUBSECTION|SUBSUBSECTION)__([^_]+)__([\s\S]*?)__END_\1__\s*/g;
+  let segments = [];
+  parsedSegments.forEach(seg => {
+    if (seg.type !== 'content') { segments.push(seg); return; }
     let lastIdx = 0;
-    let tabMatch;
-    while ((tabMatch = tabularRegex.exec(seg.value)) !== null) {
-      if (tabMatch.index > lastIdx) {
-        newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, tabMatch.index) });
+    let match;
+    while ((match = headingRegex.exec(seg.value)) !== null) {
+      if (match.index > lastIdx) {
+        const textSegment = seg.value.substring(lastIdx, match.index).trim();
+        if (textSegment) segments.push({ type: 'content', value: textSegment });
       }
-      newSegments.push({ type: 'tabular', value: tabMatch[2] });
-      lastIdx = tabMatch.index + tabMatch[0].length;
+      segments.push({ type: match[1].toLowerCase(), number: match[2], title: match[3].trim() });
+      lastIdx = match.index + match[0].length;
     }
     if (lastIdx < seg.value.length) {
-      newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
+      const textSegment = seg.value.substring(lastIdx).trim();
+      if (textSegment) segments.push({ type: 'content', value: textSegment });
     }
   });
-  segments = newSegments;
-
-  const tikzRegex = /(?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\}/gi;
-  newSegments = [];
-  segments.forEach(seg => {
-    if (seg.type !== 'content') {
-      newSegments.push(seg);
-      return;
-    }
-    let lastIdx = 0;
-    let tikzMatch;
-    while ((tikzMatch = tikzRegex.exec(seg.value)) !== null) {
-      if (tikzMatch.index > lastIdx) {
-        newSegments.push({ type: 'content', value: seg.value.substring(lastIdx, tikzMatch.index) });
-      }
-      newSegments.push({ type: 'tikz', value: tikzMatch[0] });
-      lastIdx = tikzMatch.index + tikzMatch[0].length;
-    }
-    if (lastIdx < seg.value.length) {
-      newSegments.push({ type: 'content', value: seg.value.substring(lastIdx) });
-    }
-  });
-  segments = newSegments;
 
   const katexMacros = {
     "\\vv": "\\overrightarrow{#1}",
@@ -822,14 +825,14 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         if (seg.type === 'subsection') {
           return (
             <div key={segIdx} data-source={dataSourceAttr} className="latex-subsection math-source-block" style={{ margin: '1.5rem 0 0.75rem', padding: '0.6rem 0.85rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)', fontSize: '1.1em' }}>
-              {seg.number}. {seg.title}
+              {seg.number}. <RenderMathSegment rawText={seg.title} isNormalized={true} />
             </div>
           );
         }
         if (seg.type === 'subsubsection') {
           return (
             <div key={segIdx} data-source={dataSourceAttr} className="latex-subsubsection math-source-block" style={{ margin: '1rem 0 0.5rem', padding: '0.5rem 0.75rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)' }}>
-              {seg.number}. {seg.title}
+              {seg.number}. <RenderMathSegment rawText={seg.title} isNormalized={true} />
             </div>
           );
         }
@@ -849,9 +852,29 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         }
         if (seg.type === 'chuy') {
           return (
-            <div key={segIdx} data-source={dataSourceAttr} className="latex-chuy-box math-source-block" style={{ borderLeft: '4px solid #f59e0b', padding: '0.75rem 1rem', margin: '0.75rem 0', backgroundColor: '#fffbeb', borderRadius: '0 8px 8px 0' }}>
-              <strong style={{ color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-chuy-box math-source-block" style={{ borderLeft: '4px solid #f59e0b', padding: '0.75rem 1rem', margin: '0.75rem 0', backgroundColor: 'var(--chuy-bg, rgba(245, 158, 11, 0.1))', borderRadius: '0 8px 8px 0' }}>
+              <strong style={{ color: 'var(--chuy-title-color, #f59e0b)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '1.1em' }}>💡</span> Chú ý
+              </strong>
+              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+            </div>
+          );
+        }
+        if (seg.type === 'nx') {
+          return (
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-nx-box math-source-block" style={{ borderLeft: '4px solid #3b82f6', padding: '0.75rem 1rem', margin: '0.75rem 0', backgroundColor: 'var(--nx-bg, rgba(59, 130, 246, 0.1))', borderRadius: '0 8px 8px 0' }}>
+              <strong style={{ color: 'var(--nx-title-color, #3b82f6)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '1.1em' }}>💬</span> Nhận xét
+              </strong>
+              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+            </div>
+          );
+        }
+        if (seg.type === 'tc') {
+          return (
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-tc-box math-source-block" style={{ borderLeft: '4px solid #10b981', padding: '0.75rem 1rem', margin: '0.75rem 0', backgroundColor: 'var(--tc-bg, rgba(16, 185, 129, 0.1))', borderRadius: '0 8px 8px 0' }}>
+              <strong style={{ color: 'var(--tc-title-color, #10b981)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '1.1em' }}>✨</span> Tính chất
               </strong>
               <RenderMathSegment rawText={seg.value} isNormalized={true} />
             </div>
@@ -876,10 +899,17 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
             </div>
           );
         }
+        if (seg.type === 'center') {
+          return (
+            <div key={segIdx} data-source={dataSourceAttr} className="latex-center math-source-block" style={{ textAlign: 'center', margin: '1.25rem 0' }}>
+              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+            </div>
+          );
+        }
 
         const rawContent = seg.value;
         const parts = [];
-        const mathRegex = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{(?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array)\*?\}(?:\[.*?\])?[\s\S]*?\\end\{(?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array)\*?\}|\$[^\$]+?\$|\\\([\s\S]*?\\\))/g;
+        const mathRegex = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{((?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array)\*?)\}(?:\[.*?\])?[\s\S]*?\\end\{\2\}|\$[^\$]+?\$|\\\([\s\S]*?\\\))/g;
         let lastMathIdx = 0;
         let mathMatch;
 
