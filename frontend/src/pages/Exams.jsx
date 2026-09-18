@@ -949,11 +949,19 @@ const Exams = () => {
       : (totalQuestions > 0 ? Number(((correctCount / totalQuestions) * 10).toFixed(1)) : 0);
     const timeSpentSeconds = (currentExam.duration * 60) - timeLeft;
 
+    let speedBonusXP = 0;
+    if (timeSpentSeconds <= (currentExam.duration * 60) * 0.5) {
+      speedBonusXP = 200;
+    } else if (timeSpentSeconds <= (currentExam.duration * 60) * 0.8) {
+      speedBonusXP = 100;
+    }
+
     setExamResult({
       score,
       correctCount,
       totalQuestions,
       timeSpentSeconds,
+      speedBonusXP,
       submittedAt: new Date().toLocaleTimeString('vi-VN')
     });
 
@@ -1005,12 +1013,10 @@ const Exams = () => {
         }
 
         // Tính XP
-        let gainedXP = Math.floor(Number(score) * 10);
+        let gainedXP = Math.floor(Number(score) * 70) + speedBonusXP;
         let isSpeedster = false;
         if (timeSpentSeconds <= (currentExam.duration * 60) * 0.8) {
           if (Number(score) >= 8.5) isSpeedster = true;
-          // XP bonus for speed
-          if (timeSpentSeconds <= (currentExam.duration * 60) * 0.5) gainedXP += 50; 
         }
         myGami.xp = (myGami.xp || 0) + gainedXP;
 
@@ -1760,10 +1766,12 @@ const Exams = () => {
                 <Clock size={18} className="text-indigo" />
                 <span>Thời gian: <strong>{formatTime(examResult.timeSpentSeconds)}</strong></span>
               </div>
-              <div className="stat-pill">
-                <Award size={18} className="text-amber" />
-                <span>Chính xác: <strong>{examResult.totalQuestions > 0 ? Math.round((examResult.correctCount / examResult.totalQuestions) * 100) : 0}%</strong></span>
-              </div>
+              {examResult.speedBonusXP > 0 && (
+                <div className="stat-pill">
+                  <Award size={18} className="text-amber" />
+                  <span>Thưởng: <strong>+{examResult.speedBonusXP} XP</strong></span>
+                </div>
+              )}
             </div>
           </div>
 

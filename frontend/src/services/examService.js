@@ -391,7 +391,11 @@ export async function processDailyLogin(studentId) {
       studentGami.streak = (studentGami.streak || 0) + 1;
       studentGami.lastLoginDate = todayStr;
       
-      if (studentGami.streak >= 2) {
+      if (studentGami.streak >= 41) {
+        studentGami.xp = (studentGami.xp || 0) + 200;
+      } else if (studentGami.streak >= 31) {
+        studentGami.xp = (studentGami.xp || 0) + 150;
+      } else if (studentGami.streak >= 2) {
         studentGami.xp = (studentGami.xp || 0) + 100;
       }
       updated = true;

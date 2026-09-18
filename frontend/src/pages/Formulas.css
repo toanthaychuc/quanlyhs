@@ -314,7 +314,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-color-alt, rgba(255, 255, 255, 0.05));
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
@@ -366,14 +366,20 @@
   top: calc(100% + 0.5rem);
   left: 0;
   right: 0;
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
   z-index: 100;
   max-height: 400px;
   overflow-y: auto;
   animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme='dark'] .search-suggestions-dropdown {
+  background: #0f172a;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes slideDown {
@@ -429,11 +435,15 @@
 }
 
 .search-suggestions-dropdown .result-badge {
-  background: rgba(255,255,255,0.1);
+  background: var(--bg-color-alt, rgba(0,0,0,0.05));
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.7rem;
   color: var(--text-secondary);
+}
+
+[data-theme='dark'] .search-suggestions-dropdown .result-badge {
+  background: rgba(255,255,255,0.1);
 }
 
 .search-suggestions-dropdown .no-results {

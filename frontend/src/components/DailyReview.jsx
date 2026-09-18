@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Target, X, Check, ArrowRight, Play, BookOpen, AlertCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { generateDailyReviewQuestions, submitDailyReviewAnswer } from '../services/dailyReviewService';
+import { getGamification, updateGamification } from '../services/examService';
 import { decodeQuestionId } from '../utils/idDecoder';
 import MathView from './MathView';
 import './DailyReview.css';
@@ -14,6 +15,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [showXpAnimation, setShowXpAnimation] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const location = useLocation();
@@ -39,6 +41,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
     setCurrentIndex(0);
     setSelectedAnswer(null);
     setShowResult(false);
+    setShowXpAnimation(false);
     setIsModalOpen(true);
   };
 
@@ -84,13 +87,25 @@ const DailyReview = ({ studentId, studentGrade }) => {
 
   const currentQ = sessionQuestions[currentIndex];
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedAnswer || !currentQ) return;
     
     const correct = selectedAnswer === currentQ.correctAnswer;
     
     setIsCorrect(correct);
     setShowResult(true);
+    setShowXpAnimation(true);
+    
+    // Cộng điểm XP nếu đúng
+    if (correct && studentId) {
+      try {
+        const myGami = await getGamification(studentId);
+        myGami.xp = (myGami.xp || 0) + 100;
+        await updateGamification(studentId, myGami);
+      } catch (err) {
+        console.error('Error updating XP in Daily Review', err);
+      }
+    }
     
     // Ghi nhận vào localStorage nhưng sessionQuestions trong phiên vẫn giữ nguyên không bị dịch chuyển
     const newState = submitDailyReviewAnswer(studentId, currentQ.id, correct, currentQ.tags || []);
@@ -104,6 +119,7 @@ const DailyReview = ({ studentId, studentGrade }) => {
       setCurrentIndex(prev => prev + 1);
       setSelectedAnswer(null);
       setShowResult(false);
+      setShowXpAnimation(false);
     } else {
       setIsModalOpen(false);
     }
@@ -144,7 +160,12 @@ const DailyReview = ({ studentId, studentGrade }) => {
                   (Câu {currentIndex + 1}/{sessionQuestions.length})
                 </span>
               </h3>
-              <button className="close-btn" onClick={handleClose}><X size={20}/></button>
+              <div className="dr-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div className={`dr-xp-badge ${showXpAnimation ? (isCorrect ? 'animate-gain' : 'animate-loss') : ''}`}>
+                  <span className="xp-text">{showXpAnimation && isCorrect ? '+100 XP' : '100 XP'}</span>
+                </div>
+                <button className="close-btn" onClick={handleClose}><X size={20}/></button>
+              </div>
             </div>
             
             <div className="dr-modal-body">
