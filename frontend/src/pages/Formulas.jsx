@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, Sigma, Search, ChevronDown, ChevronUp, SquareSigma, BookOpen } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, Sigma, Search, ChevronDown, ChevronUp, SquareSigma, BookOpen, Download } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { getFormulas, addFormula, updateFormula, deleteFormula, updateFormulaOrders } from '../services/formulaService';
 import MathView from '../components/MathView';
@@ -87,18 +87,34 @@ const Formulas = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const executeTexSearch = (query, fromIndex = 0) => {
+  const executeTexSearch = (query, exactSearchText = '', fromIndex = 0) => {
     if (!texTextareaRef.current || !query) return;
     const textArea = texTextareaRef.current;
     const rawText = textArea.value || '';
     
-    const searchString = query.trim().normalize('NFC');
-    if (!searchString) return;
+    // Strip internal placeholders added by normalizeLatexString
+    let cleanQuery = query.replace(/__(BEGIN|END|MID)_[A-Z_]+__/g, ' ').trim().normalize('NFC');
+    if (!cleanQuery) return;
 
     const normalizedText = rawText.normalize('NFC');
     const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const searchWords = searchString.split(/\s+/).map(escapeRegExp);
-    const regexPattern = searchWords.join('\\s+');
+    
+    const allWords = cleanQuery.split(/\s+/).filter(w => w.length > 0);
+    if (allWords.length === 0) return;
+    
+    // Filter out LaTeX commands to avoid mismatch due to macro replacements (e.g. \vv -> \overrightarrow)
+    // Keep \begin and \end as they are structurally important and usually unmutated.
+    const safeWords = allWords.filter(w => !w.includes('\\') || w.startsWith('\\begin') || w.startsWith('\\end'));
+    
+    // Take up to 15 robust words to form an anchor
+    let searchWords = safeWords.slice(0, 15);
+    if (searchWords.length === 0) {
+      searchWords = allWords.slice(0, 5); // fallback
+    }
+    
+    searchWords = searchWords.map(escapeRegExp);
+    // Join with a lazy wildcard gap to span across unrendered raw LaTeX (up to 150 chars per gap)
+    const regexPattern = searchWords.join('[\\s\\S]{0,150}?');
     
     try {
       const regex = new RegExp(regexPattern, 'ig');
@@ -111,8 +127,18 @@ const Formulas = () => {
       }
       
       if (match) {
-         const index = match.index;
-         const matchLength = match[0].length;
+         let index = match.index;
+         let matchLength = match[0].length;
+         
+         if (exactSearchText) {
+             const exactSearchClean = exactSearchText.normalize('NFC');
+             // Search for the exact text within the next 1500 characters from the block start
+             const exactIdx = normalizedText.indexOf(exactSearchClean, index);
+             if (exactIdx !== -1 && exactIdx < index + 1500) {
+                 index = exactIdx;
+                 matchLength = exactSearchClean.length;
+             }
+         }
          
          setTimeout(() => {
            textArea.focus({ preventScroll: true });
@@ -146,7 +172,7 @@ const Formulas = () => {
         startIndex = texTextareaRef.current.selectionEnd;
       }
     }
-    executeTexSearch(query, startIndex);
+    executeTexSearch(query, '', startIndex);
   };
 
   const handleTexSearchKeyDown = (e) => {
@@ -157,18 +183,16 @@ const Formulas = () => {
   };
 
   const handlePreviewDoubleClick = (e) => {
-    let query = '';
+    let selectedText = '';
+    let blockSource = '';
     
-    // Ưu tiên 1: nếu bôi đen văn bản
     const selection = window.getSelection();
     if (selection && selection.toString().trim()) {
-      query = selection.toString().trim();
+      selectedText = selection.toString().trim();
     }
     
-    // Ưu tiên 2: nếu click vào một block có chứa data-source (từ MathView)
-    if (!query && e && e.target) {
+    if (e && e.target) {
       let targetElement = e.target;
-      // Tránh lỗi khi click vào text node
       if (targetElement.nodeType === 3) {
         targetElement = targetElement.parentElement;
       }
@@ -178,14 +202,15 @@ const Formulas = () => {
         if (target) {
           const sourceLatex = decodeURIComponent(target.getAttribute('data-source'));
           if (sourceLatex) {
-            query = sourceLatex;
+            blockSource = sourceLatex;
           }
         }
       }
     }
 
-    if (!query) return;
-    executeTexSearch(query);
+    if (!blockSource && !selectedText) return;
+    
+    executeTexSearch(blockSource || selectedText, selectedText);
   };
 
   const fetchFormulas = async () => {
@@ -234,9 +259,27 @@ const Formulas = () => {
           setActiveFormulaId(newData.length > 0 ? newData[0].id : null);
         }
       } catch (error) {
-        alert('Có lỗi xảy ra khi xóa!');
+        console.error('Error deleting formula:', error);
+        alert('Có lỗi xảy ra khi xóa công thức');
       }
     }
+  };
+
+  const handleDownload = (e, formula) => {
+    e.stopPropagation();
+    if (!formula.content) {
+      alert('Công thức này không có nội dung để tải về.');
+      return;
+    }
+    const blob = new Blob([formula.content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${formula.title || 'cong-thuc'}.tex`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleSave = async (e) => {
@@ -359,11 +402,11 @@ const Formulas = () => {
 
   return (
     <div className="formulas-page">
-      <div className="formulas-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', marginBottom: '2rem' }}>
+      <div className="formulas-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', marginBottom: 0 }}>
         <div className="formulas-title-area" style={{ flexShrink: 0 }}>
           <h1>
             <SquareSigma className="text-primary" size={28} />
-            TRA CỨU CÔNG THỨC
+            TRA CÔNG THỨC
           </h1>
         </div>
         
@@ -466,6 +509,9 @@ const Formulas = () => {
                     <div className="formula-item-actions">
                       <button className="icon-btn edit-btn" onClick={(e) => openEditModal(e, formula)} title="Sửa">
                         <Edit size={14} />
+                      </button>
+                      <button className="icon-btn download-btn" onClick={(e) => handleDownload(e, formula)} title="Tải về file TeX" style={{ color: 'var(--text-muted)' }}>
+                        <Download size={14} />
                       </button>
                       <button className="icon-btn delete-btn" onClick={(e) => handleDelete(e, formula.id)} title="Xóa">
                         <Trash2 size={14} />
