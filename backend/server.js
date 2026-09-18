@@ -57,13 +57,18 @@ app.use(cors());
 // Parse JSON bodies
 app.use(express.json({ limit: '10mb' }));
 
+// Hàm tiện ích: Đổi ID ngẫu nhiên cho thẻ SVG để tránh trùng lặp DOM trên web
+function namespaceSvg(svgContent) {
+  const uniqueId = Math.random().toString(36).substring(2, 9);
+  return svgContent
+    .replace(/id="([^"]+)"/g, `id="$1-${uniqueId}"`)
+    .replace(/href="#([^"]+)"/g, `href="#$1-${uniqueId}"`)
+    .replace(/url\(\s*#([^)]+)\s*\)/g, `url(#$1-${uniqueId})`);
+}
+
 // Lọc bỏ các lệnh không tương thích với standalone class
 function isIncompatibleLine(trimmed) {
-  // Chuỗi thực tế trong JS là 1 backslash (vd: \geometry)
-  if (/^\\(geometry|setlength|pagestyle|thispagestyle|fancyhf|fancyhead|fancyfoot|headheight|headsep|footskip|textheight|textwidth|topmargin|oddsidemargin|evensidemargin|marginpar|pagenumbering|newgeometry|restoregeometry|setcounter\{page\})\b/.test(trimmed)) return true;
-  if (/^\\usepackage(\[.*?\])?\{(geometry|fancyhdr|lastpage|hyperref|titlesec|tocloft|longtable)\}/.test(trimmed)) return true;
-  if (/^\\(maketitle|tableofcontents|title|author|date|begin\{document\}|end\{document\}|documentclass)\b/.test(trimmed)) return true;
-  return false;
+  return /^(?:\\(?:geometry|setlength|pagestyle|thispagestyle|fancyhf|fancyhead|fancyfoot|headheight|headsep|footskip|textheight|textwidth|topmargin|oddsidemargin|evensidemargin|marginpar|pagenumbering|newgeometry|restoregeometry|setcounter\{page\}|maketitle|tableofcontents|title|author|date|begin\{document\}|end\{document\}|documentclass)\b|\\usepackage(?:\[.*?\])?\{(?:geometry|fancyhdr|lastpage|hyperref|titlesec|tocloft|longtable)\})/.test(trimmed);
 }
 
 // Giải quyết \input{...}: đọc file, lọc lệnh không tương thích, chèn trực tiếp
@@ -126,20 +131,15 @@ app.post('/api/compile-tikz', async (req, res) => {
     
     const cleanPreamble = resolveAndSanitizePreamble(rawPreamble);
     
-    // Tự động sửa lỗi phổ biến trong mã TikZ trước khi biên dịch
-    let fixedTikzCode = tikzCode
-      // Sửa \tkzTabVar{-/$$,...} → \tkzTabVar{-/,...} (bỏ $$ trống không hợp lệ)
-      .replace(/(\/-)\s*\$\$\s*([,}])/g, '$1/$2')
-      .replace(/(\/\+)\s*\$\$\s*([,}])/g, '$1/$2')
-      // Dạng tổng quát: /$$  hoặc /$$ trong tkzTabVar
-      .replace(/\/\$\$([,}])/g, '/$1')
-      .replace(/\xA0/g, ' '); // Xóa non-breaking space
-    
-    // AUTO-FIXER: Thử xử lý các lệnh dễ gây lỗi trên các bản LaTeX cũ (Render)
-    // Xóa font=\footnotesize vì một số cấu hình TeX cũ không hiểu lệnh này trong options của TikZ
-    fixedTikzCode = fixedTikzCode.replace(/font=\\footnotesize/g, ''); 
-    // Thay \overrightarrow thành \vec vì \overrightarrow đôi khi gây lỗi fragile trong node TikZ cũ
-    fixedTikzCode = fixedTikzCode.replace(/\\overrightarrow/g, '\\vec');
+    // Tự động sửa lỗi phổ biến trong mã TikZ trước khi biên dịch (Auto-fixer)
+    const fixedTikzCode = tikzCode
+      // Sửa \tkzTabVar chứa $$ trống hoặc dấu cấu trúc dư
+      .replace(/\/\s*[+-]?\s*\$\$\s*([,}])/g, '/$1')
+      .replace(/\xA0/g, ' ') // Xóa non-breaking space
+      // Xóa font=\footnotesize vì gây lỗi trên cấu hình TeX cũ
+      .replace(/font=\\footnotesize/g, '')
+      // Thay \overrightarrow thành \vec vì gây lỗi fragile
+      .replace(/\\overrightarrow/g, '\\vec');
 
     const texContent = `\\documentclass[tikz,margin=2mm]{standalone}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T5]{fontenc}\n${cleanPreamble}\n\\begin{document}\n${fixedTikzCode}\n\\end{document}\n`;
     
@@ -151,15 +151,7 @@ app.post('/api/compile-tikz', async (req, res) => {
     
     if (fs.existsSync(cachedSvgPath)) {
       console.log(`[Cache Hit] Trả về ảnh từ cache: ${hash}`);
-      let cachedSvg = fs.readFileSync(cachedSvgPath, 'utf8');
-      
-      // Vẫn cần đổi ID ngẫu nhiên để không trùng lặp DOM trên web
-      const uniqueId = Math.random().toString(36).substring(2, 9);
-      cachedSvg = cachedSvg.replace(/id="([^"]+)"/g, `id="$1-${uniqueId}"`);
-      cachedSvg = cachedSvg.replace(/href="#([^"]+)"/g, `href="#$1-${uniqueId}"`);
-      cachedSvg = cachedSvg.replace(/url\(\s*#([^)]+)\s*\)/g, `url(#$1-${uniqueId})`);
-      
-      return res.json({ svg: cachedSvg });
+      return res.json({ svg: namespaceSvg(fs.readFileSync(cachedSvgPath, 'utf8')) });
     }
 
     // ==========================================
@@ -209,13 +201,7 @@ app.post('/api/compile-tikz', async (req, res) => {
         console.log(`[Cache Saved] Lưu SVG mới vào cache: ${hash}`);
         
         // Trả kết quả (Namespace ID)
-        let svgContent = rawSvgContent;
-        const uniqueId = Math.random().toString(36).substring(2, 9);
-        svgContent = svgContent.replace(/id="([^"]+)"/g, `id="$1-${uniqueId}"`);
-        svgContent = svgContent.replace(/href="#([^"]+)"/g, `href="#$1-${uniqueId}"`);
-        svgContent = svgContent.replace(/url\(\s*#([^)]+)\s*\)/g, `url(#$1-${uniqueId})`);
-        
-        return svgContent;
+        return namespaceSvg(rawSvgContent);
       } finally {
         if (tmpDir) {
           try {

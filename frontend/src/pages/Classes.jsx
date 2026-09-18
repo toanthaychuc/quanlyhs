@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Users, 
+  Book, 
+  Users,
+  UserRound,
   Plus, 
   Search, 
   FileSpreadsheet, 
@@ -731,7 +733,7 @@ const Classes = () => {
       <div className="classes-header">
         <div className="classes-title-area">
           <h1>
-            <Users className="text-primary" size={28} />
+            <UserRound className="text-primary" size={28} />
             QUẢN LÝ LỚP HỌC
           </h1>
 

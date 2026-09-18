@@ -4,7 +4,7 @@ import {
   GraduationCap, Clock, HelpCircle, CheckCircle, XCircle, X,
   Award, Play, RotateCcw, ArrowLeft, ArrowRight, Plus, 
   Trash2, Edit, Save, FileText, Check, AlertTriangle, Sparkles, 
-  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, CheckSquare, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2
+  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2, CheckSquare
 } from 'lucide-react';
 import { Download as I_Download, ArrowDownToLine as I_ArrowDownToLine } from 'lucide';
 import AnimatedIcon from '../components/AnimatedIcon';
@@ -1882,7 +1882,7 @@ const Exams = () => {
       <div className="page-header">
         <div>
           <h1 className="page-title" style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <CheckSquare className="text-primary" size={28} />
+            <FileText className="text-primary" size={28} />
             PHÒNG THI THỬ
           </h1>
 
@@ -1891,7 +1891,7 @@ const Exams = () => {
         {isTeacher && (
           <button className="btn btn-primary" onClick={handleOpenAddExam}>
             <Plus size={20} />
-            Soạn đề thi mới (LaTeX)
+            Soạn đề thi mới
           </button>
         )}
       </div>

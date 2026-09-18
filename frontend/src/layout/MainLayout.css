@@ -52,6 +52,16 @@
   align-items: center;
   gap: 0.75rem;
   transition: gap 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.logo-container:hover .logo-icon {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+}
+
+.logo-container:hover .logo-text-main {
+  color: var(--primary-color);
 }
 
 .logo-icon {
@@ -68,6 +78,7 @@
   letter-spacing: -0.02em;
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
   flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
 }
 
 .logo-text-wrapper {
@@ -89,6 +100,7 @@
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.02em;
+  transition: color 0.3s ease;
 }
 
 .sidebar-nav {
@@ -613,4 +625,10 @@
   width: 100%;
   border: none;
   background: var(--bg-color);
+}
+
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }

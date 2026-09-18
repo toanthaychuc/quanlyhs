@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Award, Trophy, Medal, Filter } from 'lucide-react';
+import { Trophy, Medal, Star, Filter } from 'lucide-react';
 import { Search as I_Search, ScanSearch as I_ScanSearch } from 'lucide';
 import AnimatedIcon from '../components/AnimatedIcon';
 import { useRole } from '../context/RoleContext';
@@ -131,7 +131,7 @@ const Leaderboard = () => {
       <div className="leaderboard-header">
         <div className="title-area">
           <h1>
-            <Award className="text-primary" size={28} />
+            <Star className="text-primary" size={28} />
             BẢNG XẾP HẠNG HỌC TẬP
           </h1>
 

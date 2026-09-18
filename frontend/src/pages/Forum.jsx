@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, Globe, MonitorPlay, Mail, Edit2, Save, X, ExternalLink } from 'lucide-react';
+import { MessageSquare, Globe, MonitorPlay, Mail, Edit2, Save, X, ExternalLink } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { getSetting, saveSetting } from '../services/settingService';
 import './Forum.css';
@@ -69,7 +69,7 @@ const Forum = () => {
       <div className="forum-header">
         <div className="forum-title-area">
           <h1>
-            <MessageCircle className="text-primary" size={28} />
+            <MessageSquare className="text-primary" size={28} />
             HỎI ĐÁP & LIÊN HỆ
           </h1>
 
@@ -95,7 +95,7 @@ const Forum = () => {
         {/* Zalo */}
         <div className="social-card zalo">
           <div className="social-icon">
-            <MessageCircle size={32} />
+            <MessageSquare size={32} />
           </div>
           <div className="social-info">
             <h3>Zalo</h3>

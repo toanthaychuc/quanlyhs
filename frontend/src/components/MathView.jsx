@@ -615,6 +615,33 @@ const TabularViewer = ({ code }) => {
   );
 };
 
+const replaceMacroPure = (txt, macro, fn) => {
+  let res = '';
+  let idx = 0;
+  while (idx < txt.length) {
+    const mIdx = txt.indexOf(macro, idx);
+    if (mIdx === -1) { res += txt.slice(idx); break; }
+    res += txt.slice(idx, mIdx);
+    const openIdx = txt.indexOf('{', mIdx + macro.length);
+    const inBetween = txt.slice(mIdx + macro.length, openIdx);
+    if (openIdx === -1 || inBetween.trim() !== '') {
+      res += macro; idx = mIdx + macro.length; continue;
+    }
+    let depth = 1, closeIdx = -1;
+    for (let k = openIdx + 1; k < txt.length; k++) {
+      if (txt[k] === '{') depth++;
+      else if (txt[k] === '}') {
+        depth--;
+        if (depth === 0) { closeIdx = k; break; }
+      }
+    }
+    if (closeIdx === -1) { res += txt.slice(mIdx); break; }
+    res += fn(txt.slice(openIdx + 1, closeIdx));
+    idx = closeIdx + 1;
+  }
+  return res;
+};
+
 const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false }) => {
   if (!rawText) return null;
 
@@ -640,7 +667,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
 
   // Helper to parse nested block environments correctly
   const parseNestedEnvironments = (text) => {
-    const envTypes = ['MULTICOLS', 'BOX', 'CHUY', 'LIST'];
+    const envTypes = ['MULTICOLS', 'BOX', 'CHUY', 'LIST', 'IMMINI_LEFT', 'IMMINI_RIGHT'];
     const segs = [];
     let currentIndex = 0;
 
@@ -700,8 +727,14 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         if (firstMatch.type === 'MULTICOLS') segType = 'multicols';
         else if (firstMatch.type === 'CHUY') segType = 'chuy';
         else if (firstMatch.type === 'LIST') segType = 'list';
+        else if (firstMatch.type === 'IMMINI_LEFT' || firstMatch.type === 'IMMINI_RIGHT') segType = 'immini';
 
-        segs.push({ type: segType, value: innerContent.trim() });
+        if (segType === 'immini') {
+          const parts = innerContent.split('__MID_IMMINI__');
+          segs.push({ type: 'immini', isLeftMode: firstMatch.type === 'IMMINI_LEFT', leftPart: parts[0] || '', rightPart: parts[1] || '' });
+        } else {
+          segs.push({ type: segType, value: innerContent.trim() });
+        }
         currentIndex = endIndex + endTag.length;
       } else {
         segs.push({ type: 'content', value: text.substring(minIndex, minIndex + beginTag.length) });
@@ -831,6 +864,18 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
             </div>
           );
         }
+        if (seg.type === 'immini') {
+          return (
+            <div key={segIdx} className={`immini-side-by-side-container ${seg.isLeftMode ? 'immini-left-mode' : ''} math-source-block`}>
+              <div className="immini-text-pane">
+                <RenderMathSegment rawText={seg.leftPart} isNormalized={true} />
+              </div>
+              <div className="immini-diagram-pane">
+                <RenderMathSegment rawText={seg.rightPart} isNormalized={true} />
+              </div>
+            </div>
+          );
+        }
 
         const rawContent = seg.value;
         const parts = [];
@@ -905,33 +950,6 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
                   .replace(/^\$+/, '')
                   .replace(/\$+$/, '')
                   .trim();
-
-                const replaceMacroPure = (txt, macro, fn) => {
-                  let res = '';
-                  let idx = 0;
-                  while (idx < txt.length) {
-                    const mIdx = txt.indexOf(macro, idx);
-                    if (mIdx === -1) { res += txt.slice(idx); break; }
-                    res += txt.slice(idx, mIdx);
-                    const openIdx = txt.indexOf('{', mIdx + macro.length);
-                    const inBetween = txt.slice(mIdx + macro.length, openIdx);
-                    if (openIdx === -1 || inBetween.trim() !== '') {
-                      res += macro; idx = mIdx + macro.length; continue;
-                    }
-                    let depth = 1, closeIdx = -1;
-                    for (let k = openIdx + 1; k < txt.length; k++) {
-                      if (txt[k] === '{') depth++;
-                      else if (txt[k] === '}') {
-                        depth--;
-                        if (depth === 0) { closeIdx = k; break; }
-                      }
-                    }
-                    if (closeIdx === -1) { res += txt.slice(mIdx); break; }
-                    res += fn(txt.slice(openIdx + 1, closeIdx));
-                    idx = closeIdx + 1;
-                  }
-                  return res;
-                };
 
                 normalizedMath = replaceMacroPure(normalizedMath, '\\heva', inner => `\\heva{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`);
                 normalizedMath = replaceMacroPure(normalizedMath, '\\hoac', inner => `\\hoac{${inner.replace(/(^|\\\\)\s*&/g, '$1 ')}}`);
@@ -1124,26 +1142,6 @@ const TkzTabViewer = ({ tikzCode }) => {
 const MathView = ({ text = '', className = '' }) => {
   if (!text) return null;
 
-  // 1. Tách cấu trúc \immini / \imminiL để hiển thị ghép ngang an toàn (hỗ trợ mọi tuỳ chọn [thm], [d]...)
-  const imminiData = parseImminiBlock(text);
-  if (imminiData) {
-    const { isLeftMode, leftPart, rightPart, beforeText, afterText } = imminiData;
-
-    return (
-      <div className={`math-rendered-block ${className}`}>
-        {beforeText && <MathView text={beforeText} />}
-        <div className={`immini-side-by-side-container ${isLeftMode ? 'immini-left-mode' : ''}`}>
-          <div className="immini-text-pane">
-            <MathView text={leftPart} />
-          </div>
-          <div className="immini-diagram-pane">
-            <MathView text={rightPart} />
-          </div>
-        </div>
-        {afterText && <MathView text={afterText} />}
-      </div>
-    );
-  }
 
   return <RenderMathSegment rawText={text} className={className} />;
 };

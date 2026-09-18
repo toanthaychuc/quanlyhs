@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FileText, Plus, Trash2, ExternalLink, Save, X, Edit2 } from 'lucide-react';
+import { FileText, Plus, Trash2, ExternalLink, Save, X, Edit2, ClipboardList } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { getSetting, saveSetting } from '../services/settingService';
 import './Forms.css';
@@ -80,7 +80,7 @@ const Forms = () => {
       <div className="forms-header">
         <div className="forms-title-area">
           <h1>
-            <FileText className="text-primary" size={28} />
+            <ClipboardList className="text-primary" size={28} />
             BIỂU MẪU & KHẢO SÁT
           </h1>
 

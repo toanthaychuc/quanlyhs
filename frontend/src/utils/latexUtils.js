@@ -290,6 +290,16 @@ export const normalizeLatexString = (str = '') => {
   // Khử các khoảng trắng/tab thụt lề thừa từ source code LaTeX ở đầu mỗi dòng
   text = text.replace(/^[ \t]+/gm, '');
 
+  // 0. Xử lý các dạng \immini, \imminiL kèm mọi tuỳ chọn [thm], [d]... trước khi bị mất ngoặc nhọn
+  let imData;
+  while ((imData = parseImminiBlock(text)) !== null) {
+    const { imIdx, fullEndPos, leftPart, rightPart, isLeftMode } = imData;
+    const mode = isLeftMode ? 'IMMINI_LEFT' : 'IMMINI_RIGHT';
+    text = text.slice(0, imIdx) + 
+           `\n\n__BEGIN_${mode}__\n\n${leftPart.trim()}\n\n__MID_IMMINI__\n\n${rightPart.trim()}\n\n__END_${mode}__\n\n` + 
+           text.slice(fullEndPos);
+  }
+
   // Loại bỏ cặp ngoặc nhọn bao quanh toàn bộ hình vẽ TikZ (do người dùng hay gõ nhóm hình)
   const tikzBraceRegex = /\{\s*(?:\\(?:par|centering|noindent|raggedright|raggedleft|hfill|vspace\b\*?(?:\{[^}]*\})?|hspace\b\*?(?:\{[^}]*\})?)\s*)*((?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture\}[^]*?\\end\{tikzpicture\})\s*(?:\\(?:par|centering|noindent|raggedright|raggedleft|hfill|vspace\b\*?(?:\{[^}]*\})?|hspace\b\*?(?:\{[^}]*\})?)\s*)*\}/gi;
   let prevText = text;
@@ -353,14 +363,11 @@ export const normalizeLatexString = (str = '') => {
     return `\n\n**${toAlpha(paragraphCounter)}) ${title}**\n\n`;
   });
 
-  // 3. Khử môi trường bao bọc và căn lề:
-  text = text.replace(/\\begin\{(?:center|flushleft|flushright|paracol|tcolorbox|window|onlysolution|document)\}(?:\[[^\]]*\])?/gi, '');
-  text = text.replace(/\\end\{(?:center|flushleft|flushright|paracol|tcolorbox|window|onlysolution|document)\}/gi, '');
-  text = text.replace(/\\(?:centering|noindent|raggedright|raggedleft|leavevmode|unskip|ignorespaces|hfill|dotfill|strut|filbreak|breakIM|vspaceIM|newpage|clearpage|break)\b/gi, '');
-  text = text.replace(/\\vspace\*?\{[^}]*\}/gi, '');
-  text = text.replace(/\\hspace\*?\{[^}]*\}/gi, '');
+  // 3. Khử môi trường bao bọc, căn lề và khoảng trắng:
+  text = text.replace(/\\(?:begin|end)\{(?:center|flushleft|flushright|paracol|tcolorbox|window|onlysolution|document)\}(?:\[[^\]]*\])?/gi, '');
+  text = text.replace(/\\(?:centering|noindent|raggedright|raggedleft|leavevmode|unskip|ignorespaces|hfill|dotfill|strut|filbreak|breakIM|vspaceIM|newpage|clearpage|break|columnbreak)\b/gi, '');
+  text = text.replace(/\\(?:vspace|hspace)\*?\{[^}]*\}/gi, '');
   text = text.replace(/\\setlength\{[^}]*\}\{[^}]*\}/gi, '');
-  text = text.replace(/\\columnbreak\b/g, '');
 
   // 4. Xử lý các môi trường khối lý thuyết / bài tập của giáo viên:
   // Khối multicols
@@ -376,8 +383,7 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\end\{chuy\}/gi, '\n\n__END_CHUY__\n\n');
 
   text = text.replace(/\\begin\{(?:dang|noidung|khung4|boxkn)\}(?:\[[^\]]*\])?\{([^}]+)\}/gi, '\n**📌 $1**\n');
-  text = text.replace(/\\begin\{(?:vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}(?:\[[^\]]*\])?/gi, '');
-  text = text.replace(/\\end\{(?:dang|noidung|khung4|boxkn|vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}/gi, '');
+  text = text.replace(/\\(?:begin|end)\{(?:vidu|luyentap|vandung|baitap|nx|ghichu|luuy|hd|dl|tc|hq|binhluan|tomtat|gachsoc|mydn|mydl|mytc|myhq|mynx)\}(?:\[[^\]]*\])?/gi, '');
 
   // 5. Chuyển đổi FontAwesome & Icon symbols sang biểu tượng trực quan
   const iconMap = {
@@ -483,12 +489,6 @@ export const normalizeLatexString = (str = '') => {
 
   text = text.replace(/\\(?:item|Eitem|Esubitemch)\b\s*/gi, '\n• ');
 
-  // 8. Xử lý các dạng \immini, \imminiL kèm mọi tuỳ chọn [thm], [d]...
-  let imData;
-  while ((imData = parseImminiBlock(text)) !== null) {
-    const { imIdx, fullEndPos, leftPart, rightPart } = imData;
-    text = text.slice(0, imIdx) + `${leftPart.trim()}\n\n${rightPart.trim()}` + text.slice(fullEndPos);
-  }
   // Loại bỏ các thẻ [thm] độc lập nếu còn sót lại ở đầu văn bản
   text = text.replace(/^\s*\[(?:thm|[a-zA-Z0-9_-]+)\]\s*\{?/gmi, '');
 
@@ -508,13 +508,13 @@ export const normalizeLatexString = (str = '') => {
   text = text.replace(/\\qedEX/g, '$\\square$');
 
   // 13. Định dạng font chữ (\textbf, \textit, \inden, \indam...)
-  text = replaceMacroWithBraces(text, '\\inden', c => `**${c}**`);
-  text = replaceMacroWithBraces(text, '\\indam', c => `**${c}**`);
-  text = replaceMacroWithBraces(text, '\\indamm', c => `**${c}**`);
-  text = replaceMacroWithBraces(text, '\\ind', c => `**${c}**`);
+  ['\\inden', '\\indam', '\\indamm', '\\ind'].forEach(m => {
+    text = replaceMacroWithBraces(text, m, c => `**${c}**`);
+  });
   text = replaceMacroWithBraces(text, '\\tron', c => `(${c})`);
-  text = replaceMacroWithBraces(text, '\\boxmini', c => `[${c}]`);
-  text = replaceMacroWithBraces(text, '\\boxminit', c => `[${c}]`);
+  ['\\boxmini', '\\boxminit'].forEach(m => {
+    text = replaceMacroWithBraces(text, m, c => `[${c}]`);
+  });
 
   // Bỏ các lệnh không được hỗ trợ bởi KaTeX nhưng hay gặp
   text = text.replace(/\\allowdisplaybreaks\b/g, '');
@@ -538,10 +538,8 @@ export const normalizeLatexString = (str = '') => {
   text = replaceMacroWithBraces(text, '\\textbf', c => `**${c}**`);
   text = replaceMacroWithBraces(text, '\\textit', c => `*${c}*`);
   text = replaceMacroWithBraces(text, '\\underline', c => `<u>${c}</u>`);
-  text = text.replace(/\{\s*\\it(?![a-zA-Z])\s*([^}]+)\}/g, '*$1*');
-  text = text.replace(/\{\s*\\bf(?![a-zA-Z])\s*([^}]+)\}/g, '**$1**');
-  text = text.replace(/\\bfseries\b/g, '');
-  text = text.replace(/\\rm\b/g, '');
+  text = text.replace(/\{\s*\\(it|bf)(?![a-zA-Z])\s*([^}]+)\}/g, (match, type, content) => type === 'it' ? `*${content}*` : `**${content}**`);
+  text = text.replace(/\\(?:bfseries|rm)\b/g, '');
 
   // 14. Các macro phụ trợ trong ex_test: \boxEX, \EXbox, \circled, \circEX, \squareEX, \TF
   text = text.replace(/\\TF\{([^}]+)\}/g, '$1');

@@ -30,18 +30,18 @@ import {
 } from 'lucide-react';
 import { 
   LayoutDashboard as I_LayoutDashboard, LayoutGrid as I_LayoutGrid,
-  Users as I_Users, UserCheck as I_UserCheck,
+  UserRound as I_UserRound, UserRoundCheck as I_UserRoundCheck,
   BookOpen as I_BookOpen, BookOpenCheck as I_BookOpenCheck,
-  GraduationCap as I_GraduationCap, BookA as I_BookA,
-  FileText as I_FileText, Files as I_Files,
+  FileText as I_FileText, FileCheck2 as I_FileCheck2,
+  Folder as I_Folder, FolderCheck as I_FolderCheck,
   ClipboardList as I_ClipboardList, ClipboardCheck as I_ClipboardCheck,
-  MessageSquare as I_MessageSquare, MessageCircle as I_MessageCircle,
-  Award as I_Award, Trophy as I_Trophy,
+  MessageSquare as I_MessageSquare, MessageSquareCheck as I_MessageSquareCheck,
+  Star as I_Star, StarCheck as I_StarCheck,
   Shield as I_Shield, ShieldCheck as I_ShieldCheck,
   Sliders as I_Sliders, Settings as I_Settings,
   Smartphone as I_Smartphone, Tablet as I_Tablet,
   Menu as I_Menu, X as I_X,
-  Library as I_Library, Sigma as I_Sigma
+  SquareSigma as I_SquareSigma, SquareCheck as I_SquareCheck
 } from 'lucide';
 import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import WelcomeLandingModal from '../components/WelcomeLandingModal';
@@ -274,14 +274,14 @@ const MainLayout = () => {
 
   const navItems = [
     { path: '/', iconDefault: I_LayoutDashboard, iconHover: I_LayoutGrid, label: 'Dashboard' },
-    { path: '/classes', iconDefault: I_Users, iconHover: I_UserCheck, label: 'Lớp học' },
+    { path: '/classes', iconDefault: I_UserRound, iconHover: I_UserRoundCheck, label: 'Lớp học' },
     { path: '/assignments', iconDefault: I_BookOpen, iconHover: I_BookOpenCheck, label: 'Bài tập' },
-    { path: '/exams', iconDefault: I_GraduationCap, iconHover: I_BookA, label: 'Thi thử' },
-    { path: '/documents', iconDefault: I_FileText, iconHover: I_Files, label: 'Tài liệu' },
-    { path: '/formulas', iconDefault: I_Library, iconHover: I_Sigma, label: 'Tra công thức' },
+    { path: '/exams', iconDefault: I_FileText, iconHover: I_FileCheck2, label: 'Thi thử' },
+    { path: '/documents', iconDefault: I_Folder, iconHover: I_FolderCheck, label: 'Tài liệu' },
+    { path: '/formulas', iconDefault: I_SquareSigma, iconHover: I_SquareCheck, label: 'Tra công thức' },
     { path: '/forms', iconDefault: I_ClipboardList, iconHover: I_ClipboardCheck, label: 'Biểu mẫu' },
-    { path: '/forum', iconDefault: I_MessageSquare, iconHover: I_MessageCircle, label: 'Hỏi đáp' },
-    { path: '/leaderboard', iconDefault: I_Award, iconHover: I_Trophy, label: 'Xếp hạng' },
+    { path: '/forum', iconDefault: I_MessageSquare, iconHover: I_MessageSquareCheck, label: 'Hỏi đáp' },
+    { path: '/leaderboard', iconDefault: I_Star, iconHover: I_StarCheck, label: 'Xếp hạng' },
     ...(!isTeacher ? [{ path: '/my-rank', iconDefault: I_Shield, iconHover: I_ShieldCheck, label: 'Huy hiệu' }] : []),
   ];
 
@@ -398,17 +398,77 @@ const MainLayout = () => {
               </div>
             </div>
 
-            <div>
-              <h2 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {isTeacher 
-                  ? 'Chào mừng, Thầy Lê Công Chức! 👋' 
-                  : <>Chào mừng, <StudentName studentId={currentStudent?.id} name={currentStudent?.name || 'Học sinh'} /></>}
-              </h2>
-              <span className="user-role-badge">
-                {isTeacher 
-                  ? `Quyền Quản trị viên • Email: ${currentUserEmail}` 
-                  : `Học sinh: ${currentStudentClass?.name || 'Lớp học'} • ${currentStudentClass?.schoolFullName || 'Toán Thầy Công Chức'}`}
-              </span>
+            <div className="flex flex-col gap-1.5" style={{ animation: 'fadeIn 0.5s ease' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.01em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '1rem' }}>⛅</span>
+                <span style={{ 
+                  background: 'linear-gradient(90deg, #4f46e5, #06b6d4)', 
+                  WebkitBackgroundClip: 'text', 
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: '0px 2px 4px rgba(79, 70, 229, 0.1)'
+                }}>
+                  {(() => {
+                    const now = new Date();
+                    const gmt7Time = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+                    const days = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                    const dayName = days[gmt7Time.getDay()];
+                    const date = gmt7Time.getDate();
+                    const month = gmt7Time.getMonth() + 1;
+                    const year = gmt7Time.getFullYear();
+                    return `${dayName}, ngày ${date} tháng ${month} năm ${year}`;
+                  })()}
+                </span>
+              </div>
+
+              {isTeacher ? (
+                <div className="flex items-center" style={{ gap: '12px' }}>
+                  <div className="flex items-center px-3 py-1 rounded-full" style={{ gap: '6px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontSize: '0.75rem', fontWeight: 600, transition: 'all 0.3s ease', cursor: 'default' }} onMouseOver={e => Object.assign(e.currentTarget.style, { background: 'rgba(16, 185, 129, 0.15)', transform: 'translateY(-1px)', boxShadow: '0 4px 6px rgba(16,185,129,0.1)' })} onMouseOut={e => Object.assign(e.currentTarget.style, { background: 'rgba(16, 185, 129, 0.1)', transform: 'translateY(0)', boxShadow: 'none' })}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 rgba(16,185,129,0.7)', animation: 'pulse-green 2s infinite' }}></div>
+                    Hệ thống ổn định
+                  </div>
+                  <div className="flex items-center text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', gap: '6px', transition: 'all 0.3s ease', cursor: 'default', border: '1px solid rgba(99, 102, 241, 0.2)' }} onMouseOver={e => Object.assign(e.currentTarget.style, { background: 'rgba(99, 102, 241, 0.15)', transform: 'translateY(-1px)', boxShadow: '0 4px 6px rgba(99, 102, 241, 0.1)' })} onMouseOut={e => Object.assign(e.currentTarget.style, { background: 'rgba(99, 102, 241, 0.1)', transform: 'translateY(0)', boxShadow: 'none' })}>
+                    <Users size={12} /> Quản lý {allStudentsWithClass?.length || 0} học sinh
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center" style={{ gap: '16px' }}>
+                  <div className="flex items-center bg-white/60 px-2.5 py-1 rounded-full border border-gray-100 shadow-sm" style={{ gap: '8px' }}>
+                    <img 
+                      src={calculateRank(studentXP).currentRank.image} 
+                      alt="Rank" 
+                      style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', background: calculateRank(studentXP).currentRank.bg }} 
+                    />
+                    <div className="flex items-baseline" style={{ gap: '6px' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: calculateRank(studentXP).currentRank.color }}>
+                        {calculateRank(studentXP).currentRank.name}
+                      </span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                        {studentXP} XP
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {calculateRank(studentXP).nextRank && (
+                    <div className="flex flex-col justify-center" style={{ width: '130px' }}>
+                      <div className="flex justify-between items-end mb-1" style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                        <span>Tiến tới {calculateRank(studentXP).nextRank.name}</span>
+                        <span style={{ color: calculateRank(studentXP).currentRank.color }}>{Math.round(calculateRank(studentXP).progressPercent)}%</span>
+                      </div>
+                      <div style={{ height: '5px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div 
+                          style={{ 
+                            height: '100%', 
+                            width: `${calculateRank(studentXP).progressPercent}%`, 
+                            background: calculateRank(studentXP).currentRank.color, 
+                            borderRadius: '3px', 
+                            transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
