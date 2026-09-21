@@ -572,7 +572,7 @@ const renderFormattedText = (raw) => {
   });
 };
 
-const TabularViewer = ({ code }) => {
+const TabularViewer = ({ code, cachedSvgs = null }) => {
   if (!code) return null;
   
   let safeCode = code.replace(/\\cline\s*\{[^}]*\}/g, '')
@@ -657,7 +657,7 @@ const TabularViewer = ({ code }) => {
 
                   return (
                     <td key={cIdx} colSpan={colSpan} style={{ border: '1px solid #ccc', padding: '8px 16px', textAlign: 'center' }}>
-                      <RenderMathSegment rawText={content} />
+                      <RenderMathSegment rawText={content} cachedSvgs={cachedSvgs} />
                     </td>
                   );
                 })}
@@ -839,7 +839,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
           return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TikzDiagramViewer tikzCode={seg.value} initialSvg={precompiledSvg} /></span>;
         }
         if (seg.type === 'tabular') {
-          return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TabularViewer code={seg.value} /></span>;
+          return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TabularViewer code={seg.value} cachedSvgs={cachedSvgs} /></span>;
         }
         if (seg.type === 'subsection') {
           return (

@@ -141,7 +141,18 @@ app.post('/api/compile-tikz', async (req, res) => {
       // Thay \overrightarrow thành \vec vì gây lỗi fragile
       .replace(/\\overrightarrow/g, '\\vec');
 
-    const texContent = `\\documentclass[tikz,margin=2mm]{standalone}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T5]{fontenc}\n${cleanPreamble}\n\\begin{document}\n${fixedTikzCode}\n\\end{document}\n`;
+    const intervalMacros = `
+\\providecommand{\\IntervalLR}[2]{\\def\\pre{#1}\\def\\next{#2}}
+\\providecommand{\\skipInterval}{0.5cm}
+\\providecommand{\\colorInterval}{black}
+\\providecommand{\\IntervalGRF}[4]{%
+  \\coordinate [label={center:$#1$},label=below:$\\rule{0pt}{\\skipInterval}#2$] (a) at (\\pre,0);
+  \\coordinate [label={center:$#3$},label=below:$\\rule{0pt}{\\skipInterval}#4$] (b) at (\\next,0);
+  \\fill[pattern=north east lines,pattern color=\\colorInterval](\\pre,-3pt)rectangle(\\next,3pt);
+}
+`;
+
+    const texContent = `\\documentclass[tikz,margin=2mm]{standalone}\n\\usepackage[utf8]{inputenc}\n\\usepackage[T5]{fontenc}\n${cleanPreamble}\n${intervalMacros}\n\\begin{document}\n${fixedTikzCode}\n\\end{document}\n`;
     
     // ==========================================
     // 1. Kiểm tra Cache
