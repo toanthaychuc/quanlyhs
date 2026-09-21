@@ -3,6 +3,7 @@ import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, Sigma, Sea
 import { useRole } from '../context/RoleContext';
 import { getFormulas, addFormula, updateFormula, deleteFormula, updateFormulaOrders } from '../services/formulaService';
 import MathView from '../components/MathView';
+import { extractTikzBlocks, buildFormulaCachedSvgs } from '../utils/tikzCacheUtils';
 import './Formulas.css';
 
 const Formulas = () => {
@@ -14,7 +15,10 @@ const Formulas = () => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [formData, setFormData] = useState({ title: '', content: '', order_index: 0 });
+  const [formData, setFormData] = useState({ title: '', content: '', order_index: 0, class_level: '', cached_svgs: {} });
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSyncingTikz, setIsSyncingTikz] = useState(false);
+  const [syncProgress, setSyncProgress] = useState({ done: 0, total: 0 });
   const [isDragging, setIsDragging] = useState(false);
   
   // Drag and drop states for list reordering
@@ -235,7 +239,7 @@ const Formulas = () => {
   const openAddModal = () => {
     if (!isTeacher) return;
     setEditId(null);
-    setFormData({ title: '', content: '', order_index: formulas.length, class_level: '' });
+    setFormData({ title: '', content: '', order_index: formulas.length, class_level: '', cached_svgs: {} });
     setIsModalOpen(true);
   };
 
@@ -243,7 +247,13 @@ const Formulas = () => {
     e.stopPropagation();
     if (!isTeacher) return;
     setEditId(formula.id);
-    setFormData({ title: formula.title, content: formula.content || '', order_index: formula.order_index, class_level: formula.class_level || '' });
+    setFormData({ 
+      title: formula.title, 
+      content: formula.content || '', 
+      order_index: formula.order_index, 
+      class_level: formula.class_level || '',
+      cached_svgs: formula.cached_svgs || {}
+    });
     setIsModalOpen(true);
   };
 
@@ -286,19 +296,85 @@ const Formulas = () => {
     e.preventDefault();
     if (!formData.title.trim()) return;
 
+    setIsSaving(true);
     try {
+      let cached_svgs = formData.cached_svgs || {};
+      const blocks = extractTikzBlocks(formData.content || '');
+      if (blocks.length > 0) {
+        try {
+          cached_svgs = await buildFormulaCachedSvgs(formData.content, cached_svgs);
+        } catch (tikzErr) {
+          console.warn('Lỗi khi biên dịch trước TikZ:', tikzErr);
+        }
+      }
+
+      const payload = { ...formData, cached_svgs };
+
       if (editId) {
-        const updated = await updateFormula(editId, formData);
+        const updated = await updateFormula(editId, payload);
         setFormulas(formulas.map(f => f.id === editId ? updated : f));
       } else {
-        const added = await addFormula(formData);
+        const added = await addFormula(payload);
         setFormulas([...formulas, added]);
         setActiveFormulaId(added.id);
       }
       setIsModalOpen(false);
     } catch (error) {
-      alert('Có lỗi xảy ra khi lưu!');
+      console.error('Error saving formula:', error);
+      alert('Có lỗi xảy ra khi lưu: ' + (error.message || ''));
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleSyncAllTikz = async () => {
+    if (!isTeacher) return;
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+    // Kiểm tra xem backend có đang phản hồi không
+    try {
+      const pingRes = await fetch(`${apiUrl}/api/compile-tikz`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tikzCode: '\\begin{tikzpicture}\\end{tikzpicture}' })
+      });
+      if (!pingRes.ok) throw new Error();
+    } catch {
+      alert("Máy chủ biên dịch LaTeX (backend) chưa được bật hoặc không phản hồi trên cổng 3001.\n\nThầy hãy mở terminal và chạy lệnh:\ncd backend && npm start\n(hoặc 'npm run dev:backend') rồi bấm lại nút này nhé!");
+      return;
+    }
+
+    const formulasWithTikz = formulas.filter(f => f.content && extractTikzBlocks(f.content).length > 0);
+    if (formulasWithTikz.length === 0) {
+      alert("Hiện không có mục công thức nào chứa hình TikZ cần đồng bộ.");
+      return;
+    }
+
+    setIsSyncingTikz(true);
+    setSyncProgress({ done: 0, total: formulasWithTikz.length });
+
+    let successCount = 0;
+    const updatedFormulas = [...formulas];
+
+    for (let i = 0; i < formulasWithTikz.length; i++) {
+      const formula = formulasWithTikz[i];
+      try {
+        const cached_svgs = await buildFormulaCachedSvgs(formula.content, formula.cached_svgs || {});
+        const updated = await updateFormula(formula.id, { cached_svgs });
+        const idx = updatedFormulas.findIndex(f => f.id === formula.id);
+        if (idx !== -1) {
+          updatedFormulas[idx] = { ...updatedFormulas[idx], cached_svgs };
+        }
+        successCount++;
+      } catch (err) {
+        console.error(`Lỗi khi đồng bộ TikZ cho ${formula.title}:`, err);
+      }
+      setSyncProgress({ done: i + 1, total: formulasWithTikz.length });
+    }
+
+    setFormulas(updatedFormulas);
+    setIsSyncingTikz(false);
+    alert(`Đã hoàn tất đồng bộ hình TikZ lên Cloud cho ${successCount}/${formulasWithTikz.length} mục công thức!`);
   };
 
   const processFile = (file) => {
@@ -467,10 +543,26 @@ const Formulas = () => {
         </div>
 
         {isTeacher && (
-          <button className="btn btn-primary" onClick={openAddModal} style={{ flexShrink: 0 }}>
-            <Plus size={20} />
-            Thêm mục mới
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={handleSyncAllTikz}
+              disabled={isSyncingTikz}
+              title="Biên dịch và lưu sẵn hình TikZ lên Cloud để học sinh và thầy mở tức thì 0 giây"
+              style={{ fontSize: '0.875rem', padding: '0.5rem 0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              {isSyncingTikz ? (
+                <>⏳ Đang lưu hình ({syncProgress.done}/{syncProgress.total})...</>
+              ) : (
+                <>⚡ Đồng bộ hình TikZ</>
+              )}
+            </button>
+            <button className="btn btn-primary" onClick={openAddModal}>
+              <Plus size={20} />
+              Thêm mục mới
+            </button>
+          </div>
         )}
       </div>
 
@@ -534,7 +626,7 @@ const Formulas = () => {
               <h2 className="formula-main-title">{activeFormula.title}</h2>
               <div className="formula-viewer">
                 {activeFormula.content ? (
-                  <MathView text={activeFormula.content} />
+                  <MathView text={activeFormula.content} cachedSvgs={activeFormula.cached_svgs} />
                 ) : (
                   <div className="empty-content">Nội dung trống.</div>
                 )}
@@ -653,7 +745,7 @@ const Formulas = () => {
                      onMouseUp={handlePreviewDoubleClick}
                      style={{ flex: 1, overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '1rem', backgroundColor: 'var(--card-bg)' }}>
                   {formData.content ? (
-                    <MathView text={formData.content} />
+                    <MathView text={formData.content} cachedSvgs={formData.cached_svgs} />
                   ) : (
                     <div className="empty-content" style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: '2rem' }}>Chưa có nội dung xem trước.</div>
                   )}
@@ -661,9 +753,9 @@ const Formulas = () => {
               </div>
 
               <div className="modal-actions" style={{ flexShrink: 0, marginTop: '1rem' }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Hủy</button>
-                <button type="submit" className="btn btn-primary">
-                  <Save size={16} /> Lưu lại
+                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)} disabled={isSaving}>Hủy</button>
+                <button type="submit" className="btn btn-primary" disabled={isSaving}>
+                  <Save size={16} /> {isSaving ? 'Đang lưu & nén hình...' : 'Lưu lại'}
                 </button>
               </div>
             </form>

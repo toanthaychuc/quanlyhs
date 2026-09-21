@@ -31,30 +31,57 @@ export const getFormulas = async () => {
 };
 
 export const addFormula = async (formula) => {
-  const { data, error } = await supabase
-    .from('formulas')
-    .insert([formula])
-    .select();
+  try {
+    const { data, error } = await supabase
+      .from('formulas')
+      .insert([formula])
+      .select();
 
-  if (error) {
-    console.error('Error adding formula:', error);
-    throw error;
+    if (error) {
+      if (error.message && error.message.includes('cached_svgs')) {
+        const { cached_svgs, ...rest } = formula;
+        const fallbackRes = await supabase
+          .from('formulas')
+          .insert([rest])
+          .select();
+        if (fallbackRes.error) throw fallbackRes.error;
+        return fallbackRes.data[0];
+      }
+      throw error;
+    }
+    return data[0];
+  } catch (err) {
+    console.error('Error adding formula:', err);
+    throw err;
   }
-  return data[0];
 };
 
 export const updateFormula = async (id, updates) => {
-  const { data, error } = await supabase
-    .from('formulas')
-    .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq('id', id)
-    .select();
+  try {
+    const { data, error } = await supabase
+      .from('formulas')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select();
 
-  if (error) {
-    console.error('Error updating formula:', error);
-    throw error;
+    if (error) {
+      if (error.message && error.message.includes('cached_svgs')) {
+        const { cached_svgs, ...rest } = updates;
+        const fallbackRes = await supabase
+          .from('formulas')
+          .update({ ...rest, updated_at: new Date().toISOString() })
+          .eq('id', id)
+          .select();
+        if (fallbackRes.error) throw fallbackRes.error;
+        return fallbackRes.data[0];
+      }
+      throw error;
+    }
+    return data[0];
+  } catch (err) {
+    console.error('Error updating formula:', err);
+    throw err;
   }
-  return data[0];
 };
 
 export const deleteFormula = async (id) => {

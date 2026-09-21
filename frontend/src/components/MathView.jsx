@@ -3,13 +3,15 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { normalizeLatexString, extractBracedBlocks, parseImminiBlock, replaceMacroWithBraces } from '../utils/latexUtils';
 import { parseTikzToSvgData, getSmoothSvgPath } from '../utils/tikzParser';
+import { getTikzHash } from '../utils/tikzCacheUtils';
 
 // Component hiển thị hình vẽ TikZ & Đồ thị hàm số chuẩn xác 100% bằng Vector SVG Canvas
-const TikzDiagramViewer = ({ tikzCode }) => {
+const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
   const [svgData, setSvgData] = React.useState(null);
 
   // Phân tích và nạp dữ liệu SVG hình vẽ tức thì
   React.useEffect(() => {
+    if (initialSvg) return; // Đã có SVG từ cache thì không cần parse fallback
     if (tikzCode) {
       try {
         const data = parseTikzToSvgData(tikzCode);
@@ -18,7 +20,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
         console.warn("Parse TikZ error:", err);
       }
     }
-  }, [tikzCode]);
+  }, [tikzCode, initialSvg]);
 
   if (!tikzCode) return null;
 
@@ -162,12 +164,22 @@ const TikzDiagramViewer = ({ tikzCode }) => {
   };
 
   const containerRef = React.useRef(null);
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(!initialSvg);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [useFallback, setUseFallback] = React.useState(false);
   const [showLightbox, setShowLightbox] = React.useState(false);
   const [zoomScale, setZoomScale] = React.useState(1);
   const lightboxSvgRef = React.useRef(null);
+
+  // Hiển thị ngay lập tức initialSvg nếu có sẵn từ cache/database
+  React.useEffect(() => {
+    if (initialSvg && containerRef.current) {
+      containerRef.current.innerHTML = initialSvg;
+      setLoading(false);
+      setErrorMsg('');
+      setUseFallback(false);
+    }
+  }, [initialSvg]);
 
   // Reset zoom khi mở lightbox
   React.useEffect(() => {
@@ -220,6 +232,10 @@ const TikzDiagramViewer = ({ tikzCode }) => {
 
   // Fetch compiled SVG from local API on mount or when tikzCode changes
   React.useEffect(() => {
+    if (initialSvg) {
+      // Đã có SVG từ cache/database -> không cần gọi backend biên dịch
+      return;
+    }
     if (tikzCode) {
       const controller = new AbortController();
       const signal = controller.signal;
@@ -282,7 +298,7 @@ const TikzDiagramViewer = ({ tikzCode }) => {
         controller.abort();
       };
     }
-  }, [tikzCode]);
+  }, [tikzCode, initialSvg]);
 
   const hasSvg = !loading && (!errorMsg || useFallback);
 
@@ -350,9 +366,10 @@ const TikzDiagramViewer = ({ tikzCode }) => {
           <div
             ref={containerRef}
             className="tikzjax-wrapper"
+            dangerouslySetInnerHTML={initialSvg ? { __html: initialSvg } : undefined}
             style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%', overflow: 'visible', opacity: (loading || (errorMsg && !useFallback)) ? 0.3 : 1 }}
           >
-            {useFallback && renderFallbackSvg()}
+            {!initialSvg && useFallback && renderFallbackSvg()}
           </div>
         </div>
       </div>
@@ -680,7 +697,7 @@ const replaceMacroPure = (txt, macro, fn) => {
   return res;
 };
 
-const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false }) => {
+const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false, cachedSvgs = null }) => {
   if (!rawText) return null;
 
   const normalized = isNormalized ? rawText : normalizeLatexString(rawText);
@@ -817,7 +834,9 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
       {segments.map((seg, segIdx) => {
         const dataSourceAttr = encodeURIComponent(seg.value || '');
         if (seg.type === 'tikz') {
-          return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TikzDiagramViewer tikzCode={seg.value} /></span>;
+          const hash = getTikzHash(seg.value);
+          const precompiledSvg = cachedSvgs ? (cachedSvgs[hash] || cachedSvgs[seg.value] || null) : null;
+          return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TikzDiagramViewer tikzCode={seg.value} initialSvg={precompiledSvg} /></span>;
         }
         if (seg.type === 'tabular') {
           return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TabularViewer code={seg.value} /></span>;
@@ -825,28 +844,28 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         if (seg.type === 'subsection') {
           return (
             <div key={segIdx} data-source={dataSourceAttr} className="latex-subsection math-source-block" style={{ margin: '1.5rem 0 0.75rem', padding: '0.6rem 0.85rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)', fontSize: '1.1em' }}>
-              {seg.number}. <RenderMathSegment rawText={seg.title} isNormalized={true} />
+              {seg.number}. <RenderMathSegment rawText={seg.title} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
         if (seg.type === 'subsubsection') {
           return (
             <div key={segIdx} data-source={dataSourceAttr} className="latex-subsubsection math-source-block" style={{ margin: '1rem 0 0.5rem', padding: '0.5rem 0.75rem', backgroundColor: 'var(--sub-heading-bg)', borderLeft: '4px solid var(--primary-color)', borderRadius: '4px', fontWeight: 700, color: 'var(--sub-heading-color)' }}>
-              {seg.number}. <RenderMathSegment rawText={seg.title} isNormalized={true} />
+              {seg.number}. <RenderMathSegment rawText={seg.title} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
         if (seg.type === 'multicols') {
           return (
             <div key={segIdx} data-source={dataSourceAttr} className="latex-multicols math-source-block" style={{ columnCount: 2, columnGap: '2rem' }}>
-              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+              <RenderMathSegment rawText={seg.value} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
         if (seg.type === 'box') {
           return (
             <div key={segIdx} data-source={dataSourceAttr} className="latex-framed-box math-source-block" style={{ border: '2px solid var(--primary-color)', padding: '0.75rem 1rem', borderRadius: '8px', margin: '0.75rem 0', backgroundColor: 'rgba(99, 102, 241, 0.03)', breakInside: 'avoid' }}>
-              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+              <RenderMathSegment rawText={seg.value} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
@@ -856,7 +875,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
               <strong style={{ color: 'var(--chuy-title-color, #f59e0b)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '1.1em' }}>💡</span> Chú ý
               </strong>
-              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+              <RenderMathSegment rawText={seg.value} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
@@ -866,7 +885,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
               <strong style={{ color: 'var(--nx-title-color, #3b82f6)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '1.1em' }}>💬</span> Nhận xét
               </strong>
-              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+              <RenderMathSegment rawText={seg.value} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
@@ -876,14 +895,14 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
               <strong style={{ color: 'var(--tc-title-color, #10b981)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '1.1em' }}>✨</span> Tính chất
               </strong>
-              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+              <RenderMathSegment rawText={seg.value} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
         if (seg.type === 'list') {
           return (
             <div key={segIdx} data-source={dataSourceAttr} className="latex-list math-source-block" style={{ paddingLeft: '2rem', margin: '0.5rem 0' }}>
-              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+              <RenderMathSegment rawText={seg.value} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
@@ -891,10 +910,10 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
           return (
             <div key={segIdx} className={`immini-side-by-side-container ${seg.isLeftMode ? 'immini-left-mode' : ''} math-source-block`}>
               <div className="immini-text-pane">
-                <RenderMathSegment rawText={seg.leftPart} isNormalized={true} />
+                <RenderMathSegment rawText={seg.leftPart} isNormalized={true} cachedSvgs={cachedSvgs} />
               </div>
               <div className="immini-diagram-pane">
-                <RenderMathSegment rawText={seg.rightPart} isNormalized={true} />
+                <RenderMathSegment rawText={seg.rightPart} isNormalized={true} cachedSvgs={cachedSvgs} />
               </div>
             </div>
           );
@@ -902,7 +921,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false 
         if (seg.type === 'center') {
           return (
             <div key={segIdx} data-source={dataSourceAttr} className="latex-center math-source-block" style={{ textAlign: 'center', margin: '1.25rem 0' }}>
-              <RenderMathSegment rawText={seg.value} isNormalized={true} />
+              <RenderMathSegment rawText={seg.value} isNormalized={true} cachedSvgs={cachedSvgs} />
             </div>
           );
         }
@@ -1169,11 +1188,10 @@ const TkzTabViewer = ({ tikzCode }) => {
   );
 };
 
-const MathView = ({ text = '', className = '' }) => {
+const MathView = ({ text = '', className = '', cachedSvgs = null }) => {
   if (!text) return null;
 
-
-  return <RenderMathSegment rawText={text} className={className} />;
+  return <RenderMathSegment rawText={text} className={className} cachedSvgs={cachedSvgs} />;
 };
 
 export default React.memo(MathView);
