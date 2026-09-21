@@ -688,7 +688,7 @@ const TabularViewer = ({ code, cachedSvgs = null }) => {
 
                   return (
                     <td key={cIdx} colSpan={colSpan} style={{ border: '1px solid #ccc', padding: '8px 16px', textAlign: 'center' }}>
-                      <RenderMathSegment rawText={content} cachedSvgs={cachedSvgs} />
+                      <RenderMathSegment rawText={content} isNormalized={true} cachedSvgs={cachedSvgs} />
                     </td>
                   );
                 })}
@@ -865,7 +865,8 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
       {segments.map((seg, segIdx) => {
         const dataSourceAttr = encodeURIComponent(seg.value || '');
         if (seg.type === 'tikz') {
-          const hash = getTikzHash(seg.value);
+          const rawCode = (seg.value || '').replace(/__(?:BEGIN|END)_TIKZ__/g, '').trim();
+          const hash = getTikzHash(rawCode);
           let precompiledSvg = null;
           if (cachedSvgs) {
             let map = cachedSvgs;
@@ -873,13 +874,13 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
               try { map = JSON.parse(map); } catch (e) { map = null; }
             }
             if (map && typeof map === 'object') {
-              precompiledSvg = map[hash] || map[seg.value] || null;
+              precompiledSvg = map[hash] || map[rawCode] || map[seg.value] || null;
             }
           }
           return (
             <span key={segIdx} data-source={dataSourceAttr} className="math-source-block">
               <TikzErrorBoundary>
-                <TikzDiagramViewer tikzCode={seg.value} initialSvg={precompiledSvg} />
+                <TikzDiagramViewer tikzCode={rawCode} initialSvg={precompiledSvg} />
               </TikzErrorBoundary>
             </span>
           );
