@@ -309,6 +309,14 @@ export const normalizeLatexString = (str = '') => {
     prevText = text;
   }
 
+  // [BẢO VỆ TIKZ] Trích xuất nguyên vẹn các khối TikZ trước khi các hàm biến đổi văn bản làm sai lệch cú pháp & hash
+  const protectedTikzBlocks = [];
+  const tikzExtractRegex = /((?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\})/gi;
+  text = text.replace(tikzExtractRegex, (match) => {
+    protectedTikzBlocks.push(match.trim());
+    return `__TIKZ_RAW_BLOCK_${protectedTikzBlocks.length - 1}__`;
+  });
+
   // 1. Tự động loại bỏ Preamble khai báo gói và cài đặt trang nếu giáo viên dán cả file .tex
   text = text.replace(/\\documentclass(?:\[[^\]]*\])?\{[^}]*\}/gi, '');
   text = text.replace(/\\usepackage(?:\[[^\]]*\])?\{[^}]*\}/gi, '');
@@ -667,7 +675,10 @@ export const normalizeLatexString = (str = '') => {
 
   // Chuyển đổi tabular và tikzpicture thành dạng __BEGIN_...__ để parseNestedEnvironments dễ dàng bóc tách theo thứ bậc
   text = text.replace(/\\begin\{(tabular|xtabular|longtable)\}(?:\[[^\]]*\])?\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}([\s\S]*?)\\end\{\1\}/gi, '\n\n__BEGIN_TABULAR__\n\n$2\n\n__END_TABULAR__\n\n');
-  text = text.replace(/((?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\})/gi, '\n\n__BEGIN_TIKZ__\n\n$1\n\n__END_TIKZ__\n\n');
+  // Phục hồi các khối TikZ nguyên bản đã được bảo vệ vào dạng __BEGIN_TIKZ__
+  text = text.replace(/__TIKZ_RAW_BLOCK_(\d+)__/g, (match, idx) => {
+    return `\n\n__BEGIN_TIKZ__\n\n${protectedTikzBlocks[parseInt(idx, 10)]}\n\n__END_TIKZ__\n\n`;
+  });
 
   return text;
 };

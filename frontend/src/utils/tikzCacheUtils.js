@@ -6,7 +6,13 @@
  */
 export const getTikzHash = (code = '') => {
   if (!code) return '';
-  const str = code.trim().replace(/\r\n/g, '\n');
+  const str = code
+    .replace(/(^|[^\\])%.*$/gm, '$1')
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .join('\n');
   let h1 = 0xdeadbeef, h2 = 0x41c64e6d;
   for (let i = 0; i < str.length; i++) {
     const ch = str.charCodeAt(i);
@@ -25,11 +31,12 @@ export const getTikzHash = (code = '') => {
  */
 export const extractTikzBlocks = (text = '') => {
   if (!text) return [];
+  const cleanText = text.replace(/(^|[^\\])%.*$/gm, '$1');
   // Regex đồng bộ với latexUtils.js
   const regex = /((?:(?:\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}\s*|\\colorlet\{[^}]+\}\{[^}]+\}\s*)*)\\begin\{tikzpicture(?:\[[^\]]*\])?\}?(?:\[[^\]]*\])?[\s\S]*?\\end\{tikzpicture\})/gi;
   const blocks = [];
   let match;
-  while ((match = regex.exec(text)) !== null) {
+  while ((match = regex.exec(cleanText)) !== null) {
     blocks.push(match[1].trim());
   }
   return blocks;

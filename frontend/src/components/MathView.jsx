@@ -5,6 +5,30 @@ import { normalizeLatexString, extractBracedBlocks, parseImminiBlock, replaceMac
 import { parseTikzToSvgData, getSmoothSvgPath } from '../utils/tikzParser';
 import { getTikzHash } from '../utils/tikzCacheUtils';
 
+// ErrorBoundary cục bộ cho TikZ: Tránh làm sập toàn bộ ứng dụng khi 1 hình TikZ bị lỗi
+class TikzErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(err) {
+    console.warn("TikZ render error caught by TikzErrorBoundary:", err);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: '4px', background: '#fef2f2', color: '#b91c1c', fontSize: '0.85rem' }}>
+          ⚠️ Lỗi hiển thị hình TikZ
+        </span>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Component hiển thị hình vẽ TikZ & Đồ thị hàm số chuẩn xác 100% bằng Vector SVG Canvas
 const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
   const [svgData, setSvgData] = React.useState(null);
@@ -21,8 +45,6 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
       }
     }
   }, [tikzCode, initialSvg]);
-
-  if (!tikzCode) return null;
 
   // Tính toán vẽ SVG Canvas fallback trực tiếp
   const renderFallbackSvg = () => {
@@ -164,6 +186,7 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
   };
 
   const containerRef = React.useRef(null);
+  const [svgHtml, setSvgHtml] = React.useState(initialSvg || null);
   const [loading, setLoading] = React.useState(!initialSvg);
   const [errorMsg, setErrorMsg] = React.useState('');
   const [useFallback, setUseFallback] = React.useState(false);
@@ -173,11 +196,13 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
 
   // Hiển thị ngay lập tức initialSvg nếu có sẵn từ cache/database
   React.useEffect(() => {
-    if (initialSvg && containerRef.current) {
-      containerRef.current.innerHTML = initialSvg;
+    if (initialSvg) {
+      setSvgHtml(initialSvg);
       setLoading(false);
       setErrorMsg('');
       setUseFallback(false);
+    } else {
+      setSvgHtml(null);
     }
   }, [initialSvg]);
 
@@ -193,12 +218,12 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
     if (showLightbox && lightboxSvgRef.current) {
       if (useFallback) {
         // Nếu dùng fallback thì renderFallbackSvg() trả về React node, containerRef sẽ rỗng innerHTML.
-        // Do đó ta cần gán lại HTML từ node được render hoặc xử lý khác.
-        // Một cách đơn giản là clone nội dung từ thẻ SVG hiển thị thực tế:
         const displayedSvg = containerRef.current?.querySelector('svg');
         if (displayedSvg) {
           lightboxSvgRef.current.innerHTML = displayedSvg.outerHTML;
         }
+      } else if (svgHtml) {
+        lightboxSvgRef.current.innerHTML = svgHtml;
       } else if (containerRef.current) {
         lightboxSvgRef.current.innerHTML = containerRef.current.innerHTML;
       }
@@ -215,7 +240,7 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
         svg.style.display = 'block';
       }
     }
-  }, [showLightbox, zoomScale, useFallback]);
+  }, [showLightbox, zoomScale, useFallback, svgHtml]);
 
   // Đóng bằng phím Escape, phím +/- để zoom
   React.useEffect(() => {
@@ -267,9 +292,7 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
             throw new Error(data.error || 'Server error');
           }
 
-          if (containerRef.current) {
-            containerRef.current.innerHTML = data.svg;
-          }
+          setSvgHtml(data.svg);
         } catch (err) {
           if (err.name === 'AbortError') return;
           console.error("TikZ API Error:", err);
@@ -281,9 +304,7 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
             setErrorMsg(`Lỗi Backend: ${err.message}`);
           }
 
-          if (containerRef.current) {
-            containerRef.current.innerHTML = '';
-          }
+          setSvgHtml(null);
         } finally {
           setLoading(false);
         }
@@ -300,7 +321,7 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
     }
   }, [tikzCode, initialSvg]);
 
-  const hasSvg = !loading && (!errorMsg || useFallback);
+  const hasSvg = Boolean(svgHtml) || (!loading && useFallback && Boolean(svgData));
 
   const handleZoomIn = (e) => {
     e.stopPropagation();
@@ -316,6 +337,8 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
     e.stopPropagation();
     setZoomScale(1);
   };
+
+  if (!tikzCode) return null;
 
   return (
     <>
@@ -363,14 +386,22 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
             </div>
           )}
 
-          <div
-            ref={containerRef}
-            className="tikzjax-wrapper"
-            dangerouslySetInnerHTML={initialSvg ? { __html: initialSvg } : undefined}
-            style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%', overflow: 'visible', opacity: (loading || (errorMsg && !useFallback)) ? 0.3 : 1 }}
-          >
-            {!initialSvg && useFallback && renderFallbackSvg()}
-          </div>
+          {svgHtml ? (
+            <div
+              ref={containerRef}
+              className="tikzjax-wrapper"
+              dangerouslySetInnerHTML={{ __html: svgHtml }}
+              style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%', overflow: 'visible', opacity: loading ? 0.3 : 1 }}
+            />
+          ) : (
+            <div
+              ref={containerRef}
+              className="tikzjax-wrapper"
+              style={{ position: 'relative', display: 'flex', justifyContent: 'center', width: '100%', overflow: 'visible', opacity: (loading || (errorMsg && !useFallback)) ? 0.3 : 1 }}
+            >
+              {useFallback && renderFallbackSvg()}
+            </div>
+          )}
         </div>
       </div>
 
@@ -835,8 +866,23 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
         const dataSourceAttr = encodeURIComponent(seg.value || '');
         if (seg.type === 'tikz') {
           const hash = getTikzHash(seg.value);
-          const precompiledSvg = cachedSvgs ? (cachedSvgs[hash] || cachedSvgs[seg.value] || null) : null;
-          return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TikzDiagramViewer tikzCode={seg.value} initialSvg={precompiledSvg} /></span>;
+          let precompiledSvg = null;
+          if (cachedSvgs) {
+            let map = cachedSvgs;
+            if (typeof map === 'string') {
+              try { map = JSON.parse(map); } catch (e) { map = null; }
+            }
+            if (map && typeof map === 'object') {
+              precompiledSvg = map[hash] || map[seg.value] || null;
+            }
+          }
+          return (
+            <span key={segIdx} data-source={dataSourceAttr} className="math-source-block">
+              <TikzErrorBoundary>
+                <TikzDiagramViewer tikzCode={seg.value} initialSvg={precompiledSvg} />
+              </TikzErrorBoundary>
+            </span>
+          );
         }
         if (seg.type === 'tabular') {
           return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TabularViewer code={seg.value} cachedSvgs={cachedSvgs} /></span>;
@@ -1039,21 +1085,21 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
 };
 
 const TkzTabViewer = ({ tikzCode }) => {
-  const initMatch = tikzCode.match(/\\tkzTabInit(?:\[[^\]]*\])?\s*\{([^}]+)\}\s*\{([^}]+)\}/);
+  const uniqueId = React.useMemo(() => Math.random().toString(36).substring(2, 9), []);
+  const initMatch = (tikzCode || '').match(/\\tkzTabInit(?:\[[^\]]*\])?\s*\{([^}]+)\}\s*\{([^}]+)\}/);
   if (!initMatch) return null;
 
   const rows = initMatch[1].split(',').map(s => s.split('/')[0].trim());
   const xVals = initMatch[2].split(',').map(s => s.trim());
 
-  const lineMatch = tikzCode.match(/\\tkzTabLine\s*\{([^}]+)\}/);
+  const lineMatch = (tikzCode || '').match(/\\tkzTabLine\s*\{([^}]+)\}/);
   const signs = lineMatch ? lineMatch[1].split(',').map(s => s.trim()) : [];
 
-  const varMatch = tikzCode.match(/\\tkzTabVar\s*\{([^}]+)\}/);
+  const varMatch = (tikzCode || '').match(/\\tkzTabVar\s*\{([^}]+)\}/);
   const vars = varMatch ? varMatch[1].split(',').map(s => s.trim()) : [];
 
   const n = xVals.length;
   const colCount = 2 * n - 1;
-  const uniqueId = React.useMemo(() => Math.random().toString(36).substr(2, 9), []);
 
   const points = vars.map((v, i) => {
     let [pos, val1, val2] = v.split('/').map(s => s?.trim());
