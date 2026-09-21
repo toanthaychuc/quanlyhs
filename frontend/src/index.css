@@ -46,6 +46,22 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
 }
 
+:root {
+  --app-font-scale: 100%;
+  --app-font-scale-mobile: 80%;
+}
+
+html {
+  font-size: var(--app-font-scale, 100%);
+}
+
+/* Mobile App: Thu nhỏ tỉ lệ font chữ tối ưu cho di động (mặc định 80% so với desktop) */
+@media (max-width: 768px) {
+  html {
+    font-size: var(--app-font-scale-mobile, 80%) !important;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

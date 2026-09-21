@@ -11,10 +11,13 @@ import {
   Sparkles, 
   AlertCircle,
   Eye,
-  EyeOff
+  EyeOff,
+  Minus,
+  Plus
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { pushAllLocalDataToCloud, pullAllDataFromCloud } from '../services/syncService';
+import MathView from './MathView';
 
 export const DEFAULT_LATEX_PREAMBLE = `\\usepackage{amsmath,amssymb}
 \\usepackage{tikz}
@@ -22,9 +25,10 @@ export const DEFAULT_LATEX_PREAMBLE = `\\usepackage{amsmath,amssymb}
 \\usetikzlibrary{calc,intersections,angles,quotes,patterns,positioning,arrows,arrows.meta,decorations.pathreplacing,decorations.markings,shapes.geometric,math}`;
 
 const SettingsModal = ({ isOpen, onClose }) => {
-  const { isTeacher } = useRole();
+  const { isTeacherAccount, isTeacher } = useRole();
 
-  const [activeTab, setActiveTab] = useState('cloud'); // 'cloud' | 'latex' | 'ai'
+  const [activeTab, setActiveTab] = useState('general'); // 'general' | 'cloud' | 'latex' | 'ai'
+  const [fontScale, setFontScale] = useState(100);
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [aiModel, setAiModel] = useState('gemini-1.5-flash');
@@ -39,26 +43,51 @@ const SettingsModal = ({ isOpen, onClose }) => {
   // Nạp cấu hình từ localStorage khi mở modal
   useEffect(() => {
     if (isOpen) {
-      const savedKey = localStorage.getItem('app_teacher_ai_apikey') || '';
-      const savedModel = localStorage.getItem('app_teacher_ai_model') || 'gemini-1.5-flash';
-      const savedPreamble = localStorage.getItem('app_teacher_latex_preamble');
-
-      setApiKey(savedKey);
-      setAiModel(savedModel);
-      setLatexPreamble(savedPreamble !== null ? savedPreamble : DEFAULT_LATEX_PREAMBLE);
+      if (isTeacher) {
+        const savedKey = localStorage.getItem('app_teacher_ai_apikey') || '';
+        const savedModel = localStorage.getItem('app_teacher_ai_model') || 'gemini-1.5-flash';
+        const savedPreamble = localStorage.getItem('app_teacher_latex_preamble');
+        setApiKey(savedKey);
+        setAiModel(savedModel);
+        setLatexPreamble(savedPreamble !== null ? savedPreamble : DEFAULT_LATEX_PREAMBLE);
+      }
+      const savedScale = Number(localStorage.getItem('app_font_scale')) || 100;
+      setFontScale(savedScale);
       setSaveSuccess(false);
+      if (!isTeacher) {
+        setActiveTab('general');
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, isTeacher]);
 
-  if (!isOpen || !isTeacher) return null;
+  if (!isOpen) return null;
+
+  const handleUpdateFontScale = (scale) => {
+    const validScale = Math.min(130, Math.max(75, scale));
+    setFontScale(validScale);
+    document.documentElement.style.setProperty('--app-font-scale', `${validScale}%`);
+    document.documentElement.style.setProperty('--app-font-scale-mobile', `${(validScale * 0.8).toFixed(1)}%`);
+  };
+
+  const handleClose = () => {
+    // Hoàn tác về tỉ lệ font đã lưu nếu người dùng bấm đóng mà chưa bấm Lưu
+    const savedScale = Number(localStorage.getItem('app_font_scale')) || 100;
+    document.documentElement.style.setProperty('--app-font-scale', `${savedScale}%`);
+    document.documentElement.style.setProperty('--app-font-scale-mobile', `${(savedScale * 0.8).toFixed(1)}%`);
+    onClose();
+  };
 
   const handleSave = () => {
-    localStorage.setItem('app_teacher_ai_apikey', apiKey.trim());
-    localStorage.setItem('app_teacher_ai_model', aiModel === 'custom' ? customModel.trim() : aiModel);
-    localStorage.setItem('app_teacher_latex_preamble', latexPreamble);
+    localStorage.setItem('app_font_scale', fontScale.toString());
+    if (isTeacher) {
+      localStorage.setItem('app_teacher_ai_apikey', apiKey.trim());
+      localStorage.setItem('app_teacher_ai_model', aiModel === 'custom' ? customModel.trim() : aiModel);
+      localStorage.setItem('app_teacher_latex_preamble', latexPreamble);
+      // Kích hoạt sự kiện để các component khác (MathView, TikZ) nhận biết thay đổi
+      window.dispatchEvent(new Event('app-settings-updated'));
+    }
 
-    // Kích hoạt sự kiện để các component khác (MathView, TikZ) nhận biết thay đổi
-    window.dispatchEvent(new Event('app-settings-updated'));
+    window.dispatchEvent(new CustomEvent('app_font_scale_updated', { detail: { scale: fontScale } }));
 
     setSaveSuccess(true);
     setTimeout(() => {
@@ -99,7 +128,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 9999 }} onClick={onClose}>
+    <div className="modal-overlay" style={{ zIndex: 9999 }} onClick={handleClose}>
       <div 
         className="modal-content" 
         style={{ maxWidth: '680px', width: '92%', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} 
@@ -107,7 +136,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
       >
         {/* Header */}
         <div className="modal-header" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center" style={{ gap: '0.85rem' }}>
             <div 
               style={{ 
                 width: '36px', 
@@ -118,89 +147,270 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 alignItems: 'center', 
                 justifyContent: 'center',
                 color: '#ffffff',
-                boxShadow: '0 4px 10px rgba(79, 70, 229, 0.25)'
+                boxShadow: '0 4px 10px rgba(79, 70, 229, 0.25)',
+                flexShrink: 0
               }}
             >
               <Sliders size={19} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-primary)' }}>Cấu Hình Hệ Thống & Đồng Bộ</h3>
-              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Quản lý đồng bộ Đám mây Supabase, AI Key & Preamble LaTeX</span>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-primary)' }}>
+                {isTeacher ? 'Cấu Hình Hệ Thống & Đồng Bộ' : 'Cài Đặt Cỡ Chữ & Giao Diện'}
+              </h3>
             </div>
           </div>
-          <button className="btn-icon" onClick={onClose} title="Đóng">
+          <button className="btn-icon" onClick={handleClose} title="Đóng">
             <X size={18} />
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div style={{ display: 'flex', gap: '0.5rem', padding: '0.85rem 1.5rem 0', background: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)' }}>
-          <button
-            type="button"
-            onClick={() => setActiveTab('cloud')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              padding: '0.55rem 1rem',
-              border: 'none',
-              background: 'transparent',
-              borderBottom: activeTab === 'cloud' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
-              color: activeTab === 'cloud' ? 'var(--primary-color)' : 'var(--text-secondary)',
-              fontWeight: activeTab === 'cloud' ? 700 : 500,
-              fontSize: '0.88rem',
-              cursor: 'pointer'
-            }}
-          >
-            <span>☁️ Đồng Bộ Đám Mây</span>
-          </button>
+        {/* Tab Navigation (Chỉ hiển thị khi là Giáo viên có nhiều tab) */}
+        {isTeacher && (
+          <div style={{ display: 'flex', gap: '0.5rem', padding: '0.85rem 1.5rem 0', background: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)', overflowX: 'auto' }}>
+            <button
+              type="button"
+              onClick={() => setActiveTab('general')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.55rem 1rem',
+                border: 'none',
+                background: 'transparent',
+                borderBottom: activeTab === 'general' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
+                color: activeTab === 'general' ? 'var(--primary-color)' : 'var(--text-secondary)',
+                fontWeight: activeTab === 'general' ? 700 : 500,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <Sliders size={16} />
+              <span>Cài đặt</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('latex')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              padding: '0.55rem 1rem',
-              border: 'none',
-              background: 'transparent',
-              borderBottom: activeTab === 'latex' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
-              color: activeTab === 'latex' ? 'var(--primary-color)' : 'var(--text-secondary)',
-              fontWeight: activeTab === 'latex' ? 700 : 500,
-              fontSize: '0.88rem',
-              cursor: 'pointer'
-            }}
-          >
-            <FileCode size={16} />
-            <span>Preamble PDFLaTeX</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('cloud')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.55rem 1rem',
+                border: 'none',
+                background: 'transparent',
+                borderBottom: activeTab === 'cloud' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
+                color: activeTab === 'cloud' ? 'var(--primary-color)' : 'var(--text-secondary)',
+                fontWeight: activeTab === 'cloud' ? 700 : 500,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <span>☁️ Đồng bộ</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('ai')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              padding: '0.55rem 1rem',
-              border: 'none',
-              background: 'transparent',
-              borderBottom: activeTab === 'ai' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
-              color: activeTab === 'ai' ? 'var(--primary-color)' : 'var(--text-secondary)',
-              fontWeight: activeTab === 'ai' ? 700 : 500,
-              fontSize: '0.88rem',
-              cursor: 'pointer'
-            }}
-          >
-            <Sparkles size={16} />
-            <span>Cấu Hình Trợ Lý AI</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('latex')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.55rem 1rem',
+                border: 'none',
+                background: 'transparent',
+                borderBottom: activeTab === 'latex' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
+                color: activeTab === 'latex' ? 'var(--primary-color)' : 'var(--text-secondary)',
+                fontWeight: activeTab === 'latex' ? 700 : 500,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <FileCode size={16} />
+              <span>Preamer</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('ai')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.55rem 1rem',
+                border: 'none',
+                background: 'transparent',
+                borderBottom: activeTab === 'ai' ? '2.5px solid var(--primary-color)' : '2.5px solid transparent',
+                color: activeTab === 'ai' ? 'var(--primary-color)' : 'var(--text-secondary)',
+                fontWeight: activeTab === 'ai' ? 700 : 500,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <Sparkles size={16} />
+              <span>AI</span>
+            </button>
+          </div>
+        )}
 
         {/* Modal Body */}
         <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
-          {activeTab === 'cloud' && (
+          {activeTab === 'general' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+              {/* Bộ điều khiển tỉ lệ font */}
+              <div style={{
+                background: 'var(--surface-color)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <label style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span>Tỉ lệ cỡ chữ:</span>
+                    <span style={{
+                      background: 'rgba(79, 70, 229, 0.1)',
+                      color: 'var(--primary-color)',
+                      padding: '2px 10px',
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      fontSize: '0.95rem'
+                    }}>
+                      {fontScale}% {fontScale === 100 ? '(Tiêu chuẩn)' : ''}
+                    </span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => handleUpdateFontScale(100)}
+                    className="btn btn-outline"
+                    style={{ padding: '0.25rem 0.65rem', fontSize: '0.78rem', height: 'auto', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                    disabled={fontScale === 100}
+                    title="Khôi phục về cỡ chữ chuẩn 100%"
+                  >
+                    <RotateCcw size={13} /> Đặt lại 100%
+                  </button>
+                </div>
+
+                {/* Thanh trượt & Nút tăng giảm */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleUpdateFontScale(Math.max(75, fontScale - 5))}
+                    className="btn btn-secondary"
+                    style={{ width: '36px', height: '36px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}
+                    disabled={fontScale <= 75}
+                    title="Giảm 5%"
+                  >
+                    <Minus size={16} />
+                  </button>
+
+                  <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <input
+                      type="range"
+                      min="75"
+                      max="130"
+                      step="5"
+                      value={fontScale}
+                      onChange={(e) => handleUpdateFontScale(Number(e.target.value))}
+                      style={{ width: '100%', accentColor: 'var(--primary-color)', cursor: 'pointer' }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                      <span>75% (Gọn)</span>
+                      <span style={{ fontWeight: 600 }}>100% (Mặc định)</span>
+                      <span>130% (Lớn)</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleUpdateFontScale(Math.min(130, fontScale + 5))}
+                    className="btn btn-secondary"
+                    style={{ width: '36px', height: '36px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}
+                    disabled={fontScale >= 130}
+                    title="Tăng 5%"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+
+                {/* Các mức chọn nhanh */}
+                <div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                    Các mức chọn nhanh:
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    {[
+                      { val: 85, label: '85% (Nhỏ gọn)' },
+                      { val: 90, label: '90% (Vừa)' },
+                      { val: 100, label: '100% (Chuẩn)' },
+                      { val: 110, label: '110% (Rõ nét)' },
+                      { val: 120, label: '120% (Phóng to)' }
+                    ].map(preset => (
+                      <button
+                        key={preset.val}
+                        type="button"
+                        onClick={() => handleUpdateFontScale(preset.val)}
+                        style={{
+                          padding: '0.35rem 0.75rem',
+                          borderRadius: '8px',
+                          border: fontScale === preset.val ? '1.5px solid var(--primary-color)' : '1px solid var(--border-color)',
+                          background: fontScale === preset.val ? 'rgba(79, 70, 229, 0.08)' : 'var(--bg-color)',
+                          color: fontScale === preset.val ? 'var(--primary-color)' : 'var(--text-primary)',
+                          fontWeight: fontScale === preset.val ? 700 : 500,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Khung xem trước trực tiếp */}
+              <div style={{
+                background: 'var(--bg-color)',
+                border: '1px dashed var(--border-color)',
+                borderRadius: '12px',
+                padding: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  👁️ Xem trước:
+                </div>
+                <div style={{
+                  background: 'var(--surface-color)',
+                  padding: '1rem 1.25rem',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)',
+                  lineHeight: 1.6
+                }}>
+                  <div style={{ fontWeight: 700, color: 'var(--primary-color)', marginBottom: '0.25rem' }}>
+                    Toán 12: Đạo hàm & Khảo sát sự biến thiên
+                  </div>
+                  <div style={{ color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+                    Cho hàm số bậc ba $y = ax^3 + bx^2 + cx + d$ ($a \neq 0$). Nghiệm đạo hàm xác định các điểm cực trị:
+                  </div>
+                  <div>
+                    <MathView text={"$$\\int_{0}^{1} (3x^2 - 2x + 1)\\,dx = 1 \\quad \\text{và} \\quad f'(x) = 0$$"} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isTeacher && activeTab === 'cloud' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '1rem' }}>
                 <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--primary-color)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -250,7 +460,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {activeTab === 'latex' && (
+          {isTeacher && activeTab === 'latex' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '0.75rem 1rem' }}>
                 <div style={{ fontSize: '0.8rem', color: '#166534', lineHeight: 1.5, display: 'flex', gap: '0.5rem' }}>
@@ -299,7 +509,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {activeTab === 'ai' && (
+          {isTeacher && activeTab === 'ai' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '8px', padding: '0.75rem 1rem' }}>
                 <div style={{ fontSize: '0.8rem', color: '#3730a3', lineHeight: 1.5, display: 'flex', gap: '0.5rem' }}>
@@ -399,7 +609,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
             )}
           </div>
           <div className="flex gap-2">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+            <button type="button" className="btn btn-secondary" onClick={handleClose}>
               Đóng
             </button>
             <button type="button" className="btn btn-primary flex items-center gap-1.5" onClick={handleSave}>

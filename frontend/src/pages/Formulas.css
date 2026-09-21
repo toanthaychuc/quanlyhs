@@ -7,6 +7,7 @@
 }
 
 .formulas-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -339,6 +340,11 @@
   color: var(--text-main);
   font-size: 0.95rem;
   outline: none;
+  text-overflow: ellipsis;
+}
+
+.formulas-global-search input::placeholder {
+  text-overflow: ellipsis;
 }
 
 .formulas-global-search .clear-search-btn {
@@ -452,19 +458,94 @@
   color: var(--text-muted);
 }
 
-@media (max-width: 768px) {
+/* Tablet & Medium screens (<= 1200px): Thu nhỏ và đẩy khung tìm kiếm sang bên phải */
+@media (max-width: 1200px) {
   .formulas-header {
     gap: 0.75rem;
   }
-  .formulas-title-area {
-    width: 100%;
-    margin-bottom: 0.5rem;
+
+  .formulas-title-area h1 {
+    font-size: 1.45rem;
   }
+
   .formulas-global-search {
     position: relative !important;
     left: auto !important;
     transform: none !important;
+    margin-left: auto;
+    width: 240px;
+    max-width: 260px;
+    min-width: 150px;
+    flex: 0 1 260px;
+  }
+
+  .formulas-global-search .search-input-wrapper {
+    height: 38px;
+  }
+
+  .formulas-global-search input {
+    padding: 0.5rem 2rem 0.5rem 2.25rem;
+    font-size: 0.85rem;
+  }
+
+  .formulas-global-search .search-icon {
+    left: 0.75rem;
+    width: 16px;
+    height: 16px;
+  }
+
+  .formulas-global-search .clear-search-btn {
+    right: 0.5rem;
+    padding: 0.2rem;
+  }
+
+  .search-suggestions-dropdown {
+    width: 320px;
+    max-width: 80vw;
+    right: 0;
+    left: auto;
+  }
+}
+
+/* Mobile screens (<= 768px): Tiêu đề ở trên, tìm kiếm và nút hành động ở dòng 2 */
+@media (max-width: 768px) {
+  .formulas-header {
+    gap: 0.75rem;
+  }
+
+  .formulas-title-area {
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+
+  .formulas-title-area h1 {
+    font-size: 1.35rem;
+  }
+
+  .formulas-global-search {
+    position: relative !important;
+    left: auto !important;
+    transform: none !important;
+    margin-left: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
     flex: 1 !important;
     min-width: 0 !important;
+  }
+
+  .formulas-global-search .search-input-wrapper {
+    height: auto;
+  }
+
+  .formulas-global-search input {
+    padding: 0.65rem 2.25rem 0.65rem 2.5rem;
+    font-size: 0.9rem;
+  }
+
+  .search-suggestions-dropdown {
+    width: 100% !important;
+    max-width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
   }
 }

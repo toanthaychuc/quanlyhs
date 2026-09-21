@@ -402,7 +402,7 @@ const Formulas = () => {
 
   return (
     <div className="formulas-page">
-      <div className="formulas-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', marginBottom: 0 }}>
+      <div className="formulas-header">
         <div className="formulas-title-area" style={{ flexShrink: 0 }}>
           <h1>
             <SquareSigma className="text-primary" size={28} />

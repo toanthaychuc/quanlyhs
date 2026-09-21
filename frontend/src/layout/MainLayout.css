@@ -181,6 +181,13 @@
   transition: gap 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.sidebar-user-profile .user-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .current-mode-indicator {
   display: flex;
   align-items: center;
@@ -537,9 +544,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    width: 20%;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
     height: 100%;
+    padding: 0 2px;
     color: var(--text-secondary);
     font-size: 0.65rem;
     font-weight: 500;
@@ -552,6 +561,11 @@
 
   .bottom-nav-item span {
     margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-align: center;
   }
 
   .bottom-nav-item:active {

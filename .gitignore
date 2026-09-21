@@ -37,3 +37,7 @@ test*.svg
 *.sln
 *.sw?
 github/  
+backend/tikz_cache/
+scratch/
+test_*.mjs
+test_*.js

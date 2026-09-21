@@ -26,7 +26,8 @@ import {
   Shield,
   Menu,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  SquareSigma
 } from 'lucide-react';
 import { 
   LayoutDashboard as I_LayoutDashboard, LayoutGrid as I_LayoutGrid,
@@ -40,12 +41,14 @@ import {
   Shield as I_Shield, ShieldCheck as I_ShieldCheck,
   Sliders as I_Sliders, Settings as I_Settings,
   Smartphone as I_Smartphone, Tablet as I_Tablet,
+  GraduationCap as I_GraduationCap, UserCheck as I_UserCheck,
   Menu as I_Menu, X as I_X,
   SquareSigma as I_SquareSigma, SquareCheck as I_SquareCheck
 } from 'lucide';
 import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import WelcomeLandingModal from '../components/WelcomeLandingModal';
 import SettingsModal from '../components/SettingsModal';
+import MobileReviewModal from '../components/MobileReviewModal';
 import StudentName from '../components/StudentName';
 import NotificationBell from '../components/NotificationBell';
 import { ThemeToggleIcon } from '../components/ThemeToggleIcon';
@@ -75,6 +78,18 @@ const NavItemRenderer = ({ item, onClick }) => {
       <span>{item.label}</span>
     </NavLink>
   );
+};
+
+const RANK_ACCENTS = {
+  rank1: { light: '#475569', dark: '#94a3b8', glow: 'rgba(100, 116, 139, 0.4)' },
+  rank2: { light: '#e11d48', dark: '#fb7185', glow: 'rgba(225, 29, 72, 0.4)' },
+  rank3: { light: '#059669', dark: '#34d399', glow: 'rgba(5, 150, 105, 0.4)' },
+  rank4: { light: '#d97706', dark: '#fbbf24', glow: 'rgba(217, 119, 6, 0.4)' },
+  rank5: { light: '#2563eb', dark: '#60a5fa', glow: 'rgba(37, 99, 235, 0.4)' },
+  rank6: { light: '#7c3aed', dark: '#a78bfa', glow: 'rgba(124, 58, 237, 0.4)' },
+  rank7: { light: '#db2777', dark: '#f472b6', glow: 'rgba(219, 39, 119, 0.4)' },
+  rank8: { light: '#0d9488', dark: '#2dd4bf', glow: 'rgba(13, 148, 136, 0.4)' },
+  rank9: { light: '#b45309', dark: '#fcd34d', glow: 'rgba(180, 83, 9, 0.4)' }
 };
 
 const MainLayout = () => {
@@ -153,6 +168,7 @@ const MainLayout = () => {
   };
 
   const isIframe = window.self !== window.top;
+  const [isMobileReviewOpen, setIsMobileReviewOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const [loginError, setLoginError] = useState('');
   const [levelUpData, setLevelUpData] = useState(null);
@@ -285,6 +301,14 @@ const MainLayout = () => {
     ...(!isTeacher ? [{ path: '/my-rank', iconDefault: I_Shield, iconHover: I_ShieldCheck, label: 'Huy hiệu' }] : []),
   ];
 
+  const studentRank = calculateRank(studentXP);
+  const currentRankAccent = RANK_ACCENTS[studentRank?.currentRank?.id] || { 
+    light: '#d97706', 
+    dark: '#fbbf24', 
+    glow: 'rgba(217, 119, 6, 0.4)' 
+  };
+  const rankColor = theme === 'dark' ? currentRankAccent.dark : currentRankAccent.light;
+
   return (
     <div className="layout-container">
       <motion.div
@@ -342,7 +366,7 @@ const MainLayout = () => {
             
             <div className="sidebar-user-profile">
               <div 
-                className={`user-profile ${!isTeacher ? 'student-avatar' : ''}`}
+                className="user-profile"
                 onClick={isTeacher ? handleOpenLogin : undefined}
                 style={{ cursor: isTeacher ? 'pointer' : 'default', flexShrink: 0 }}
                 title={isTeacher ? `Giáo viên: ${currentUserEmail}` : `${currentStudent?.name || 'Học sinh'}`}
@@ -360,7 +384,7 @@ const MainLayout = () => {
                   {isTeacher ? 'Thầy Công Chức' : (currentStudent?.name || 'Học sinh')}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {isTeacher ? 'Quản trị viên' : calculateRank(studentXP).currentRank.name}
+                  {isTeacher ? 'Quản trị viên' : studentRank.currentRank.name}
                 </span>
               </div>
             </div>
@@ -398,75 +422,75 @@ const MainLayout = () => {
               </div>
             </div>
 
-            <div className="header-status-group flex flex-col gap-1.5" style={{ animation: 'fadeIn 0.5s ease' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.01em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '1rem' }}>⛅</span>
-                <span style={{ 
-                  background: 'linear-gradient(90deg, #4f46e5, #06b6d4)', 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent',
-                  textShadow: '0px 2px 4px rgba(79, 70, 229, 0.1)'
-                }}>
-                  {(() => {
-                    const now = new Date();
-                    const gmt7Time = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-                    const days = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-                    const dayName = days[gmt7Time.getDay()];
-                    const date = gmt7Time.getDate();
-                    const month = gmt7Time.getMonth() + 1;
-                    const year = gmt7Time.getFullYear();
-                    return `${dayName}, ngày ${date} tháng ${month} năm ${year}`;
-                  })()}
-                </span>
-              </div>
-
+            <div className="header-status-group flex items-center" style={{ animation: 'fadeIn 0.3s ease' }}>
               {isTeacher ? (
-                <div className="flex items-center" style={{ gap: '12px' }}>
-                  <div className="flex items-center px-3 py-1 rounded-full" style={{ gap: '6px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontSize: '0.75rem', fontWeight: 600, transition: 'all 0.3s ease', cursor: 'default' }} onMouseOver={e => Object.assign(e.currentTarget.style, { background: 'rgba(16, 185, 129, 0.15)', transform: 'translateY(-1px)', boxShadow: '0 4px 6px rgba(16,185,129,0.1)' })} onMouseOut={e => Object.assign(e.currentTarget.style, { background: 'rgba(16, 185, 129, 0.1)', transform: 'translateY(0)', boxShadow: 'none' })}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 rgba(16,185,129,0.7)', animation: 'pulse-green 2s infinite' }}></div>
-                    Hệ thống ổn định
-                  </div>
-                  <div className="flex items-center text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', gap: '6px', transition: 'all 0.3s ease', cursor: 'default', border: '1px solid rgba(99, 102, 241, 0.2)' }} onMouseOver={e => Object.assign(e.currentTarget.style, { background: 'rgba(99, 102, 241, 0.15)', transform: 'translateY(-1px)', boxShadow: '0 4px 6px rgba(99, 102, 241, 0.1)' })} onMouseOut={e => Object.assign(e.currentTarget.style, { background: 'rgba(99, 102, 241, 0.1)', transform: 'translateY(0)', boxShadow: 'none' })}>
-                    <Users size={12} /> Quản lý {allStudentsWithClass?.length || 0} học sinh
-                  </div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 700, letterSpacing: '0.01em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '1.05rem' }}>⛅</span>
+                  <span style={{ 
+                    background: 'linear-gradient(90deg, #4f46e5, #06b6d4)', 
+                    WebkitBackgroundClip: 'text', 
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: '0px 2px 4px rgba(79, 70, 229, 0.1)'
+                  }}>
+                    {(() => {
+                      const now = new Date();
+                      const gmt7Time = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+                      const days = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                      const dayName = days[gmt7Time.getDay()];
+                      const date = gmt7Time.getDate();
+                      const month = gmt7Time.getMonth() + 1;
+                      const year = gmt7Time.getFullYear();
+                      return `${dayName}, ngày ${date} tháng ${month} năm ${year}`;
+                    })()}
+                  </span>
                 </div>
               ) : (
-                <div className="flex items-center" style={{ gap: '16px' }}>
-                  <div className="flex items-center bg-white/60 px-2.5 py-1 rounded-full border border-gray-100 shadow-sm" style={{ gap: '8px' }}>
+                <div className="flex items-center">
+                  <div 
+                    className="flex items-center cursor-pointer group"
+                    onClick={() => navigate('/my-rank')}
+                    title={`Kinh nghiệm: ${studentXP}/${studentRank.nextRank ? studentRank.nextRank.minXP : studentXP} XP - Nhấn để xem BXH & Huy hiệu`}
+                    style={{ 
+                      gap: '8px', 
+                      background: 'transparent', 
+                      border: 'none',
+                      padding: '2px 4px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={e => Object.assign(e.currentTarget.style, { transform: 'scale(1.03)' })}
+                    onMouseLeave={e => Object.assign(e.currentTarget.style, { transform: 'scale(1)' })}
+                  >
                     <img 
-                      src={calculateRank(studentXP).currentRank.image} 
+                      src={studentRank.currentRank.image} 
                       alt="Rank" 
-                      style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', background: calculateRank(studentXP).currentRank.bg }} 
+                      style={{ 
+                        width: 26, 
+                        height: 26, 
+                        borderRadius: '50%', 
+                        objectFit: 'cover', 
+                        boxShadow: `0 2px 8px ${currentRankAccent.glow}`,
+                        border: `1.5px solid ${rankColor}`,
+                        flexShrink: 0
+                      }} 
                     />
                     <div className="flex items-baseline" style={{ gap: '6px' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: calculateRank(studentXP).currentRank.color }}>
-                        {calculateRank(studentXP).currentRank.name}
+                      <span style={{ 
+                        fontSize: '0.88rem', 
+                        fontWeight: 800, 
+                        color: rankColor,
+                        letterSpacing: '-0.2px',
+                        textShadow: theme === 'dark' ? `0 0 10px ${currentRankAccent.glow}` : 'none'
+                      }}>
+                        {studentRank.currentRank.name}
                       </span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                        {studentXP} XP
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>
+                        <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{studentXP}</strong>
+                        <span style={{ color: 'var(--text-secondary)', opacity: 0.85 }}>
+                          {studentRank.nextRank ? `/${studentRank.nextRank.minXP} XP` : ' XP'}
+                        </span>
                       </span>
                     </div>
                   </div>
-                  
-                  {calculateRank(studentXP).nextRank && (
-                    <div className="flex flex-col justify-center" style={{ width: '130px' }}>
-                      <div className="flex justify-between items-end mb-1" style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                        <span>Tiến tới {calculateRank(studentXP).nextRank.name}</span>
-                        <span style={{ color: calculateRank(studentXP).currentRank.color }}>{Math.round(calculateRank(studentXP).progressPercent)}%</span>
-                      </div>
-                      <div style={{ height: '5px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
-                        <div 
-                          style={{ 
-                            height: '100%', 
-                            width: `${calculateRank(studentXP).progressPercent}%`, 
-                            background: calculateRank(studentXP).currentRank.color, 
-                            borderRadius: '3px', 
-                            transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' 
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -522,8 +546,44 @@ const MainLayout = () => {
 
 
             <div className="header-tools" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginRight: '0.5rem' }}>
-              {/* Nút Cài đặt Hệ thống (Dành riêng cho Giáo viên) */}
-              {isTeacher && (
+              {/* Nút Chuyển Chế độ Học sinh (Chỉ dành cho Giáo viên, nằm ngay bên trái Mobile Review) */}
+              {isTeacherAccount && (
+                <button 
+                  className="btn btn-outline flex items-center justify-center group"
+                  style={{ 
+                    width: '38px', height: '38px', padding: 0,
+                    borderRadius: 'var(--radius-full)',
+                    backgroundColor: isStudent ? 'rgba(16, 185, 129, 0.12)' : 'rgba(99, 102, 241, 0.08)',
+                    borderColor: isStudent ? 'rgba(16, 185, 129, 0.5)' : 'rgba(99, 102, 241, 0.3)',
+                    color: isStudent ? '#10b981' : 'var(--primary-color)',
+                    position: 'relative',
+                    boxShadow: isStudent ? '0 0 10px rgba(16, 185, 129, 0.25)' : 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={() => setRole(isStudent ? 'teacher' : 'student')}
+                  title={isStudent ? "Đang ở Chế độ Học sinh (Bấm để quay lại Chế độ Giáo viên)" : "Chế độ học sinh (Xem giao diện học sinh khi điều chỉnh)"}
+                >
+                  <AnimatedIcon defaultIcon={I_GraduationCap} hoverIcon={I_UserCheck} size={20} />
+                  {isStudent && (
+                    <span 
+                      style={{
+                        position: 'absolute',
+                        top: '1px',
+                        right: '1px',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: '#10b981',
+                        border: '1.5px solid var(--surface-color)',
+                        boxShadow: '0 0 4px #10b981'
+                      }} 
+                    />
+                  )}
+                </button>
+              )}
+
+              {/* Nút Mobile Review (Dành riêng cho Giáo viên và không ở trong iframe) */}
+              {isTeacherAccount && !isIframe && (
                 <button 
                   className="btn btn-outline flex items-center justify-center group"
                   style={{ 
@@ -533,12 +593,28 @@ const MainLayout = () => {
                     borderColor: 'rgba(99, 102, 241, 0.3)',
                     color: 'var(--primary-color)'
                   }}
-                  onClick={() => setShowSettingsModal(true)}
-                  title="Cài đặt hệ thống"
+                  onClick={() => setIsMobileReviewOpen(true)}
+                  title="Xem trước giao diện điện thoại (Mobile Review)"
                 >
-                  <AnimatedIcon defaultIcon={I_Sliders} hoverIcon={I_Settings} size={20} />
+                  <AnimatedIcon defaultIcon={I_Smartphone} hoverIcon={I_Tablet} size={20} />
                 </button>
               )}
+
+              {/* Nút Cài đặt Hệ thống / Giao diện (Hiển thị cho cả Giáo viên và Học sinh) */}
+              <button 
+                className="btn btn-outline flex items-center justify-center group"
+                style={{ 
+                  width: '38px', height: '38px', padding: 0,
+                  borderRadius: 'var(--radius-full)',
+                  backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                  borderColor: 'rgba(99, 102, 241, 0.3)',
+                  color: 'var(--primary-color)'
+                }}
+                onClick={() => setShowSettingsModal(true)}
+                title={isTeacher ? "Cài đặt hệ thống" : "Cài đặt cỡ chữ giao diện"}
+              >
+                <AnimatedIcon defaultIcon={I_Sliders} hoverIcon={I_Settings} size={20} />
+              </button>
 
 
 
@@ -608,6 +684,9 @@ const MainLayout = () => {
         </NavLink>
         <NavLink to="/exams" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '/exams')}>
           <GraduationCap size={20} /><span>Thi thử</span>
+        </NavLink>
+        <NavLink to="/formulas" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '/formulas')}>
+          <SquareSigma size={20} /><span>Công thức</span>
         </NavLink>
         <button className="bottom-nav-item" onClick={() => setIsMobileMenuOpen(true)}>
           <Menu size={20} /><span>Mở rộng</span>
@@ -732,6 +811,12 @@ const MainLayout = () => {
       <SettingsModal 
         isOpen={showSettingsModal} 
         onClose={() => setShowSettingsModal(false)} 
+      />
+
+      {/* Modal Xem trước Di động (Chỉ Giáo viên) */}
+      <MobileReviewModal 
+        isOpen={isMobileReviewOpen} 
+        onClose={() => setIsMobileReviewOpen(false)} 
       />
 
 
