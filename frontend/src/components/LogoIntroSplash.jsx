@@ -15,7 +15,6 @@ const MATH_SYMBOLS = [
 
 const LogoIntroSplash = ({ onRadiate, onFinish }) => {
   const [isRadiating, setIsRadiating] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
 
   // Kích hoạt hiệu ứng "tỏa ra" để chuyển cảnh vào trang web
   const triggerRadiate = () => {
@@ -23,12 +22,9 @@ const LogoIntroSplash = ({ onRadiate, onFinish }) => {
     setIsRadiating(true);
     if (onRadiate) onRadiate();
 
-    // Thời gian hiệu ứng sóng tỏa bùng nổ trước khi unmount hoàn toàn
+    // Sau 850ms khi sóng tỏa bùng nổ và phóng to hoàn tất, gọi onFinish gỡ bỏ Splash
     setTimeout(() => {
-      setIsExiting(true);
-      setTimeout(() => {
-        if (onFinish) onFinish();
-      }, 350);
+      if (onFinish) onFinish();
     }, 850);
   };
 
@@ -41,17 +37,14 @@ const LogoIntroSplash = ({ onRadiate, onFinish }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  if (isExiting) return null;
-
   return (
-    <AnimatePresence>
-      <motion.div 
-        className={`logo-intro-overlay ${isRadiating ? 'is-radiating' : ''}`}
-        onClick={triggerRadiate}
-        initial={false}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: 0.35 } }}
-      >
+    <motion.div 
+      className={`logo-intro-overlay ${isRadiating ? 'is-radiating' : ''}`}
+      onClick={triggerRadiate}
+      initial={false}
+      animate={{ opacity: isRadiating ? 0 : 1 }}
+      transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+    >
         {/* Nền hạt ký hiệu toán học bay lơ lửng */}
         <div className="math-ambient-grid">
           {MATH_SYMBOLS.map((item, index) => (
@@ -183,7 +176,6 @@ const LogoIntroSplash = ({ onRadiate, onFinish }) => {
           </motion.div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
   );
 };
 
