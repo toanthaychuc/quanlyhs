@@ -333,7 +333,11 @@ const MainLayout = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''} ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          <div className="logo-container">
+          <div 
+            className="logo-container"
+            onClick={() => window.dispatchEvent(new CustomEvent('play_logo_intro'))}
+            title="Bấm để phát lại hiệu ứng chào mừng Toán thầy Công Chức"
+          >
             <div className="logo-icon">LC</div>
             <div className="logo-text-wrapper">
               <span className="logo-text-top">TOÁN THẦY</span>
@@ -414,7 +418,12 @@ const MainLayout = () => {
             </button>
 
             {/* Mobile Header Logo (Hidden on Desktop) */}
-            <div className="mobile-header-logo">
+            <div 
+              className="mobile-header-logo cursor-pointer"
+              onClick={() => window.dispatchEvent(new CustomEvent('play_logo_intro'))}
+              title="Bấm để phát lại hiệu ứng chào mừng Toán thầy Công Chức"
+              style={{ cursor: 'pointer' }}
+            >
               <div className="logo-icon" style={{ width: '32px', height: '32px', fontSize: '0.9rem', borderRadius: '8px' }}>LC</div>
               <div className="logo-text-wrapper" style={{ lineHeight: 1.25, paddingTop: '2px' }}>
                 <span className="logo-text-top" style={{ fontSize: '0.65rem' }}>TOÁN THẦY</span>

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { RoleProvider } from './context/RoleContext';
+import LogoIntroSplash from './components/LogoIntroSplash';
 import MainLayout from './layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Documents from './pages/Documents';
@@ -82,8 +83,21 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const handleReplayIntro = () => {
+      setShowSplash(true);
+    };
+    window.addEventListener('play_logo_intro', handleReplayIntro);
+    return () => window.removeEventListener('play_logo_intro', handleReplayIntro);
+  }, []);
+
   return (
     <ErrorBoundary>
+      {showSplash && (
+        <LogoIntroSplash onFinish={() => setShowSplash(false)} />
+      )}
       <RoleProvider>
         <Router>
           <Routes>

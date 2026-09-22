@@ -1,0 +1,280 @@
+/* ==========================================================================
+   Logo Intro Splash - Hiệu ứng chào mừng & Tỏa ra chuyển cảnh
+   ========================================================================== */
+
+.logo-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #060913;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(30, 27, 75, 0.6) 0%, rgba(6, 9, 19, 0.98) 75%),
+    radial-gradient(circle at 50% 45%, rgba(6, 182, 212, 0.08) 0%, transparent 60%);
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.4s ease-out;
+}
+
+/* Nền ký hiệu toán học bay nhẹ nhàng */
+.math-ambient-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.math-symbol-floating {
+  position: absolute;
+  font-family: 'KaTeX_Math', 'KaTeX_Main', serif, system-ui;
+  font-style: italic;
+  color: #93c5fd;
+  text-shadow: 0 0 12px rgba(147, 197, 253, 0.3);
+  font-weight: 500;
+}
+
+/* Quầng sáng ambient ở trung tâm */
+.ambient-center-glow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.25) 0%, rgba(6, 182, 212, 0.1) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(40px);
+}
+
+/* Sóng thở tuần hoàn trước khi bùng nổ (Breathing Ripple Rings) */
+.breathing-rings-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.breath-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 36px;
+  border: 1.5px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+  animation: breathingPulse 2.4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+.breath-ring.ring-b {
+  animation-delay: 1.2s;
+}
+
+@keyframes breathingPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Hiệu ứng bùng nổ sóng tỏa ra (Radiating Shockwave Burst) */
+.shockwave-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+  width: 100px;
+  height: 100px;
+}
+
+.shockwave-ring {
+  position: absolute;
+  inset: -100px;
+  border-radius: 50%;
+  border: 3px solid rgba(56, 189, 248, 0.9);
+  box-shadow: 
+    0 0 30px rgba(79, 70, 229, 0.8),
+    0 0 60px rgba(6, 182, 212, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+.shockwave-flash {
+  position: absolute;
+  inset: -150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(99, 102, 241, 0.8) 35%, rgba(6, 182, 212, 0.3) 60%, transparent 75%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+/* Cụm trung tâm hiển thị Logo + Text */
+.intro-center-stage {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+/* Logo LC Emblem */
+.intro-emblem-wrapper {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.intro-emblem {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #4f46e5 0%, #2563eb 50%, #06b6d4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 16px 36px -6px rgba(79, 70, 229, 0.55),
+    0 0 0 1.5px rgba(255, 255, 255, 0.35) inset,
+    0 0 30px rgba(6, 182, 212, 0.3);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.emblem-text {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 3.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.04em;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Vệt sáng lướt qua mặt logo (Glass Sheen Shine) */
+.emblem-shine {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 60%
+  );
+  transform: rotate(25deg);
+  animation: emblemShineMove 3.5s infinite;
+}
+
+@keyframes emblemShineMove {
+  0%, 25% {
+    transform: translateX(-100%) rotate(25deg);
+  }
+  60%, 100% {
+    transform: translateX(100%) rotate(25deg);
+  }
+}
+
+.emblem-glow-behind {
+  position: absolute;
+  inset: -12px;
+  border-radius: 36px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.6), rgba(6, 182, 212, 0.5));
+  filter: blur(20px);
+  z-index: 1;
+  opacity: 0.8;
+  animation: glowBreathe 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowBreathe {
+  from {
+    transform: scale(0.95);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1.08);
+    opacity: 0.9;
+  }
+}
+
+/* Dòng thương hiệu bên dưới */
+.intro-brand-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.intro-brand-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  text-shadow: 
+    0 2px 10px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(147, 197, 253, 0.25);
+}
+
+.intro-brand-sub {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+  background: linear-gradient(90deg, #94a3b8, #cbd5e1, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Gợi ý chạm */
+.intro-tap-hint {
+  margin-top: 2rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Tối ưu hóa cho màn hình di động */
+@media (max-width: 640px) {
+  .intro-emblem {
+    width: 92px;
+    height: 92px;
+    border-radius: 24px;
+  }
+
+  .emblem-text {
+    font-size: 2.85rem;
+  }
+
+  .intro-brand-title {
+    font-size: 1.45rem;
+  }
+
+  .intro-brand-sub {
+    font-size: 0.85rem;
+  }
+
+  .intro-tap-hint {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+  }
+}
