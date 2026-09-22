@@ -73,7 +73,18 @@ export const buildFormulaCachedSvgs = async (content, existingCache = {}, preamb
   const blocks = extractTikzBlocks(content);
   if (blocks.length === 0) return {};
 
-  const updatedCache = { ...(existingCache || {}) };
+  // Lọc chỉ giữ lại các hình TikZ đang thực sự tồn tại trong nội dung hiện tại
+  // (Tự động xóa các hình cũ bị sai hoặc bị xóa, đảm bảo hình mới ghi đè hoàn toàn)
+  const currentHashes = new Set(blocks.map(b => getTikzHash(b)));
+  const updatedCache = {};
+  if (existingCache && typeof existingCache === 'object') {
+    for (const [key, val] of Object.entries(existingCache)) {
+      if (currentHashes.has(key)) {
+        updatedCache[key] = val;
+      }
+    }
+  }
+
   const storedPreamble = preamble !== null ? preamble : (localStorage.getItem('app_teacher_latex_preamble') || undefined);
 
   let processed = 0;
