@@ -307,7 +307,7 @@
   transform: translateX(-50%);
   width: 100%;
   max-width: 500px;
-  z-index: 50;
+  z-index: 10;
 }
 
 .formulas-global-search .search-input-wrapper {
@@ -376,7 +376,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  z-index: 100;
+  z-index: 20;
   max-height: 400px;
   overflow-y: auto;
   animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -531,6 +531,7 @@
     width: 100% !important;
     flex: 1 !important;
     min-width: 0 !important;
+    z-index: 10 !important;
   }
 
   .formulas-global-search .search-input-wrapper {

@@ -107,7 +107,11 @@ const NotificationBell = () => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   // Fetch dữ liệu thông báo
@@ -388,7 +392,9 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="notification-dropdown">
+        <>
+          <div className="notification-backdrop" onClick={() => setIsOpen(false)} />
+          <div className="notification-dropdown">
           <div className="notification-header">
             <h3>Thông báo</h3>
             <button onClick={() => setUnreadCount(0)}>Đánh dấu đã đọc</button>
@@ -444,7 +450,8 @@ const NotificationBell = () => {
               </button>
             </div>
           )}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

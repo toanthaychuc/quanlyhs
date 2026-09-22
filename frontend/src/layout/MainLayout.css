@@ -221,7 +221,7 @@
   justify-content: space-between;
   padding: 0 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  z-index: 5;
+  z-index: 100;
   position: sticky;
   top: 0;
 }
@@ -474,6 +474,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    z-index: 1000;
   }
   .header-left {
     width: auto;
