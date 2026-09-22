@@ -161,7 +161,7 @@ const LogoIntroSplash = ({ onRadiate, onFinish }) => {
               transition: { delay: 0.25, duration: 0.6 }
             }}
           >
-            <h1 className="intro-brand-title">Toán thầy Công Chức</h1>
+            <h1 className="intro-brand-title">Toán thầy Chức</h1>
             <p className="intro-brand-sub">Kỷ luật mỗi ngày · Làm chủ phòng thi</p>
           </motion.div>
 

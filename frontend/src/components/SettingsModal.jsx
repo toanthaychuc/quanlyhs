@@ -7,7 +7,7 @@ import {
   Save, 
   RotateCcw, 
   CheckCircle, 
-  Sliders, 
+  Settings, 
   Sparkles, 
   AlertCircle,
   Eye,
@@ -145,13 +145,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 background: 'linear-gradient(135deg, var(--primary-color), #06b6d4)', 
                 display: 'flex', 
                 alignItems: 'center', 
-                justifyContent: 'center',
-                color: '#ffffff',
+                justifyContent: 'center', 
+                color: '#ffffff', 
                 boxShadow: '0 4px 10px rgba(79, 70, 229, 0.25)',
                 flexShrink: 0
               }}
             >
-              <Sliders size={19} />
+              <Settings size={19} />
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text-primary)' }}>
@@ -185,7 +185,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 whiteSpace: 'nowrap'
               }}
             >
-              <Sliders size={16} />
+              <Settings size={16} />
               <span>Cài đặt</span>
             </button>
 

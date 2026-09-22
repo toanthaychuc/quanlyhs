@@ -47,6 +47,8 @@ import { getNotices, saveNotice, deleteNotice } from '../services/noticeService'
 import { getSetting, saveSetting } from '../services/settingService';
 import { calculateRank } from '../utils/rankUtils';
 import { computeStudentAnalytics, getWeakTopics } from '../utils/analyticsUtils';
+import { BADGES_CONFIG, parseUserBadges } from '../utils/badgeUtils';
+import BadgeDetailModal from '../components/BadgeDetailModal';
 import './Dashboard.css';
 
 const CURRICULUM_MAP = {
@@ -94,6 +96,51 @@ const Dashboard = () => {
   
   // Gamification (XP, Streak, Badges)
   const [gamificationData, setGamificationData] = useState({ xp: 0, streak: 0, badges: [] });
+  const [selectedBadge, setSelectedBadge] = useState(null);
+
+  // Danh sách huy hiệu hiển thị dưới dạng logo (chỉ hiển thị những huy hiệu học sinh đã đạt được)
+  const userBadges = React.useMemo(() => {
+    const rawBadges = gamificationData.badges || [];
+    const parsed = parseUserBadges(rawBadges);
+    const seenIds = new Set();
+    const list = [];
+
+    // Chỉ lấy các huy hiệu người dùng đã thực sự mở khóa (unlocked = true)
+    rawBadges.forEach(item => {
+      const id = item.includes(':') ? item.split(':')[0] : item;
+      if (!seenIds.has(id)) {
+        const badgeData = parsed[id];
+        if (badgeData?.unlocked) {
+          seenIds.add(id);
+          const config = BADGES_CONFIG.find(b => b.id === id) || {
+            id,
+            name: id,
+            icon: '🏅',
+            description: 'Huy hiệu thành tích',
+            maxProgress: 1,
+            color: '#6366f1'
+          };
+          list.push({
+            ...config,
+            ...badgeData
+          });
+        }
+      }
+    });
+
+    // Bổ sung các huy hiệu trong BADGES_CONFIG nếu đã mở khóa mà chưa có trong danh sách
+    BADGES_CONFIG.forEach(b => {
+      if (parsed[b.id]?.unlocked && !seenIds.has(b.id)) {
+        seenIds.add(b.id);
+        list.push({
+          ...b,
+          ...parsed[b.id]
+        });
+      }
+    });
+
+    return list;
+  }, [gamificationData.badges]);
 
   // Bảng tin thông báo
   const [notices, setNotices] = useState(() => {
@@ -822,17 +869,44 @@ const Dashboard = () => {
 
           {/* Badges */}
           <div style={{ flex: 2, minWidth: '250px', background: 'var(--surface-color)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-             <div style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1', padding: '0.5rem', borderRadius: '50%' }}>
+            <div style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1', padding: '0.5rem', borderRadius: '50%', flexShrink: 0 }}>
               <Medal size={24} />
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, marginBottom: '0.25rem' }}>HUY HIỆU ĐÃ MỞ KHÓA</div>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {gamificationData.badges && gamificationData.badges.length > 0 ? (
-                  gamificationData.badges.map((b, i) => (
-                    <span key={i} style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#4f46e5', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
-                      {b}
-                    </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, marginBottom: '0.35rem' }}>HUY HIỆU ĐÃ MỞ KHÓA</div>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                {userBadges && userBadges.length > 0 ? (
+                  userBadges.map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      className="dashboard-badge-item"
+                      onClick={() => setSelectedBadge(b)}
+                      title={`${b.name} (${b.unlocked ? 'Đã sở hữu' : `Tiến độ: ${b.progress}/${b.maxProgress}`})`}
+                      style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: b.unlocked ? `${b.color}18` : 'rgba(255, 255, 255, 0.04)',
+                        border: `1.5px solid ${b.unlocked ? b.color + '55' : 'rgba(255, 255, 255, 0.12)'}`,
+                        boxShadow: b.unlocked ? `0 2px 8px ${b.color}25` : 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                      }}
+                    >
+                      <span 
+                        style={{ 
+                          fontSize: '1.25rem', 
+                          lineHeight: 1, 
+                          filter: b.unlocked ? 'none' : 'grayscale(60%) opacity(0.7)' 
+                        }}
+                      >
+                        {b.icon}
+                      </span>
+                    </button>
                   ))
                 ) : (
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Chưa có huy hiệu nào. Hãy nỗ lực nhé!</span>
@@ -1676,6 +1750,14 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Badge Detail Modal */}
+      {selectedBadge && (
+        <BadgeDetailModal 
+          badge={selectedBadge} 
+          onClose={() => setSelectedBadge(null)} 
+        />
       )}
     </div>
   );

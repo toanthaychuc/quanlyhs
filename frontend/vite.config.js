@@ -9,13 +9,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'Toán Thầy Công Chức',
-        short_name: 'Toán CC',
-        description: 'Ứng dụng quản lý học sinh và làm bài tập offline',
-        theme_color: '#4f46e5',
-        background_color: '#ffffff',
+        name: 'Toán thầy Chức',
+        short_name: 'Toán thầy Chức',
+        description: 'Hệ thống Quản lý Học tập Toán Thầy Chức',
+        theme_color: '#060913',
+        background_color: '#060913',
         display: 'standalone',
         icons: [
           {

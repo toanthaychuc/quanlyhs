@@ -211,7 +211,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
             {/* 1. Eyebrow */}
             <div className="welcome-eyebrow">
               <Sparkles size={16} />
-              <span>Toán thầy Công Chức</span>
+              <span>Toán thầy Chức</span>
             </div>
 
             {/* 2. Headline */}

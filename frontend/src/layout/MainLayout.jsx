@@ -18,7 +18,7 @@ import {
   LogIn,
   Lock,
   CheckCircle2,
-  Sliders,
+  Settings,
   X,
   Smartphone,
   Sun,
@@ -622,7 +622,7 @@ const MainLayout = () => {
                 onClick={() => setShowSettingsModal(true)}
                 title={isTeacher ? "Cài đặt hệ thống" : "Cài đặt cỡ chữ giao diện"}
               >
-                <AnimatedIcon defaultIcon={I_Sliders} hoverIcon={I_Settings} size={20} />
+                <Settings size={20} className="transition-transform duration-500 group-hover:rotate-90" />
               </button>
 
 
