@@ -13,7 +13,7 @@ const MATH_SYMBOLS = [
   { symbol: '√x', bottom: '15%', left: '38%', size: '1.5rem', delay: 0.35 }
 ];
 
-const LogoIntroSplash = ({ onFinish }) => {
+const LogoIntroSplash = ({ onRadiate, onFinish }) => {
   const [isRadiating, setIsRadiating] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
@@ -21,6 +21,7 @@ const LogoIntroSplash = ({ onFinish }) => {
   const triggerRadiate = () => {
     if (isRadiating) return;
     setIsRadiating(true);
+    if (onRadiate) onRadiate();
 
     // Thời gian hiệu ứng sóng tỏa bùng nổ trước khi unmount hoàn toàn
     setTimeout(() => {
@@ -47,9 +48,9 @@ const LogoIntroSplash = ({ onFinish }) => {
       <motion.div 
         className={`logo-intro-overlay ${isRadiating ? 'is-radiating' : ''}`}
         onClick={triggerRadiate}
-        initial={{ opacity: 0 }}
+        initial={false}
         animate={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: 0.3 } }}
+        exit={{ opacity: 0, transition: { duration: 0.35 } }}
       >
         {/* Nền hạt ký hiệu toán học bay lơ lửng */}
         <div className="math-ambient-grid">

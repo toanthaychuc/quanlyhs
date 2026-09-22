@@ -84,9 +84,11 @@ class ErrorBoundary extends React.Component {
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const [isRadiating, setIsRadiating] = useState(false);
 
   useEffect(() => {
     const handleReplayIntro = () => {
+      setIsRadiating(false);
       setShowSplash(true);
     };
     window.addEventListener('play_logo_intro', handleReplayIntro);
@@ -96,27 +98,45 @@ function App() {
   return (
     <ErrorBoundary>
       {showSplash && (
-        <LogoIntroSplash onFinish={() => setShowSplash(false)} />
+        <LogoIntroSplash 
+          onRadiate={() => setIsRadiating(true)}
+          onFinish={() => {
+            setShowSplash(false);
+            setIsRadiating(false);
+          }} 
+        />
       )}
-      <RoleProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="classes" element={<Classes />} />
-              <Route path="assignments" element={<Assignments />} />
-              <Route path="documents" element={<Documents />} />
-              <Route path="formulas" element={<Formulas />} />
-              <Route path="exams" element={<Exams />} />
-              <Route path="forum" element={<Forum />} />
-              <Route path="forms" element={<Forms />} />
-              <Route path="leaderboard" element={<Leaderboard />} />
-              <Route path="my-rank" element={<MyRank />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </Router>
-      </RoleProvider>
+      <div 
+        style={{
+          width: '100%',
+          height: '100%',
+          opacity: showSplash && !isRadiating ? 0 : 1,
+          transform: showSplash && !isRadiating ? 'scale(0.96)' : 'scale(1)',
+          filter: showSplash && !isRadiating ? 'blur(12px)' : 'none',
+          transition: 'opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), filter 0.75s ease-out',
+          pointerEvents: showSplash ? 'none' : 'auto'
+        }}
+      >
+        <RoleProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<MainLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="classes" element={<Classes />} />
+                <Route path="assignments" element={<Assignments />} />
+                <Route path="documents" element={<Documents />} />
+                <Route path="formulas" element={<Formulas />} />
+                <Route path="exams" element={<Exams />} />
+                <Route path="forum" element={<Forum />} />
+                <Route path="forms" element={<Forms />} />
+                <Route path="leaderboard" element={<Leaderboard />} />
+                <Route path="my-rank" element={<MyRank />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </Router>
+        </RoleProvider>
+      </div>
     </ErrorBoundary>
   );
 }
