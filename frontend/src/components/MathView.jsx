@@ -644,16 +644,101 @@ const TabularViewer = ({ code, cachedSvgs = null }) => {
   unwrapMacro('makecell');
   unwrapMacro('thead');
 
-  const rows = safeCode.split(/\\\\/g).map(r => r.trim()).filter(Boolean);
+  // Unwrap inner tabulars used for multi-line cells (like \begin{tabular}{c} ... \\ ... \end{tabular})
+  safeCode = safeCode.replace(/\\begin\{tabular\*?\}\s*(?:\[[^\]]*\])?\s*\{[^{}]*\}\s*([\s\S]*?)\\end\{tabular\*?\}/gi, (match, inner) => {
+    return inner.replace(/\\\\/g, '\\newline ');
+  });
+
+  const splitTableRows = (source) => {
+    const rows = [];
+    let currentRow = '';
+    let i = 0;
+    let braceDepth = 0;
+    let inTikz = false;
+
+    while (i < source.length) {
+      if (source.startsWith('__BEGIN_TIKZ__', i)) {
+        inTikz = true;
+        currentRow += '__BEGIN_TIKZ__';
+        i += '__BEGIN_TIKZ__'.length;
+        continue;
+      }
+      if (source.startsWith('__END_TIKZ__', i)) {
+        inTikz = false;
+        currentRow += '__END_TIKZ__';
+        i += '__END_TIKZ__'.length;
+        continue;
+      }
+      if (!inTikz) {
+        if (source[i] === '{') braceDepth++;
+        else if (source[i] === '}') { if (braceDepth > 0) braceDepth--; }
+        else if (braceDepth === 0 && source.startsWith('\\\\', i)) {
+          rows.push(currentRow.trim());
+          currentRow = '';
+          i += 2;
+          if (source[i] === '[') {
+            const closeBracket = source.indexOf(']', i);
+            if (closeBracket !== -1) i = closeBracket + 1;
+          }
+          continue;
+        }
+      }
+      currentRow += source[i];
+      i++;
+    }
+    if (currentRow.trim()) {
+      rows.push(currentRow.trim());
+    }
+    return rows;
+  };
+
+  const splitTableCells = (rowStr) => {
+    const cells = [];
+    let currentCell = '';
+    let i = 0;
+    let braceDepth = 0;
+    let inTikz = false;
+
+    while (i < rowStr.length) {
+      if (rowStr.startsWith('__BEGIN_TIKZ__', i)) {
+        inTikz = true;
+        currentCell += '__BEGIN_TIKZ__';
+        i += '__BEGIN_TIKZ__'.length;
+        continue;
+      }
+      if (rowStr.startsWith('__END_TIKZ__', i)) {
+        inTikz = false;
+        currentCell += '__END_TIKZ__';
+        i += '__END_TIKZ__'.length;
+        continue;
+      }
+      if (!inTikz) {
+        if (rowStr[i] === '{') braceDepth++;
+        else if (rowStr[i] === '}') { if (braceDepth > 0) braceDepth--; }
+        else if (braceDepth === 0 && rowStr[i] === '&') {
+          cells.push(currentCell.trim());
+          currentCell = '';
+          i++;
+          continue;
+        }
+      }
+      currentCell += rowStr[i];
+      i++;
+    }
+    cells.push(currentCell.trim());
+    return cells;
+  };
+
+  const rows = splitTableRows(safeCode).map(r => r.trim()).filter(Boolean);
   return (
     <div style={{ overflowX: 'auto', margin: '1rem 0' }}>
-      <table className="latex-tabular-table" style={{ borderCollapse: 'collapse', margin: '0 auto', fontSize: '0.95em', width: '100%', whiteSpace: 'nowrap' }}>
+      <table className="latex-tabular-table" style={{ borderCollapse: 'collapse', margin: '0 auto', fontSize: '0.95em', width: '100%', whiteSpace: 'normal' }}>
         <tbody>
           {rows.map((row, rIdx) => {
             if (row === '\\hline') return null;
             const cleanRow = row.replace(/\\hline/g, '').trim();
             if (!cleanRow) return null;
-            const cells = cleanRow.split('&').map(c => c.trim());
+            const cells = splitTableCells(cleanRow).map(c => c.trim());
             return (
               <tr key={rIdx}>
                 {cells.map((cell, cIdx) => {
@@ -687,7 +772,7 @@ const TabularViewer = ({ code, cachedSvgs = null }) => {
                   }
 
                   return (
-                    <td key={cIdx} colSpan={colSpan} style={{ border: '1px solid #ccc', padding: '8px 16px', textAlign: 'center' }}>
+                    <td key={cIdx} colSpan={colSpan} style={{ border: '1px solid #cbd5e1', padding: '10px 16px', textAlign: 'center', verticalAlign: 'middle' }}>
                       <RenderMathSegment rawText={content} isNormalized={true} cachedSvgs={cachedSvgs} />
                     </td>
                   );
@@ -886,7 +971,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
           );
         }
         if (seg.type === 'tabular') {
-          return <span key={segIdx} data-source={dataSourceAttr} className="math-source-block"><TabularViewer code={seg.value} cachedSvgs={cachedSvgs} /></span>;
+          return <div key={segIdx} data-source={dataSourceAttr} className="math-source-block" style={{ width: '100%', overflowX: 'auto' }}><TabularViewer code={seg.value} cachedSvgs={cachedSvgs} /></div>;
         }
         if (seg.type === 'subsection') {
           return (

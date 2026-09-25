@@ -282,6 +282,94 @@ const cleanMathContent = (content) => {
   return math.trim();
 };
 
+export const extractBalancedTabulars = (text) => {
+  const beginRegex = /\\begin\{(tabular\*?|xtabular\*?|longtable\*?)\}/gi;
+  const blocks = [];
+  let result = '';
+  let lastIdx = 0;
+
+  let match;
+  while ((match = beginRegex.exec(text)) !== null) {
+    const beginIdx = match.index;
+    if (beginIdx < lastIdx) continue;
+
+    result += text.slice(lastIdx, beginIdx);
+
+    const envName = match[1];
+    let pos = beginIdx + match[0].length;
+
+    // Bỏ qua tuỳ chọn [t], [b], v.v.
+    while (pos < text.length && /\s/.test(text[pos])) pos++;
+    if (text[pos] === '[') {
+      const closeBracket = text.indexOf(']', pos);
+      if (closeBracket !== -1) pos = closeBracket + 1;
+    }
+
+    // Bỏ qua định nghĩa cột {cols}, có thể lồng ngoặc nhọn như {*{3}{c}}
+    while (pos < text.length && /\s/.test(text[pos])) pos++;
+    if (text[pos] === '{') {
+      let bDepth = 1;
+      pos++;
+      while (pos < text.length && bDepth > 0) {
+        if (text[pos] === '{') bDepth++;
+        else if (text[pos] === '}') bDepth--;
+        pos++;
+      }
+    }
+
+    const contentStart = pos;
+    let depth = 1;
+    let contentEnd = -1;
+    let fullEnd = -1;
+
+    const anyBeginRegex = /\\begin\{(?:tabular\*?|xtabular\*?|longtable\*?)\}/gi;
+    const anyEndRegex = /\\end\{(?:tabular\*?|xtabular\*?|longtable\*?)\}/gi;
+
+    let scanPos = contentStart;
+
+    while (scanPos < text.length) {
+      anyBeginRegex.lastIndex = scanPos;
+      anyEndRegex.lastIndex = scanPos;
+
+      const nextBegin = anyBeginRegex.exec(text);
+      const nextEnd = anyEndRegex.exec(text);
+
+      if (!nextEnd) break;
+
+      if (nextBegin && nextBegin.index < nextEnd.index) {
+        depth++;
+        scanPos = nextBegin.index + nextBegin[0].length;
+      } else {
+        depth--;
+        if (depth === 0) {
+          contentEnd = nextEnd.index;
+          fullEnd = nextEnd.index + nextEnd[0].length;
+          break;
+        }
+        scanPos = nextEnd.index + nextEnd[0].length;
+      }
+    }
+
+    if (fullEnd !== -1) {
+      const content = text.slice(contentStart, contentEnd);
+      const placeholder = `__TABULAR_RAW_BLOCK_${blocks.length}__`;
+      blocks.push({
+        envName,
+        content
+      });
+      result += placeholder;
+      lastIdx = fullEnd;
+      beginRegex.lastIndex = fullEnd;
+    } else {
+      result += text.slice(beginIdx, beginIdx + match[0].length);
+      lastIdx = beginIdx + match[0].length;
+    }
+  }
+
+  result += text.slice(lastIdx);
+  return { text: result, blocks };
+};
+
 export const normalizeLatexString = (str = '') => {
   if (!str) return '';
 
@@ -627,9 +715,13 @@ export const normalizeLatexString = (str = '') => {
     return `\\begin{aligned}${fixedInner}\\end{aligned}`;
   });
 
-  // Temporarily replace math blocks and tabulars with placeholders to protect internal LaTeX syntax (like \\ inside array/cases/matrix/tabular)
+  // [BẢO VỆ BẢNG TABULAR] Trích xuất cân bằng các khối bảng (kể cả bảng lồng bảng/hình ảnh) trước khi xử lý ngắt dòng \par và \\
+  const { text: textWithoutTabulars, blocks: protectedTabularBlocks } = extractBalancedTabulars(text);
+  text = textWithoutTabulars;
+
+  // Temporarily replace math blocks with placeholders to protect internal LaTeX syntax (like \\ inside array/cases/matrix)
   const mathBlocks = [];
-  text = text.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{((?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array|tabular|xtabular|longtable)\*?)\}(?:\[.*?\])?[\s\S]*?\\end\{\2\}|\$[^\$]+?\$|\\\([\s\S]*?\\\))/g, (match) => {
+  text = text.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{((?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array)\*?)\}(?:\[.*?\])?[\s\S]*?\\end\{\2\}|\$[^\$]+?\$|\\\([\s\S]*?\\\))/g, (match) => {
     mathBlocks.push(match);
     return `__MATH_BLOCK_PLACEHOLDER_${mathBlocks.length - 1}__`;
   });
@@ -673,8 +765,11 @@ export const normalizeLatexString = (str = '') => {
     return mathBlocks[parseInt(idx, 10)];
   });
 
-  // Chuyển đổi tabular và tikzpicture thành dạng __BEGIN_...__ để parseNestedEnvironments dễ dàng bóc tách theo thứ bậc
-  text = text.replace(/\\begin\{(tabular|xtabular|longtable)\}(?:\[[^\]]*\])?\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}([\s\S]*?)\\end\{\1\}/gi, '\n\n__BEGIN_TABULAR__\n\n$2\n\n__END_TABULAR__\n\n');
+  // Phục hồi các khối bảng Tabular nguyên bản vào dạng __BEGIN_TABULAR__
+  text = text.replace(/__TABULAR_RAW_BLOCK_(\d+)__/g, (match, idx) => {
+    return `\n\n__BEGIN_TABULAR__\n\n${protectedTabularBlocks[parseInt(idx, 10)].content}\n\n__END_TABULAR__\n\n`;
+  });
+
   // Phục hồi các khối TikZ nguyên bản đã được bảo vệ vào dạng __BEGIN_TIKZ__
   text = text.replace(/__TIKZ_RAW_BLOCK_(\d+)__/g, (match, idx) => {
     return `\n\n__BEGIN_TIKZ__\n\n${protectedTikzBlocks[parseInt(idx, 10)]}\n\n__END_TIKZ__\n\n`;
