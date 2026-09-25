@@ -1,16 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, Sigma, Search, ChevronDown, ChevronUp, SquareSigma, BookOpen, Download } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
-import { getFormulas, addFormula, updateFormula, deleteFormula, updateFormulaOrders } from '../services/formulaService';
+import { getFormulas, getLocalFormulas, getFormulaCachedSvgs, addFormula, updateFormula, deleteFormula, updateFormulaOrders } from '../services/formulaService';
 import MathView from '../components/MathView';
 import { extractTikzBlocks, buildFormulaCachedSvgs } from '../utils/tikzCacheUtils';
 import './Formulas.css';
 
 const Formulas = () => {
   const { isTeacher } = useRole();
-  const [formulas, setFormulas] = useState([]);
-  const [activeFormulaId, setActiveFormulaId] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [formulas, setFormulas] = useState(() => getLocalFormulas());
+  const [activeFormulaId, setActiveFormulaId] = useState(() => {
+    const local = getLocalFormulas();
+    return local && local.length > 0 ? local[0].id : null;
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    const local = getLocalFormulas();
+    return !(local && local.length > 0);
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -217,13 +223,29 @@ const Formulas = () => {
     executeTexSearch(blockSource || selectedText, selectedText);
   };
 
+  // In-memory cache for TikZ SVG drawings per formula
+  const svgsCacheRef = useRef({});
+
   const fetchFormulas = async () => {
     try {
-      setIsLoading(true);
+      if (!formulas || formulas.length === 0) {
+        setIsLoading(true);
+      }
       const data = await getFormulas();
-      setFormulas(data || []);
-      if (data && data.length > 0 && !activeFormulaId) {
-        setActiveFormulaId(data[0].id);
+      if (data && data.length > 0) {
+        setFormulas(prev => {
+          const svgMap = {};
+          (prev || []).forEach(f => {
+            if (f.cached_svgs) svgMap[f.id] = f.cached_svgs;
+          });
+          return data.map(item => ({
+            ...item,
+            cached_svgs: svgMap[item.id] || svgsCacheRef.current[item.id] || item.cached_svgs || {}
+          }));
+        });
+        if (!activeFormulaId) {
+          setActiveFormulaId(data[0].id);
+        }
       }
     } catch (error) {
       console.error('Lỗi khi tải công thức:', error);
@@ -236,6 +258,34 @@ const Formulas = () => {
     fetchFormulas();
   }, []);
 
+  // Nạp ảnh TikZ SVGs theo yêu cầu (on-demand) cho mục đang xem để tối ưu tốc độ tối đa
+  useEffect(() => {
+    if (!activeFormulaId) return;
+
+    const currentFormula = formulas.find(f => f.id === activeFormulaId);
+    if (currentFormula && currentFormula.cached_svgs && Object.keys(currentFormula.cached_svgs).length > 0) {
+      return;
+    }
+
+    if (svgsCacheRef.current[activeFormulaId]) {
+      setFormulas(prev => prev.map(f => f.id === activeFormulaId ? { ...f, cached_svgs: svgsCacheRef.current[activeFormulaId] } : f));
+      return;
+    }
+
+    let isMounted = true;
+    getFormulaCachedSvgs(activeFormulaId).then(cached_svgs => {
+      if (!isMounted) return;
+      if (cached_svgs && typeof cached_svgs === 'object' && Object.keys(cached_svgs).length > 0) {
+        svgsCacheRef.current[activeFormulaId] = cached_svgs;
+        setFormulas(prev => prev.map(f => f.id === activeFormulaId ? { ...f, cached_svgs } : f));
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeFormulaId]);
+
   const openAddModal = () => {
     if (!isTeacher) return;
     setEditId(null);
@@ -243,16 +293,21 @@ const Formulas = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (e, formula) => {
+  const openEditModal = async (e, formula) => {
     e.stopPropagation();
     if (!isTeacher) return;
     setEditId(formula.id);
+    let svgs = formula.cached_svgs || svgsCacheRef.current[formula.id];
+    if (!svgs || Object.keys(svgs).length === 0) {
+      svgs = await getFormulaCachedSvgs(formula.id);
+      if (svgs) svgsCacheRef.current[formula.id] = svgs;
+    }
     setFormData({ 
       title: formula.title, 
       content: formula.content || '', 
       order_index: formula.order_index, 
       class_level: formula.class_level || '',
-      cached_svgs: formula.cached_svgs || {}
+      cached_svgs: svgs || {}
     });
     setIsModalOpen(true);
   };
@@ -312,10 +367,12 @@ const Formulas = () => {
 
       if (editId) {
         const updated = await updateFormula(editId, payload);
-        setFormulas(formulas.map(f => f.id === editId ? updated : f));
+        if (payload.cached_svgs) svgsCacheRef.current[editId] = payload.cached_svgs;
+        setFormulas(formulas.map(f => f.id === editId ? { ...updated, cached_svgs: payload.cached_svgs } : f));
       } else {
         const added = await addFormula(payload);
-        setFormulas([...formulas, added]);
+        if (payload.cached_svgs) svgsCacheRef.current[added.id] = payload.cached_svgs;
+        setFormulas([...formulas, { ...added, cached_svgs: payload.cached_svgs }]);
         setActiveFormulaId(added.id);
       }
       setIsModalOpen(false);

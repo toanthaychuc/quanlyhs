@@ -17,17 +17,72 @@ export const updateFormulaOrders = async (formulas) => {
   return true;
 };
 
-export const getFormulas = async () => {
-  const { data, error } = await supabase
-    .from('formulas')
-    .select('*')
-    .order('order_index', { ascending: true });
+const LOCAL_FORMULAS_KEY = 'edumanager_formulas_cache';
 
-  if (error) {
-    console.error('Error fetching formulas:', error);
-    throw error;
+export const getLocalFormulas = () => {
+  try {
+    const raw = localStorage.getItem(LOCAL_FORMULAS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (_) {
+    return [];
   }
-  return data;
+};
+
+export const saveLocalFormulas = (list) => {
+  try {
+    // Strip cached_svgs from local cache to avoid exceeding localStorage quota
+    const lightList = (list || []).map(({ cached_svgs, ...rest }) => rest);
+    localStorage.setItem(LOCAL_FORMULAS_KEY, JSON.stringify(lightList));
+  } catch (err) {
+    console.warn('[formulaService] Could not save to localStorage:', err);
+  }
+};
+
+export const getFormulaCachedSvgs = async (id) => {
+  if (!id) return {};
+  try {
+    const { data, error } = await supabase
+      .from('formulas')
+      .select('cached_svgs')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.warn('[formulaService] Error fetching cached_svgs for formula:', id, error);
+      return {};
+    }
+    return data?.cached_svgs || {};
+  } catch (err) {
+    console.warn('[formulaService] Error fetching cached_svgs:', err);
+    return {};
+  }
+};
+
+export const getFormulas = async () => {
+  try {
+    // Tải danh sách công thức nhẹ (không kèm 8MB ảnh SVG thô) để giao diện mở tức thì
+    const { data, error } = await supabase
+      .from('formulas')
+      .select('id, title, content, order_index, class_level, created_at, updated_at')
+      .order('order_index', { ascending: true });
+
+    if (error) {
+      console.error('[formulaService] Error fetching formulas from Supabase:', error);
+      const local = getLocalFormulas();
+      if (local && local.length > 0) return local;
+      throw error;
+    }
+
+    if (Array.isArray(data)) {
+      saveLocalFormulas(data);
+      return data;
+    }
+
+    return getLocalFormulas();
+  } catch (err) {
+    console.warn('[formulaService] Network failed, using local formulas:', err);
+    return getLocalFormulas();
+  }
 };
 
 export const addFormula = async (formula) => {
