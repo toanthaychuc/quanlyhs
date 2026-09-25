@@ -221,6 +221,39 @@ textarea.full-height-textarea,
   height: auto;
 }
 
+.tikz-diagram-container {
+  margin: 0.35rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  max-width: 100%;
+}
+
+.latex-center {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  margin: 1.25rem 0;
+  width: 100%;
+  text-align: center;
+}
+
+.latex-center-inner {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 100%;
+}
+
 /* Mobile Responsive Utilities */
 .table-responsive {
   overflow-x: auto;

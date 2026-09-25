@@ -342,7 +342,7 @@ const TikzDiagramViewer = ({ tikzCode, initialSvg = null }) => {
 
   return (
     <>
-      <div className="tikz-diagram-container" style={{ margin: '0.75rem 0', textAlign: 'center' }}>
+      <div className="tikz-diagram-container" style={{ margin: '0.35rem', display: 'inline-flex', verticalAlign: 'middle', maxWidth: '100%', justifyContent: 'center' }}>
         <div
           className="tikz-render-output-box"
           onClick={() => hasSvg && setShowLightbox(true)}
@@ -813,7 +813,7 @@ const replaceMacroPure = (txt, macro, fn) => {
   return res;
 };
 
-const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false, cachedSvgs = null }) => {
+const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false, cachedSvgs = null, style = {} }) => {
   if (!rawText) return null;
 
   const normalized = isNormalized ? rawText : normalizeLatexString(rawText);
@@ -946,7 +946,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
   };
 
   return (
-    <span className={`math-rendered-container ${className}`}>
+    <span className={`math-rendered-container ${className}`} style={style}>
       {segments.map((seg, segIdx) => {
         const dataSourceAttr = encodeURIComponent(seg.value || '');
         if (seg.type === 'tikz') {
@@ -963,7 +963,12 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
             }
           }
           return (
-            <span key={segIdx} data-source={dataSourceAttr} className="math-source-block">
+            <span
+              key={segIdx}
+              data-source={dataSourceAttr}
+              className="math-source-block"
+              style={{ display: 'inline-flex', verticalAlign: 'middle', margin: '0.25rem', maxWidth: '100%', justifyContent: 'center' }}
+            >
               <TikzErrorBoundary>
                 <TikzDiagramViewer tikzCode={rawCode} initialSvg={precompiledSvg} />
               </TikzErrorBoundary>
@@ -1052,8 +1057,35 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
         }
         if (seg.type === 'center') {
           return (
-            <div key={segIdx} data-source={dataSourceAttr} className="latex-center math-source-block" style={{ textAlign: 'center', margin: '1.25rem 0' }}>
-              <RenderMathSegment rawText={seg.value} isNormalized={true} cachedSvgs={cachedSvgs} />
+            <div
+              key={segIdx}
+              data-source={dataSourceAttr}
+              className="latex-center math-source-block"
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '1.25rem',
+                margin: '1.25rem 0',
+                width: '100%',
+                textAlign: 'center',
+              }}
+            >
+              <RenderMathSegment
+                rawText={seg.value}
+                isNormalized={true}
+                cachedSvgs={cachedSvgs}
+                className="latex-center-inner"
+                style={{
+                  display: 'inline-flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '1.25rem',
+                  maxWidth: '100%',
+                }}
+              />
             </div>
           );
         }
