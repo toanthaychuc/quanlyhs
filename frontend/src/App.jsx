@@ -43,38 +43,104 @@ class ErrorBoundary extends React.Component {
           textAlign: 'center',
           fontFamily: 'system-ui, sans-serif'
         }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#f87171' }}>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: '#f87171' }}>
             ⚠️ Đã xảy ra lỗi tải trang
           </h2>
-          <p style={{ color: '#94a3b8', maxWidth: '480px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-            Hệ thống đang tải lại phiên bản mới nhất. Vui lòng bấm nút bên dưới để khôi phục:
+          <p style={{ color: '#94a3b8', maxWidth: '520px', marginBottom: '1.25rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+            Hệ thống đang tải lại phiên bản mới nhất. Vui lòng bấm nút bên dưới để xóa bộ nhớ đệm và khôi phục:
           </p>
-          <button
-            onClick={() => {
-              localStorage.clear();
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  for(let registration of registrations) {
-                    registration.unregister();
-                  }
-                  window.location.href = '/';
-                });
-              } else {
-                window.location.href = '/';
-              }
-            }}
-            style={{
-              padding: '0.75rem 1.5rem',
+
+          {this.state.error && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
               borderRadius: '8px',
-              border: 'none',
-              background: '#4f46e5',
-              color: '#ffffff',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
-          >
-            🔄 Tải Lại Trang Web
-          </button>
+              padding: '0.85rem 1rem',
+              color: '#fca5a5',
+              fontSize: '0.82rem',
+              maxWidth: '650px',
+              width: '100%',
+              margin: '0 auto 1.5rem auto',
+              textAlign: 'left',
+              wordBreak: 'break-word',
+              fontFamily: 'Consolas, monospace',
+              whiteSpace: 'pre-wrap'
+            }}>
+              <strong style={{ color: '#ef4444' }}>Chi tiết: </strong>
+              {this.state.error.message || String(this.state.error)}
+              {this.state.error.stack && (
+                <div style={{ marginTop: '0.5rem', opacity: 0.7, fontSize: '0.75rem', maxHeight: '120px', overflowY: 'auto' }}>
+                  {this.state.error.stack}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              onClick={async () => {
+                try {
+                  if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                      await registration.unregister();
+                    }
+                  }
+                  if ('caches' in window) {
+                    const cacheKeys = await caches.keys();
+                    for (let key of cacheKeys) {
+                      await caches.delete(key);
+                    }
+                  }
+                } catch (_) {}
+                window.location.reload();
+              }}
+              style={{
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                border: 'none',
+                background: '#4f46e5',
+                color: '#ffffff',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              🔄 Tải Lại & Xóa Cache Mới
+            </button>
+
+            <button
+              onClick={async () => {
+                try {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                      await registration.unregister();
+                    }
+                  }
+                  if ('caches' in window) {
+                    const cacheKeys = await caches.keys();
+                    for (let key of cacheKeys) {
+                      await caches.delete(key);
+                    }
+                  }
+                } catch (_) {}
+                window.location.href = '/';
+              }}
+              style={{
+                padding: '0.75rem 1.25rem',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                background: 'transparent',
+                color: '#94a3b8',
+                fontSize: '0.85rem',
+                cursor: 'pointer'
+              }}
+            >
+              🧹 Khôi Phục Toàn Bộ
+            </button>
+          </div>
         </div>
       );
     }

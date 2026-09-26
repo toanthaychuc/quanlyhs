@@ -10,45 +10,57 @@ export const RoleProvider = ({ children }) => {
 
   // Email tài khoản đăng nhập hiện tại
   const [currentUserEmail, setCurrentUserEmail] = useState(() => {
-    const savedEmail = localStorage.getItem('edumanager_user_email');
-    const savedRole = localStorage.getItem('edumanager_user_role');
-    const savedStudentId = localStorage.getItem('edumanager_current_student_id');
+    try {
+      const savedEmail = localStorage.getItem('edumanager_user_email');
+      const savedRole = localStorage.getItem('edumanager_user_role');
+      const savedStudentId = localStorage.getItem('edumanager_current_student_id');
 
-    // Nếu đã đăng nhập danh tính học sinh chính thức
-    if (savedRole === 'student' && savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com') {
-      return `${savedStudentId.toLowerCase()}@school.edu.vn`;
+      // Nếu đã đăng nhập danh tính học sinh chính thức
+      if (savedRole === 'student' && savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com') {
+        return `${String(savedStudentId).toLowerCase()}@school.edu.vn`;
+      }
+      if (savedEmail) {
+        return savedEmail;
+      }
+      if (isRoomUrl) {
+        return 'hocsinh_phongthi@school.edu.vn';
+      }
+      if (savedRole === 'teacher') {
+        return TEACHER_EMAIL;
+      }
+      return 'hocsinh@school.edu.vn';
+    } catch (_) {
+      return 'hocsinh@school.edu.vn';
     }
-    if (savedEmail) {
-      return savedEmail;
-    }
-    if (isRoomUrl) {
-      return 'hocsinh_phongthi@school.edu.vn';
-    }
-    if (savedRole === 'teacher') {
-      return TEACHER_EMAIL;
-    }
-    return 'hocsinh@school.edu.vn';
   });
 
   // Vai trò: 'teacher' hoặc 'student'
   const [role, setRole] = useState(() => {
-    if (isRoomUrl && !localStorage.getItem('edumanager_user_role')) {
+    try {
+      if (isRoomUrl && !localStorage.getItem('edumanager_user_role')) {
+        return 'student';
+      }
+      const savedRole = localStorage.getItem('edumanager_user_role');
+      const savedEmail = localStorage.getItem('edumanager_user_email');
+      if (savedEmail === TEACHER_EMAIL) {
+        return savedRole || 'teacher';
+      }
+      return 'student';
+    } catch (_) {
       return 'student';
     }
-    const savedRole = localStorage.getItem('edumanager_user_role');
-    const savedEmail = localStorage.getItem('edumanager_user_email');
-    if (savedEmail === TEACHER_EMAIL) {
-      return savedRole || 'teacher';
-    }
-    return 'student';
   });
 
   // Học sinh đang đăng nhập
   const [currentStudentId, setCurrentStudentId] = useState(() => {
-    if (isRoomUrl && !localStorage.getItem('edumanager_current_student_id')) {
+    try {
+      if (isRoomUrl && !localStorage.getItem('edumanager_current_student_id')) {
+        return '';
+      }
+      return localStorage.getItem('edumanager_current_student_id') || '';
+    } catch (_) {
       return '';
     }
-    return localStorage.getItem('edumanager_current_student_id') || '';
   });
 
   // Khi email thay đổi, kiểm tra quyền nghiêm ngặt
@@ -56,7 +68,8 @@ export const RoleProvider = ({ children }) => {
     if (currentUserEmail) {
       localStorage.setItem('edumanager_user_email', currentUserEmail);
     }
-    if (currentUserEmail.trim().toLowerCase() !== TEACHER_EMAIL.toLowerCase()) {
+    const safeEmail = (currentUserEmail || '').trim().toLowerCase();
+    if (safeEmail !== TEACHER_EMAIL.toLowerCase()) {
       // Nếu không phải email giáo viên, ép buộc chuyển về học sinh
       setRole('student');
       localStorage.setItem('edumanager_user_role', 'student');
@@ -71,7 +84,8 @@ export const RoleProvider = ({ children }) => {
     localStorage.setItem('edumanager_current_student_id', currentStudentId);
     
     // Nếu có mã học sinh chính thức -> Chắc chắn không phải là khách
-    if (currentStudentId && currentStudentId !== 'khach_tudolamde@gmail.com' && currentStudentId.trim() !== '') {
+    const hasRealId = currentStudentId && currentStudentId !== 'khach_tudolamde@gmail.com' && String(currentStudentId).trim() !== '';
+    if (hasRealId) {
       setIsGuestMode(false);
       localStorage.setItem('edumanager_is_guest', 'false');
     }
@@ -108,23 +122,28 @@ export const RoleProvider = ({ children }) => {
 
   // Chế độ khách (Học mà không cần đăng nhập)
   const [isGuestMode, setIsGuestMode] = useState(() => {
-    const savedRole = localStorage.getItem('edumanager_user_role');
-    const savedStudentId = localStorage.getItem('edumanager_current_student_id');
-    // Nếu là giáo viên hoặc đã có học sinh chính thức đăng nhập -> Tuyệt đối không phải khách
-    if (savedRole === 'teacher' || (savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com' && savedStudentId.trim() !== '')) {
+    try {
+      const savedRole = localStorage.getItem('edumanager_user_role');
+      const savedStudentId = localStorage.getItem('edumanager_current_student_id');
+      const hasRealStudent = savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com' && String(savedStudentId).trim() !== '';
+      // Nếu là giáo viên hoặc đã có học sinh chính thức đăng nhập -> Tuyệt đối không phải khách
+      if (savedRole === 'teacher' || hasRealStudent) {
+        return false;
+      }
+      if (isRoomUrl) {
+        return true;
+      }
+      return localStorage.getItem('edumanager_is_guest') === 'true';
+    } catch (_) {
       return false;
     }
-    if (isRoomUrl) {
-      return true;
-    }
-    return localStorage.getItem('edumanager_is_guest') === 'true';
   });
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.href.includes('room=')) {
       setHasEnteredApp(true);
       const savedStudentId = localStorage.getItem('edumanager_current_student_id');
-      const hasRealStudent = savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com' && savedStudentId.trim() !== '';
+      const hasRealStudent = savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com' && String(savedStudentId).trim() !== '';
       if (hasRealStudent) {
         setIsGuestMode(false);
         localStorage.setItem('edumanager_is_guest', 'false');
@@ -243,9 +262,10 @@ export const RoleProvider = ({ children }) => {
     localStorage.removeItem('edumanager_is_guest');
   };
 
-  const isTeacher = role === 'teacher' && currentUserEmail.trim().toLowerCase() === TEACHER_EMAIL.toLowerCase();
+  const safeEmail = (currentUserEmail || '').trim().toLowerCase();
+  const isTeacher = role === 'teacher' && safeEmail === TEACHER_EMAIL.toLowerCase();
   const isStudent = !isTeacher;
-  const isTeacherAccount = currentUserEmail.trim().toLowerCase() === TEACHER_EMAIL.toLowerCase();
+  const isTeacherAccount = safeEmail === TEACHER_EMAIL.toLowerCase();
 
   return (
     <RoleContext.Provider value={{ 

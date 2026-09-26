@@ -153,9 +153,13 @@ const MainLayout = () => {
   }, []);
 
   // Kiểm tra học sinh chính thức đã đăng nhập
-  const isEnrolledStudent = isStudent && Boolean(currentStudentId && currentStudentId !== 'khach_tudolamde@gmail.com' && currentStudentId.trim() !== '');
+  const isEnrolledStudent = isStudent && Boolean(
+    currentStudentId && 
+    currentStudentId !== 'khach_tudolamde@gmail.com' && 
+    String(currentStudentId).trim() !== ''
+  );
   // Chỉ thực sự coi là khách khi: không phải giáo viên, có cờ isGuestMode, và KHÔNG PHẢI học sinh chính thức
-  const isActualGuest = !isTeacher && isGuestMode && !isEnrolledStudent;
+  const isActualGuest = !isTeacher && Boolean(isGuestMode) && !isEnrolledStudent;
 
   // Xử lý chặn các mục menu đối với chế độ "Học mà không cần đăng nhập" (Guest Mode)
   const handleNavClick = (e, path, isLocked) => {
@@ -171,7 +175,8 @@ const MainLayout = () => {
   useEffect(() => {
     if (isActualGuest) {
       const currentPath = location.pathname;
-      if (!guestAllowedPaths.includes(currentPath)) {
+      const allowed = Array.isArray(guestAllowedPaths) ? guestAllowedPaths : DEFAULT_GUEST_ALLOWED_PATHS;
+      if (!allowed.includes(currentPath)) {
         navigate('/exams', { replace: true });
       }
     }
@@ -426,7 +431,8 @@ const MainLayout = () => {
 
         <nav className="sidebar-nav">
           {navItems.map((item) => {
-            const isLocked = isActualGuest && !guestAllowedPaths.includes(item.path);
+            const allowed = Array.isArray(guestAllowedPaths) ? guestAllowedPaths : DEFAULT_GUEST_ALLOWED_PATHS;
+            const isLocked = isActualGuest && !allowed.includes(item.path);
             return (
               <NavItemRenderer 
                 key={item.path} 
@@ -531,7 +537,8 @@ const MainLayout = () => {
                   <div 
                     className="flex items-center cursor-pointer group"
                     onClick={() => {
-                      if (isActualGuest && !guestAllowedPaths.includes('/my-rank')) {
+                      const allowed = Array.isArray(guestAllowedPaths) ? guestAllowedPaths : DEFAULT_GUEST_ALLOWED_PATHS;
+                      if (isActualGuest && !allowed.includes('/my-rank')) {
                         alert('🔒 Mục này đã được giáo viên tạm khóa đối với chế độ Khách.\nHãy vào mục "Hỏi đáp" để liên hệ Thầy nhé!');
                         return;
                       }

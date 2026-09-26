@@ -664,29 +664,33 @@ const Exams = () => {
 
   // Lấy thông tin học sinh chính thức nếu đã đăng nhập tài khoản
   const getEnrolledStudentInfo = () => {
-    if (!isStudent || !currentStudentId || currentStudentId === 'khach_tudolamde@gmail.com') return null;
-    const saved = localStorage.getItem('edumanager_classes_data_v2') || localStorage.getItem('edumanager_classes_data');
-    if (saved) {
-      try {
+    if (!isStudent || !currentStudentId || currentStudentId === 'khach_tudolamde@gmail.com' || String(currentStudentId).trim() === '') return null;
+    try {
+      const saved = localStorage.getItem('edumanager_classes_data_v2') || localStorage.getItem('edumanager_classes_data');
+      if (saved) {
         const classes = JSON.parse(saved);
-        for (const cls of classes) {
-          const found = cls.students?.find(s => s.id === currentStudentId);
-          if (found) {
-            return {
-              id: currentStudentId,
-              name: found.name || currentStudentId,
-              class: cls.name || '',
-              phone: found.phone || currentStudentId
-            };
+        if (Array.isArray(classes)) {
+          for (const cls of classes) {
+            if (cls && Array.isArray(cls.students)) {
+              const found = cls.students.find(s => s && String(s.id) === String(currentStudentId));
+              if (found) {
+                return {
+                  id: String(currentStudentId),
+                  name: found.name || String(currentStudentId),
+                  class: cls.name || '',
+                  phone: found.phone || String(currentStudentId)
+                };
+              }
+            }
           }
         }
-      } catch (_) {}
-    }
+      }
+    } catch (_) {}
     return {
-      id: currentStudentId,
-      name: currentStudentId,
+      id: String(currentStudentId),
+      name: String(currentStudentId),
       class: '',
-      phone: currentStudentId
+      phone: String(currentStudentId)
     };
   };
   const [violationsCount, setViolationsCount] = useState(0);
