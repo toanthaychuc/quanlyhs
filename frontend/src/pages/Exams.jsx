@@ -1753,8 +1753,16 @@ const Exams = () => {
     }
   };
 
-  const handleToggleHideExam = (examId) => {
-    setExams(prev => prev.map(ex => ex.id === examId ? { ...ex, isHidden: !ex.isHidden } : ex));
+  const handleToggleHideExam = async (examId) => {
+    const target = exams.find(ex => ex.id === examId);
+    if (!target) return;
+    const updated = { ...target, isHidden: !target.isHidden };
+    setExams(prev => prev.map(ex => ex.id === examId ? updated : ex));
+    try {
+      await saveExam(updated);
+    } catch (err) {
+      console.error('Lỗi lưu trạng thái ẩn/hiện đề thi:', err);
+    }
   };
 
   const handleDeleteStudentSession = async (e, session, examId) => {
