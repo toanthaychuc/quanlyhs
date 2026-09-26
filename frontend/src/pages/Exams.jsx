@@ -4,13 +4,15 @@ import {
   GraduationCap, Clock, HelpCircle, CheckCircle, XCircle, X,
   Award, Play, RotateCcw, ArrowLeft, ArrowRight, Plus, 
   Trash2, Edit, Save, FileText, Check, AlertTriangle, Sparkles, 
-  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2, CheckSquare
+  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2, CheckSquare,
+  QrCode, ShieldAlert, Users, UserCheck, AlertCircle
 } from 'lucide-react';
 import { Download as I_Download, ArrowDownToLine as I_ArrowDownToLine } from 'lucide';
 import AnimatedIcon from '../components/AnimatedIcon';
 import { useRole } from '../context/RoleContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MathView from '../components/MathView';
+import OnlineExamModal from '../components/OnlineExamModal';
 import { stripLatexComments, normalizeLatexString, extractBracedBlocks, parseImminiBlock, cleanQuestionObj } from '../utils/latexUtils';
 import { GRADE_10_CURRICULUM } from '../data/grade10Curriculum';
 import { GRADE_11_CURRICULUM } from '../data/grade11Curriculum';
@@ -20,7 +22,10 @@ import {
   getExams, saveExam, deleteExam,
   submitExamSession, getStudentHistory, getAllExamSessions, deleteExamSession,
   updateGamification, getGamification,
-  saveUnfinishedExam, getUnfinishedExam, clearUnfinishedExam
+  saveUnfinishedExam, getUnfinishedExam, clearUnfinishedExam,
+  createExamRoom, getExamRoom, closeExamRoom, deleteExamRoom,
+  getActiveRoomsByExamId, getAllExamRooms, submitRoomExamSession,
+  hasStudentSubmittedRoom, getExamRoomSubmissions
 } from '../services/examService';
 import { parseUserBadges, encodeUserBadges } from '../utils/badgeUtils';
 
@@ -647,6 +652,393 @@ const Exams = () => {
     setExpandedTeacherStats(prev => ({ ...prev, [examId]: !prev[examId] }));
   };
 
+  // ─── Online Exam Rooms State (Phòng thi trực tuyến & Chống gian lận) ─────────
+  const [isOnlineExamModalOpen, setIsOnlineExamModalOpen] = useState(false);
+  const [selectedExamForModal, setSelectedExamForModal] = useState(null);
+  const [activeRoomsMap, setActiveRoomsMap] = useState({});
+  const [currentRoom, setCurrentRoom] = useState(null);
+  const [urlRoomId, setUrlRoomId] = useState(null);
+  const [urlRoomData, setUrlRoomData] = useState(null);
+  const [isLoadingUrlRoom, setIsLoadingUrlRoom] = useState(false);
+  const [urlRoomError, setUrlRoomError] = useState(null);
+  const [candidateInfo, setCandidateInfo] = useState({ id: '', name: '', class: '', phone: '' });
+  const [hasRoomSubmitted, setHasRoomSubmitted] = useState(false);
+  const [violationsCount, setViolationsCount] = useState(0);
+  const [showAntiCheatWarning, setShowAntiCheatWarning] = useState(false);
+  const [antiCheatReason, setAntiCheatReason] = useState('');
+  const violationsCountRef = useRef(0);
+  const lastViolationTimeRef = useRef(0);
+  const isWarningModalOpenRef = useRef(false);
+  const isSubmittingExamRef = useRef(false);
+  const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
+
+  const handleOpenOnlineExamModal = (exam) => {
+    setSelectedExamForModal(exam);
+    setIsOnlineExamModalOpen(true);
+  };
+
+  const handleRoomUpdated = (examId, room) => {
+    setActiveRoomsMap(prev => {
+      const next = { ...prev };
+      if (room && room.status === 'active') {
+        next[examId] = room;
+      } else {
+        delete next[examId];
+      }
+      return next;
+    });
+  };
+
+  // Nạp danh sách các phòng thi trực tuyến đang mở
+  useEffect(() => {
+    if (isTeacher && examMode === 'list') {
+      getAllExamRooms().then(rooms => {
+        if (Array.isArray(rooms)) {
+          const map = {};
+          rooms.forEach(r => {
+            if (r.status === 'active') {
+              map[r.exam_id] = r;
+            }
+          });
+          setActiveRoomsMap(map);
+        }
+      });
+    }
+  }, [isTeacher, examMode]);
+
+  // Nhận diện đường link phòng thi từ URL query (?room=...) bất kể hash hay search
+  useEffect(() => {
+    const extractRoomParam = () => {
+      // 1. react-router location.search
+      if (location?.search) {
+        const p = new URLSearchParams(location.search);
+        const r = p.get('room');
+        if (r) return r;
+      }
+      // 2. window.location.hash (Ví dụ: #/exams?room=...)
+      if (typeof window !== 'undefined' && window.location.hash) {
+        const hash = window.location.hash;
+        const qIdx = hash.indexOf('?');
+        if (qIdx !== -1) {
+          const p = new URLSearchParams(hash.slice(qIdx));
+          const r = p.get('room');
+          if (r) return r;
+        }
+      }
+      // 3. window.location.search (Ví dụ: /?room=...#/exams)
+      if (typeof window !== 'undefined' && window.location.search) {
+        const p = new URLSearchParams(window.location.search);
+        const r = p.get('room');
+        if (r) return r;
+      }
+      return null;
+    };
+
+    const rId = extractRoomParam();
+    if (rId) {
+      setUrlRoomId(rId);
+      setIsLoadingUrlRoom(true);
+      setUrlRoomError(null);
+      getExamRoom(rId).then(room => {
+        setIsLoadingUrlRoom(false);
+        if (room) {
+          if (room.status === 'closed') {
+            setUrlRoomError('Phòng thi này đã kết thúc hoặc giáo viên đã hủy link thi.');
+            setUrlRoomData(null);
+          } else {
+            setUrlRoomData(room);
+            const savedCandId = localStorage.getItem(`room_${rId}_candidate_id`);
+            if (savedCandId) {
+              hasStudentSubmittedRoom(rId, savedCandId).then(submitted => {
+                if (submitted) setHasRoomSubmitted(true);
+              });
+            }
+          }
+        } else {
+          setUrlRoomError(`Không tìm thấy phòng thi với mã: "${rId}". Phòng thi có thể chưa được lưu hoặc giáo viên đã đóng link.`);
+          setUrlRoomData(null);
+        }
+      }).catch(err => {
+        setIsLoadingUrlRoom(false);
+        setUrlRoomError('Lỗi kết nối phòng thi: ' + (err.message || 'Vui lòng thử lại'));
+        setUrlRoomData(null);
+      });
+    } else {
+      setUrlRoomId(null);
+      setUrlRoomData(null);
+      setIsLoadingUrlRoom(false);
+      setUrlRoomError(null);
+    }
+  }, [location.search, location.hash, currentStudentId]);
+
+  // Hàm trộn mảng ngẫu nhiên
+  const shuffleList = (array) => {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+
+  // Chuẩn bị câu hỏi theo cấu hình phòng thi (trộn đề theo từng dạng câu & giữ nguyên cụm câu đi chung)
+  const prepareRoomQuestions = (questions, shuffleQ, shuffleA) => {
+    if (!Array.isArray(questions)) return [];
+    let list = questions.map(q => ({
+      ...q,
+      options: q.options ? q.options.map(opt => ({ ...opt })) : []
+    }));
+
+    // Chuẩn hóa phân loại dạng câu hỏi
+    const getTypeKey = (q) => {
+      const t = q.questionType;
+      if (!t || t === 'multiple_choice') return 'multiple_choice';
+      if (t === 'true_false') return 'true_false';
+      if (t === 'short_answer') return 'short_answer';
+      if (t === 'essay') return 'essay';
+      return t;
+    };
+
+    if (shuffleQ) {
+      // 1. Gom các câu hỏi thành các "unit" để câu theo bộ (chc/cụm) luôn đi liền nhau, không bị xé lẻ
+      const units = [];
+      let i = 0;
+      while (i < list.length) {
+        const q = list[i];
+        const cLen = (q.clusterLength && q.clusterLength > 1) ? q.clusterLength : 1;
+        const actualLen = Math.min(cLen, list.length - i);
+        if (actualLen > 1 && q.clusterContext) {
+          units.push(list.slice(i, i + actualLen));
+          i += actualLen;
+        } else {
+          units.push([q]);
+          i += 1;
+        }
+      }
+
+      // 2. Gom các unit theo dạng câu hỏi (trắc nghiệm 4 phương án, đúng sai, trả lời ngắn, tự luận)
+      // đồng thời giữ nguyên thứ tự xuất hiện của các phần dạng đề trong đề thi gốc của giáo viên
+      const typeBuckets = {};
+      const typeOrder = [];
+
+      units.forEach(unit => {
+        const tKey = getTypeKey(unit[0]);
+        if (!typeBuckets[tKey]) {
+          typeBuckets[tKey] = [];
+          typeOrder.push(tKey);
+        }
+        typeBuckets[tKey].push(unit);
+      });
+
+      // 3. Chỉ đảo thứ tự các câu hỏi/cụm câu hỏi bên trong từng nhóm dạng câu hỏi riêng biệt:
+      // - Các câu trắc nghiệm 4 phương án đảo với nhau
+      // - Các câu đúng sai đảo với nhau
+      // - Các câu trả lời ngắn đảo với nhau
+      // - Các câu tự luận đảo với nhau
+      const resultList = [];
+      typeOrder.forEach(tKey => {
+        const bucketUnits = typeBuckets[tKey];
+        const shuffledUnits = shuffleList(bucketUnits);
+        shuffledUnits.forEach(unit => {
+          resultList.push(...unit);
+        });
+      });
+
+      list = resultList;
+    }
+
+    if (shuffleA) {
+      list = list.map(q => {
+        const tKey = getTypeKey(q);
+        if (tKey === 'multiple_choice' && Array.isArray(q.options) && q.options.length > 1) {
+          const origCorrectOpt = q.options.find(o => o.key === q.correctAnswer);
+          const shuffledOpts = shuffleList(q.options);
+          const keys = ['A', 'B', 'C', 'D', 'E', 'F'];
+          const newOptions = shuffledOpts.map((opt, idx) => ({
+            ...opt,
+            key: keys[idx] || opt.key
+          }));
+          let newCorrectAnswer = q.correctAnswer;
+          if (origCorrectOpt) {
+            const matchNew = newOptions.find(o => o.text === origCorrectOpt.text);
+            if (matchNew) newCorrectAnswer = matchNew.key;
+          }
+          return {
+            ...q,
+            options: newOptions,
+            correctAnswer: newCorrectAnswer
+          };
+        }
+        return q;
+      });
+    }
+
+    return list;
+  };
+
+  // Bắt đầu làm bài thi từ phòng thi trực tuyến
+  const handleStartOnlineRoomExam = async (room, candidate) => {
+    if (!room) return;
+    if (room.status === 'closed') {
+      alert('Phòng thi này đã kết thúc hoặc giáo viên đã hủy link thi.');
+      return;
+    }
+
+    const studentIdent = candidate?.id || candidate?.phone;
+    if (studentIdent) {
+      const already = await hasStudentSubmittedRoom(room.id, studentIdent);
+      if (already) {
+        setHasRoomSubmitted(true);
+        alert(`Mã học sinh "${studentIdent}" đã hoàn thành bài thi này rồi! Mỗi học sinh chỉ được làm 1 lần duy nhất.`);
+        return;
+      }
+    }
+
+    if (candidate) {
+      setCandidateInfo(candidate);
+    } else if (isStudent && currentStudentId) {
+      let stdName = currentStudentId;
+      let stdClass = '';
+      const saved = localStorage.getItem('edumanager_classes_data_v2') || localStorage.getItem('edumanager_classes_data');
+      if (saved) {
+        try {
+          const classes = JSON.parse(saved);
+          for (const cls of classes) {
+            const found = cls.students?.find(s => s.id === currentStudentId);
+            if (found) {
+              stdName = found.name;
+              stdClass = cls.name;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+      setCandidateInfo({ id: currentStudentId, name: stdName, class: stdClass, phone: '' });
+    }
+
+    const baseExam = room.exam_data || exams.find(e => e.id === room.exam_id) || {
+      id: room.exam_id,
+      title: room.exam_title,
+      duration: room.duration,
+      questions: []
+    };
+
+    const finalQuestions = prepareRoomQuestions(
+      baseExam.questions || [],
+      room.shuffle_questions,
+      room.shuffle_answers
+    );
+
+    const examWithTikz = {
+      ...baseExam,
+      duration: room.duration || baseExam.duration || 45,
+      questions: finalQuestions,
+      cached_svgs: room.cached_svgs || null
+    };
+
+    setCurrentRoom(room);
+    setCurrentExam(examWithTikz);
+    setCurrentQuestionIndex(0);
+    setUserAnswers({});
+    setFlaggedQuestions({});
+    setTimeLeft((room.duration || 45) * 60);
+    setViolationsCount(0);
+    violationsCountRef.current = 0;
+    lastViolationTimeRef.current = 0;
+    isWarningModalOpenRef.current = false;
+    setShowAntiCheatWarning(false);
+    isSubmittingExamRef.current = false;
+    setShowSubmitConfirmModal(false);
+    setAntiCheatReason('');
+    setExamMode('taking');
+
+    if (room.force_fullscreen) {
+      try {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } catch (_) {}
+    }
+  };
+
+  // Chống gian lận khi học sinh đang làm bài trong phòng thi trực tuyến
+  useEffect(() => {
+    if (examMode !== 'taking' || !currentRoom) return;
+
+    const maxAllowed = currentRoom.max_violations !== undefined ? Number(currentRoom.max_violations) : 1;
+
+    const handleViolation = (reason) => {
+      // 0. Nếu đang trong tiến trình nộp bài hoặc đang mở popup xác nhận nộp bài -> TUYỆT ĐỐI không tính vi phạm!
+      if (isSubmittingExamRef.current) return;
+      if (examMode !== 'taking') return;
+
+      const now = Date.now();
+      // 1. Nếu modal cảnh báo đang mở -> học sinh đang xem cảnh báo này, không đếm dồn thêm vi phạm
+      if (isWarningModalOpenRef.current) return;
+      // 2. Chống sự kiện bắn đồng thời: blur, visibilitychange và fullscreenchange thường bắn cùng lúc cách nhau vài mili-giây
+      if (now - lastViolationTimeRef.current < 2500) return;
+
+      lastViolationTimeRef.current = now;
+      const nextCount = violationsCountRef.current + 1;
+      violationsCountRef.current = nextCount;
+      setViolationsCount(nextCount);
+      setAntiCheatReason(reason);
+
+      if (maxAllowed === 0 || nextCount > maxAllowed) {
+        // Tái phạm vượt quá giới hạn -> Tự động nộp bài!
+        isWarningModalOpenRef.current = false;
+        setShowAntiCheatWarning(false);
+        executeSubmitExam(true, true);
+      } else {
+        // Trong giới hạn cảnh báo -> Hiện popup cảnh báo
+        isWarningModalOpenRef.current = true;
+        setShowAntiCheatWarning(true);
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (isSubmittingExamRef.current) return;
+      if (document.hidden) {
+        handleViolation('Chuyển sang tab khác hoặc thu nhỏ trình duyệt');
+      }
+    };
+
+    const onWindowBlur = () => {
+      if (isSubmittingExamRef.current) return;
+      handleViolation('Rời khỏi màn hình bài thi (chuyển tab hoặc ứng dụng khác)');
+    };
+
+    const onFullscreenChange = () => {
+      if (isSubmittingExamRef.current) return;
+      if (currentRoom.force_fullscreen && !document.fullscreenElement) {
+        handleViolation('Thoát chế độ toàn màn hình');
+      }
+    };
+
+    const onBeforeUnload = (e) => {
+      if (isSubmittingExamRef.current) return;
+      e.preventDefault();
+      e.returnValue = 'Bạn đang trong bài thi trực tuyến! Nếu rời đi bài thi sẽ bị mất hoặc tự động nộp điểm.';
+      return e.returnValue;
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('blur', onWindowBlur);
+    if (currentRoom.force_fullscreen) {
+      document.addEventListener('fullscreenchange', onFullscreenChange);
+    }
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('blur', onWindowBlur);
+      if (currentRoom.force_fullscreen) {
+        document.removeEventListener('fullscreenchange', onFullscreenChange);
+      }
+      window.removeEventListener('beforeunload', onBeforeUnload);
+    };
+  }, [examMode, currentRoom]);
+
   useEffect(() => {
     if (isStudent && currentStudentId && examMode === 'list') {
       getStudentHistory(currentStudentId).then(history => {
@@ -815,6 +1207,10 @@ const Exams = () => {
     setUserAnswers({});
     setFlaggedQuestions({});
     setTimeLeft(exam.duration * 60);
+    isSubmittingExamRef.current = false;
+    setShowSubmitConfirmModal(false);
+    setShowAntiCheatWarning(false);
+    isWarningModalOpenRef.current = false;
     setExamMode('taking');
   };
 
@@ -825,7 +1221,7 @@ const Exams = () => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timerRef.current);
-            handleSubmitExam(true);
+            executeSubmitExam(true, false);
             return 0;
           }
           return prev - 1;
@@ -845,25 +1241,37 @@ const Exams = () => {
     });
   }, [userAnswers, flaggedQuestions, examMode, currentExam, trackingId, timeLeft]);
 
-  // Nộp bài thi
-  const handleSubmitExam = async (autoSubmit = false) => {
+  // Nộp bài thi: Kích hoạt modal xác nhận hoặc nộp tự động
+  const handleSubmitExam = (autoSubmit = false, isViolation = false) => {
     if (!currentExam) return;
 
     if (!autoSubmit) {
-      const answeredCount = Object.keys(userAnswers).length;
-      const totalCount = currentExam.questions.length;
-      if (answeredCount < totalCount) {
-        if (!window.confirm(`Bạn mới làm ${answeredCount}/${totalCount} câu. Bạn có chắc chắn muốn nộp bài không?`)) {
-          return;
-        }
-      } else {
-        if (!window.confirm('Bạn có chắc chắn muốn nộp bài thi không?')) {
-          return;
-        }
-      }
+      // Đặt ngay cờ nộp bài để chặn hoàn toàn mọi sự kiện blur / fullscreenchange gây cảnh báo gian lận sai
+      isSubmittingExamRef.current = true;
+      setShowAntiCheatWarning(false);
+      isWarningModalOpenRef.current = false;
+      setShowSubmitConfirmModal(true);
+      return;
     }
 
+    // Tự động nộp bài khi hết giờ hoặc vi phạm quá số lần
+    executeSubmitExam(autoSubmit, isViolation);
+  };
+
+  // Thực thi nộp bài thi và tính toán điểm số
+  const executeSubmitExam = async (autoSubmit = false, isViolation = false) => {
+    if (!currentExam) return;
+
+    // Giữ cờ nộp bài luôn bật trong suốt quá trình nộp và chuyển trang
+    isSubmittingExamRef.current = true;
+    setShowAntiCheatWarning(false);
+    isWarningModalOpenRef.current = false;
+
     clearInterval(timerRef.current);
+
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
 
     let correctCount = 0;
     let totalCalculatedScore = 0;
@@ -962,8 +1370,38 @@ const Exams = () => {
       totalQuestions,
       timeSpentSeconds,
       speedBonusXP,
+      isViolationSubmit: isViolation,
+      violationsCount: violationsCountRef.current || violationsCount,
       submittedAt: new Date().toLocaleTimeString('vi-VN')
     });
+
+    // Lưu kết quả phòng thi trực tuyến nếu đang thi qua phòng
+    if (currentRoom) {
+      const studentIdToSave = candidateInfo.id || candidateInfo.phone || currentStudentId || `guest_${Date.now()}`;
+      const studentNameToSave = candidateInfo.name || (isStudent ? 'Học sinh' : 'Thí sinh');
+      try {
+        await submitRoomExamSession({
+          roomId: currentRoom.id,
+          examId: currentExam.id,
+          studentId: studentIdToSave,
+          studentName: studentNameToSave,
+          studentClass: candidateInfo.class || '',
+          studentPhone: candidateInfo.phone || '',
+          answers: userAnswers,
+          flagged: flaggedQuestions,
+          score: Number(score),
+          correctCount,
+          totalQuestions,
+          timeSpent: timeSpentSeconds,
+          violationsCount: violationsCountRef.current || violationsCount,
+          isViolationSubmit: isViolation
+        });
+        localStorage.setItem(`room_${currentRoom.id}_candidate_id`, studentIdToSave);
+        setHasRoomSubmitted(true);
+      } catch (err) {
+        console.warn('Lỗi lưu kết quả phòng thi trực tuyến:', err);
+      }
+    }
 
     // Lưu kết quả lên Supabase và cập nhật gamification
     try {
@@ -1492,6 +1930,251 @@ const Exams = () => {
     return <span className="qtype-pill is-mc">Trắc nghiệm 4 lựa chọn</span>;
   };
 
+  // Helper render popup xác nhận nộp bài thi (In-app, chống mất focus window)
+  const renderSubmitConfirmModal = () => {
+    if (!showSubmitConfirmModal || !currentExam) return null;
+
+    const answeredCount = Object.keys(userAnswers).length;
+    const totalCount = currentExam.questions.length;
+    const unansweredCount = Math.max(0, totalCount - answeredCount);
+    const isComplete = answeredCount === totalCount;
+
+    return createPortal(
+      <div 
+        className="oem-overlay" 
+        style={{ zIndex: 9999998 }}
+        onClick={() => {
+          setShowSubmitConfirmModal(false);
+          setTimeout(() => {
+            isSubmittingExamRef.current = false;
+          }, 600);
+        }}
+      >
+        <div 
+          className="card" 
+          style={{ 
+            maxWidth: 440, 
+            width: '92%', 
+            padding: '2.25rem 1.75rem', 
+            textAlign: 'center', 
+            background: 'var(--surface-color, #ffffff)', 
+            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.3)', 
+            borderRadius: '1.25rem',
+            border: '1px solid var(--border-color)',
+            animation: 'oemFadeIn 0.2s ease-out'
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div style={{
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            background: isComplete ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+            color: isComplete ? '#10b981' : '#f59e0b',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1.25rem'
+          }}>
+            {isComplete ? <CheckCircle size={36} /> : <AlertCircle size={36} />}
+          </div>
+
+          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            Xác nhận nộp bài thi
+          </h3>
+
+          <p style={{ margin: '0 0 1.5rem 0', color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.55 }}>
+            {!isComplete ? (
+              <>
+                Bạn mới làm được <strong style={{ color: '#f59e0b' }}>{answeredCount} / {totalCount}</strong> câu hỏi.
+                <br />
+                Vẫn còn <strong style={{ color: '#ef4444' }}>{unansweredCount}</strong> câu chưa trả lời. Bạn có chắc chắn muốn nộp bài bây giờ không?
+              </>
+            ) : (
+              <>
+                Bạn đã hoàn thành đủ <strong style={{ color: '#10b981' }}>{totalCount} / {totalCount}</strong> câu hỏi.
+                <br />
+                Bạn có chắc chắn muốn nộp bài để xem điểm số chi tiết không?
+              </>
+            )}
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <button 
+              type="button"
+              className="btn btn-outline"
+              style={{ padding: '0.75rem', fontSize: '0.92rem', fontWeight: 600, justifyContent: 'center' }}
+              onClick={() => {
+                setShowSubmitConfirmModal(false);
+                setTimeout(() => {
+                  isSubmittingExamRef.current = false;
+                }, 600);
+              }}
+            >
+              Làm tiếp
+            </button>
+            <button 
+              type="button"
+              className="btn btn-primary"
+              style={{ 
+                padding: '0.75rem', 
+                fontSize: '0.92rem', 
+                fontWeight: 700, 
+                justifyContent: 'center', 
+                background: '#10b981', 
+                borderColor: '#10b981',
+                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
+              }}
+              onClick={() => {
+                setShowSubmitConfirmModal(false);
+                executeSubmitExam(false, false);
+              }}
+            >
+              Nộp bài ngay
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
+  // Helper render popup cảnh báo chống gian lận
+  const renderAntiCheatModal = () => {
+    if (!showAntiCheatWarning || !currentRoom || isSubmittingExamRef.current) return null;
+    const maxAllowed = currentRoom?.max_violations !== undefined ? Number(currentRoom.max_violations) : 1;
+    const remainingWarnings = Math.max(0, maxAllowed - violationsCount);
+    const isFinalWarning = remainingWarnings === 0;
+
+    return createPortal(
+      <div className="oem-overlay" style={{ zIndex: 9999999 }}>
+        <div 
+          className="card" 
+          style={{ 
+            maxWidth: 480, 
+            width: '92%', 
+            padding: '2.25rem 1.75rem', 
+            textAlign: 'center', 
+            border: '2px solid #ef4444', 
+            background: 'var(--surface-color, #ffffff)', 
+            boxShadow: '0 25px 60px rgba(239, 68, 68, 0.45)', 
+            borderRadius: '1.25rem',
+            animation: 'oemFadeIn 0.25s ease-out'
+          }}
+        >
+          <div style={{ 
+            width: 72, 
+            height: 72, 
+            borderRadius: '50%', 
+            background: 'rgba(239, 68, 68, 0.12)', 
+            color: '#ef4444', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            margin: '0 auto 1.25rem',
+            border: '2px dashed rgba(239, 68, 68, 0.4)'
+          }}>
+            <AlertTriangle size={40} />
+          </div>
+
+          <h3 style={{ color: '#ef4444', fontSize: '1.35rem', margin: '0 0 0.5rem 0', fontWeight: 800 }}>
+            CẢNH BÁO VI PHẠM LẦN {violationsCount}!
+          </h3>
+
+          <p style={{ color: 'var(--text-secondary, #475569)', fontSize: '0.92rem', margin: '0 0 1.25rem 0', lineHeight: '1.5' }}>
+            Hệ thống phát hiện: <strong style={{ color: '#dc2626' }}>{antiCheatReason || 'Chuyển tab hoặc rời màn hình làm bài thi'}</strong>
+          </p>
+
+          <div style={{ 
+            background: 'rgba(239, 68, 68, 0.06)', 
+            border: '1.5px solid rgba(239, 68, 68, 0.25)', 
+            padding: '1.1rem 1rem', 
+            borderRadius: '0.85rem', 
+            marginBottom: '1.5rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginBottom: '0.85rem' }}>
+              <div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Số lần đã vi phạm
+                </div>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#ef4444', lineHeight: 1.2, marginTop: 2 }}>
+                  {violationsCount} <span style={{ fontSize: '1.1rem', color: '#94a3b8', fontWeight: 600 }}>/ {maxAllowed}</span>
+                </div>
+              </div>
+
+              <div style={{ width: 1, height: 42, background: 'rgba(239, 68, 68, 0.2)' }} />
+
+              <div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Cảnh báo còn lại
+                </div>
+                <div style={{ fontSize: '1.85rem', fontWeight: 900, color: isFinalWarning ? '#dc2626' : '#f59e0b', lineHeight: 1.2, marginTop: 2 }}>
+                  {remainingWarnings} <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>lần</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ 
+              fontSize: '0.82rem', 
+              color: '#991b1b', 
+              background: 'rgba(239, 68, 68, 0.12)', 
+              padding: '0.65rem 0.85rem', 
+              borderRadius: '0.5rem', 
+              fontWeight: 600,
+              lineHeight: '1.45',
+              textAlign: 'left'
+            }}>
+              {isFinalWarning ? (
+                <>
+                  🚨 <strong>ĐÂY LÀ LẦN CẢNH BÁO CUỐI CÙNG!</strong>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 500, marginTop: 3 }}>
+                    Nếu bạn tiếp tục chuyển tab, thu nhỏ trình duyệt hoặc rời ứng dụng thêm 1 lần nữa, hệ thống sẽ <strong>TỰ ĐỘNG THU BÀI VÀ KHÓA ĐIỂM NGAY LẬP TỨC!</strong>
+                  </div>
+                </>
+              ) : (
+                <>
+                  ⚠️ <strong>LƯU Ý QUY CHẾ:</strong> Bạn chỉ còn <strong>{remainingWarnings} lần cảnh báo</strong> nữa. Nếu tiếp tục vi phạm quá {maxAllowed} lần, bài thi sẽ bị tự động thu và nộp điểm.
+                </>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ 
+              width: '100%', 
+              padding: '0.85rem', 
+              fontWeight: 700, 
+              fontSize: '1rem', 
+              background: '#ef4444', 
+              borderColor: '#dc2626',
+              borderRadius: '0.75rem',
+              boxShadow: '0 4px 14px rgba(239, 68, 68, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              setShowAntiCheatWarning(false);
+              isWarningModalOpenRef.current = false;
+              lastViolationTimeRef.current = Date.now() + 2500;
+              if (currentRoom?.force_fullscreen && !document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+              }
+            }}
+          >
+            <ShieldAlert size={18} /> Tôi cam kết không rời tab & Tiếp tục thi
+          </button>
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
   // ===================== RENDER: GIAO DIỆN LÀM BÀI THI =====================
   if (examMode === 'taking' && currentExam) {
     const q = currentExam.questions[currentQuestionIndex];
@@ -1524,7 +2207,7 @@ const Exams = () => {
                   </div>
 
                   <div className="question-math-content">
-                    <MathView text={q.content} />
+                    <MathView text={q.content} cachedSvgs={currentExam?.cached_svgs || null} />
                   </div>
 
                   {q.questionType === 'true_false' && (
@@ -1541,7 +2224,7 @@ const Exams = () => {
                         return (
                           <div key={opt.key} className="tf-taking-row">
                             <div className="tf-statement-text">
-                              <strong>{opt.key})</strong> <MathView text={opt.text} />
+                              <strong>{opt.key})</strong> <MathView text={opt.text} cachedSvgs={currentExam?.cached_svgs || null} />
                             </div>
                             <div className="tf-btn-group">
                               <button
@@ -1668,7 +2351,7 @@ const Exams = () => {
                           >
                             <div className="option-key-circle">{opt.key}</div>
                             <div className="option-text">
-                              <MathView text={opt.text} />
+                              <MathView text={opt.text} cachedSvgs={currentExam?.cached_svgs || null} />
                             </div>
                           </div>
                         );
@@ -1739,6 +2422,12 @@ const Exams = () => {
             </div>
           </div>
         </div>
+
+        {/* Modal Xác Nhận Nộp Bài Thi (In-app, chống mất focus window) */}
+        {renderSubmitConfirmModal()}
+
+        {/* Popup Cảnh Báo Gian Lận Chuyển Tab */}
+        {renderAntiCheatModal()}
       </div>
     );
   }
@@ -1773,13 +2462,39 @@ const Exams = () => {
                 </div>
               )}
             </div>
+
+            {examResult.isViolationSubmit && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                color: '#ef4444',
+                padding: '0.75rem 1rem',
+                borderRadius: '8px',
+                fontSize: '0.88rem',
+                fontWeight: 600,
+                marginTop: '0.65rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <ShieldAlert size={20} style={{ flexShrink: 0 }} />
+                <span>
+                  Bài thi đã bị hệ thống <strong>TỰ ĐỘNG THU BÀI VÀ KHÓA ĐIỂM</strong> do vi phạm quy chế chuyển tab / rời màn hình làm bài ({examResult.violationsCount || violationsCountRef.current || violationsCount} lần vi phạm).
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="result-actions">
-            <button className="btn btn-primary" onClick={() => handleStartExam(currentExam)}>
-              <RotateCcw size={16} /> Làm lại đề này
-            </button>
-            <button className="btn btn-outline" onClick={() => setExamMode('list')}>
+            {!currentRoom && (
+              <button className="btn btn-primary" onClick={() => handleStartExam(currentExam)}>
+                <RotateCcw size={16} /> Làm lại đề này
+              </button>
+            )}
+            <button className="btn btn-outline" onClick={() => {
+              setCurrentRoom(null);
+              setExamMode('list');
+            }}>
               <ArrowLeft size={16} /> Về danh sách đề
             </button>
           </div>
@@ -1798,7 +2513,7 @@ const Exams = () => {
                 </div>
 
                 <div className="review-question-content">
-                  <MathView text={q.content} />
+                  <MathView text={q.content} cachedSvgs={currentExam?.cached_svgs || null} />
                 </div>
 
                 {/* Đúng sai review */}
@@ -1812,7 +2527,7 @@ const Exams = () => {
                       return (
                         <div key={opt.key} className={`tf-review-row ${isSubCorrect ? 'is-sub-correct' : 'is-sub-wrong'}`}>
                           <div className="tf-statement-text">
-                            <strong>{opt.key})</strong> <MathView text={opt.text} />
+                            <strong>{opt.key})</strong> <MathView text={opt.text} cachedSvgs={currentExam?.cached_svgs || null} />
                           </div>
                           <div className="tf-status-pills">
                             <span className="badge-expected">Đáp án: <strong>{opt.isCorrectTrue ? 'Đúng' : 'Sai'}</strong></span>
@@ -1857,7 +2572,7 @@ const Exams = () => {
                         <div key={opt.key} className={optClass}>
                           <span className="review-opt-key">{opt.key}</span>
                           <div className="review-opt-text">
-                            <MathView text={opt.text} />
+                            <MathView text={opt.text} cachedSvgs={currentExam?.cached_svgs || null} />
                           </div>
                           {isKeyCorrect && <Check size={16} className="text-emerald check-icon" />}
                         </div>
@@ -1872,7 +2587,7 @@ const Exams = () => {
                       <Sparkles size={16} /> Lời giải chi tiết:
                     </div>
                     <div className="explanation-text">
-                      <MathView text={q.explanation} />
+                      <MathView text={q.explanation} cachedSvgs={currentExam?.cached_svgs || null} />
                     </div>
                   </div>
                 )}
@@ -1925,6 +2640,176 @@ const Exams = () => {
           </button>
         ))}
       </div>
+
+      {/* Banner Trạng thái tải phòng thi */}
+      {isLoadingUrlRoom && (
+        <div className="card glass" style={{ marginBottom: '1.5rem', textAlign: 'center', padding: '2.5rem 1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'inline-block', width: 36, height: 36, border: '3px solid rgba(79, 70, 229, 0.2)', borderTopColor: 'var(--primary-color, #4f46e5)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', marginBottom: '1rem' }} />
+          <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>Đang kết nối phòng thi trực tuyến...</h4>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Đang nạp đề thi và cấu hình từ máy chủ...</p>
+        </div>
+      )}
+
+      {/* Banner Thông báo lỗi phòng thi */}
+      {urlRoomError && (
+        <div className="card glass" style={{ marginBottom: '1.5rem', border: '2px solid #ef4444', background: 'rgba(239, 68, 68, 0.05)', textAlign: 'center', padding: '2rem 1.5rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <ShieldAlert size={44} style={{ color: '#ef4444', margin: '0 auto 0.75rem', display: 'block' }} />
+          <h3 style={{ color: '#ef4444', margin: '0 auto 0.5rem auto', fontSize: '1.15rem', textAlign: 'center', width: '100%', fontWeight: 700 }}>Không thể vào phòng thi</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: 480, margin: '0 auto 1.25rem', lineHeight: '1.5', textAlign: 'center' }}>
+            {urlRoomError}
+          </p>
+          <button className="btn btn-outline btn-sm" onClick={() => { setUrlRoomError(null); setUrlRoomId(null); navigate('/exams'); }}>
+            Về danh sách đề thi
+          </button>
+        </div>
+      )}
+
+      {/* Banner Phòng thi trực tuyến truy cập qua Link/QR */}
+      {urlRoomData && (
+        <div className="card glass" style={{ marginBottom: '1.5rem', border: '2px solid var(--primary-color)', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(16, 185, 129, 0.05))', borderRadius: '1rem', padding: '1.5rem' }}>
+          {hasRoomSubmitted ? (
+            <div style={{ textAlign: 'center', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <ShieldAlert size={48} style={{ color: '#ef4444', margin: '0 auto 0.75rem', display: 'block' }} />
+              <h3 style={{ color: '#ef4444', margin: '0 auto 0.6rem auto', textAlign: 'center', width: '100%', fontSize: '1.25rem', fontWeight: 800 }}>Bạn đã hoàn thành bài thi này!</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '520px', margin: '0 auto 1.25rem auto', textAlign: 'center', lineHeight: '1.55' }}>
+                Quy chế phòng thi trực tuyến <strong>"{urlRoomData.exam_title}"</strong> quy định mỗi thí sinh chỉ có đúng <b>1 lần làm bài duy nhất</b>. Điểm số của bạn đã được ghi nhận.
+              </p>
+              <button className="btn btn-outline btn-sm" style={{ margin: '0 auto' }} onClick={() => { setUrlRoomData(null); setUrlRoomId(null); navigate('/exams'); }}>
+                Đóng thông báo
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <QrCode size={24} />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981', textTransform: 'uppercase' }}>
+                      🟢 Phòng thi trực tuyến
+                    </span>
+                    <h3 style={{ margin: '0.15rem 0 0 0', fontSize: '1.15rem' }}>{urlRoomData.exam_title}</h3>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.8rem' }}>
+                  <span style={{ background: 'var(--bg-color)', padding: '0.3rem 0.6rem', borderRadius: 6 }}>
+                    ⏱️ Thời gian: <b>{urlRoomData.duration} phút</b>
+                  </span>
+                  <span style={{ background: 'var(--bg-color)', padding: '0.3rem 0.6rem', borderRadius: 6 }}>
+                    📝 Số câu: <b>{urlRoomData.exam_data?.questions?.length || 0} câu</b>
+                  </span>
+                  <span style={{ background: 'var(--bg-color)', padding: '0.3rem 0.6rem', borderRadius: 6 }}>
+                    🛡️ Cảnh báo tab: <b>Tối đa {urlRoomData.max_violations} lần</b>
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '0.75rem 1rem', borderRadius: 8, fontSize: '0.82rem', color: '#b91c1c', marginBottom: '1rem', lineHeight: '1.45' }}>
+                ⚠️ <strong>Quy chế làm bài:</strong> Tuyệt đối không chuyển tab hay thu nhỏ cửa sổ trình duyệt. Nếu tái phạm, hệ thống sẽ tự động thu bài và khóa điểm. Mỗi học sinh chỉ được làm 1 lần duy nhất!
+              </div>
+
+              {/* Form nhập thông tin thí sinh bắt buộc (Không cần đăng nhập tài khoản trước) */}
+              <div style={{ 
+                background: 'var(--surface-color, #ffffff)', 
+                border: '1px solid var(--border-color, #e2e8f0)', 
+                borderRadius: '12px', 
+                padding: '1.25rem', 
+                marginBottom: '1.25rem', 
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.85rem', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem' }}>
+                  <UserCheck size={18} style={{ color: 'var(--primary-color, #4f46e5)' }} />
+                  <span>Xác nhận thông tin thí sinh</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 400, color: 'var(--text-secondary)' }}>(Điền đầy đủ để tiếp tục vào làm bài thi)</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
+                      Họ và tên thí sinh <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      className="input" 
+                      placeholder="Ví dụ: Nguyễn Văn A"
+                      value={candidateInfo.name} 
+                      onChange={e => setCandidateInfo(prev => ({ ...prev, name: e.target.value }))}
+                      style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
+                      Lớp <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      className="input" 
+                      placeholder="Ví dụ: 12A1"
+                      value={candidateInfo.class} 
+                      onChange={e => setCandidateInfo(prev => ({ ...prev, class: e.target.value }))}
+                      style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
+                      Mã học sinh <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      className="input" 
+                      placeholder="Ví dụ: HS123 hoặc SĐT"
+                      value={candidateInfo.phone || candidateInfo.id} 
+                      onChange={e => setCandidateInfo(prev => ({ ...prev, phone: e.target.value, id: e.target.value }))}
+                      style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                className="btn btn-primary" 
+                style={{ 
+                  width: '100%', 
+                  padding: '0.85rem', 
+                  fontWeight: 700, 
+                  fontSize: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  borderRadius: '10px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => {
+                  if (!candidateInfo.name?.trim()) {
+                    alert('Vui lòng nhập Họ và tên thí sinh để tiếp tục vào thi!');
+                    return;
+                  }
+                  if (!candidateInfo.class?.trim()) {
+                    alert('Vui lòng nhập Lớp của thí sinh để tiếp tục vào thi!');
+                    return;
+                  }
+                  const stdId = (candidateInfo.id || candidateInfo.phone || '').trim();
+                  if (!stdId) {
+                    alert('Vui lòng nhập Mã học sinh để tiếp tục vào thi!');
+                    return;
+                  }
+                  const finalCandidate = {
+                    id: stdId,
+                    name: candidateInfo.name.trim(),
+                    class: candidateInfo.class.trim(),
+                    phone: candidateInfo.phone?.trim() || stdId
+                  };
+                  handleStartOnlineRoomExam(urlRoomData, finalCandidate);
+                }}
+              >
+                <Play size={18} /> Bắt đầu làm bài thi trực tuyến
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Banner thông báo đang làm dở đề thi */}
       {pendingExamEntry && exams.find(e => e.id === pendingExamEntry.examId) && (
@@ -2116,6 +3001,31 @@ const Exams = () => {
                                         </button>
 
                                         {isTeacher && (
+                                          <button 
+                                            className={`btn btn-sm btn-create-exam-link ${activeRoomsMap[ex.id] ? 'is-active-room' : ''}`}
+                                            onClick={() => handleOpenOnlineExamModal(ex)}
+                                            title={activeRoomsMap[ex.id] ? "Xem link thi & mã QR đang mở cho học sinh" : "Tạo link thi trực tuyến & mã QR"}
+                                            style={{
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              gap: '5px',
+                                              borderRadius: '8px',
+                                              padding: '0.35rem 0.65rem',
+                                              fontSize: '0.8rem',
+                                              fontWeight: 600,
+                                              background: activeRoomsMap[ex.id] ? 'rgba(16, 185, 129, 0.12)' : 'rgba(79, 70, 229, 0.08)',
+                                              color: activeRoomsMap[ex.id] ? '#10b981' : '#4f46e5',
+                                              border: `1px solid ${activeRoomsMap[ex.id] ? 'rgba(16, 185, 129, 0.3)' : 'rgba(79, 70, 229, 0.25)'}`,
+                                              cursor: 'pointer',
+                                              transition: 'all 0.2s ease',
+                                              whiteSpace: 'nowrap'
+                                            }}
+                                          >
+                                            <QrCode size={13} /> {activeRoomsMap[ex.id] ? 'Đang mở link thi' : 'Tạo link thi'}
+                                          </button>
+                                        )}
+
+                                        {isTeacher && (
                                           <div className="teacher-sub-btn-group">
                                             <button 
                                               className="icon-btn group"
@@ -2277,6 +3187,31 @@ const Exams = () => {
                   <button className="btn btn-primary btn-start-exam" onClick={() => handleStartExam(exam)}>
                     <Play size={16} /> Bắt đầu làm bài
                   </button>
+
+                  {isTeacher && (
+                    <button 
+                      className={`btn btn-sm btn-create-exam-link ${activeRoomsMap[exam.id] ? 'is-active-room' : ''}`}
+                      onClick={() => handleOpenOnlineExamModal(exam)}
+                      title={activeRoomsMap[exam.id] ? "Xem link thi & mã QR đang mở cho học sinh" : "Tạo link thi trực tuyến & mã QR"}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        borderRadius: '8px',
+                        padding: '0.45rem 0.8rem',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        background: activeRoomsMap[exam.id] ? 'rgba(16, 185, 129, 0.12)' : 'rgba(79, 70, 229, 0.08)',
+                        color: activeRoomsMap[exam.id] ? '#10b981' : '#4f46e5',
+                        border: `1px solid ${activeRoomsMap[exam.id] ? 'rgba(16, 185, 129, 0.3)' : 'rgba(79, 70, 229, 0.25)'}`,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      <QrCode size={14} /> {activeRoomsMap[exam.id] ? 'Đang mở link thi' : 'Tạo link thi'}
+                    </button>
+                  )}
 
                   {isTeacher && (
                     <div className="teacher-exam-actions">
@@ -2764,6 +3699,18 @@ const Exams = () => {
         </div>,
         document.body
       )}
+
+      {/* Modal Tạo Link Thi & Mã QR */}
+      <OnlineExamModal
+        isOpen={isOnlineExamModalOpen}
+        onClose={() => setIsOnlineExamModalOpen(false)}
+        exam={selectedExamForModal}
+        initialRoom={selectedExamForModal ? (activeRoomsMap[selectedExamForModal.id] || null) : null}
+        onRoomUpdated={handleRoomUpdated}
+      />
+
+      {/* Popup Cảnh Báo Gian Lận Chuyển Tab */}
+      {renderAntiCheatModal()}
     </div>
   );
 };

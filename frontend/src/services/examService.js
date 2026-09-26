@@ -10,6 +10,8 @@ const EXAMS_KEY     = 'edumanager_exams_data_v8';
 const HISTORY_KEY   = 'edumanager_completed_exams';
 const UNFINISHED_KEY = 'edumanager_unfinished_exams';
 const GAMI_KEY      = 'edumanager_gamification';
+const ROOMS_KEY     = 'edumanager_online_exam_rooms';
+const ROOM_SUBMISSIONS_KEY = 'edumanager_room_submissions';
 
 const isSupabaseReady = () =>
   Boolean(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
@@ -617,3 +619,429 @@ function getAllExamSessionsFromLocal() {
     return {};
   }
 }
+
+// ─── Online Exam Rooms (Phòng thi trực tuyến) ───────────────────────────────────
+
+function getRoomsFromLocal() {
+  try {
+    const raw = localStorage.getItem(ROOMS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (_) {}
+  return [];
+}
+
+function saveRoomToLocal(room) {
+  try {
+    const rooms = getRoomsFromLocal();
+    const idx = rooms.findIndex(r => r.id === room.id);
+    if (idx >= 0) rooms[idx] = room;
+    else rooms.unshift(room);
+    localStorage.setItem(ROOMS_KEY, JSON.stringify(rooms));
+    return room;
+  } catch (_) {
+    return room;
+  }
+}
+
+function deleteRoomFromLocal(roomId) {
+  try {
+    const rooms = getRoomsFromLocal().filter(r => r.id !== roomId);
+    localStorage.setItem(ROOMS_KEY, JSON.stringify(rooms));
+  } catch (_) {}
+}
+
+export async function createExamRoom(roomData) {
+  const room = {
+    id: roomData.id || `room_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    exam_id: roomData.exam_id || roomData.examId,
+    exam_title: roomData.exam_title || roomData.examTitle || 'Bài kiểm tra',
+    created_by: roomData.created_by || 'lecongchuc02@gmail.com',
+    created_at: new Date().toISOString(),
+    status: 'active', // 'active' | 'closed'
+    duration: Number(roomData.duration) || 45,
+    shuffle_questions: Boolean(roomData.shuffle_questions),
+    shuffle_answers: Boolean(roomData.shuffle_answers),
+    max_violations: Number(roomData.max_violations) || 1, // Mặc định cảnh báo 1 lần, lần 2 tự nộp
+    force_fullscreen: Boolean(roomData.force_fullscreen),
+    cached_svgs: roomData.cached_svgs || {},
+    exam_data: roomData.exam_data || null,
+    students_attempted: {}
+  };
+
+  saveRoomToLocal(room);
+
+  if (isSupabaseReady()) {
+    // 1. Thử ghi vào bảng chuyên dụng exam_rooms nếu đã tạo
+    try {
+      await supabase.from('exam_rooms').upsert({
+        id: room.id,
+        exam_id: room.exam_id,
+        exam_title: room.exam_title,
+        status: room.status,
+        duration: room.duration,
+        shuffle_questions: room.shuffle_questions,
+        shuffle_answers: room.shuffle_answers,
+        max_violations: room.max_violations,
+        force_fullscreen: room.force_fullscreen,
+        cached_svgs: room.cached_svgs,
+        exam_data: room.exam_data,
+        created_at: room.created_at
+      }, { onConflict: 'id' });
+    } catch (_) {}
+
+    // 2. Đồng thời lưu vào system_settings (bảng luôn sẵn có trong database)
+    // Giúp tab ẩn danh và mọi thiết bị học sinh truy cập được phòng thi ngay lập tức
+    try {
+      await supabase.from('system_settings').upsert({
+        key: `exam_room_${room.id}`,
+        value: room
+      }, { onConflict: 'key' });
+    } catch (err) {
+      console.warn('[examService] system_settings room upsert error:', err.message);
+    }
+  }
+
+  return room;
+}
+
+export async function getExamRoom(roomId) {
+  if (!roomId) return null;
+
+  // 1. Kiểm tra Supabase nếu có
+  if (isSupabaseReady()) {
+    // 1a. Thử từ bảng exam_rooms
+    try {
+      const { data, error } = await supabase
+        .from('exam_rooms')
+        .select('*')
+        .eq('id', roomId)
+        .maybeSingle();
+
+      if (!error && data) {
+        const localRooms = getRoomsFromLocal();
+        const existingLocal = localRooms.find(r => r.id === roomId);
+        const merged = {
+          ...data,
+          students_attempted: { ...(existingLocal?.students_attempted || {}), ...(data.students_attempted || {}) }
+        };
+        saveRoomToLocal(merged);
+        return merged;
+      }
+    } catch (_) {}
+
+    // 1b. Thử từ system_settings (key: exam_room_${roomId})
+    try {
+      const { data, error } = await supabase
+        .from('system_settings')
+        .select('value')
+        .eq('key', `exam_room_${roomId}`)
+        .maybeSingle();
+
+      if (!error && data && data.value) {
+        const remoteRoom = data.value;
+        const localRooms = getRoomsFromLocal();
+        const existingLocal = localRooms.find(r => r.id === roomId);
+        const merged = {
+          ...remoteRoom,
+          students_attempted: { ...(existingLocal?.students_attempted || {}), ...(remoteRoom.students_attempted || {}) }
+        };
+        saveRoomToLocal(merged);
+        return merged;
+      }
+    } catch (err) {
+      console.warn('[examService] getExamRoom from system_settings error:', err.message);
+    }
+  }
+
+  // 2. Fallback localStorage
+  const rooms = getRoomsFromLocal();
+  return rooms.find(r => r.id === roomId) || null;
+}
+
+/**
+ * Đóng / Hủy link phòng thi: Xóa cached_svgs để giải phóng bộ nhớ
+ */
+export async function closeExamRoom(roomId) {
+  const room = await getExamRoom(roomId);
+  if (!room) return false;
+
+  room.status = 'closed';
+  // Xóa hình TikZ đã lưu trong bộ nhớ để tiết kiệm dung lượng như yêu cầu của giáo viên
+  room.cached_svgs = null;
+
+  saveRoomToLocal(room);
+
+  if (isSupabaseReady()) {
+    try {
+      await supabase.from('exam_rooms').update({
+        status: 'closed',
+        cached_svgs: null
+      }).eq('id', roomId);
+    } catch (_) {}
+
+    try {
+      await supabase.from('system_settings').upsert({
+        key: `exam_room_${roomId}`,
+        value: room
+      }, { onConflict: 'key' });
+    } catch (_) {}
+  }
+
+  return true;
+}
+
+export async function deleteExamRoom(roomId) {
+  deleteRoomFromLocal(roomId);
+  if (isSupabaseReady()) {
+    try { await supabase.from('exam_rooms').delete().eq('id', roomId); } catch (_) {}
+    try { await supabase.from('system_settings').delete().eq('key', `exam_room_${roomId}`); } catch (_) {}
+    try { await supabase.from('system_settings').delete().eq('key', `exam_subs_${roomId}`); } catch (_) {}
+  }
+  return true;
+}
+
+export async function getActiveRoomsByExamId(examId) {
+  const rooms = await getAllExamRooms();
+  return rooms.filter(r => (String(r.exam_id) === String(examId) || String(r.examId) === String(examId)) && r.status === 'active');
+}
+
+export async function getAllExamRooms() {
+  const localRooms = getRoomsFromLocal();
+  if (!isSupabaseReady()) return localRooms;
+
+  let remoteRooms = [];
+  // 1. Thử exam_rooms
+  try {
+    const { data, error } = await supabase
+      .from('exam_rooms')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error && Array.isArray(data) && data.length > 0) {
+      remoteRooms = data;
+    }
+  } catch (_) {}
+
+  // 2. Thử system_settings
+  if (remoteRooms.length === 0) {
+    try {
+      const { data, error } = await supabase
+        .from('system_settings')
+        .select('value')
+        .like('key', 'exam_room_%');
+      if (!error && Array.isArray(data)) {
+        remoteRooms = data.map(d => d.value).filter(Boolean);
+      }
+    } catch (_) {}
+  }
+
+  // 3. Tự động đồng bộ các phòng local chưa có trên remote lên system_settings
+  for (const lr of localRooms) {
+    if (lr.status === 'active' && !remoteRooms.some(rr => rr.id === lr.id)) {
+      try {
+        await supabase.from('system_settings').upsert({
+          key: `exam_room_${lr.id}`,
+          value: lr
+        }, { onConflict: 'key' });
+      } catch (_) {}
+      remoteRooms.push(lr);
+    }
+  }
+
+  if (remoteRooms.length > 0) {
+    const map = new Map();
+    remoteRooms.forEach(r => map.set(r.id, r));
+    localRooms.forEach(r => {
+      if (!map.has(r.id)) map.set(r.id, r);
+    });
+    const merged = Array.from(map.values());
+    localStorage.setItem(ROOMS_KEY, JSON.stringify(merged));
+    return merged;
+  }
+
+  return localRooms;
+}
+
+/**
+ * Kiểm tra xem thí sinh này đã từng nộp bài cho phòng thi này hay chưa (1 lần duy nhất)
+ */
+export async function hasStudentSubmittedRoom(roomId, studentIdentifier) {
+  if (!roomId || !studentIdentifier) return false;
+
+  const room = await getExamRoom(roomId);
+  if (room && room.students_attempted && room.students_attempted[studentIdentifier]) {
+    return true;
+  }
+
+  // Kiểm tra bảng local submissions
+  try {
+    const raw = localStorage.getItem(ROOM_SUBMISSIONS_KEY);
+    if (raw) {
+      const allSubmissions = JSON.parse(raw);
+      const studentSubmissions = allSubmissions[roomId] || [];
+      const found = studentSubmissions.some(s => 
+        String(s.studentId).toLowerCase() === String(studentIdentifier).toLowerCase() ||
+        String(s.studentPhone).toLowerCase() === String(studentIdentifier).toLowerCase()
+      );
+      if (found) return true;
+    }
+  } catch (_) {}
+
+  // Kiểm tra qua Supabase system_settings & exam_sessions
+  if (isSupabaseReady()) {
+    try {
+      const { data } = await supabase.from('system_settings').select('value').eq('key', `exam_subs_${roomId}`).maybeSingle();
+      if (data && Array.isArray(data.value)) {
+        const found = data.value.some(s =>
+          String(s.studentId).toLowerCase() === String(studentIdentifier).toLowerCase() ||
+          String(s.studentPhone).toLowerCase() === String(studentIdentifier).toLowerCase()
+        );
+        if (found) return true;
+      }
+    } catch (_) {}
+
+    try {
+      const { data, error } = await supabase
+        .from('exam_sessions')
+        .select('id')
+        .eq('class_id', roomId) // Dùng class_id để phân biệt room_id
+        .eq('student_id', studentIdentifier)
+        .limit(1);
+
+      if (!error && data && data.length > 0) return true;
+    } catch (_) {}
+  }
+
+  return false;
+}
+
+/**
+ * Nộp bài thi trực tuyến cho phòng thi
+ */
+export async function submitRoomExamSession({
+  roomId,
+  examId,
+  studentId,
+  studentName,
+  studentClass,
+  studentPhone,
+  answers,
+  flagged,
+  score,
+  correctCount,
+  totalQuestions,
+  timeSpent,
+  violationsCount = 0,
+  isViolationSubmit = false
+}) {
+  const sessionItem = {
+    id: `rs_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    roomId,
+    examId,
+    studentId,
+    studentName,
+    studentClass: studentClass || '',
+    studentPhone: studentPhone || '',
+    answers,
+    flagged: flagged || [],
+    score,
+    correctCount,
+    totalQuestions,
+    timeSpent,
+    violationsCount,
+    isViolationSubmit,
+    submittedAt: new Date().toISOString()
+  };
+
+  // 1. Lưu vào danh sách nộp bài của phòng thi trong localStorage
+  try {
+    const all = JSON.parse(localStorage.getItem(ROOM_SUBMISSIONS_KEY) || '{}');
+    if (!all[roomId]) all[roomId] = [];
+    all[roomId].unshift(sessionItem);
+    localStorage.setItem(ROOM_SUBMISSIONS_KEY, JSON.stringify(all));
+
+    // Đánh dấu học sinh đã làm
+    const room = await getExamRoom(roomId);
+    if (room) {
+      if (!room.students_attempted) room.students_attempted = {};
+      room.students_attempted[studentId] = true;
+      if (studentPhone) room.students_attempted[studentPhone] = true;
+      saveRoomToLocal(room);
+      if (isSupabaseReady()) {
+        try {
+          await supabase.from('system_settings').upsert({
+            key: `exam_room_${roomId}`,
+            value: room
+          }, { onConflict: 'key' });
+        } catch (_) {}
+      }
+    }
+  } catch (err) {
+    console.warn('[examService] Error saving room session locally:', err);
+  }
+
+  // 2. Lưu vào lịch sử chung của học sinh
+  saveSessionToLocal({
+    examId,
+    studentId,
+    score,
+    correctCount,
+    totalQuestions,
+    answers,
+    flagged,
+    timeSpent
+  });
+
+  // 3. Đẩy lên Supabase system_settings & exam_sessions nếu có
+  if (isSupabaseReady()) {
+    try {
+      const { data } = await supabase.from('system_settings').select('value').eq('key', `exam_subs_${roomId}`).maybeSingle();
+      const subs = Array.isArray(data?.value) ? data.value : [];
+      subs.unshift(sessionItem);
+      await supabase.from('system_settings').upsert({ key: `exam_subs_${roomId}`, value: subs }, { onConflict: 'key' });
+    } catch (_) {}
+
+    try {
+      await supabase.from('exam_sessions').insert({
+        exam_id: examId,
+        student_id: studentId,
+        student_name: studentName,
+        class_id: roomId, // Lưu roomId vào class_id để dễ phân loại
+        answers,
+        flagged: flagged || [],
+        score,
+        correct_count: correctCount,
+        total_questions: totalQuestions,
+        time_spent: timeSpent,
+        submitted_at: sessionItem.submittedAt
+      });
+    } catch (err) {
+      console.warn('[examService] Supabase submit room session error:', err.message);
+    }
+  }
+
+  return { success: true, session: sessionItem };
+}
+
+export async function getExamRoomSubmissions(roomId) {
+  let localSubs = [];
+  try {
+    const all = JSON.parse(localStorage.getItem(ROOM_SUBMISSIONS_KEY) || '{}');
+    localSubs = all[roomId] || [];
+  } catch (_) {}
+
+  if (isSupabaseReady()) {
+    try {
+      const { data } = await supabase.from('system_settings').select('value').eq('key', `exam_subs_${roomId}`).maybeSingle();
+      if (data && Array.isArray(data.value)) {
+        const map = new Map();
+        localSubs.forEach(s => map.set(s.id, s));
+        data.value.forEach(s => map.set(s.id, s));
+        const merged = Array.from(map.values()).sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+        return merged;
+      }
+    } catch (_) {}
+  }
+
+  return localSubs;
+}
+

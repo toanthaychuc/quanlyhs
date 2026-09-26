@@ -13,11 +13,26 @@ import {
   Eye,
   EyeOff,
   Minus,
-  Plus
+  Plus,
+  ShieldCheck,
+  Lock
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { pushAllLocalDataToCloud, pullAllDataFromCloud } from '../services/syncService';
 import MathView from './MathView';
+
+export const GUEST_MENU_OPTIONS = [
+  { path: '/exams', label: 'Thi thử' },
+  { path: '/documents', label: 'Tài liệu' },
+  { path: '/forum', label: 'Hỏi đáp' },
+  { path: '/formulas', label: 'Tra công thức' },
+  { path: '/', label: 'Dashboard' },
+  { path: '/classes', label: 'Lớp học' },
+  { path: '/assignments', label: 'Bài tập' },
+  { path: '/forms', label: 'Biểu mẫu' },
+  { path: '/leaderboard', label: 'Xếp hạng' },
+  { path: '/my-rank', label: 'Huy hiệu' },
+];
 
 export const DEFAULT_LATEX_PREAMBLE = `\\usepackage{amsmath,amssymb}
 \\usepackage{tikz}
@@ -33,6 +48,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
   const [showApiKey, setShowApiKey] = useState(false);
   const [aiModel, setAiModel] = useState('gemini-1.5-flash');
   const [latexPreamble, setLatexPreamble] = useState(DEFAULT_LATEX_PREAMBLE);
+  const [guestAllowed, setGuestAllowed] = useState(['/exams', '/documents', '/forum']);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [customModel, setCustomModel] = useState('');
 
@@ -47,9 +63,25 @@ const SettingsModal = ({ isOpen, onClose }) => {
         const savedKey = localStorage.getItem('app_teacher_ai_apikey') || '';
         const savedModel = localStorage.getItem('app_teacher_ai_model') || 'gemini-1.5-flash';
         const savedPreamble = localStorage.getItem('app_teacher_latex_preamble');
+        const savedGuest = localStorage.getItem('app_teacher_guest_allowed_paths');
         setApiKey(savedKey);
         setAiModel(savedModel);
         setLatexPreamble(savedPreamble !== null ? savedPreamble : DEFAULT_LATEX_PREAMBLE);
+
+        if (savedGuest) {
+          try {
+            const parsed = JSON.parse(savedGuest);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setGuestAllowed(parsed);
+            } else {
+              setGuestAllowed(['/exams', '/documents', '/forum']);
+            }
+          } catch (e) {
+            setGuestAllowed(['/exams', '/documents', '/forum']);
+          }
+        } else {
+          setGuestAllowed(['/exams', '/documents', '/forum']);
+        }
       }
       const savedScale = Number(localStorage.getItem('app_font_scale')) || 100;
       setFontScale(savedScale);
@@ -83,8 +115,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
       localStorage.setItem('app_teacher_ai_apikey', apiKey.trim());
       localStorage.setItem('app_teacher_ai_model', aiModel === 'custom' ? customModel.trim() : aiModel);
       localStorage.setItem('app_teacher_latex_preamble', latexPreamble);
-      // Kích hoạt sự kiện để các component khác (MathView, TikZ) nhận biết thay đổi
+      localStorage.setItem('app_teacher_guest_allowed_paths', JSON.stringify(guestAllowed));
+      // Kích hoạt sự kiện để các component khác (MathView, TikZ, MainLayout) nhận biết thay đổi
       window.dispatchEvent(new Event('app-settings-updated'));
+      window.dispatchEvent(new CustomEvent('guest_permissions_updated', { detail: { allowedPaths: guestAllowed } }));
     }
 
     window.dispatchEvent(new CustomEvent('app_font_scale_updated', { detail: { scale: fontScale } }));
@@ -407,6 +441,84 @@ const SettingsModal = ({ isOpen, onClose }) => {
                   </div>
                 </div>
               </div>
+
+              {/* Phân quyền cho học sinh ở chế độ Khách (Dành cho Giáo viên) */}
+              {isTeacher && (
+                <div style={{
+                  background: 'var(--surface-color)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.85rem'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <label style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <ShieldCheck size={18} style={{ color: 'var(--primary-color)' }} />
+                      <span>Phân quyền Menu cho Học sinh dạng Khách:</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setGuestAllowed(['/exams', '/documents', '/forum'])}
+                      className="btn btn-outline"
+                      style={{ padding: '0.25rem 0.65rem', fontSize: '0.78rem', height: 'auto', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                      title="Khôi phục quyền mặc định (Thi thử, Tài liệu, Hỏi đáp)"
+                    >
+                      <RotateCcw size={13} /> Mặc định
+                    </button>
+                  </div>
+
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                    Chọn các mục menu mà học sinh ở chế độ Khách (chưa đăng nhập) được phép truy cập. Những mục không được chọn sẽ tự động <strong>bị ẩn mờ hẳn đi và khóa lại</strong> trên thanh menu.
+                  </p>
+
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))',
+                    gap: '0.6rem',
+                    marginTop: '0.25rem'
+                  }}>
+                    {GUEST_MENU_OPTIONS.map(opt => {
+                      const isChecked = guestAllowed.includes(opt.path);
+                      return (
+                        <label 
+                          key={opt.path}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.55rem 0.75rem',
+                            borderRadius: '8px',
+                            border: isChecked ? '1.5px solid var(--primary-color)' : '1px solid var(--border-color)',
+                            background: isChecked ? 'rgba(79, 70, 229, 0.08)' : 'var(--bg-color)',
+                            cursor: 'pointer',
+                            fontSize: '0.82rem',
+                            fontWeight: isChecked ? 600 : 500,
+                            color: isChecked ? 'var(--primary-color)' : 'var(--text-secondary)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <input 
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setGuestAllowed(prev => [...prev, opt.path]);
+                              } else {
+                                setGuestAllowed(prev => prev.filter(p => p !== opt.path));
+                              }
+                            }}
+                            style={{ accentColor: 'var(--primary-color)', cursor: 'pointer' }}
+                          />
+                          <span>{opt.label}</span>
+                          {!isChecked && <Lock size={12} style={{ marginLeft: 'auto', opacity: 0.5 }} />}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

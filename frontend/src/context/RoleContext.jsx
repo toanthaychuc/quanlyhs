@@ -6,13 +6,21 @@ const RoleContext = createContext();
 export const TEACHER_EMAIL = 'lecongchuc02@gmail.com';
 
 export const RoleProvider = ({ children }) => {
+  const isRoomUrl = typeof window !== 'undefined' && window.location.href.includes('room=');
+
   // Email tài khoản đăng nhập hiện tại
   const [currentUserEmail, setCurrentUserEmail] = useState(() => {
+    if (isRoomUrl && !localStorage.getItem('edumanager_user_email')) {
+      return 'hocsinh_phongthi@school.edu.vn';
+    }
     return localStorage.getItem('edumanager_user_email') || 'lecongchuc02@gmail.com';
   });
 
   // Vai trò: 'teacher' hoặc 'student'
   const [role, setRole] = useState(() => {
+    if (isRoomUrl && !localStorage.getItem('edumanager_user_role')) {
+      return 'student';
+    }
     const savedRole = localStorage.getItem('edumanager_user_role');
     const savedEmail = localStorage.getItem('edumanager_user_email');
     if (savedEmail === TEACHER_EMAIL) {
@@ -23,6 +31,9 @@ export const RoleProvider = ({ children }) => {
 
   // Học sinh đang đăng nhập giả lập (mặc định là học sinh Nguyễn Văn An lớp 10T8)
   const [currentStudentId, setCurrentStudentId] = useState(() => {
+    if (isRoomUrl && !localStorage.getItem('edumanager_current_student_id')) {
+      return '';
+    }
     return localStorage.getItem('edumanager_current_student_id') || '10T8-01';
   });
 
@@ -67,13 +78,29 @@ export const RoleProvider = ({ children }) => {
 
   // Trạng thái đã vượt qua màn hình Chào mừng (Slide Landing) hay chưa
   const [hasEnteredApp, setHasEnteredApp] = useState(() => {
+    if (isRoomUrl) {
+      return true;
+    }
     return localStorage.getItem('edumanager_has_entered') === 'true';
   });
 
   // Chế độ khách (Học mà không cần đăng nhập)
   const [isGuestMode, setIsGuestMode] = useState(() => {
+    if (isRoomUrl) {
+      return true;
+    }
     return localStorage.getItem('edumanager_is_guest') === 'true';
   });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.href.includes('room=')) {
+      setHasEnteredApp(true);
+      if (!localStorage.getItem('edumanager_user_email')) {
+        setRole('student');
+        setIsGuestMode(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('edumanager_has_entered', hasEnteredApp ? 'true' : 'false');

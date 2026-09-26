@@ -51,7 +51,7 @@ const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
   const [studentCodeInput, setStudentCodeInput] = useState('');
   const [studentError, setStudentError] = useState('');
 
-  if (!isOpen) return null;
+  if (!isOpen || (typeof window !== 'undefined' && window.location.href.includes('room='))) return null;
 
   // Xử lý học sinh chọn "Học mà không cần đăng nhập" (Guest Mode tự do làm bài thi thử)
   const handleGuestEntry = () => {

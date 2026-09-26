@@ -158,6 +158,43 @@
   font-weight: 600;
 }
 
+/* Styling cho các mục menu bị ẩn mờ ở chế độ khách */
+.nav-item.guest-locked {
+  opacity: 0.28;
+  filter: grayscale(90%);
+  cursor: not-allowed;
+  user-select: none;
+  transition: opacity 0.25s ease, filter 0.25s ease, background-color 0.2s ease;
+}
+
+.nav-item.guest-locked:hover {
+  opacity: 0.45;
+  filter: grayscale(70%);
+  background-color: rgba(148, 163, 184, 0.08);
+  color: var(--text-secondary);
+}
+
+.nav-item.guest-locked.active {
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.guest-lock-indicator {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed .guest-lock-indicator {
+  display: none;
+}
+
 .sidebar-footer {
   padding: 1.25rem 1rem;
   border-top: 1px solid var(--border-color);

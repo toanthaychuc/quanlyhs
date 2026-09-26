@@ -107,3 +107,107 @@ export const buildFormulaCachedSvgs = async (content, existingCache = {}, preamb
 
   return updatedCache;
 };
+
+/**
+ * Kiểm tra xem máy chủ backend biên dịch LaTeX có đang hoạt động hay không
+ */
+export const checkBackendHealth = async (apiUrl = '') => {
+  const url = apiUrl || import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch(`${url}/api/compile-tikz`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tikzCode: '\\begin{tikzpicture}\\end{tikzpicture}' }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return res.ok;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Trích xuất toàn bộ các đoạn mã TikZ từ một bộ đề thi (câu hỏi, phương án, lời giải)
+ */
+export const extractExamTikzBlocks = (exam) => {
+  if (!exam) return [];
+  const textPieces = [];
+  
+  if (exam.latexBulkCode) {
+    textPieces.push(exam.latexBulkCode);
+  }
+  
+  if (Array.isArray(exam.questions)) {
+    for (const q of exam.questions) {
+      if (q.content) textPieces.push(q.content);
+      if (q.prompt) textPieces.push(q.prompt);
+      if (q.explanation) textPieces.push(q.explanation);
+      if (q.solution) textPieces.push(q.solution);
+      if (Array.isArray(q.choices)) {
+        for (const c of q.choices) {
+          if (c && c.text) textPieces.push(c.text);
+          if (c && c.content) textPieces.push(c.content);
+        }
+      }
+    }
+  }
+
+  const allBlocks = [];
+  const seenHashes = new Set();
+  
+  for (const piece of textPieces) {
+    const blocks = extractTikzBlocks(piece);
+    for (const b of blocks) {
+      const h = getTikzHash(b);
+      if (!seenHashes.has(h)) {
+        seenHashes.add(h);
+        allBlocks.push(b);
+      }
+    }
+  }
+
+  return allBlocks;
+};
+
+/**
+ * Tiền biên dịch và nạp cache SVG cho toàn bộ hình TikZ trong đề thi
+ */
+export const buildExamCachedSvgs = async (exam, existingCache = {}, preamble = null, onProgress = null) => {
+  const blocks = extractExamTikzBlocks(exam);
+  if (blocks.length === 0) return {};
+
+  const currentHashes = new Set(blocks.map(b => getTikzHash(b)));
+  const updatedCache = {};
+  if (existingCache && typeof existingCache === 'object') {
+    for (const [key, val] of Object.entries(existingCache)) {
+      if (currentHashes.has(key)) {
+        updatedCache[key] = val;
+      }
+    }
+  }
+
+  const storedPreamble = preamble !== null ? preamble : (localStorage.getItem('app_teacher_latex_preamble') || undefined);
+  let processed = 0;
+
+  for (const block of blocks) {
+    const hash = getTikzHash(block);
+    if (!updatedCache[hash] || typeof updatedCache[hash] !== 'string' || !updatedCache[hash].includes('<svg')) {
+      try {
+        const svg = await compileSingleTikz(block, storedPreamble);
+        updatedCache[hash] = svg;
+      } catch (err) {
+        console.warn(`[tikzCacheUtils] Không thể biên dịch hình TikZ ${hash} trong đề thi:`, err.message);
+      }
+    }
+    processed++;
+    if (onProgress) {
+      onProgress(processed, blocks.length);
+    }
+  }
+
+  return updatedCache;
+};
+

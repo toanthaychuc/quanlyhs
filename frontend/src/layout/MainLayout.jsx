@@ -58,16 +58,31 @@ import { getGamification } from '../services/examService';
 import { calculateRank } from '../utils/rankUtils';
 import './MainLayout.css';
 
-const NavItemRenderer = ({ item, onClick }) => {
+export const DEFAULT_GUEST_ALLOWED_PATHS = ['/exams', '/documents', '/forum'];
+
+export const getGuestAllowedPaths = () => {
+  try {
+    const saved = localStorage.getItem('app_teacher_guest_allowed_paths');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.error('Lỗi đọc quyền khách:', e);
+  }
+  return DEFAULT_GUEST_ALLOWED_PATHS;
+};
+
+const NavItemRenderer = ({ item, onClick, isLocked }) => {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <NavLink 
       to={item.path} 
-      className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-      onClick={(e) => onClick(e, item.path)}
+      className={({ isActive }) => `nav-item ${isActive && !isLocked ? 'active' : ''} ${isLocked ? 'guest-locked' : ''}`}
+      onClick={(e) => onClick(e, item.path, isLocked)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      title={item.label}
+      title={isLocked ? `${item.label} (Đã bị ẩn mờ/khóa ở chế độ Khách)` : item.label}
     >
       <AnimatedIcon 
         defaultIcon={item.iconDefault} 
@@ -76,6 +91,11 @@ const NavItemRenderer = ({ item, onClick }) => {
         isHoveredExternal={isHovered} 
       />
       <span>{item.label}</span>
+      {isLocked && (
+        <span className="guest-lock-indicator" title="Mục này đã bị khóa ở chế độ khách">
+          <Lock size={12} />
+        </span>
+      )}
     </NavLink>
   );
 };
@@ -113,18 +133,44 @@ const MainLayout = () => {
     setCurrentStudentId 
   } = useRole();
 
-  // Xử lý chặn các mục menu đối với chế độ "Học mà không cần đăng nhập" (Guest Mode)
-  const handleNavClick = (e, path) => {
-    setIsMobileMenuOpen(false);
-    if (!isTeacher && isGuestMode) {
-      const allowedPaths = ['/exams', '/documents', '/forum'];
-      if (!allowedPaths.includes(path)) {
-        e.preventDefault();
-        alert('Hãy vào hỏi đáp để liên hệ thầy nhé!');
-        return;
+  // Quản lý quyền truy cập cho chế độ Khách (đọc cấu hình giáo viên hoặc mặc định)
+  const [guestAllowedPaths, setGuestAllowedPaths] = useState(getGuestAllowedPaths);
+
+  useEffect(() => {
+    const handlePermissionsUpdated = (e) => {
+      if (e.detail?.allowedPaths && Array.isArray(e.detail.allowedPaths)) {
+        setGuestAllowedPaths(e.detail.allowedPaths);
+      } else {
+        setGuestAllowedPaths(getGuestAllowedPaths());
       }
+    };
+    window.addEventListener('guest_permissions_updated', handlePermissionsUpdated);
+    window.addEventListener('storage', handlePermissionsUpdated);
+    return () => {
+      window.removeEventListener('guest_permissions_updated', handlePermissionsUpdated);
+      window.removeEventListener('storage', handlePermissionsUpdated);
+    };
+  }, []);
+
+  // Xử lý chặn các mục menu đối với chế độ "Học mà không cần đăng nhập" (Guest Mode)
+  const handleNavClick = (e, path, isLocked) => {
+    setIsMobileMenuOpen(false);
+    if (!isTeacher && isGuestMode && isLocked) {
+      e.preventDefault();
+      alert('🔒 Mục này đã được giáo viên tạm khóa đối với chế độ Khách.\nHãy vào mục "Hỏi đáp" để liên hệ Thầy nhé!');
+      return;
     }
   };
+
+  // Bảo vệ routing: Nếu học sinh ở chế độ khách vào đường dẫn bị khóa (qua URL), tự động chuyển về /exams
+  useEffect(() => {
+    if (!isTeacher && isGuestMode) {
+      const currentPath = location.pathname;
+      if (!guestAllowedPaths.includes(currentPath)) {
+        navigate('/exams', { replace: true });
+      }
+    }
+  }, [isTeacher, isGuestMode, location.pathname, guestAllowedPaths, navigate]);
 
   // State modal đăng nhập email
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -175,6 +221,20 @@ const MainLayout = () => {
 
   // Lấy danh sách lớp và học sinh từ Supabase để học sinh chọn đúng lớp
   const [classesData, setClassesData] = useState([]);
+
+  // Tự động nhận diện và mở thẳng phòng thi nếu truy cập bằng đường link có room=...
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.href.includes('room=')) {
+      setHasEnteredApp(true);
+      if (!window.location.hash.includes('/exams')) {
+        const sp = new URLSearchParams(window.location.search);
+        const roomId = sp.get('room') || (window.location.href.match(/room=([a-zA-Z0-9_]+)/) || [])[1];
+        if (roomId) {
+          navigate(`/exams?room=${roomId}`);
+        }
+      }
+    }
+  }, [navigate, setHasEnteredApp]);
 
   useEffect(() => {
     // 1. Lấy dữ liệu local
@@ -360,9 +420,17 @@ const MainLayout = () => {
         </div>
 
         <nav className="sidebar-nav">
-          {navItems.map((item) => (
-            <NavItemRenderer key={item.path} item={item} onClick={handleNavClick} />
-          ))}
+          {navItems.map((item) => {
+            const isLocked = !isTeacher && isGuestMode && !guestAllowedPaths.includes(item.path);
+            return (
+              <NavItemRenderer 
+                key={item.path} 
+                item={item} 
+                isLocked={isLocked}
+                onClick={handleNavClick} 
+              />
+            );
+          })}
         </nav>
 
         <div className="sidebar-footer">
@@ -457,7 +525,13 @@ const MainLayout = () => {
                 <div className="flex items-center">
                   <div 
                     className="flex items-center cursor-pointer group"
-                    onClick={() => navigate('/my-rank')}
+                    onClick={() => {
+                      if (!isTeacher && isGuestMode && !guestAllowedPaths.includes('/my-rank')) {
+                        alert('🔒 Mục này đã được giáo viên tạm khóa đối với chế độ Khách.\nHãy vào mục "Hỏi đáp" để liên hệ Thầy nhé!');
+                        return;
+                      }
+                      navigate('/my-rank');
+                    }}
                     title={`Kinh nghiệm: ${studentXP}/${studentRank.nextRank ? studentRank.nextRank.minXP : studentXP} XP - Nhấn để xem BXH & Huy hiệu`}
                     style={{ 
                       gap: '8px', 
@@ -768,7 +842,7 @@ const MainLayout = () => {
 
       {/* Slide Chào mừng Đầu tiên (Landing Modal khi người dùng vào web) */}
       <WelcomeLandingModal 
-        isOpen={!hasEnteredApp} 
+        isOpen={!hasEnteredApp && !(typeof window !== 'undefined' && window.location.href.includes('room='))} 
         onClose={() => setHasEnteredApp(true)} 
         classesData={classesData} 
       />
