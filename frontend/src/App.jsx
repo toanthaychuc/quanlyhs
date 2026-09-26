@@ -80,20 +80,21 @@ class ErrorBoundary extends React.Component {
             <button
               onClick={async () => {
                 try {
+                  // 1. Gỡ tất cả Service Worker (ngăn SW serve file cũ)
                   if ('serviceWorker' in navigator) {
                     const registrations = await navigator.serviceWorker.getRegistrations();
-                    for (let registration of registrations) {
-                      await registration.unregister();
+                    for (const reg of registrations) {
+                      await reg.unregister();
                     }
                   }
+                  // 2. Xóa tất cả Cache Storage (workbox precache + runtime cache)
                   if ('caches' in window) {
-                    const cacheKeys = await caches.keys();
-                    for (let key of cacheKeys) {
-                      await caches.delete(key);
-                    }
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(k => caches.delete(k)));
                   }
                 } catch (_) {}
-                window.location.reload();
+                // 3. Chuyển hướng với cache-bust để trình duyệt bỏ qua mọi cache cũ
+                window.location.replace('/?_cb=' + Date.now() + '#/');
               }}
               style={{
                 padding: '0.75rem 1.5rem',
@@ -115,18 +116,16 @@ class ErrorBoundary extends React.Component {
                   sessionStorage.clear();
                   if ('serviceWorker' in navigator) {
                     const registrations = await navigator.serviceWorker.getRegistrations();
-                    for (let registration of registrations) {
-                      await registration.unregister();
+                    for (const reg of registrations) {
+                      await reg.unregister();
                     }
                   }
                   if ('caches' in window) {
-                    const cacheKeys = await caches.keys();
-                    for (let key of cacheKeys) {
-                      await caches.delete(key);
-                    }
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(k => caches.delete(k)));
                   }
                 } catch (_) {}
-                window.location.href = '/';
+                window.location.replace('/?_cb=' + Date.now() + '#/');
               }}
               style={{
                 padding: '0.75rem 1.25rem',
