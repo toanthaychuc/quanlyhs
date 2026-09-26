@@ -660,9 +660,35 @@ const Exams = () => {
   const [urlRoomId, setUrlRoomId] = useState(null);
   const [urlRoomData, setUrlRoomData] = useState(null);
   const [isLoadingUrlRoom, setIsLoadingUrlRoom] = useState(false);
-  const [urlRoomError, setUrlRoomError] = useState(null);
   const [candidateInfo, setCandidateInfo] = useState({ id: '', name: '', class: '', phone: '' });
-  const [hasRoomSubmitted, setHasRoomSubmitted] = useState(false);
+
+  // Lấy thông tin học sinh chính thức nếu đã đăng nhập tài khoản
+  const getEnrolledStudentInfo = () => {
+    if (!isStudent || !currentStudentId || currentStudentId === 'khach_tudolamde@gmail.com') return null;
+    const saved = localStorage.getItem('edumanager_classes_data_v2') || localStorage.getItem('edumanager_classes_data');
+    if (saved) {
+      try {
+        const classes = JSON.parse(saved);
+        for (const cls of classes) {
+          const found = cls.students?.find(s => s.id === currentStudentId);
+          if (found) {
+            return {
+              id: currentStudentId,
+              name: found.name || currentStudentId,
+              class: cls.name || '',
+              phone: found.phone || currentStudentId
+            };
+          }
+        }
+      } catch (_) {}
+    }
+    return {
+      id: currentStudentId,
+      name: currentStudentId,
+      class: '',
+      phone: currentStudentId
+    };
+  };
   const [violationsCount, setViolationsCount] = useState(0);
   const [showAntiCheatWarning, setShowAntiCheatWarning] = useState(false);
   const [antiCheatReason, setAntiCheatReason] = useState('');
@@ -747,9 +773,15 @@ const Exams = () => {
             setUrlRoomData(null);
           } else {
             setUrlRoomData(room);
-            const savedCandId = localStorage.getItem(`room_${rId}_candidate_id`);
-            if (savedCandId) {
-              hasStudentSubmittedRoom(rId, savedCandId).then(submitted => {
+            const enrolled = getEnrolledStudentInfo();
+            const checkCandId = enrolled?.id || localStorage.getItem(`room_${rId}_candidate_id`);
+            if (checkCandId) {
+              hasStudentSubmittedRoom(rId, checkCandId).then(submitted => {
+                if (submitted) setHasRoomSubmitted(true);
+              });
+            }
+            if (enrolled?.phone && enrolled.phone !== checkCandId) {
+              hasStudentSubmittedRoom(rId, enrolled.phone).then(submitted => {
                 if (submitted) setHasRoomSubmitted(true);
               });
             }
@@ -884,7 +916,8 @@ const Exams = () => {
       return;
     }
 
-    const studentIdent = candidate?.id || candidate?.phone;
+    const candidateToUse = candidate || getEnrolledStudentInfo() || candidateInfo;
+    const studentIdent = candidateToUse?.id || candidateToUse?.phone;
     if (studentIdent) {
       const already = await hasStudentSubmittedRoom(room.id, studentIdent);
       if (already) {
@@ -892,28 +925,11 @@ const Exams = () => {
         alert(`Mã học sinh "${studentIdent}" đã hoàn thành bài thi này rồi! Mỗi học sinh chỉ được làm 1 lần duy nhất.`);
         return;
       }
+      localStorage.setItem(`room_${room.id}_candidate_id`, studentIdent);
     }
 
-    if (candidate) {
-      setCandidateInfo(candidate);
-    } else if (isStudent && currentStudentId) {
-      let stdName = currentStudentId;
-      let stdClass = '';
-      const saved = localStorage.getItem('edumanager_classes_data_v2') || localStorage.getItem('edumanager_classes_data');
-      if (saved) {
-        try {
-          const classes = JSON.parse(saved);
-          for (const cls of classes) {
-            const found = cls.students?.find(s => s.id === currentStudentId);
-            if (found) {
-              stdName = found.name;
-              stdClass = cls.name;
-              break;
-            }
-          }
-        } catch (_) {}
-      }
-      setCandidateInfo({ id: currentStudentId, name: stdName, class: stdClass, phone: '' });
+    if (candidateToUse) {
+      setCandidateInfo(candidateToUse);
     }
 
     const baseExam = room.exam_data || exams.find(e => e.id === room.exam_id) || {
@@ -2709,63 +2725,127 @@ const Exams = () => {
                 ⚠️ <strong>Quy chế làm bài:</strong> Tuyệt đối không chuyển tab hay thu nhỏ cửa sổ trình duyệt. Nếu tái phạm, hệ thống sẽ tự động thu bài và khóa điểm. Mỗi học sinh chỉ được làm 1 lần duy nhất!
               </div>
 
-              {/* Form nhập thông tin thí sinh bắt buộc (Không cần đăng nhập tài khoản trước) */}
-              <div style={{ 
-                background: 'var(--surface-color, #ffffff)', 
-                border: '1px solid var(--border-color, #e2e8f0)', 
-                borderRadius: '12px', 
-                padding: '1.25rem', 
-                marginBottom: '1.25rem', 
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' 
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.85rem', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem' }}>
-                  <UserCheck size={18} style={{ color: 'var(--primary-color, #4f46e5)' }} />
-                  <span>Xác nhận thông tin thí sinh</span>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 400, color: 'var(--text-secondary)' }}>(Điền đầy đủ để tiếp tục vào làm bài thi)</span>
-                </div>
+              {/* Form nhập thông tin thí sinh (Nếu đã đăng nhập thì tự động hiển thị thẻ tài khoản, nếu chưa đăng nhập thì hiện form điền) */}
+              {(() => {
+                const enrolledStudent = getEnrolledStudentInfo();
+                if (enrolledStudent) {
+                  return (
+                    <div style={{ 
+                      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%)', 
+                      border: '1.5px solid rgba(99, 102, 241, 0.3)', 
+                      borderRadius: '12px', 
+                      padding: '1.25rem 1.5rem', 
+                      marginBottom: '1.25rem', 
+                      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.06)' 
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.85rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div style={{ 
+                            width: 38, height: 38, borderRadius: '50%', 
+                            background: 'linear-gradient(135deg, #10b981, #059669)', 
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+                            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                          }}>
+                            <UserCheck size={20} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                              ✓ Đã xác thực tài khoản học sinh
+                            </div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                              {enrolledStudent.name}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ 
+                            background: 'rgba(99, 102, 241, 0.12)', 
+                            color: '#4f46e5', 
+                            fontWeight: 700, 
+                            padding: '0.35rem 0.75rem', 
+                            borderRadius: 8, 
+                            fontSize: '0.85rem' 
+                          }}>
+                            Lớp: {enrolledStudent.class || 'Chưa xếp lớp'}
+                          </span>
+                          <span style={{ 
+                            background: 'rgba(16, 185, 129, 0.12)', 
+                            color: '#059669', 
+                            fontWeight: 700, 
+                            padding: '0.35rem 0.75rem', 
+                            borderRadius: 8, 
+                            fontSize: '0.85rem' 
+                          }}>
+                            Mã HS: {enrolledStudent.id}
+                          </span>
+                        </div>
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        💡 Hệ thống tự động liên kết kết quả bài thi trực tuyến với hồ sơ học tập của bạn. Bạn không cần phải điền lại họ tên, lớp hay mã học sinh.
+                      </p>
+                    </div>
+                  );
+                }
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
-                  <div>
-                    <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
-                      Họ và tên thí sinh <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      className="input" 
-                      placeholder="Ví dụ: Nguyễn Văn A"
-                      value={candidateInfo.name} 
-                      onChange={e => setCandidateInfo(prev => ({ ...prev, name: e.target.value }))}
-                      style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
-                    />
+                return (
+                  <div style={{ 
+                    background: 'var(--surface-color, #ffffff)', 
+                    border: '1px solid var(--border-color, #e2e8f0)', 
+                    borderRadius: '12px', 
+                    padding: '1.25rem', 
+                    marginBottom: '1.25rem', 
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' 
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.85rem', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem' }}>
+                      <UserCheck size={18} style={{ color: 'var(--primary-color, #4f46e5)' }} />
+                      <span>Xác nhận thông tin thí sinh</span>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 400, color: 'var(--text-secondary)' }}>(Điền đầy đủ để tiếp tục vào làm bài thi)</span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+                      <div>
+                        <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
+                          Họ và tên thí sinh <span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <input 
+                          type="text" 
+                          className="input" 
+                          placeholder="Ví dụ: Nguyễn Văn A"
+                          value={candidateInfo.name} 
+                          onChange={e => setCandidateInfo(prev => ({ ...prev, name: e.target.value }))}
+                          style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
+                          Lớp <span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <input 
+                          type="text" 
+                          className="input" 
+                          placeholder="Ví dụ: 12A1"
+                          value={candidateInfo.class} 
+                          onChange={e => setCandidateInfo(prev => ({ ...prev, class: e.target.value }))}
+                          style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
+                          Mã học sinh <span style={{ color: '#ef4444' }}>*</span>
+                        </label>
+                        <input 
+                          type="text" 
+                          className="input" 
+                          placeholder="Ví dụ: HS123 hoặc SĐT"
+                          value={candidateInfo.phone || candidateInfo.id} 
+                          onChange={e => setCandidateInfo(prev => ({ ...prev, phone: e.target.value, id: e.target.value }))}
+                          style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
-                      Lớp <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      className="input" 
-                      placeholder="Ví dụ: 12A1"
-                      value={candidateInfo.class} 
-                      onChange={e => setCandidateInfo(prev => ({ ...prev, class: e.target.value }))}
-                      style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.82rem', fontWeight: 600, display: 'block', marginBottom: 4, color: 'var(--text-primary)' }}>
-                      Mã học sinh <span style={{ color: '#ef4444' }}>*</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      className="input" 
-                      placeholder="Ví dụ: HS123 hoặc SĐT"
-                      value={candidateInfo.phone || candidateInfo.id} 
-                      onChange={e => setCandidateInfo(prev => ({ ...prev, phone: e.target.value, id: e.target.value }))}
-                      style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: '0.9rem' }}
-                    />
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
 
               <button 
                 className="btn btn-primary" 
@@ -2782,6 +2862,11 @@ const Exams = () => {
                   cursor: 'pointer'
                 }}
                 onClick={() => {
+                  const enrolledStudent = getEnrolledStudentInfo();
+                  if (enrolledStudent) {
+                    handleStartOnlineRoomExam(urlRoomData, enrolledStudent);
+                    return;
+                  }
                   if (!candidateInfo.name?.trim()) {
                     alert('Vui lòng nhập Họ và tên thí sinh để tiếp tục vào thi!');
                     return;

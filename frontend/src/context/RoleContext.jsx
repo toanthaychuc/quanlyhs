@@ -10,10 +10,24 @@ export const RoleProvider = ({ children }) => {
 
   // Email tài khoản đăng nhập hiện tại
   const [currentUserEmail, setCurrentUserEmail] = useState(() => {
-    if (isRoomUrl && !localStorage.getItem('edumanager_user_email')) {
+    const savedEmail = localStorage.getItem('edumanager_user_email');
+    const savedRole = localStorage.getItem('edumanager_user_role');
+    const savedStudentId = localStorage.getItem('edumanager_current_student_id');
+
+    // Nếu đã đăng nhập danh tính học sinh chính thức
+    if (savedRole === 'student' && savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com') {
+      return `${savedStudentId.toLowerCase()}@school.edu.vn`;
+    }
+    if (savedEmail) {
+      return savedEmail;
+    }
+    if (isRoomUrl) {
       return 'hocsinh_phongthi@school.edu.vn';
     }
-    return localStorage.getItem('edumanager_user_email') || 'lecongchuc02@gmail.com';
+    if (savedRole === 'teacher') {
+      return TEACHER_EMAIL;
+    }
+    return 'hocsinh@school.edu.vn';
   });
 
   // Vai trò: 'teacher' hoặc 'student'
@@ -29,17 +43,19 @@ export const RoleProvider = ({ children }) => {
     return 'student';
   });
 
-  // Học sinh đang đăng nhập giả lập (mặc định là học sinh Nguyễn Văn An lớp 10T8)
+  // Học sinh đang đăng nhập
   const [currentStudentId, setCurrentStudentId] = useState(() => {
     if (isRoomUrl && !localStorage.getItem('edumanager_current_student_id')) {
       return '';
     }
-    return localStorage.getItem('edumanager_current_student_id') || '10T8-01';
+    return localStorage.getItem('edumanager_current_student_id') || '';
   });
 
   // Khi email thay đổi, kiểm tra quyền nghiêm ngặt
   useEffect(() => {
-    localStorage.setItem('edumanager_user_email', currentUserEmail);
+    if (currentUserEmail) {
+      localStorage.setItem('edumanager_user_email', currentUserEmail);
+    }
     if (currentUserEmail.trim().toLowerCase() !== TEACHER_EMAIL.toLowerCase()) {
       // Nếu không phải email giáo viên, ép buộc chuyển về học sinh
       setRole('student');
@@ -54,10 +70,16 @@ export const RoleProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('edumanager_current_student_id', currentStudentId);
     
+    // Nếu có mã học sinh chính thức -> Chắc chắn không phải là khách
+    if (currentStudentId && currentStudentId !== 'khach_tudolamde@gmail.com' && currentStudentId.trim() !== '') {
+      setIsGuestMode(false);
+      localStorage.setItem('edumanager_is_guest', 'false');
+    }
+
     // Xử lý Streak (chuỗi đăng nhập) khi học sinh đăng nhập
     if (role === 'student' && currentStudentId && currentStudentId !== 'khach_tudolamde@gmail.com') {
       processDailyLogin(currentStudentId).then(() => {
-        // trigger event if needed, but processDailyLogin already calls updateGamification which dispatches 'gamification_updated'
+        // trigger event if needed
       }).catch(err => {
         console.error('Error processing daily login:', err);
       });
@@ -86,6 +108,12 @@ export const RoleProvider = ({ children }) => {
 
   // Chế độ khách (Học mà không cần đăng nhập)
   const [isGuestMode, setIsGuestMode] = useState(() => {
+    const savedRole = localStorage.getItem('edumanager_user_role');
+    const savedStudentId = localStorage.getItem('edumanager_current_student_id');
+    // Nếu là giáo viên hoặc đã có học sinh chính thức đăng nhập -> Tuyệt đối không phải khách
+    if (savedRole === 'teacher' || (savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com' && savedStudentId.trim() !== '')) {
+      return false;
+    }
     if (isRoomUrl) {
       return true;
     }
@@ -95,7 +123,12 @@ export const RoleProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.href.includes('room=')) {
       setHasEnteredApp(true);
-      if (!localStorage.getItem('edumanager_user_email')) {
+      const savedStudentId = localStorage.getItem('edumanager_current_student_id');
+      const hasRealStudent = savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com' && savedStudentId.trim() !== '';
+      if (hasRealStudent) {
+        setIsGuestMode(false);
+        localStorage.setItem('edumanager_is_guest', 'false');
+      } else if (!localStorage.getItem('edumanager_user_email')) {
         setRole('student');
         setIsGuestMode(true);
       }
@@ -113,18 +146,28 @@ export const RoleProvider = ({ children }) => {
   // Hàm vào học dạng khách không cần đăng nhập
   const loginAsGuest = () => {
     setIsGuestMode(true);
+    setCurrentStudentId('khach_tudolamde@gmail.com');
     setCurrentUserEmail('khach_tudolamde@gmail.com');
     setRole('student');
     setHasEnteredApp(true);
+    localStorage.setItem('edumanager_is_guest', 'true');
+    localStorage.setItem('edumanager_current_student_id', 'khach_tudolamde@gmail.com');
+    localStorage.setItem('edumanager_user_email', 'khach_tudolamde@gmail.com');
+    localStorage.setItem('edumanager_user_role', 'student');
   };
 
   // Hàm học sinh chọn danh tính từ danh sách lớp
   const selectEnrolledStudent = (studentId, classId) => {
     setIsGuestMode(false);
     setCurrentStudentId(studentId);
-    setCurrentUserEmail(`${studentId.toLowerCase()}@school.edu.vn`);
+    const email = `${studentId.toLowerCase()}@school.edu.vn`;
+    setCurrentUserEmail(email);
     setRole('student');
     setHasEnteredApp(true);
+    localStorage.setItem('edumanager_is_guest', 'false');
+    localStorage.setItem('edumanager_current_student_id', studentId);
+    localStorage.setItem('edumanager_user_email', email);
+    localStorage.setItem('edumanager_user_role', 'student');
   };
 
   // Hàm mở lại slide chào mừng
@@ -189,10 +232,15 @@ export const RoleProvider = ({ children }) => {
   // Hàm đăng xuất
   const logout = () => {
     setCurrentUserEmail('');
+    setCurrentStudentId('');
     setRole('student');
     setHasEnteredApp(false);
     setIsGuestMode(false);
     localStorage.removeItem('edumanager_has_entered');
+    localStorage.removeItem('edumanager_user_email');
+    localStorage.removeItem('edumanager_user_role');
+    localStorage.removeItem('edumanager_current_student_id');
+    localStorage.removeItem('edumanager_is_guest');
   };
 
   const isTeacher = role === 'teacher' && currentUserEmail.trim().toLowerCase() === TEACHER_EMAIL.toLowerCase();

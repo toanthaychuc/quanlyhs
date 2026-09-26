@@ -152,10 +152,15 @@ const MainLayout = () => {
     };
   }, []);
 
+  // Kiểm tra học sinh chính thức đã đăng nhập
+  const isEnrolledStudent = isStudent && Boolean(currentStudentId && currentStudentId !== 'khach_tudolamde@gmail.com' && currentStudentId.trim() !== '');
+  // Chỉ thực sự coi là khách khi: không phải giáo viên, có cờ isGuestMode, và KHÔNG PHẢI học sinh chính thức
+  const isActualGuest = !isTeacher && isGuestMode && !isEnrolledStudent;
+
   // Xử lý chặn các mục menu đối với chế độ "Học mà không cần đăng nhập" (Guest Mode)
   const handleNavClick = (e, path, isLocked) => {
     setIsMobileMenuOpen(false);
-    if (!isTeacher && isGuestMode && isLocked) {
+    if (isActualGuest && isLocked) {
       e.preventDefault();
       alert('🔒 Mục này đã được giáo viên tạm khóa đối với chế độ Khách.\nHãy vào mục "Hỏi đáp" để liên hệ Thầy nhé!');
       return;
@@ -164,13 +169,13 @@ const MainLayout = () => {
 
   // Bảo vệ routing: Nếu học sinh ở chế độ khách vào đường dẫn bị khóa (qua URL), tự động chuyển về /exams
   useEffect(() => {
-    if (!isTeacher && isGuestMode) {
+    if (isActualGuest) {
       const currentPath = location.pathname;
       if (!guestAllowedPaths.includes(currentPath)) {
         navigate('/exams', { replace: true });
       }
     }
-  }, [isTeacher, isGuestMode, location.pathname, guestAllowedPaths, navigate]);
+  }, [isActualGuest, location.pathname, guestAllowedPaths, navigate]);
 
   // State modal đăng nhập email
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -421,7 +426,7 @@ const MainLayout = () => {
 
         <nav className="sidebar-nav">
           {navItems.map((item) => {
-            const isLocked = !isTeacher && isGuestMode && !guestAllowedPaths.includes(item.path);
+            const isLocked = isActualGuest && !guestAllowedPaths.includes(item.path);
             return (
               <NavItemRenderer 
                 key={item.path} 
@@ -526,7 +531,7 @@ const MainLayout = () => {
                   <div 
                     className="flex items-center cursor-pointer group"
                     onClick={() => {
-                      if (!isTeacher && isGuestMode && !guestAllowedPaths.includes('/my-rank')) {
+                      if (isActualGuest && !guestAllowedPaths.includes('/my-rank')) {
                         alert('🔒 Mục này đã được giáo viên tạm khóa đối với chế độ Khách.\nHãy vào mục "Hỏi đáp" để liên hệ Thầy nhé!');
                         return;
                       }
@@ -580,56 +585,8 @@ const MainLayout = () => {
           </div>
 
           <div className="header-right">
-            {/* Thanh chọn 'Góc nhìn học sinh' - DÀNH RIÊNG CHO GIÁO VIÊN khi chuyển qua thẻ Học sinh */}
-            {isTeacherAccount && isStudent && (
-              <div 
-                className="flex items-center gap-2" 
-                style={{ 
-                  background: 'rgba(99, 102, 241, 0.08)', 
-                  border: '1px solid rgba(99, 102, 241, 0.3)', 
-                  borderRadius: 'var(--radius-full)', 
-                  padding: '0.2rem 0.6rem 0.2rem 0.75rem',
-                  marginRight: '0.25rem' 
-                }}
-              >
-                <div className="flex items-center gap-1.5" style={{ fontSize: '0.8rem', color: '#4f46e5', fontWeight: 600 }}>
-                  <Users size={15} />
-                  <span>Góc nhìn HS:</span>
-                </div>
-                {allStudentsWithClass.length > 0 ? (
-                  <select 
-                    className="input"
-                    style={{ 
-                      padding: '0.25rem 0.5rem', 
-                      fontSize: '0.8rem', 
-                      height: '30px', 
-                      width: 'auto', 
-                      maxWidth: '180px',
-                      border: '1px solid rgba(99, 102, 241, 0.2)', 
-                      background: 'transparent', 
-                      borderRadius: 'var(--radius-full)'
-                    }}
-                    value={currentStudentId}
-                    onChange={(e) => setCurrentStudentId(e.target.value)}
-                    title="Chọn học sinh để đứng dưới góc nhìn thực tế của em đó"
-                  >
-                    {allStudentsWithClass.map(s => (
-                      <option key={`${s.className}-${s.id}`} value={s.id} style={{ background: 'var(--bg-color)', color: 'var(--text-main)' }}>
-                        {s.name} ({s.className})
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', paddingRight: '0.25rem' }}>
-                    (Chưa có HS trong lớp)
-                  </span>
-                )}
-              </div>
-            )}
-
-
             <div className="header-tools" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginRight: '0.5rem' }}>
-              {/* Nút Chuyển Chế độ Học sinh (Chỉ dành cho Giáo viên, nằm ngay bên trái Mobile Review) */}
+              {/* Nút Chuyển Chế độ Học sinh (Chỉ dành cho Giáo viên khi muốn kiểm tra giao diện học sinh) */}
               {isTeacherAccount && (
                 <button 
                   className="btn btn-outline flex items-center justify-center group"
@@ -665,8 +622,8 @@ const MainLayout = () => {
                 </button>
               )}
 
-              {/* Nút Mobile Review (Dành riêng cho Giáo viên và không ở trong iframe) */}
-              {isTeacherAccount && !isIframe && (
+              {/* Nút Mobile Review (Dành riêng cho Giáo viên ở giao diện Giáo viên và không ở trong iframe) */}
+              {isTeacher && !isIframe && (
                 <button 
                   className="btn btn-outline flex items-center justify-center group"
                   style={{ 
