@@ -660,6 +660,8 @@ const Exams = () => {
   const [urlRoomId, setUrlRoomId] = useState(null);
   const [urlRoomData, setUrlRoomData] = useState(null);
   const [isLoadingUrlRoom, setIsLoadingUrlRoom] = useState(false);
+  const [urlRoomError, setUrlRoomError] = useState(null);
+  const [hasRoomSubmitted, setHasRoomSubmitted] = useState(false);
   const [candidateInfo, setCandidateInfo] = useState({ id: '', name: '', class: '', phone: '' });
 
   // Lấy thông tin học sinh chính thức nếu đã đăng nhập tài khoản
