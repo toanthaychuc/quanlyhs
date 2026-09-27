@@ -687,3 +687,10 @@
   70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
   100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
+
+/* Ẩn menu sidebar và header khi học sinh đang làm bài thi trực tuyến để chống gian lận/phân tâm */
+body.exam-taking-mode .sidebar,
+body.exam-taking-mode .top-header,
+body.exam-taking-mode .mobile-bottom-nav {
+  display: none !important;
+}

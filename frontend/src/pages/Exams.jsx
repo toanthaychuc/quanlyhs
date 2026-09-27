@@ -985,7 +985,12 @@ const Exams = () => {
 
   // Chống gian lận khi học sinh đang làm bài trong phòng thi trực tuyến
   useEffect(() => {
-    if (examMode !== 'taking' || !currentRoom) return;
+    if (examMode !== 'taking' || !currentRoom) {
+      document.body.classList.remove('exam-taking-mode');
+      return;
+    }
+    
+    document.body.classList.add('exam-taking-mode');
 
     const maxAllowed = currentRoom.max_violations !== undefined ? Number(currentRoom.max_violations) : 1;
 
@@ -1052,6 +1057,7 @@ const Exams = () => {
     window.addEventListener('beforeunload', onBeforeUnload);
 
     return () => {
+      document.body.classList.remove('exam-taking-mode');
       document.removeEventListener('visibilitychange', onVisibilityChange);
       window.removeEventListener('blur', onWindowBlur);
       if (currentRoom.force_fullscreen) {

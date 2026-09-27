@@ -124,7 +124,6 @@ const LogoIntroSplash = ({ onRadiate, onFinish }) => {
           animate={isRadiating ? {
             scale: 2.8,
             opacity: 0,
-            filter: 'blur(10px)',
             transition: { duration: 0.7, ease: [0.25, 1, 0.5, 1] }
           } : {
             scale: 1,
