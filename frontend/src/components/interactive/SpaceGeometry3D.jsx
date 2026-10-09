@@ -2164,18 +2164,18 @@ const SpaceGeometry3D = () => {
                   const mathZ = pt.y + 1;
                   return (
                     <div style={{ background: '#ffffff', padding: '8px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b' }}>
-                          Tọa độ đỉnh {selectedEditPoint} (Oxyz):
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap' }}>
+                          Tọa độ {selectedEditPoint}:
                         </span>
                         {isTeacher ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                             {hasTeacherDefault && (
                               <button
                                 type="button"
                                 onClick={handleResetToSystemDefault}
                                 title="Khôi phục hình này về mặc định ban đầu của hệ thống"
-                                style={{ border: 'none', background: 'transparent', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                                style={{ border: 'none', background: 'transparent', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline', whiteSpace: 'nowrap' }}
                               >
                                 Khôi phục gốc
                               </button>
@@ -2189,23 +2189,24 @@ const SpaceGeometry3D = () => {
                                 border: 'none',
                                 background: isSavedSuccess ? '#dcfce7' : 'transparent',
                                 color: isSavedSuccess ? '#15803d' : '#2563eb',
-                                fontSize: '11px',
+                                fontSize: '11.5px',
                                 fontWeight: 600,
                                 cursor: isSavingDefault ? 'wait' : 'pointer',
                                 padding: isSavedSuccess ? '2px 6px' : '0',
                                 borderRadius: '4px',
                                 textDecoration: isSavedSuccess ? 'none' : 'underline',
+                                whiteSpace: 'nowrap',
                                 transition: 'all 0.2s'
                               }}
                             >
-                              {isSavedSuccess ? '✓ Đã lưu mặc định' : isSavingDefault ? 'Đang lưu...' : 'Đặt là mặc định'}
+                              {isSavedSuccess ? '✓ Đã lưu mặc định' : isSavingDefault ? 'Đang lưu...' : 'Đặt mặc định'}
                             </button>
                           </div>
                         ) : (
                           <button
                             type="button"
                             onClick={handleResetCurrentPoint}
-                            style={{ border: 'none', background: 'transparent', color: '#64748b', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                            style={{ border: 'none', background: 'transparent', color: '#64748b', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline', whiteSpace: 'nowrap' }}
                           >
                             Đặt lại điểm này
                           </button>
