@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html, Line, MapControls, OrthographicCamera, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
+import { useRole } from '../../context/RoleContext';
+import { getSetting, saveSetting } from '../../services/settingService';
 import './SpaceGeometry3D.css';
 
 const SHAPE_CATEGORIES = [
@@ -1718,14 +1720,54 @@ const SpaceGeometry3D = () => {
     }
   }, [selectedShape, shape]);
 
+  const { isTeacher } = useRole();
+  const [teacherDefaultShapes, setTeacherDefaultShapes] = useState({});
+  const [isSavingDefault, setIsSavingDefault] = useState(false);
+  const [isSavedSuccess, setIsSavedSuccess] = useState(false);
+
+  // Load saved default shapes (system-wide from Supabase / localStorage)
+  useEffect(() => {
+    let active = true;
+    getSetting('space_geometry_defaults', {}, true)
+      .then(saved => {
+        if (active && saved && typeof saved === 'object') {
+          setTeacherDefaultShapes(saved);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load space geometry default shapes:', err);
+      });
+    return () => { active = false; };
+  }, []);
+
+  const currentShapeDefaults = useMemo(() => {
+    const raw = teacherDefaultShapes[selectedShape];
+    if (!raw) return null;
+    const map = {};
+    for (const [k, v] of Object.entries(raw)) {
+      if (v && typeof v.x === 'number' && typeof v.y === 'number' && typeof v.z === 'number') {
+        map[k] = new THREE.Vector3(v.x, v.y, v.z);
+      }
+    }
+    return Object.keys(map).length > 0 ? map : null;
+  }, [teacherDefaultShapes, selectedShape]);
+
+  const hasTeacherDefault = Boolean(teacherDefaultShapes[selectedShape]);
+
   const baseVertices = useMemo(() => {
     if (!shape) return {};
     const verts = {};
     for (const [k, v] of Object.entries(shape.vertices)) {
-      verts[k] = customVerticesMap[k] ? customVerticesMap[k].clone() : v.clone();
+      if (customVerticesMap[k]) {
+        verts[k] = customVerticesMap[k].clone();
+      } else if (currentShapeDefaults && currentShapeDefaults[k]) {
+        verts[k] = currentShapeDefaults[k].clone();
+      } else {
+        verts[k] = v.clone();
+      }
     }
     return verts;
-  }, [shape, customVerticesMap]);
+  }, [shape, customVerticesMap, currentShapeDefaults]);
 
   const swappedBaseVertices = useMemo(() => {
     const verts = {};
@@ -1784,6 +1826,77 @@ const SpaceGeometry3D = () => {
 
   const updateMathCoord = (label, mathX, mathY, mathZ) => {
     updatePointCoord(label, mathX, mathZ - 1, mathY);
+  };
+
+  // Reset selected point to default
+  const handleResetCurrentPoint = () => {
+    let actualKey = selectedEditPoint;
+    if (swapVertices) {
+      const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
+      const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
+      const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
+      if (isQuad) {
+        if (selectedEditPoint === 'B') actualKey = 'D';
+        else if (selectedEditPoint === 'D') actualKey = 'B';
+      } else if (isTetra) {
+        if (selectedEditPoint === 'C') actualKey = 'D';
+        else if (selectedEditPoint === 'D') actualKey = 'C';
+      } else if (isTri) {
+        if (selectedEditPoint === 'B') actualKey = 'C';
+        else if (selectedEditPoint === 'C') actualKey = 'B';
+      }
+    }
+    setCustomVerticesMap(prev => {
+      const next = { ...prev };
+      delete next[actualKey];
+      return next;
+    });
+  };
+
+  // Teacher: Save current shape's vertices as default for all students
+  const handleSaveAsDefault = async () => {
+    if (isSavingDefault) return;
+    try {
+      setIsSavingDefault(true);
+      const shapeDefaults = {};
+      for (const [k, v] of Object.entries(baseVertices)) {
+        shapeDefaults[k] = {
+          x: Number(v.x.toFixed(3)),
+          y: Number(v.y.toFixed(3)),
+          z: Number(v.z.toFixed(3))
+        };
+      }
+      const updatedDefaults = {
+        ...teacherDefaultShapes,
+        [selectedShape]: shapeDefaults
+      };
+      setTeacherDefaultShapes(updatedDefaults);
+      setCustomVerticesMap({});
+      await saveSetting('space_geometry_defaults', updatedDefaults);
+      setIsSavedSuccess(true);
+      setTimeout(() => {
+        setIsSavedSuccess(false);
+      }, 2500);
+    } catch (err) {
+      console.error('Error saving default shape:', err);
+      alert('Có lỗi khi lưu hình mặc định: ' + (err.message || 'Thử lại sau'));
+    } finally {
+      setIsSavingDefault(false);
+    }
+  };
+
+  // Teacher: Reset current shape to system factory default
+  const handleResetToSystemDefault = async () => {
+    if (!window.confirm('Khôi phục hình này về tọa độ mặc định ban đầu của hệ thống?')) return;
+    try {
+      const updatedDefaults = { ...teacherDefaultShapes };
+      delete updatedDefaults[selectedShape];
+      setTeacherDefaultShapes(updatedDefaults);
+      setCustomVerticesMap({});
+      await saveSetting('space_geometry_defaults', updatedDefaults);
+    } catch (err) {
+      console.error('Error resetting to system default:', err);
+    }
   };
 
   const activeVertices = useMemo(() => {
@@ -2059,16 +2172,48 @@ const SpaceGeometry3D = () => {
                         <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b' }}>
                           Tọa độ đỉnh {selectedEditPoint} (Oxyz):
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const def = shape.vertices[selectedEditPoint];
-                            if (def) updatePointCoord(selectedEditPoint, def.x, def.y, def.z);
-                          }}
-                          style={{ border: 'none', background: 'transparent', color: '#64748b', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
-                        >
-                          Đặt lại điểm này
-                        </button>
+                        {isTeacher ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {hasTeacherDefault && (
+                              <button
+                                type="button"
+                                onClick={handleResetToSystemDefault}
+                                title="Khôi phục hình này về mặc định ban đầu của hệ thống"
+                                style={{ border: 'none', background: 'transparent', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                              >
+                                Khôi phục gốc
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={handleSaveAsDefault}
+                              disabled={isSavingDefault}
+                              title="Lưu hình này làm mặc định cho tất cả học sinh cùng thấy"
+                              style={{
+                                border: 'none',
+                                background: isSavedSuccess ? '#dcfce7' : 'transparent',
+                                color: isSavedSuccess ? '#15803d' : '#2563eb',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                cursor: isSavingDefault ? 'wait' : 'pointer',
+                                padding: isSavedSuccess ? '2px 6px' : '0',
+                                borderRadius: '4px',
+                                textDecoration: isSavedSuccess ? 'none' : 'underline',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {isSavedSuccess ? '✓ Đã lưu mặc định' : isSavingDefault ? 'Đang lưu...' : 'Đặt là mặc định'}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleResetCurrentPoint}
+                            style={{ border: 'none', background: 'transparent', color: '#64748b', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                          >
+                            Đặt lại điểm này
+                          </button>
+                        )}
                       </div>
 
                       {/* X axis (Ox: Trái ⇄ Phải trên đáy Oxy) */}
