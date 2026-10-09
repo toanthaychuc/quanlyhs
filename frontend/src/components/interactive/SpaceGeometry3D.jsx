@@ -51,6 +51,42 @@ const SHAPE_CATEGORIES = [
       { id: 'tetra_isosceles_c', name: 'Đáy BCD là tam giác cân tại C' },
       { id: 'tetra_isosceles_d', name: 'Đáy BCD là tam giác cân tại D' },
     ]
+  },
+  {
+    id: 'prism_right',
+    name: 'Lăng trụ đứng',
+    icon: '🏛️',
+    items: [
+      { id: 'prism_right_square', name: 'Đáy là hình vuông' },
+      { id: 'prism_right_rectangle', name: 'Đáy là hình chữ nhật' },
+      { id: 'prism_right_parallelogram', name: 'Hình bình hành' },
+      { id: 'prism_right_rhombus', name: 'Hình thoi' },
+      { id: 'prism_right_trapezoid', name: 'Hình thang' },
+      { id: 'prism_right_tri_right_a', name: 'Tam giác vuông tại A' },
+      { id: 'prism_right_tri_right_b', name: 'Tam giác vuông tại B' },
+      { id: 'prism_right_tri_right_c', name: 'Tam giác vuông tại C' },
+      { id: 'prism_right_tri_isosceles_a', name: 'Cân tại A' },
+      { id: 'prism_right_tri_isosceles_b', name: 'Cân tại B' },
+      { id: 'prism_right_tri_isosceles_c', name: 'Cân tại C' },
+    ]
+  },
+  {
+    id: 'prism_oblique',
+    name: 'Lăng trụ xiên',
+    icon: '📐',
+    items: [
+      { id: 'prism_oblique_square', name: 'Đáy là hình vuông' },
+      { id: 'prism_oblique_rectangle', name: 'Đáy là hình chữ nhật' },
+      { id: 'prism_oblique_parallelogram', name: 'Hình bình hành' },
+      { id: 'prism_oblique_rhombus', name: 'Hình thoi' },
+      { id: 'prism_oblique_trapezoid', name: 'Hình thang' },
+      { id: 'prism_oblique_tri_right_a', name: 'Tam giác vuông tại A' },
+      { id: 'prism_oblique_tri_right_b', name: 'Tam giác vuông tại B' },
+      { id: 'prism_oblique_tri_right_c', name: 'Tam giác vuông tại C' },
+      { id: 'prism_oblique_tri_isosceles_a', name: 'Cân tại A' },
+      { id: 'prism_oblique_tri_isosceles_b', name: 'Cân tại B' },
+      { id: 'prism_oblique_tri_isosceles_c', name: 'Cân tại C' },
+    ]
   }
 ];
 
@@ -65,6 +101,120 @@ const TRI_LABELS = ['S', 'A', 'B', 'C'];
 const TETRA_FACES = [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']];
 const TETRA_EDGES = [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']];
 const TETRA_LABELS = ['A', 'B', 'C', 'D'];
+
+// Prism Geometry constants
+const PRISM_QUAD_FACES = [
+  ['A', 'B', 'C', 'D'],
+  ["A'", "B'", "C'", "D'"],
+  ['A', 'B', "B'", "A'"],
+  ['B', 'C', "C'", "B'"],
+  ['C', 'D', "D'", "C'"],
+  ['D', 'A', "A'", "D'"]
+];
+const PRISM_QUAD_EDGES = [
+  ['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A'],
+  ["A'", "B'"], ["B'", "C'"], ["C'", "D'"], ["D'", "A'"],
+  ['A', "A'"], ['B', "B'"], ['C', "C'"], ['D', "D'"]
+];
+const PRISM_QUAD_LABELS = ['A', 'B', 'C', 'D', "A'", "B'", "C'", "D'"];
+
+const PRISM_TRI_FACES = [
+  ['A', 'B', 'C'],
+  ["A'", "B'", "C'"],
+  ['A', 'B', "B'", "A'"],
+  ['B', 'C', "C'", "B'"],
+  ['C', 'A', "A'", "C'"]
+];
+const PRISM_TRI_EDGES = [
+  ['A', 'B'], ['B', 'C'], ['C', 'A'],
+  ["A'", "B'"], ["B'", "C'"], ["C'", "A'"],
+  ['A', "A'"], ['B', "B'"], ['C', "C'"]
+];
+const PRISM_TRI_LABELS = ['A', 'B', 'C', "A'", "B'", "C'"];
+
+const PRISM_BASES = {
+  square: {
+    A: new THREE.Vector3(-1.5, -1, -1.5),
+    B: new THREE.Vector3(1.5, -1, -1.5),
+    C: new THREE.Vector3(1.5, -1, 1.5),
+    D: new THREE.Vector3(-1.5, -1, 1.5),
+  },
+  rectangle: {
+    A: new THREE.Vector3(-1.8, -1, -1),
+    B: new THREE.Vector3(1.8, -1, -1),
+    C: new THREE.Vector3(1.8, -1, 1.5),
+    D: new THREE.Vector3(-1.8, -1, 1.5),
+  },
+  parallelogram: {
+    A: new THREE.Vector3(-1.5, -1, -1),
+    B: new THREE.Vector3(2.5, -1, -1),
+    C: new THREE.Vector3(1.5, -1, 1.5),
+    D: new THREE.Vector3(-2.5, -1, 1.5),
+  },
+  rhombus: {
+    A: new THREE.Vector3(-1.2, -1, -1),
+    B: new THREE.Vector3(2.0, -1, -1),
+    C: new THREE.Vector3(-0.12, -1, 1.4),
+    D: new THREE.Vector3(-3.32, -1, 1.4),
+  },
+  trapezoid: {
+    A: new THREE.Vector3(-1.5, -1, -1),
+    B: new THREE.Vector3(2.5, -1, -1),
+    C: new THREE.Vector3(1.0, -1, 1.5),
+    D: new THREE.Vector3(-1.6, -1, 1.5),
+  },
+  tri_right_a: {
+    A: new THREE.Vector3(-1.2, -1, -1),
+    B: new THREE.Vector3(2.0, -1, -1),
+    C: new THREE.Vector3(-1.2, -1, 1.6),
+  },
+  tri_right_b: {
+    A: new THREE.Vector3(-2.0, -1, -1),
+    B: new THREE.Vector3(1.5, -1, -1),
+    C: new THREE.Vector3(1.5, -1, 1.6),
+  },
+  tri_right_c: {
+    A: new THREE.Vector3(-1.8, -1, -0.5),
+    B: new THREE.Vector3(2.0, -1, -0.3),
+    C: new THREE.Vector3(0, -1, 1.5),
+  },
+  tri_isosceles_a: {
+    A: new THREE.Vector3(-1.5, -1, -1),
+    B: new THREE.Vector3(2.0, -1, -1),
+    C: new THREE.Vector3(0.95, -1, 1.5),
+  },
+  tri_isosceles_b: {
+    A: new THREE.Vector3(-2.0, -1, -0.5),
+    B: new THREE.Vector3(1.5, -1, -1),
+    C: new THREE.Vector3(0.2, -1, 1.5),
+  },
+  tri_isosceles_c: {
+    A: new THREE.Vector3(-1.8, -1, -0.8),
+    B: new THREE.Vector3(1.8, -1, -0.8),
+    C: new THREE.Vector3(0, -1, 1.6),
+  }
+};
+
+const SHIFT_RIGHT_PRISM = new THREE.Vector3(0, 2.6, 0);
+const SHIFT_OBLIQUE_PRISM = new THREE.Vector3(0.7, 2.5, 0.4);
+
+const makePrism = (categoryName, subName, name, baseVerts, shift) => {
+  const isQuad = Object.keys(baseVerts).length === 4;
+  const vertices = {};
+  for (const [k, v] of Object.entries(baseVerts)) {
+    vertices[k] = v.clone();
+    vertices[k + "'"] = new THREE.Vector3(v.x + shift.x, v.y + shift.y, v.z + shift.z);
+  }
+  return {
+    categoryName,
+    subName,
+    name,
+    vertices,
+    faces: isQuad ? PRISM_QUAD_FACES : PRISM_TRI_FACES,
+    edges: isQuad ? PRISM_QUAD_EDGES : PRISM_TRI_EDGES,
+    labels: isQuad ? PRISM_QUAD_LABELS : PRISM_TRI_LABELS
+  };
+};
 
 const SHAPES = {
   // 1. Chóp tứ giác S.ABCD
@@ -400,7 +550,33 @@ const SHAPES = {
     faces: TETRA_FACES,
     edges: TETRA_EDGES,
     labels: TETRA_LABELS
-  }
+  },
+
+  // 4. Lăng trụ đứng
+  prism_right_square: makePrism('Lăng trụ đứng', 'Đáy là hình vuông', 'Lăng trụ đứng (đáy hình vuông)', PRISM_BASES.square, SHIFT_RIGHT_PRISM),
+  prism_right_rectangle: makePrism('Lăng trụ đứng', 'Đáy là hình chữ nhật', 'Lăng trụ đứng (đáy hình chữ nhật)', PRISM_BASES.rectangle, SHIFT_RIGHT_PRISM),
+  prism_right_parallelogram: makePrism('Lăng trụ đứng', 'Hình bình hành', 'Lăng trụ đứng (đáy hình bình hành)', PRISM_BASES.parallelogram, SHIFT_RIGHT_PRISM),
+  prism_right_rhombus: makePrism('Lăng trụ đứng', 'Hình thoi', 'Lăng trụ đứng (đáy hình thoi)', PRISM_BASES.rhombus, SHIFT_RIGHT_PRISM),
+  prism_right_trapezoid: makePrism('Lăng trụ đứng', 'Hình thang', 'Lăng trụ đứng (đáy hình thang)', PRISM_BASES.trapezoid, SHIFT_RIGHT_PRISM),
+  prism_right_tri_right_a: makePrism('Lăng trụ đứng', 'Tam giác vuông tại A', 'Lăng trụ đứng (đáy vuông tại A)', PRISM_BASES.tri_right_a, SHIFT_RIGHT_PRISM),
+  prism_right_tri_right_b: makePrism('Lăng trụ đứng', 'Tam giác vuông tại B', 'Lăng trụ đứng (đáy vuông tại B)', PRISM_BASES.tri_right_b, SHIFT_RIGHT_PRISM),
+  prism_right_tri_right_c: makePrism('Lăng trụ đứng', 'Tam giác vuông tại C', 'Lăng trụ đứng (đáy vuông tại C)', PRISM_BASES.tri_right_c, SHIFT_RIGHT_PRISM),
+  prism_right_tri_isosceles_a: makePrism('Lăng trụ đứng', 'Cân tại A', 'Lăng trụ đứng (đáy cân tại A)', PRISM_BASES.tri_isosceles_a, SHIFT_RIGHT_PRISM),
+  prism_right_tri_isosceles_b: makePrism('Lăng trụ đứng', 'Cân tại B', 'Lăng trụ đứng (đáy cân tại B)', PRISM_BASES.tri_isosceles_b, SHIFT_RIGHT_PRISM),
+  prism_right_tri_isosceles_c: makePrism('Lăng trụ đứng', 'Cân tại C', 'Lăng trụ đứng (đáy cân tại C)', PRISM_BASES.tri_isosceles_c, SHIFT_RIGHT_PRISM),
+
+  // 5. Lăng trụ xiên
+  prism_oblique_square: makePrism('Lăng trụ xiên', 'Đáy là hình vuông', 'Lăng trụ xiên (đáy hình vuông)', PRISM_BASES.square, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_rectangle: makePrism('Lăng trụ xiên', 'Đáy là hình chữ nhật', 'Lăng trụ xiên (đáy hình chữ nhật)', PRISM_BASES.rectangle, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_parallelogram: makePrism('Lăng trụ xiên', 'Hình bình hành', 'Lăng trụ xiên (đáy hình bình hành)', PRISM_BASES.parallelogram, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_rhombus: makePrism('Lăng trụ xiên', 'Hình thoi', 'Lăng trụ xiên (đáy hình thoi)', PRISM_BASES.rhombus, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_trapezoid: makePrism('Lăng trụ xiên', 'Hình thang', 'Lăng trụ xiên (đáy hình thang)', PRISM_BASES.trapezoid, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_tri_right_a: makePrism('Lăng trụ xiên', 'Tam giác vuông tại A', 'Lăng trụ xiên (đáy vuông tại A)', PRISM_BASES.tri_right_a, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_tri_right_b: makePrism('Lăng trụ xiên', 'Tam giác vuông tại B', 'Lăng trụ xiên (đáy vuông tại B)', PRISM_BASES.tri_right_b, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_tri_right_c: makePrism('Lăng trụ xiên', 'Tam giác vuông tại C', 'Lăng trụ xiên (đáy vuông tại C)', PRISM_BASES.tri_right_c, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_tri_isosceles_a: makePrism('Lăng trụ xiên', 'Cân tại A', 'Lăng trụ xiên (đáy cân tại A)', PRISM_BASES.tri_isosceles_a, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_tri_isosceles_b: makePrism('Lăng trụ xiên', 'Cân tại B', 'Lăng trụ xiên (đáy cân tại B)', PRISM_BASES.tri_isosceles_b, SHIFT_OBLIQUE_PRISM),
+  prism_oblique_tri_isosceles_c: makePrism('Lăng trụ xiên', 'Cân tại C', 'Lăng trụ xiên (đáy cân tại C)', PRISM_BASES.tri_isosceles_c, SHIFT_OBLIQUE_PRISM)
 };
 
 // Legacy aliases so old state / bookmarks do not break
@@ -1779,19 +1955,31 @@ const SpaceGeometry3D = () => {
       const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
       const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
       const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
+      const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
+      const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
 
-      if (isQuad) {
+      if (isQuad || isPrismQuad) {
         const temp = verts['B'];
         verts['B'] = verts['D'];
         verts['D'] = temp;
+        if (isPrismQuad && verts["B'"] && verts["D'"]) {
+          const tempP = verts["B'"];
+          verts["B'"] = verts["D'"];
+          verts["D'"] = tempP;
+        }
       } else if (isTetra) {
         const temp = verts['C'];
         verts['C'] = verts['D'];
         verts['D'] = temp;
-      } else if (isTri) {
+      } else if (isTri || isPrismTri) {
         const temp = verts['B'];
         verts['B'] = verts['C'];
         verts['C'] = temp;
+        if (isPrismTri && verts["B'"] && verts["C'"]) {
+          const tempP = verts["B'"];
+          verts["B'"] = verts["C'"];
+          verts["C'"] = tempP;
+        }
       }
     }
     return verts;
@@ -1803,15 +1991,22 @@ const SpaceGeometry3D = () => {
       const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
       const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
       const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
-      if (isQuad) {
+      const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
+      const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
+
+      if (isQuad || isPrismQuad) {
         if (label === 'B') actualKey = 'D';
         else if (label === 'D') actualKey = 'B';
+        else if (label === "B'") actualKey = "D'";
+        else if (label === "D'") actualKey = "B'";
       } else if (isTetra) {
         if (label === 'C') actualKey = 'D';
         else if (label === 'D') actualKey = 'C';
-      } else if (isTri) {
+      } else if (isTri || isPrismTri) {
         if (label === 'B') actualKey = 'C';
         else if (label === 'C') actualKey = 'B';
+        else if (label === "B'") actualKey = "C'";
+        else if (label === "C'") actualKey = "B'";
       }
     }
     setCustomVerticesMap(prev => ({
@@ -1835,15 +2030,22 @@ const SpaceGeometry3D = () => {
       const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
       const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
       const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
-      if (isQuad) {
+      const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
+      const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
+
+      if (isQuad || isPrismQuad) {
         if (selectedEditPoint === 'B') actualKey = 'D';
         else if (selectedEditPoint === 'D') actualKey = 'B';
+        else if (selectedEditPoint === "B'") actualKey = "D'";
+        else if (selectedEditPoint === "D'") actualKey = "B'";
       } else if (isTetra) {
         if (selectedEditPoint === 'C') actualKey = 'D';
         else if (selectedEditPoint === 'D') actualKey = 'C';
-      } else if (isTri) {
+      } else if (isTri || isPrismTri) {
         if (selectedEditPoint === 'B') actualKey = 'C';
         else if (selectedEditPoint === 'C') actualKey = 'B';
+        else if (selectedEditPoint === "B'") actualKey = "C'";
+        else if (selectedEditPoint === "C'") actualKey = "B'";
       }
     }
     setCustomVerticesMap(prev => {
