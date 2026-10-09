@@ -354,6 +354,140 @@ const ShapeEdge = ({ edge, shape, useDashed }) => {
   );
 };
 
+const isSegmentOnFace = (p1, p2, faceVerts, shapeCenter) => {
+  if (!p1 || !p2 || !faceVerts || faceVerts.length < 3) return null;
+  
+  const v0 = faceVerts[0];
+  const v1 = faceVerts[1];
+  const v2 = faceVerts[2];
+  const edge1 = new THREE.Vector3().subVectors(v1, v0);
+  const edge2 = new THREE.Vector3().subVectors(v2, v0);
+  let n = new THREE.Vector3().crossVectors(edge1, edge2).normalize();
+  
+  const faceCenter = new THREE.Vector3();
+  faceVerts.forEach(v => faceCenter.add(v));
+  faceCenter.divideScalar(faceVerts.length);
+  
+  const toFace = new THREE.Vector3().subVectors(faceCenter, shapeCenter);
+  if (n.dot(toFace) < 0) {
+    n.negate();
+  }
+  
+  const d1 = Math.abs(new THREE.Vector3().subVectors(p1, v0).dot(n));
+  const d2 = Math.abs(new THREE.Vector3().subVectors(p2, v0).dot(n));
+  if (d1 > 0.06 || d2 > 0.06) return null;
+  
+  const u = edge1.clone().normalize();
+  const v = new THREE.Vector3().crossVectors(n, u).normalize();
+  
+  const poly2D = faceVerts.map(pt => ({
+    x: new THREE.Vector3().subVectors(pt, v0).dot(u),
+    y: new THREE.Vector3().subVectors(pt, v0).dot(v)
+  }));
+  
+  const checkPointInPoly = (pt3d) => {
+    const px = new THREE.Vector3().subVectors(pt3d, v0).dot(u);
+    const py = new THREE.Vector3().subVectors(pt3d, v0).dot(v);
+    
+    let posCount = 0;
+    let negCount = 0;
+    const eps = 0.04;
+    for (let i = 0; i < poly2D.length; i++) {
+      const pA = poly2D[i];
+      const pB = poly2D[(i + 1) % poly2D.length];
+      const cross = (pB.x - pA.x) * (py - pA.y) - (pB.y - pA.y) * (px - pA.x);
+      if (cross > eps) posCount++;
+      else if (cross < -eps) negCount++;
+    }
+    return posCount === 0 || negCount === 0;
+  };
+  
+  const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+  if (checkPointInPoly(p1) && checkPointInPoly(p2) && checkPointInPoly(mid)) {
+    return { n, center: mid };
+  }
+  return null;
+};
+
+const CustomConnectionLine = ({ p1, p2, shape, useDashed }) => {
+  const solidRef = useRef();
+  const dashedRef = useRef();
+  
+  const shapeCenter = useMemo(() => {
+    const vals = Object.values(shape.vertices);
+    const sum = vals.reduce((acc, v) => acc.add(v.clone()), new THREE.Vector3());
+    return sum.divideScalar(vals.length);
+  }, [shape]);
+  
+  const facesData = useMemo(() => {
+    if (!p1 || !p2 || !shape || !shape.faces) return [];
+    const matched = [];
+    shape.faces.forEach(face => {
+      const faceVerts = face.map(v => shape.vertices[v]).filter(Boolean);
+      const res = isSegmentOnFace(p1, p2, faceVerts, shapeCenter);
+      if (res) matched.push(res);
+    });
+    return matched;
+  }, [p1, p2, shape, shapeCenter]);
+
+  useEffect(() => {
+    if (dashedRef.current) dashedRef.current.computeLineDistances();
+  }, [p1, p2]);
+
+  useFrame(({ camera }) => {
+    if (!solidRef.current || !dashedRef.current) return;
+    
+    if (!useDashed) {
+      solidRef.current.visible = true;
+      dashedRef.current.visible = false;
+      return;
+    }
+    
+    if (facesData.length === 0) {
+      solidRef.current.visible = false;
+      dashedRef.current.visible = true;
+      return;
+    }
+    
+    let isVisible = false;
+    for (const fd of facesData) {
+      const camDir = new THREE.Vector3().subVectors(camera.position, fd.center);
+      if (fd.n.dot(camDir) > -0.01) {
+        isVisible = true;
+        break;
+      }
+    }
+    
+    if (isVisible) {
+      solidRef.current.visible = true;
+      dashedRef.current.visible = false;
+    } else {
+      solidRef.current.visible = false;
+      dashedRef.current.visible = true;
+    }
+  });
+
+  return (
+    <group>
+      <Line 
+        ref={solidRef}
+        points={[[p1.x, p1.y, p1.z], [p2.x, p2.y, p2.z]]}
+        color="#0ea5e9"
+        lineWidth={3}
+      />
+      <Line 
+        ref={dashedRef}
+        points={[[p1.x, p1.y, p1.z], [p2.x, p2.y, p2.z]]}
+        color="#0ea5e9"
+        lineWidth={3}
+        dashed={true}
+        dashSize={0.2}
+        gapSize={0.1}
+      />
+    </group>
+  );
+};
+
 const CrossSectionMesh = ({ vertices, shapeEdges, selectedPts }) => {
   const geomData = useMemo(() => {
     if (selectedPts.length < 3) return null;
@@ -1485,19 +1619,18 @@ const SpaceGeometry3D = () => {
               );
             })}
             
-            {/* Draw custom connections */}
+            {/* Draw custom connections with adaptive solid / dashed visibility */}
             {connections.map((c, i) => {
               const p1 = activeVertices[c[0]];
               const p2 = activeVertices[c[1]];
+              if (!p1 || !p2) return null;
               return (
-                <Line 
-                  key={`conn-render-${i}`}
-                  points={[[p1.x, p1.y, p1.z], [p2.x, p2.y, p2.z]]}
-                  color="#0ea5e9"
-                  lineWidth={3}
-                  dashed={true}
-                  dashSize={0.2}
-                  gapSize={0.1}
+                <CustomConnectionLine 
+                  key={`conn-render-${i}-${c[0]}-${c[1]}`}
+                  p1={p1}
+                  p2={p2}
+                  shape={{ ...shape, vertices: swappedBaseVertices }}
+                  useDashed={useDashed}
                 />
               );
             })}
