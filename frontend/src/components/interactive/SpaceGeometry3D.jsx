@@ -9,7 +9,7 @@ const SHAPES = {
   parallelogramPyramid: {
     name: 'Chóp S.ABCD (đáy hình bình hành)',
     vertices: {
-      S: new THREE.Vector3(-2.2, 2.5, -1),
+      S: new THREE.Vector3(-0.6, 2.5, -0.6),
       A: new THREE.Vector3(-1.5, -1, -1),
       B: new THREE.Vector3(2.5, -1, -1),
       C: new THREE.Vector3(1.5, -1, 1.5),
