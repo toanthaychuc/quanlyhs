@@ -1040,6 +1040,113 @@ const CustomConnectionLine = ({ p1, p2, shape, useDashed }) => {
   );
 };
 
+const DraggableVertex = ({
+  label,
+  pos,
+  isCustom,
+  isEditing,
+  onDragStart,
+  onDrag,
+  onDragEnd,
+  mounted
+}) => {
+  const [hovered, setHovered] = useState(false);
+  const isDraggingRef = useRef(false);
+  const dragPlaneRef = useRef(new THREE.Plane());
+  const intersectPointRef = useRef(new THREE.Vector3());
+
+  const handlePointerDown = (e) => {
+    if (!isEditing || isCustom) return;
+    e.stopPropagation();
+    isDraggingRef.current = true;
+    const camDir = e.camera.getWorldDirection(new THREE.Vector3()).negate();
+    dragPlaneRef.current.setFromNormalAndCoplanarPoint(camDir, pos);
+    onDragStart(label);
+    if (e.target && e.target.setPointerCapture) {
+      try {
+        e.target.setPointerCapture(e.pointerId);
+      } catch (err) {}
+    }
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDraggingRef.current || !isEditing) return;
+    e.stopPropagation();
+    if (e.ray.intersectPlane(dragPlaneRef.current, intersectPointRef.current)) {
+      onDrag(label, intersectPointRef.current.clone());
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    if (!isDraggingRef.current) return;
+    e.stopPropagation();
+    isDraggingRef.current = false;
+    onDragEnd(label);
+    if (e.target && e.target.releasePointerCapture) {
+      try {
+        e.target.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    }
+  };
+
+  const radius = isEditing && !isCustom ? 0.12 : (isCustom ? 0.05 : 0.06);
+  const color = isEditing && !isCustom 
+    ? (hovered ? '#f59e0b' : '#2563eb') 
+    : (isCustom ? '#10b981' : '#334155');
+
+  return (
+    <group position={[pos.x, pos.y, pos.z]}>
+      <mesh
+        onPointerOver={(e) => {
+          if (isEditing && !isCustom) {
+            e.stopPropagation();
+            setHovered(true);
+            document.body.style.cursor = 'grab';
+          }
+        }}
+        onPointerOut={(e) => {
+          if (isEditing && !isCustom) {
+            e.stopPropagation();
+            setHovered(false);
+            if (!isDraggingRef.current) document.body.style.cursor = 'auto';
+          }
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      >
+        <sphereGeometry args={[radius, 24, 24]} />
+        <meshStandardMaterial 
+          color={color} 
+          emissive={isEditing && !isCustom && hovered ? '#f59e0b' : '#000000'}
+          emissiveIntensity={isEditing && !isCustom && hovered ? 0.5 : 0}
+        />
+      </mesh>
+      {isEditing && !isCustom && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.15, 0.19, 32]} />
+          <meshBasicMaterial color={hovered ? '#f59e0b' : '#3b82f6'} side={THREE.DoubleSide} transparent opacity={0.8} />
+        </mesh>
+      )}
+      {mounted && (
+        <Html center distanceFactor={12} style={{ pointerEvents: 'none', zIndex: 100 }}>
+          <div style={{ 
+            color: isCustom ? '#059669' : (isEditing ? '#1d4ed8' : '#0f172a'), 
+            fontWeight: 'bold', 
+            fontSize: isEditing ? '20px' : (isCustom ? '16px' : '18px'), 
+            fontFamily: 'serif',
+            transform: 'translate(14px, 0px)',
+            textShadow: '1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff',
+            userSelect: 'none'
+          }}>
+            {label}
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
+
 const CrossSectionMesh = ({ vertices, shapeEdges, selectedPts }) => {
   const geomData = useMemo(() => {
     if (selectedPts.length < 3) return null;
@@ -1536,18 +1643,26 @@ const SpaceGeometry3D = () => {
   const [mounted, setMounted] = useState(false);
   const controlsRef = useRef(null);
 
-  const resetView = () => {
-    const controls = controlsRef.current;
-    if (!controls) return;
-    controls.object.position.set(7, 6, 9);
-    controls.target.set(0, 0.5, 0);
-    controls.update();
-  };
-
   const [selectedShape, setSelectedShape] = useState('quad_parallelogram');
   const [mode, setMode] = useState('planes'); // 'planes' | 'line_plane'
   const [useDashed, setUseDashed] = useState(true);
   const [view2DPlane, setView2DPlane] = useState(null);
+
+  // States for point editing
+  const [isEditingPoints, setIsEditingPoints] = useState(false);
+  const [customVerticesMap, setCustomVerticesMap] = useState({});
+  const [selectedEditPoint, setSelectedEditPoint] = useState('S');
+  const [isDraggingVertex, setIsDraggingVertex] = useState(false);
+
+  const resetView = () => {
+    const controls = controlsRef.current;
+    if (controls) {
+      controls.object.position.set(7, 6, 9);
+      controls.target.set(0, 0.5, 0);
+      controls.update();
+    }
+    setCustomVerticesMap({});
+  };
   
   // States for 'planes' mode
   const [plane1, setPlane1] = useState([]);
@@ -1592,17 +1707,29 @@ const SpaceGeometry3D = () => {
     setCustomPoints([]);
     setConnections([]);
     setSwapVertices(false);
+    setCustomVerticesMap({});
     
+    if (shape && shape.labels.length > 0) {
+      setSelectedEditPoint(shape.labels[0]);
+    }
     // Set default edge for new point based on shape
     if (shape && shape.edges.length > 0) {
       setNewPointEdge(shape.edges[0].join(','));
     }
   }, [selectedShape, shape]);
 
-  const swappedBaseVertices = useMemo(() => {
+  const baseVertices = useMemo(() => {
     if (!shape) return {};
     const verts = {};
     for (const [k, v] of Object.entries(shape.vertices)) {
+      verts[k] = customVerticesMap[k] ? customVerticesMap[k].clone() : v.clone();
+    }
+    return verts;
+  }, [shape, customVerticesMap]);
+
+  const swappedBaseVertices = useMemo(() => {
+    const verts = {};
+    for (const [k, v] of Object.entries(baseVertices)) {
       verts[k] = v.clone();
     }
     
@@ -1626,7 +1753,34 @@ const SpaceGeometry3D = () => {
       }
     }
     return verts;
-  }, [shape, swapVertices, selectedShape]);
+  }, [baseVertices, swapVertices, selectedShape]);
+
+  const updatePointCoord = (label, x, y, z) => {
+    let actualKey = label;
+    if (swapVertices) {
+      const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
+      const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
+      const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
+      if (isQuad) {
+        if (label === 'B') actualKey = 'D';
+        else if (label === 'D') actualKey = 'B';
+      } else if (isTetra) {
+        if (label === 'C') actualKey = 'D';
+        else if (label === 'D') actualKey = 'C';
+      } else if (isTri) {
+        if (label === 'B') actualKey = 'C';
+        else if (label === 'C') actualKey = 'B';
+      }
+    }
+    setCustomVerticesMap(prev => ({
+      ...prev,
+      [actualKey]: new THREE.Vector3(x, y, z)
+    }));
+  };
+
+  const handleVertexDrag = (label, newPos) => {
+    updatePointCoord(label, newPos.x, newPos.y, newPos.z);
+  };
 
   const activeVertices = useMemo(() => {
     const verts = { ...swappedBaseVertices };
@@ -1798,6 +1952,157 @@ const SpaceGeometry3D = () => {
             value={selectedShape}
             onChange={setSelectedShape}
           />
+
+          {/* CHECKBOX SỬA ĐIỂM */}
+          <div style={{
+            marginTop: '8px',
+            padding: '8px 10px',
+            borderRadius: '8px',
+            background: isEditingPoints ? '#eff6ff' : '#f8fafc',
+            border: `1.5px solid ${isEditingPoints ? '#60a5fa' : '#e2e8f0'}`,
+            transition: 'all 0.2s'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                cursor: 'pointer', margin: 0, fontWeight: 600, fontSize: '13px',
+                color: isEditingPoints ? '#1d4ed8' : '#334155', userSelect: 'none'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={isEditingPoints}
+                  onChange={(e) => setIsEditingPoints(e.target.checked)}
+                  style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }}
+                />
+                <span>Sửa điểm</span>
+                {Object.keys(customVerticesMap).length > 0 && (
+                  <span style={{ fontSize: '11px', background: '#dbeafe', color: '#1e40af', padding: '1px 6px', borderRadius: '999px', fontWeight: 600 }}>
+                    Đã chỉnh
+                  </span>
+                )}
+              </label>
+
+              {Object.keys(customVerticesMap).length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setCustomVerticesMap({})}
+                  title="Khôi phục tọa độ ban đầu của hình"
+                  style={{
+                    border: 'none', background: 'transparent',
+                    color: '#ef4444', fontSize: '11.5px', fontWeight: 600,
+                    cursor: 'pointer', padding: '2px 4px', textDecoration: 'underline'
+                  }}
+                >
+                  Khôi phục gốc
+                </button>
+              )}
+            </div>
+
+            {/* When isEditingPoints is checked, show point coordinate editor */}
+            {isEditingPoints && (
+              <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ fontSize: '12px', color: '#1e40af', lineHeight: 1.4 }}>
+                  👉 <b>Kéo thả trực tiếp</b> điểm trên khung hình 3D, hoặc chọn đỉnh và chỉnh tọa độ dưới đây:
+                </div>
+
+                {/* Point selector tabs */}
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {shape.labels.map(lbl => (
+                    <button
+                      key={`edit-tab-${lbl}`}
+                      type="button"
+                      onClick={() => setSelectedEditPoint(lbl)}
+                      style={{
+                        padding: '4px 10px', fontSize: '12px', fontWeight: 700,
+                        borderRadius: '6px', cursor: 'pointer',
+                        border: selectedEditPoint === lbl ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                        background: selectedEditPoint === lbl ? '#2563eb' : '#ffffff',
+                        color: selectedEditPoint === lbl ? '#ffffff' : '#334155',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      {lbl}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Coordinate Sliders for selectedEditPoint */}
+                {selectedEditPoint && swappedBaseVertices[selectedEditPoint] && (() => {
+                  const pt = swappedBaseVertices[selectedEditPoint];
+                  return (
+                    <div style={{ background: '#ffffff', padding: '8px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b' }}>
+                          Tọa độ đỉnh {selectedEditPoint}:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const def = shape.vertices[selectedEditPoint];
+                            if (def) updatePointCoord(selectedEditPoint, def.x, def.y, def.z);
+                          }}
+                          style={{ border: 'none', background: 'transparent', color: '#64748b', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                        >
+                          Đặt lại điểm này
+                        </button>
+                      </div>
+
+                      {/* X axis */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                        <span style={{ width: '18px', fontWeight: 700, color: '#ef4444' }}>X:</span>
+                        <input
+                          type="range"
+                          min="-5"
+                          max="5"
+                          step="0.1"
+                          value={pt.x}
+                          onChange={(e) => updatePointCoord(selectedEditPoint, parseFloat(e.target.value), pt.y, pt.z)}
+                          style={{ flex: 1, cursor: 'pointer' }}
+                        />
+                        <span style={{ width: '42px', textAlign: 'right', fontWeight: 600, color: '#334155' }}>
+                          {pt.x.toFixed(1)}
+                        </span>
+                      </div>
+
+                      {/* Y axis (Height) */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                        <span style={{ width: '18px', fontWeight: 700, color: '#10b981' }}>Y:</span>
+                        <input
+                          type="range"
+                          min="-3"
+                          max="5"
+                          step="0.1"
+                          value={pt.y}
+                          onChange={(e) => updatePointCoord(selectedEditPoint, pt.x, parseFloat(e.target.value), pt.z)}
+                          style={{ flex: 1, cursor: 'pointer' }}
+                        />
+                        <span style={{ width: '42px', textAlign: 'right', fontWeight: 600, color: '#334155' }}>
+                          {pt.y.toFixed(1)}
+                        </span>
+                      </div>
+
+                      {/* Z axis (Depth) */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                        <span style={{ width: '18px', fontWeight: 700, color: '#3b82f6' }}>Z:</span>
+                        <input
+                          type="range"
+                          min="-5"
+                          max="5"
+                          step="0.1"
+                          value={pt.z}
+                          onChange={(e) => updatePointCoord(selectedEditPoint, pt.x, pt.y, parseFloat(e.target.value))}
+                          style={{ flex: 1, cursor: 'pointer' }}
+                        />
+                        <span style={{ width: '42px', textAlign: 'right', fontWeight: 600, color: '#334155' }}>
+                          {pt.z.toFixed(1)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="control-group">
@@ -2129,7 +2434,15 @@ const SpaceGeometry3D = () => {
             <pointLight position={[10, 10, 10]} intensity={0.8} />
             <pointLight position={[-10, -10, -10]} intensity={0.3} />
             
-            <OrbitControls ref={controlsRef} makeDefault enableDamping={true} minDistance={2} maxDistance={15} target={[0, 0.5, 0]} />
+            <OrbitControls 
+              ref={controlsRef} 
+              makeDefault 
+              enableDamping={true} 
+              minDistance={2} 
+              maxDistance={15} 
+              target={[0, 0.5, 0]} 
+              enabled={!isDraggingVertex}
+            />
             
             {/* Draw shape edges */}
             {shape.edges.map((edge, i) => (
@@ -2145,27 +2458,19 @@ const SpaceGeometry3D = () => {
             {activeLabels.map(v => {
               const isCustom = !shape.labels.includes(v);
               const pos = activeVertices[v];
+              if (!pos) return null;
               return (
-                <group key={`label-${v}`} position={[pos.x, pos.y, pos.z]}>
-                  <mesh>
-                    <sphereGeometry args={[isCustom ? 0.05 : 0.06, 16, 16]} />
-                    <meshBasicMaterial color={isCustom ? "#10b981" : "#334155"} />
-                  </mesh>
-                  {mounted && (
-                    <Html center distanceFactor={12} style={{ pointerEvents: 'none', zIndex: 100 }}>
-                      <div style={{ 
-                        color: isCustom ? '#059669' : '#0f172a', 
-                        fontWeight: 'bold', 
-                        fontSize: isCustom ? '16px' : '18px', 
-                        fontFamily: 'serif',
-                        transform: 'translate(14px, 0px)',
-                        textShadow: '1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff' 
-                      }}>
-                        {v}
-                      </div>
-                    </Html>
-                  )}
-                </group>
+                <DraggableVertex
+                  key={`vertex-node-${v}`}
+                  label={v}
+                  pos={pos}
+                  isCustom={isCustom}
+                  isEditing={isEditingPoints}
+                  onDragStart={() => setIsDraggingVertex(true)}
+                  onDrag={handleVertexDrag}
+                  onDragEnd={() => setIsDraggingVertex(false)}
+                  mounted={mounted}
+                />
               );
             })}
             
