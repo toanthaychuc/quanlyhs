@@ -889,7 +889,8 @@ const SpaceGeometry3D = () => {
   // Intersections
   const [interLine1, setInterLine1] = useState('');
   const [interLine2, setInterLine2] = useState('');
-  const [newInterLabel, setNewInterLabel] = useState('E');
+  const [newInterLabel, setNewInterLabel] = useState('');
+  const [suggestedInterLabel, setSuggestedInterLabel] = useState('E');
 
   const shape = SHAPES[selectedShape];
 
@@ -1038,8 +1039,9 @@ const SpaceGeometry3D = () => {
   };
 
   const handleAddIntersection = () => {
-    if (!newInterLabel.trim()) return;
-    if (activeLabels.includes(newInterLabel.trim())) {
+    const finalLabel = (newInterLabel.trim() || suggestedInterLabel).toUpperCase();
+    if (!finalLabel) return;
+    if (activeLabels.includes(finalLabel)) {
       alert('Tên điểm đã tồn tại!');
       return;
     }
@@ -1065,14 +1067,15 @@ const SpaceGeometry3D = () => {
     }
     
     setCustomPoints([...customPoints, { 
-      label: newInterLabel.trim().toUpperCase(), 
+      label: finalLabel, 
       type: 'intersection', 
       line1: l1, 
       line2: l2 
     }]);
     
-    const nextChar = String.fromCharCode(newInterLabel.trim().toUpperCase().charCodeAt(0) + 1);
-    setNewInterLabel(nextChar);
+    const nextChar = String.fromCharCode(finalLabel.charCodeAt(0) + 1);
+    setSuggestedInterLabel(nextChar);
+    setNewInterLabel('');
     setInterLine1('');
     setInterLine2('');
   };
@@ -1384,7 +1387,7 @@ const SpaceGeometry3D = () => {
                 value={newInterLabel}
                 onChange={e => setNewInterLabel(e.target.value)}
                 maxLength={2}
-                placeholder="Tên"
+                placeholder={suggestedInterLabel}
               />
               <button 
                 className="mode-btn" 
