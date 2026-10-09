@@ -1782,6 +1782,10 @@ const SpaceGeometry3D = () => {
     updatePointCoord(label, newPos.x, newPos.y, newPos.z);
   };
 
+  const updateMathCoord = (label, mathX, mathY, mathZ) => {
+    updatePointCoord(label, mathX, mathZ - 1, mathY);
+  };
+
   const activeVertices = useMemo(() => {
     const verts = { ...swappedBaseVertices };
     customPoints.forEach(cp => {
@@ -2042,11 +2046,18 @@ const SpaceGeometry3D = () => {
                 {/* Coordinate Sliders for selectedEditPoint */}
                 {selectedEditPoint && swappedBaseVertices[selectedEditPoint] && (() => {
                   const pt = swappedBaseVertices[selectedEditPoint];
+                  // Map to Math Oxyz:
+                  // X: Ox (Trái/Phải) = pt.x
+                  // Y: Oy (Tiến/Lùi trên đáy Oxy) = pt.z
+                  // Z: Oz (Cao độ Lên/Xuống, đáy z=0) = pt.y + 1
+                  const mathX = pt.x;
+                  const mathY = pt.z;
+                  const mathZ = pt.y + 1;
                   return (
                     <div style={{ background: '#ffffff', padding: '8px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b' }}>
-                          Tọa độ đỉnh {selectedEditPoint}:
+                          Tọa độ đỉnh {selectedEditPoint} (Oxyz):
                         </span>
                         <button
                           type="button"
@@ -2060,55 +2071,59 @@ const SpaceGeometry3D = () => {
                         </button>
                       </div>
 
-                      {/* X axis */}
+                      {/* X axis (Ox: Trái ⇄ Phải trên đáy Oxy) */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
-                        <span style={{ width: '18px', fontWeight: 700, color: '#ef4444' }}>X:</span>
+                        <span style={{ width: '22px', fontWeight: 700, color: '#ef4444' }} title="Trục Ox: Trái ⇄ Phải (mặt đáy Oxy)">X:</span>
                         <input
                           type="range"
                           min="-5"
                           max="5"
                           step="0.1"
-                          value={pt.x}
-                          onChange={(e) => updatePointCoord(selectedEditPoint, parseFloat(e.target.value), pt.y, pt.z)}
+                          value={mathX}
+                          onChange={(e) => updateMathCoord(selectedEditPoint, parseFloat(e.target.value), mathY, mathZ)}
                           style={{ flex: 1, cursor: 'pointer' }}
                         />
                         <span style={{ width: '42px', textAlign: 'right', fontWeight: 600, color: '#334155' }}>
-                          {pt.x.toFixed(1)}
+                          {mathX.toFixed(1)}
                         </span>
                       </div>
 
-                      {/* Y axis (Height) */}
+                      {/* Y axis (Oy: Tiến ⇄ Lùi trên đáy Oxy) */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
-                        <span style={{ width: '18px', fontWeight: 700, color: '#10b981' }}>Y:</span>
-                        <input
-                          type="range"
-                          min="-3"
-                          max="5"
-                          step="0.1"
-                          value={pt.y}
-                          onChange={(e) => updatePointCoord(selectedEditPoint, pt.x, parseFloat(e.target.value), pt.z)}
-                          style={{ flex: 1, cursor: 'pointer' }}
-                        />
-                        <span style={{ width: '42px', textAlign: 'right', fontWeight: 600, color: '#334155' }}>
-                          {pt.y.toFixed(1)}
-                        </span>
-                      </div>
-
-                      {/* Z axis (Depth) */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
-                        <span style={{ width: '18px', fontWeight: 700, color: '#3b82f6' }}>Z:</span>
+                        <span style={{ width: '22px', fontWeight: 700, color: '#10b981' }} title="Trục Oy: Tiến ⇄ Lùi (mặt đáy Oxy)">Y:</span>
                         <input
                           type="range"
                           min="-5"
                           max="5"
                           step="0.1"
-                          value={pt.z}
-                          onChange={(e) => updatePointCoord(selectedEditPoint, pt.x, pt.y, parseFloat(e.target.value))}
+                          value={mathY}
+                          onChange={(e) => updateMathCoord(selectedEditPoint, mathX, parseFloat(e.target.value), mathZ)}
                           style={{ flex: 1, cursor: 'pointer' }}
                         />
                         <span style={{ width: '42px', textAlign: 'right', fontWeight: 600, color: '#334155' }}>
-                          {pt.z.toFixed(1)}
+                          {mathY.toFixed(1)}
                         </span>
+                      </div>
+
+                      {/* Z axis (Oz: Cao độ Lên ⇄ Xuống) */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                        <span style={{ width: '22px', fontWeight: 700, color: '#3b82f6' }} title="Trục Oz: Cao độ Lên ⇄ Xuống (vuông góc đáy Oxy)">Z:</span>
+                        <input
+                          type="range"
+                          min="-2"
+                          max="6"
+                          step="0.1"
+                          value={mathZ}
+                          onChange={(e) => updateMathCoord(selectedEditPoint, mathX, mathY, parseFloat(e.target.value))}
+                          style={{ flex: 1, cursor: 'pointer' }}
+                        />
+                        <span style={{ width: '42px', textAlign: 'right', fontWeight: 600, color: '#334155' }}>
+                          {mathZ.toFixed(1)}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: '10.5px', color: '#64748b', fontStyle: 'italic', marginTop: '2px' }}>
+                        * Mặt phẳng (Oxy) chứa đáy (Z=0). Trục Oz là độ cao.
                       </div>
                     </div>
                   );
