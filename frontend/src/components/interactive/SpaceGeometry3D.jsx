@@ -71,7 +71,7 @@ const SHAPES = {
     subName: 'Đáy là hình bình hành',
     name: 'Chóp S.ABCD (đáy hình bình hành)',
     vertices: {
-      S: new THREE.Vector3(-0.6, 2.5, -0.6),
+      S: new THREE.Vector3(-0.5, 2.5, 0),
       A: new THREE.Vector3(-1.5, -1, -1),
       B: new THREE.Vector3(2.5, -1, -1),
       C: new THREE.Vector3(1.5, -1, 1.5),
@@ -1657,7 +1657,7 @@ const SpaceGeometry3D = () => {
   const resetView = () => {
     const controls = controlsRef.current;
     if (controls) {
-      controls.object.position.set(7, 6, 9);
+      controls.object.position.set(0, 4.5, 10.5);
       controls.target.set(0, 0.5, 0);
       controls.update();
     }
@@ -2422,7 +2422,7 @@ const SpaceGeometry3D = () => {
             />
           )}
           <Canvas 
-            camera={{ position: [7, 6, 9], fov: 45 }}
+            camera={{ position: [0, 4.5, 10.5], fov: 45 }}
             onCreated={({ camera }) => {
               camera.lookAt(0, 0.5, 0);
               // Wait a tiny bit for the first frame to render before showing HTML
