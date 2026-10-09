@@ -890,7 +890,7 @@ const SpaceGeometry3D = () => {
   const [interLine1, setInterLine1] = useState('');
   const [interLine2, setInterLine2] = useState('');
   const [newInterLabel, setNewInterLabel] = useState('');
-  const [suggestedInterLabel, setSuggestedInterLabel] = useState('E');
+  const [suggestedInterLabel, setSuggestedInterLabel] = useState('O');
 
   const shape = SHAPES[selectedShape];
 
@@ -1369,7 +1369,7 @@ const SpaceGeometry3D = () => {
                 value={interLine1}
                 onChange={e => setInterLine1(e.target.value)}
                 maxLength={2}
-                placeholder="SA"
+                placeholder="AC"
               />
               <input 
                 type="text" 
@@ -1378,7 +1378,7 @@ const SpaceGeometry3D = () => {
                 value={interLine2}
                 onChange={e => setInterLine2(e.target.value)}
                 maxLength={2}
-                placeholder="AC"
+                placeholder="BD"
               />
               <input 
                 type="text" 
