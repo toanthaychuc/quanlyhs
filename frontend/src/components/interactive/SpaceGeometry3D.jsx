@@ -2131,10 +2131,6 @@ const SpaceGeometry3D = () => {
             {/* When isEditingPoints is checked, show point coordinate editor */}
             {isEditingPoints && (
               <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ fontSize: '12px', color: '#1e40af', lineHeight: 1.4 }}>
-                  👉 <b>Kéo thả trực tiếp</b> điểm trên khung hình 3D, hoặc chọn đỉnh và chỉnh tọa độ dưới đây:
-                </div>
-
                 {/* Point selector tabs */}
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                   {shape.labels.map(lbl => (
@@ -2265,10 +2261,6 @@ const SpaceGeometry3D = () => {
                         <span style={{ width: '42px', textAlign: 'right', fontWeight: 600, color: '#334155' }}>
                           {mathZ.toFixed(1)}
                         </span>
-                      </div>
-
-                      <div style={{ fontSize: '10.5px', color: '#64748b', fontStyle: 'italic', marginTop: '2px' }}>
-                        * Mặt phẳng (Oxy) chứa đáy (Z=0). Trục Oz là độ cao.
                       </div>
                     </div>
                   );
