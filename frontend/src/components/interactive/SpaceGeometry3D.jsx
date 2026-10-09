@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Html, Line, MapControls, OrthographicCamera, PerspectiveCamera } from '@react-three/drei';
@@ -498,7 +498,14 @@ const SvgDraggableLabel = ({ label, x, y, svgRef }) => {
   );
 };
 
-const Plane2DViewer = ({ planeLabels, vertices, onClose }) => {
+const Plane2DViewer = ({ 
+  planeLabels, 
+  vertices, 
+  connections = [], 
+  shapeEdges = [], 
+  customPoints = [], 
+  onClose 
+}) => {
   const [rotationZ, setRotationZ] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -506,17 +513,36 @@ const Plane2DViewer = ({ planeLabels, vertices, onClose }) => {
   const panStart = useRef(null);
 
   const points2D = useMemo(() => {
-    const p1 = vertices[planeLabels[0]];
-    const p2 = vertices[planeLabels[1]];
-    const p3 = vertices[planeLabels[2]];
+    let p1 = vertices[planeLabels[0]];
+    let p2 = vertices[planeLabels[1]];
+    let p3 = vertices[planeLabels[2]];
     
     if (!p1 || !p2 || !p3) return [];
 
-    const xAxis = new THREE.Vector3().subVectors(p2, p1).normalize();
-    const v13 = new THREE.Vector3().subVectors(p3, p1);
-    const normal = new THREE.Vector3().crossVectors(xAxis, v13).normalize();
-    const yAxis = new THREE.Vector3().crossVectors(normal, xAxis).normalize();
+    let xAxis = new THREE.Vector3().subVectors(p2, p1);
+    if (xAxis.lengthSq() < 1e-6) return [];
+    xAxis.normalize();
 
+    let v13 = new THREE.Vector3().subVectors(p3, p1);
+    let normal = new THREE.Vector3().crossVectors(xAxis, v13);
+    
+    if (normal.lengthSq() < 1e-6 && planeLabels.length > 3) {
+      for (let i = 3; i < planeLabels.length; i++) {
+        const altP = vertices[planeLabels[i]];
+        if (altP) {
+          v13 = new THREE.Vector3().subVectors(altP, p1);
+          normal = new THREE.Vector3().crossVectors(xAxis, v13);
+          if (normal.lengthSq() > 1e-6) {
+            p3 = altP;
+            break;
+          }
+        }
+      }
+    }
+    if (normal.lengthSq() < 1e-6) return [];
+    normal.normalize();
+
+    const yAxis = new THREE.Vector3().crossVectors(normal, xAxis).normalize();
     const plane = new THREE.Plane().setFromCoplanarPoints(p1, p2, p3);
 
     const pts = [];
@@ -531,8 +557,8 @@ const Plane2DViewer = ({ planeLabels, vertices, onClose }) => {
     return pts;
   }, [planeLabels, vertices]);
 
-  const { shape, centeredPoints, linePoints } = useMemo(() => {
-    if (points2D.length < 3) return { shape: null, centeredPoints: [], linePoints: [] };
+  const { centeredPoints, maxRadius } = useMemo(() => {
+    if (points2D.length < 3) return { centeredPoints: [], maxRadius: 1 };
     
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     points2D.forEach(p => {
@@ -545,48 +571,110 @@ const Plane2DViewer = ({ planeLabels, vertices, onClose }) => {
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
     
-    const sorted = [...points2D].sort((a, b) => {
-      return Math.atan2(a.y - cy, a.x - cx) - Math.atan2(b.y - cy, b.x - cx);
-    });
-    
     const centeredPoints = points2D.map(p => ({
       label: p.label,
       x: p.x - cx,
-      y: p.y - cy,
-      z: 0
+      y: p.y - cy
     }));
-    
-    const centeredSorted = sorted.map(p => new THREE.Vector3(p.x - cx, p.y - cy, 0));
-    const linePoints = [...centeredSorted, centeredSorted[0]];
-    
-    const s = new THREE.Shape();
-    s.moveTo(centeredSorted[0].x, centeredSorted[0].y);
-    for (let i = 1; i < centeredSorted.length; i++) {
-      s.lineTo(centeredSorted[i].x, centeredSorted[i].y);
-    }
-    s.lineTo(centeredSorted[0].x, centeredSorted[0].y);
-    
-    return { shape: s, centeredPoints, linePoints };
+
+    const maxRadius = Math.max(...centeredPoints.map(p => Math.hypot(p.x, p.y)), 0.0001);
+    return { centeredPoints, maxRadius };
   }, [points2D]);
 
-  const { screenPts, labelPts } = useMemo(() => {
-    if (!shape) return { screenPts: [], labelPts: [] };
-    const maxR = Math.max(...centeredPoints.map(p => Math.hypot(p.x, p.y)), 0.0001);
-    const base = 220 / maxR;
-    const a = rotationZ * Math.PI / 180;
-    const cos = Math.cos(a), sin = Math.sin(a);
-    const toScreen = (p) => {
-      const rx = p.x * cos - p.y * sin;
-      const ry = p.x * sin + p.y * cos;
-      return { sx: rx * base * zoom + pan.x, sy: -ry * base * zoom + pan.y };
-    };
+  const toScreen = useCallback((x, y) => {
+    const base = 220 / maxRadius;
+    const a = (rotationZ * Math.PI) / 180;
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
+    const rx = x * cos - y * sin;
+    const ry = x * sin + y * cos;
     return {
-      screenPts: linePoints.slice(0, -1).map(toScreen),
-      labelPts: centeredPoints.map(p => ({ label: p.label, ...toScreen(p) }))
+      sx: rx * base * zoom + pan.x,
+      sy: -ry * base * zoom + pan.y
     };
-  }, [shape, centeredPoints, linePoints, rotationZ, zoom, pan]);
+  }, [maxRadius, rotationZ, zoom, pan]);
 
-  if (!shape) return null;
+  const screenPosMap = useMemo(() => {
+    const map = {};
+    centeredPoints.forEach(p => {
+      map[p.label] = toScreen(p.x, p.y);
+    });
+    return map;
+  }, [centeredPoints, toScreen]);
+
+  // The shaded polygon of the main plane (planeLabels)
+  const facePolygonPts = useMemo(() => {
+    const facePoints = centeredPoints.filter(p => planeLabels.includes(p.label));
+    if (facePoints.length < 3) return [];
+    
+    const fcx = facePoints.reduce((acc, p) => acc + p.x, 0) / facePoints.length;
+    const fcy = facePoints.reduce((acc, p) => acc + p.y, 0) / facePoints.length;
+    
+    const sorted = [...facePoints].sort((a, b) => 
+      Math.atan2(a.y - fcy, a.x - fcx) - Math.atan2(b.y - fcy, b.x - fcx)
+    );
+    
+    return sorted.map(p => screenPosMap[p.label]).filter(Boolean);
+  }, [centeredPoints, planeLabels, screenPosMap]);
+
+  // Collect all lines lying in this plane
+  const planeLines = useMemo(() => {
+    const lineMap = new Map();
+
+    const addLine = (u, v, style) => {
+      if (!u || !v || u === v) return;
+      if (!screenPosMap[u] || !screenPosMap[v]) return;
+      const key = [u, v].sort().join('-');
+      if (!lineMap.has(key) || style === 'connection') {
+        lineMap.set(key, {
+          u,
+          v,
+          p1: screenPosMap[u],
+          p2: screenPosMap[v],
+          style
+        });
+      }
+    };
+
+    // 1. Plane polygon boundary edges
+    const facePoints = centeredPoints.filter(p => planeLabels.includes(p.label));
+    if (facePoints.length >= 3) {
+      const fcx = facePoints.reduce((acc, p) => acc + p.x, 0) / facePoints.length;
+      const fcy = facePoints.reduce((acc, p) => acc + p.y, 0) / facePoints.length;
+      const sorted = [...facePoints].sort((a, b) => 
+        Math.atan2(a.y - fcy, a.x - fcx) - Math.atan2(b.y - fcy, b.x - fcx)
+      );
+      for (let i = 0; i < sorted.length; i++) {
+        addLine(sorted[i].label, sorted[(i + 1) % sorted.length].label, 'planeEdge');
+      }
+    }
+
+    // 2. Base shape edges in this plane
+    (shapeEdges || []).forEach(([u, v]) => {
+      addLine(u, v, 'shapeEdge');
+    });
+
+    // 3. User custom connections drawn in 3D in this plane (e.g. MN, BI, AN)
+    (connections || []).forEach(([u, v]) => {
+      addLine(u, v, 'connection');
+    });
+
+    // 4. Lines used for intersections in this plane
+    (customPoints || []).forEach(cp => {
+      if (cp.type === 'intersection') {
+        if (cp.line1 && cp.line1.length === 2) {
+          addLine(cp.line1[0], cp.line1[1], 'connection');
+        }
+        if (cp.line2 && cp.line2.length === 2) {
+          addLine(cp.line2[0], cp.line2[1], 'connection');
+        }
+      }
+    });
+
+    return Array.from(lineMap.values());
+  }, [screenPosMap, centeredPoints, planeLabels, shapeEdges, connections, customPoints]);
+
+  if (points2D.length < 3) return null;
 
   const modalContent = (
     <div style={{
@@ -659,13 +747,62 @@ const Plane2DViewer = ({ planeLabels, vertices, onClose }) => {
             onPointerUp={() => { panStart.current = null; }}
             onPointerCancel={() => { panStart.current = null; }}
           >
-            <polygon points={screenPts.map(p => `${p.sx},${p.sy}`).join(' ')} fill="#bfdbfe" fillOpacity="0.6" stroke="#3b82f6" strokeWidth="3" strokeLinejoin="round" />
-            {labelPts.map(p => (
-              <circle key={`dot-${p.label}`} cx={p.sx} cy={p.sy} r="6" fill="#1e293b" />
+            {/* Shaded plane polygon */}
+            {facePolygonPts.length >= 3 && (
+              <polygon
+                points={facePolygonPts.map(p => `${p.sx},${p.sy}`).join(' ')}
+                fill="#bfdbfe"
+                fillOpacity="0.45"
+                stroke="#3b82f6"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+              />
+            )}
+
+            {/* All internal and boundary lines on this plane */}
+            {planeLines.map((line, idx) => (
+              <line
+                key={`line-${line.u}-${line.v}-${idx}`}
+                x1={line.p1.sx}
+                y1={line.p1.sy}
+                x2={line.p2.sx}
+                y2={line.p2.sy}
+                stroke={line.style === 'connection' ? '#0284c7' : line.style === 'shapeEdge' ? '#475569' : '#3b82f6'}
+                strokeWidth={line.style === 'connection' ? 2.5 : 2}
+                strokeDasharray={line.style === 'connection' ? '6 4' : undefined}
+                strokeLinecap="round"
+              />
             ))}
-            {labelPts.map(p => (
-              <SvgDraggableLabel key={`lbl-${p.label}`} label={p.label} x={p.sx} y={p.sy} svgRef={svgRef} />
-            ))}
+
+            {/* Points on this plane */}
+            {centeredPoints.map(p => {
+              const sp = screenPosMap[p.label];
+              if (!sp) return null;
+              return (
+                <circle
+                  key={`dot-${p.label}`}
+                  cx={sp.sx}
+                  cy={sp.sy}
+                  r="6"
+                  fill="#1e293b"
+                />
+              );
+            })}
+
+            {/* Draggable labels */}
+            {centeredPoints.map(p => {
+              const sp = screenPosMap[p.label];
+              if (!sp) return null;
+              return (
+                <SvgDraggableLabel
+                  key={`lbl-${p.label}`}
+                  label={p.label}
+                  x={sp.sx}
+                  y={sp.sy}
+                  svgRef={svgRef}
+                />
+              );
+            })}
           </svg>
           <div style={{
             position: 'absolute',
@@ -1286,6 +1423,9 @@ const SpaceGeometry3D = () => {
             <Plane2DViewer 
               planeLabels={view2DPlane} 
               vertices={activeVertices} 
+              connections={connections}
+              shapeEdges={shape.edges}
+              customPoints={customPoints}
               onClose={() => setView2DPlane(null)} 
             />
           )}
