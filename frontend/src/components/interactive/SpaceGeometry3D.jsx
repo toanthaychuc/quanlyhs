@@ -1975,25 +1975,38 @@ const SpaceGeometry3D = () => {
                   style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#2563eb' }}
                 />
                 <span>Sửa điểm</span>
-                {Object.keys(customVerticesMap).length > 0 && (
-                  <span style={{ fontSize: '11px', background: '#dbeafe', color: '#1e40af', padding: '1px 6px', borderRadius: '999px', fontWeight: 600 }}>
-                    Đã chỉnh
-                  </span>
-                )}
               </label>
 
               {Object.keys(customVerticesMap).length > 0 && (
                 <button
                   type="button"
                   onClick={() => setCustomVerticesMap({})}
-                  title="Khôi phục tọa độ ban đầu của hình"
+                  title="Khôi phục tọa độ gốc ban đầu"
                   style={{
-                    border: 'none', background: 'transparent',
-                    color: '#ef4444', fontSize: '11.5px', fontWeight: 600,
-                    cursor: 'pointer', padding: '2px 4px', textDecoration: 'underline'
+                    border: '1px solid #fecaca',
+                    background: '#fef2f2',
+                    color: '#ef4444',
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = '#fee2e2';
+                    e.currentTarget.style.borderColor = '#fca5a5';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = '#fef2f2';
+                    e.currentTarget.style.borderColor = '#fecaca';
                   }}
                 >
-                  Khôi phục gốc
+                  ⟲
                 </button>
               )}
             </div>
