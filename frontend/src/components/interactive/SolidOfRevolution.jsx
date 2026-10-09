@@ -267,7 +267,7 @@ const SolidOfRevolution = () => {
       
       setCamera(prev => ({
         ...prev,
-        yaw: prev.yaw + dx * 0.01,
+        yaw: prev.yaw - dx * 0.01,
         pitch: Math.max(-Math.PI/2, Math.min(Math.PI/2, prev.pitch + dy * 0.01))
       }));
       
