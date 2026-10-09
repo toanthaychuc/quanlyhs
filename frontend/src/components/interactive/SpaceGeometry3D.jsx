@@ -1987,13 +1987,13 @@ const SpaceGeometry3D = () => {
 
   const updatePointCoord = (label, x, y, z) => {
     let actualKey = label;
-    if (swapVertices) {
-      const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
-      const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
-      const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
-      const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
-      const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
+    const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
+    const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
+    const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
+    const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
+    const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
 
+    if (swapVertices) {
       if (isQuad || isPrismQuad) {
         if (label === 'B') actualKey = 'D';
         else if (label === 'D') actualKey = 'B';
@@ -2009,10 +2009,40 @@ const SpaceGeometry3D = () => {
         else if (label === "C'") actualKey = "B'";
       }
     }
-    setCustomVerticesMap(prev => ({
-      ...prev,
-      [actualKey]: new THREE.Vector3(x, y, z)
-    }));
+
+    setCustomVerticesMap(prev => {
+      const next = {
+        ...prev,
+        [actualKey]: new THREE.Vector3(x, y, z)
+      };
+
+      const isPrism = isPrismQuad || isPrismTri;
+      if (isPrism) {
+        const getPt = (k) => next[k] || (currentShapeDefaults && currentShapeDefaults[k]) || shape.vertices[k];
+        
+        let shift;
+        if (actualKey.endsWith("'")) {
+          const baseKey = actualKey.replace("'", "");
+          shift = new THREE.Vector3().subVectors(next[actualKey], getPt(baseKey));
+        } else {
+          const oldShift = new THREE.Vector3().subVectors(
+            prev["A'"] || (currentShapeDefaults && currentShapeDefaults["A'"]) || shape.vertices["A'"],
+            prev["A"] || (currentShapeDefaults && currentShapeDefaults["A"]) || shape.vertices["A"]
+          );
+          shift = oldShift;
+        }
+
+        const bases = isPrismQuad ? ['A', 'B', 'C', 'D'] : ['A', 'B', 'C'];
+        bases.forEach(b => {
+          const topKey = b + "'";
+          if (topKey !== actualKey) {
+            next[topKey] = new THREE.Vector3().addVectors(getPt(b), shift);
+          }
+        });
+      }
+
+      return next;
+    });
   };
 
   const handleVertexDrag = (label, newPos) => {
@@ -2026,13 +2056,13 @@ const SpaceGeometry3D = () => {
   // Reset selected point to default
   const handleResetCurrentPoint = () => {
     let actualKey = selectedEditPoint;
-    if (swapVertices) {
-      const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
-      const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
-      const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
-      const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
-      const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
+    const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
+    const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
+    const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
+    const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
+    const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
 
+    if (swapVertices) {
       if (isQuad || isPrismQuad) {
         if (selectedEditPoint === 'B') actualKey = 'D';
         else if (selectedEditPoint === 'D') actualKey = 'B';
@@ -2048,9 +2078,33 @@ const SpaceGeometry3D = () => {
         else if (selectedEditPoint === "C'") actualKey = "B'";
       }
     }
+    
     setCustomVerticesMap(prev => {
       const next = { ...prev };
       delete next[actualKey];
+      
+      const isPrism = isPrismQuad || isPrismTri;
+      if (isPrism) {
+        if (actualKey.endsWith("'")) {
+          // If a top vertex is reset, reset ALL top vertices
+          const bases = isPrismQuad ? ['A', 'B', 'C', 'D'] : ['A', 'B', 'C'];
+          bases.forEach(b => delete next[b + "'"]);
+        } else {
+          // If a base vertex is reset, maintain current shift
+          const getPt = (k) => next[k] || (currentShapeDefaults && currentShapeDefaults[k]) || shape.vertices[k];
+          const bases = isPrismQuad ? ['A', 'B', 'C', 'D'] : ['A', 'B', 'C'];
+          const refBase = bases.find(b => b !== actualKey);
+          
+          if (refBase) {
+            const shift = new THREE.Vector3().subVectors(getPt(refBase + "'"), getPt(refBase));
+            bases.forEach(b => {
+              const topKey = b + "'";
+              next[topKey] = new THREE.Vector3().addVectors(getPt(b), shift);
+            });
+          }
+        }
+      }
+
       return next;
     });
   };
