@@ -1,0 +1,140 @@
+.trig-container {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.trig-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.trig-title {
+  margin: 0 0 5px 0;
+  color: #1e293b;
+}
+
+.trig-desc {
+  margin: 0 0 15px 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.trig-controls {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-weight: 500;
+  color: #334155;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  color: #334155;
+}
+
+.stepper-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.stepper-controls button {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  color: #475569;
+  transition: all 0.2s;
+}
+
+.stepper-controls button:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.trig-info {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.trig-table {
+  font-size: 16px;
+  border: none;
+}
+.trig-table th, .trig-table td {
+  padding: 12px 8px;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+}
+.trig-table tr:last-child th,
+.trig-table tr:last-child td {
+  border-bottom: none;
+}
+.trig-table th.label {
+  background: transparent;
+  border-right: none;
+  text-align: left;
+  width: 80px;
+  color: #475569;
+}
+.trig-table td {
+  text-align: right;
+  font-family: inherit;
+}
+
+.trig-canvas {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.math-text-normal {
+
+}

@@ -6,6 +6,7 @@ import MainLayout from './layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Documents from './pages/Documents';
 import Formulas from './pages/Formulas';
+import InteractiveMaterials from './pages/InteractiveMaterials';
 import Exams from './pages/Exams';
 import Classes from './pages/Classes';
 import Assignments from './pages/Assignments';
@@ -190,6 +191,7 @@ function App() {
                 <Route path="classes" element={<Classes />} />
                 <Route path="assignments" element={<Assignments />} />
                 <Route path="documents" element={<Documents />} />
+                <Route path="interactive" element={<InteractiveMaterials />} />
                 <Route path="formulas" element={<Formulas />} />
                 <Route path="exams" element={<Exams />} />
                 <Route path="forum" element={<Forum />} />

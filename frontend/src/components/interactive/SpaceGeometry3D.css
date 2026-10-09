@@ -1,0 +1,173 @@
+.space-geom-container {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.space-geom-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+  padding-right: 10px;
+  height: 100%;
+}
+
+.space-geom-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-color, #ffffff);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  position: relative;
+}
+
+.space-geom-title {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.control-group label {
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.geom-select {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+}
+
+.geom-select:focus {
+  border-color: var(--primary-color);
+}
+
+.mode-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mode-btn {
+  padding: 0.75rem;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.mode-btn:hover {
+  background-color: var(--surface-color);
+  border-color: var(--primary-color);
+}
+
+.mode-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.vertex-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.vertex-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vertex-btn:hover:not(:disabled) {
+  background-color: var(--surface-color);
+  border-color: var(--primary-color);
+}
+
+.vertex-btn.active.plane1 {
+  background-color: rgba(59, 130, 246, 0.15); /* blue */
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+.vertex-btn.active.plane2 {
+  background-color: rgba(16, 185, 129, 0.15); /* green */
+  color: #059669;
+  border-color: #059669;
+}
+
+.vertex-btn.active.line {
+  background-color: rgba(239, 68, 68, 0.15); /* red */
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+.vertex-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.selection-panel {
+  background: var(--background-color);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.instruction-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: -0.25rem;
+}
+
+.canvas-container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.hint-overlay {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  pointer-events: none;
+}

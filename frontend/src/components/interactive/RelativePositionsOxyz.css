@@ -1,0 +1,301 @@
+.oxyz-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.oxyz-object-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background-color: var(--surface-color, rgba(255, 255, 255, 0.5));
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 0rem;
+}
+
+.object-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.row-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  width: 100px;
+}
+
+.obj-btn {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--border-color);
+  background-color: white;
+  border-radius: 8px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.obj-btn:hover {
+  border-color: var(--primary-color, #4f46e5);
+  background-color: var(--primary-color-light, #eef2ff);
+  color: var(--primary-color, #4f46e5);
+}
+
+.obj-btn.active {
+  background-color: var(--primary-color, #4f46e5);
+  color: white;
+  border-color: var(--primary-color, #4f46e5);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.object-connector {
+  height: 30px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connector-link-icon {
+  color: var(--primary-color, #4f46e5);
+  background: white;
+  padding: 6px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connector-line {
+  position: absolute;
+  top: 50%;
+  left: 116px;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--border-color), transparent);
+  z-index: 1;
+}
+
+.oxyz-content {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 1.5rem;
+  flex: 1;
+  min-height: 400px;
+  overflow: hidden;
+}
+
+.oxyz-visualizer {
+  flex: 2;
+  background-color: var(--surface-color, rgba(255, 255, 255, 0.5));
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.interaction-hint {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.zoom-controls {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.zoom-controls button {
+  background: none;
+  border: 1px solid var(--border-color);
+  background-color: white;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+
+.zoom-controls button:hover {
+  background-color: var(--primary-color, #4f46e5);
+  color: white;
+  border-color: var(--primary-color, #4f46e5);
+}
+
+.placeholder-svg {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.oxyz-sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 250px;
+  overflow-y: auto;
+  padding-right: 10px;
+  height: 100%;
+}
+
+.oxyz-slider-container {
+  background-color: var(--surface-color, rgba(255, 255, 255, 0.5));
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.oxyz-slider-container h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.distance-slider {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  accent-color: var(--primary-color, #4f46e5);
+}
+
+.slider-value {
+  text-align: center;
+  font-family: monospace;
+  font-size: 1rem;
+  color: var(--primary-color, #4f46e5);
+  font-weight: bold;
+}
+
+.oxyz-states {
+  background-color: var(--surface-color, rgba(255, 255, 255, 0.5));
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.oxyz-states h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.state-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.state-btn {
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.state-btn:hover {
+  border-color: var(--primary-color, #4f46e5);
+}
+
+.state-btn.active {
+  background-color: var(--primary-color, #4f46e5);
+  color: white;
+  border-color: var(--primary-color, #4f46e5);
+}
+
+.state-btn.active::after {
+  content: "✓";
+  font-weight: bold;
+}
+
+.oxyz-info-card {
+  background-color: var(--bg-color, rgba(0, 0, 0, 0.02));
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-color, #4f46e5);
+}
+
+.oxyz-info-card h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color, #4f46e5);
+  font-size: 1.1rem;
+}
+
+.oxyz-info-card .desc {
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.oxyz-info-card .condition {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.oxyz-info-card .condition strong {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.math-expr {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px dashed var(--border-color);
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .oxyz-content {
+    flex-direction: column;
+  }
+}

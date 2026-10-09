@@ -12,6 +12,8 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
     "@supabase/supabase-js": "^2.112.4",
     "browser-image-compression": "^2.0.2",
     "canvas-confetti": "^1.9.4",
@@ -19,6 +21,7 @@
     "katex": "^0.18.4",
     "lucide": "^1.45.0",
     "lucide-react": "^1.33.0",
+    "mathlive": "^0.111.0",
     "morphicons": "^1.7.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
@@ -26,6 +29,7 @@
     "react-latex-next": "^3.0.0",
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
+    "three": "^0.186.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

@@ -313,3 +313,20 @@ html {
 [data-theme='dark'] {
   scrollbar-color: rgba(75, 85, 99, 0.6) var(--bg-color);
 }
+
+.math-formula, .math-text {
+  font-family: inherit;
+  font-style: normal;
+}
+
+.math-formula-normal, .math-text-normal {
+  font-family: inherit;
+  font-style: normal;
+}
+/* Hide MathLive internal buttons */
+math-field::part(virtual-keyboard-toggle) {
+  display: none;
+}
+math-field::part(menu-toggle) {
+  display: none;
+}

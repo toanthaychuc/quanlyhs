@@ -1,0 +1,136 @@
+.ineq-container {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.ineq-sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ineq-title {
+  margin: 0 0 5px 0;
+  color: #1e293b;
+}
+
+.ineq-desc {
+  margin: 0 0 15px 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.ineq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.ineq-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.ineq-inputs {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 6px;
+}
+
+.coeff-input {
+  width: 36px;
+  padding: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  text-align: center;
+  outline: none;
+  font-size: 16px;
+}
+
+.coeff-input:focus {
+  border-color: #3b82f6;
+}
+
+.op-select {
+  padding: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  outline: none;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.var-label {
+  font-weight: bold;
+  color: #334155;
+  font-size: 16px;
+}
+
+.plus-sign {
+  color: #64748b;
+  font-weight: bold;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.remove-btn:hover {
+  background: #fef2f2;
+}
+
+.add-ineq-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #475569;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-ineq-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #334155;
+}
+
+.ineq-canvas {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.math-text {
+
+}

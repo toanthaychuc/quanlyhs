@@ -1,0 +1,111 @@
+.set-ops-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+.set-ops-controls h3 {
+  margin: 0 0 15px 0;
+  color: #1e293b;
+}
+
+.custom-expr-area {
+  background: var(--bg-tertiary, #f1f5f9);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid var(--border-color);
+}
+
+.expr-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #475569;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.expr-input-wrapper {
+  margin-bottom: 10px;
+}
+
+.expr-input-wrapper.invalid input {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.expr-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 18px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.expr-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.expr-keyboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.expr-keyboard button {
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #334155;
+  transition: all 0.1s;
+}
+
+.expr-keyboard button:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.expr-keyboard button:active {
+  background: #e2e8f0;
+}
+
+.expr-keyboard .kbd-divider {
+  width: 1px;
+  background: #cbd5e1;
+  margin: 0 4px;
+}
+
+.expr-keyboard .clear-btn {
+  color: #ef4444;
+}
+
+.expr-keyboard .clear-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.math-text {
+
+  font-size: 1.1em;
+}
+
+.svg-container {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  touch-action: none; /* prevent scrolling when dragging on touch devices */
+  min-height: 400px;
+}
+
+.set-ops-svg {
+  display: block;
+  background: white;
+}

@@ -2298,7 +2298,8 @@ const Exams = () => {
                             maxLength={4}
                             value={currentAnswer || ''}
                             onChange={(e) => {
-                              const val = e.target.value.replace(/[^0-9.,-]/g, '').slice(0, 4);
+                              let val = e.target.value.replace(/\./g, ','); // Convert dot to comma for better UX with numpads
+                              val = val.replace(/[^0-9,-]/g, '').slice(0, 4);
                               handleInputShortAns(q.id, val);
                             }}
                             onFocus={() => setShowKeypad(null)}

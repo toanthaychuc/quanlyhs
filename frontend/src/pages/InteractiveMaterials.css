@@ -1,0 +1,36 @@
+/* InteractiveMaterials.css */
+/* We inherit most of the layout styles from Formulas.css (formulas-page, formulas-header, formulas-layout, etc.) */
+
+.interactive-page-container {
+  height: 100%;
+}
+
+.grade-tabs {
+  display: flex;
+  background: var(--bg-tertiary, rgba(0, 0, 0, 0.05));
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.grade-tab {
+  flex: 1;
+  padding: 8px 0;
+  text-align: center;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.grade-tab:hover {
+  color: var(--text-primary);
+}
+
+.grade-tab.active {
+  background: var(--bg-primary, white);
+  color: var(--primary-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
