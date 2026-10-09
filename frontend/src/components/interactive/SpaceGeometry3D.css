@@ -171,3 +171,44 @@
   color: var(--text-secondary);
   pointer-events: none;
 }
+
+/* Shape Hierarchy Dropdown */
+.shape-select-btn:hover {
+  border-color: var(--primary-color, #2563eb);
+  background-color: #f8fafc;
+}
+
+.shape-hierarchy-dropdown {
+  animation: fadeInDown 0.15s ease-out;
+}
+
+.shape-cat-row:hover {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+}
+
+.shape-submenu-flyout {
+  animation: fadeInRight 0.15s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

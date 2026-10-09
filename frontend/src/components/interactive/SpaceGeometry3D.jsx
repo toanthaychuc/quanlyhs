@@ -5,8 +5,70 @@ import { OrbitControls, Html, Line, MapControls, OrthographicCamera, Perspective
 import * as THREE from 'three';
 import './SpaceGeometry3D.css';
 
+const SHAPE_CATEGORIES = [
+  {
+    id: 'quad',
+    name: 'Chóp tứ giác S.ABCD',
+    icon: '🔷',
+    items: [
+      { id: 'quad_parallelogram', name: 'Đáy là hình bình hành' },
+      { id: 'quad_rectangle', name: 'Đáy là hình chữ nhật' },
+      { id: 'quad_square', name: 'Đáy là hình vuông' },
+      { id: 'quad_rhombus', name: 'Đáy là hình thoi' },
+      { id: 'quad_arbitrary', name: 'Đáy là tứ giác bất kì' },
+      { id: 'quad_trapezoid', name: 'Đáy là hình thang thường' },
+      { id: 'quad_trapezoid_ab_2cd', name: 'Đáy là hình thang có AB=2CD' },
+    ]
+  },
+  {
+    id: 'tri',
+    name: 'Chóp tam giác S.ABC',
+    icon: '🔺',
+    items: [
+      { id: 'tri_general', name: 'Đáy là tam giác thường' },
+      { id: 'tri_right_a', name: 'Đáy là tam giác vuông tại A' },
+      { id: 'tri_right_b', name: 'Đáy là tam giác vuông tại B' },
+      { id: 'tri_right_c', name: 'Đáy là tam giác vuông tại C' },
+      { id: 'tri_equilateral', name: 'Đáy là tam giác đều' },
+      { id: 'tri_isosceles_a', name: 'Đáy là tam giác cân tại A' },
+      { id: 'tri_isosceles_b', name: 'Đáy là tam giác cân tại B' },
+      { id: 'tri_isosceles_c', name: 'Đáy là tam giác cân tại C' },
+    ]
+  },
+  {
+    id: 'tetra',
+    name: 'Tứ diện ABCD',
+    icon: '🔶',
+    items: [
+      { id: 'tetra_general', name: 'Đáy BCD là tam giác thường' },
+      { id: 'tetra_right_b', name: 'Đáy BCD là tam giác vuông tại B' },
+      { id: 'tetra_right_c', name: 'Đáy BCD là tam giác vuông tại C' },
+      { id: 'tetra_right_d', name: 'Đáy BCD là tam giác vuông tại D' },
+      { id: 'tetra_equilateral', name: 'Đáy BCD là tam giác đều' },
+      { id: 'tetra_isosceles_b', name: 'Đáy BCD là tam giác cân tại B' },
+      { id: 'tetra_isosceles_c', name: 'Đáy BCD là tam giác cân tại C' },
+      { id: 'tetra_isosceles_d', name: 'Đáy BCD là tam giác cân tại D' },
+    ]
+  }
+];
+
+const QUAD_FACES = [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']];
+const QUAD_EDGES = [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']];
+const QUAD_LABELS = ['S', 'A', 'B', 'C', 'D'];
+
+const TRI_FACES = [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']];
+const TRI_EDGES = [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']];
+const TRI_LABELS = ['S', 'A', 'B', 'C'];
+
+const TETRA_FACES = [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']];
+const TETRA_EDGES = [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']];
+const TETRA_LABELS = ['A', 'B', 'C', 'D'];
+
 const SHAPES = {
-  parallelogramPyramid: {
+  // 1. Chóp tứ giác S.ABCD
+  quad_parallelogram: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình bình hành',
     name: 'Chóp S.ABCD (đáy hình bình hành)',
     vertices: {
       S: new THREE.Vector3(-0.6, 2.5, -0.6),
@@ -15,74 +77,564 @@ const SHAPES = {
       C: new THREE.Vector3(1.5, -1, 1.5),
       D: new THREE.Vector3(-2.5, -1, 1.5),
     },
-    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
-    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
-    labels: ['S', 'A', 'B', 'C', 'D']
+    faces: QUAD_FACES,
+    edges: QUAD_EDGES,
+    labels: QUAD_LABELS
   },
-  quadrilateralPyramid: {
-    name: 'Chóp S.ABCD (đáy tứ giác thường)',
-    vertices: {
-      S: new THREE.Vector3(0, 3.2, 0),
-      A: new THREE.Vector3(-3.0, -1, -1.4),
-      B: new THREE.Vector3(3.0, -1, -1.4),
-      C: new THREE.Vector3(2.2, -1, 0.2),
-      D: new THREE.Vector3(-1.8, -1, 1.4),
-    },
-    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
-    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
-    labels: ['S', 'A', 'B', 'C', 'D']
-  },
-  trapezoidPyramid: {
-    name: 'Chóp S.ABCD (đáy hình thang)',
-    vertices: {
-      S: new THREE.Vector3(0, 2.5, 0),
-      A: new THREE.Vector3(-1.5, -1, -1),
-      B: new THREE.Vector3(2.5, -1, -1),
-      C: new THREE.Vector3(1.5, -1, 1.5),
-      D: new THREE.Vector3(-0.5, -1, 1.5),
-    },
-    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
-    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
-    labels: ['S', 'A', 'B', 'C', 'D']
-  },
-  rectanglePyramid: {
+  quad_rectangle: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình chữ nhật',
     name: 'Chóp S.ABCD (đáy hình chữ nhật)',
     vertices: {
-      S: new THREE.Vector3(0, 2.5, 0),
-      A: new THREE.Vector3(-1.5, -1, -1),
-      B: new THREE.Vector3(1.5, -1, -1),
+      S: new THREE.Vector3(-0.6, 2.5, -0.6),
+      A: new THREE.Vector3(-1.8, -1, -1),
+      B: new THREE.Vector3(1.8, -1, -1),
+      C: new THREE.Vector3(1.8, -1, 1.5),
+      D: new THREE.Vector3(-1.8, -1, 1.5),
+    },
+    faces: QUAD_FACES,
+    edges: QUAD_EDGES,
+    labels: QUAD_LABELS
+  },
+  quad_square: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình vuông',
+    name: 'Chóp S.ABCD (đáy hình vuông)',
+    vertices: {
+      S: new THREE.Vector3(-0.5, 2.6, -0.5),
+      A: new THREE.Vector3(-1.5, -1, -1.5),
+      B: new THREE.Vector3(1.5, -1, -1.5),
       C: new THREE.Vector3(1.5, -1, 1.5),
       D: new THREE.Vector3(-1.5, -1, 1.5),
     },
-    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
-    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
-    labels: ['S', 'A', 'B', 'C', 'D']
+    faces: QUAD_FACES,
+    edges: QUAD_EDGES,
+    labels: QUAD_LABELS
   },
-  tetrahedron: {
-    name: 'Tứ diện ABCD',
+  quad_rhombus: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình thoi',
+    name: 'Chóp S.ABCD (đáy hình thoi)',
     vertices: {
-      A: new THREE.Vector3(0, 2.5, 0),
-      B: new THREE.Vector3(-1.5, -1, -1),
-      C: new THREE.Vector3(1.5, -1, -1),
-      D: new THREE.Vector3(0, -1, 1.5),
+      S: new THREE.Vector3(-0.6, 2.5, -0.6),
+      A: new THREE.Vector3(-1.2, -1, -1),
+      B: new THREE.Vector3(2.0, -1, -1),
+      C: new THREE.Vector3(-0.12, -1, 1.4),
+      D: new THREE.Vector3(-3.32, -1, 1.4),
     },
-    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
-    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
-    labels: ['A', 'B', 'C', 'D']
+    faces: QUAD_FACES,
+    edges: QUAD_EDGES,
+    labels: QUAD_LABELS
   },
-  triangularPyramid: {
-    name: 'Chóp tam giác S.ABC',
+  quad_arbitrary: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là tứ giác bất kì',
+    name: 'Chóp S.ABCD (đáy tứ giác bất kì)',
     vertices: {
-      S: new THREE.Vector3(0, 2.5, 0),
+      S: new THREE.Vector3(-0.4, 2.8, -0.4),
+      A: new THREE.Vector3(-2.0, -1, -1.2),
+      B: new THREE.Vector3(2.6, -1, -0.8),
+      C: new THREE.Vector3(1.8, -1, 1.6),
+      D: new THREE.Vector3(-2.2, -1, 1.2),
+    },
+    faces: QUAD_FACES,
+    edges: QUAD_EDGES,
+    labels: QUAD_LABELS
+  },
+  quad_trapezoid: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình thang thường',
+    name: 'Chóp S.ABCD (đáy hình thang thường)',
+    vertices: {
+      S: new THREE.Vector3(-0.5, 2.6, -0.6),
       A: new THREE.Vector3(-1.5, -1, -1),
+      B: new THREE.Vector3(2.5, -1, -1),
+      C: new THREE.Vector3(1.0, -1, 1.5),
+      D: new THREE.Vector3(-1.6, -1, 1.5),
+    },
+    faces: QUAD_FACES,
+    edges: QUAD_EDGES,
+    labels: QUAD_LABELS
+  },
+  quad_trapezoid_ab_2cd: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình thang có AB=2CD',
+    name: 'Chóp S.ABCD (đáy hình thang AB=2CD)',
+    vertices: {
+      S: new THREE.Vector3(-0.6, 2.6, -0.6),
+      A: new THREE.Vector3(-2.0, -1, -1),
+      B: new THREE.Vector3(2.0, -1, -1),
+      C: new THREE.Vector3(0.5, -1, 1.5),
+      D: new THREE.Vector3(-1.5, -1, 1.5),
+    },
+    faces: QUAD_FACES,
+    edges: QUAD_EDGES,
+    labels: QUAD_LABELS
+  },
+
+  // 2. Chóp tam giác S.ABC
+  tri_general: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác thường',
+    name: 'Chóp S.ABC (đáy tam giác thường)',
+    vertices: {
+      S: new THREE.Vector3(-0.5, 2.6, -0.4),
+      A: new THREE.Vector3(-1.6, -1, -1),
+      B: new THREE.Vector3(2.2, -1, -0.8),
+      C: new THREE.Vector3(0.2, -1, 1.5),
+    },
+    faces: TRI_FACES,
+    edges: TRI_EDGES,
+    labels: TRI_LABELS
+  },
+  tri_right_a: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại A',
+    name: 'Chóp S.ABC (đáy vuông tại A)',
+    vertices: {
+      S: new THREE.Vector3(-0.5, 2.6, -0.3),
+      A: new THREE.Vector3(-1.2, -1, -1),
+      B: new THREE.Vector3(2.0, -1, -1),
+      C: new THREE.Vector3(-1.2, -1, 1.6),
+    },
+    faces: TRI_FACES,
+    edges: TRI_EDGES,
+    labels: TRI_LABELS
+  },
+  tri_right_b: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại B',
+    name: 'Chóp S.ABC (đáy vuông tại B)',
+    vertices: {
+      S: new THREE.Vector3(-0.6, 2.6, -0.4),
+      A: new THREE.Vector3(-2.0, -1, -1),
       B: new THREE.Vector3(1.5, -1, -1),
+      C: new THREE.Vector3(1.5, -1, 1.6),
+    },
+    faces: TRI_FACES,
+    edges: TRI_EDGES,
+    labels: TRI_LABELS
+  },
+  tri_right_c: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại C',
+    name: 'Chóp S.ABC (đáy vuông tại C)',
+    vertices: {
+      S: new THREE.Vector3(-0.5, 2.6, -0.4),
+      A: new THREE.Vector3(-1.8, -1, -0.5),
+      B: new THREE.Vector3(2.0, -1, -0.3),
       C: new THREE.Vector3(0, -1, 1.5),
     },
-    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
-    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
-    labels: ['S', 'A', 'B', 'C']
+    faces: TRI_FACES,
+    edges: TRI_EDGES,
+    labels: TRI_LABELS
+  },
+  tri_equilateral: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác đều',
+    name: 'Chóp S.ABC (đáy tam giác đều)',
+    vertices: {
+      S: new THREE.Vector3(-0.5, 2.6, -0.3),
+      A: new THREE.Vector3(-1.8, -1, -1),
+      B: new THREE.Vector3(1.8, -1, -1),
+      C: new THREE.Vector3(0, -1, 2.12),
+    },
+    faces: TRI_FACES,
+    edges: TRI_EDGES,
+    labels: TRI_LABELS
+  },
+  tri_isosceles_a: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác cân tại A',
+    name: 'Chóp S.ABC (đáy cân tại A)',
+    vertices: {
+      S: new THREE.Vector3(-0.6, 2.6, -0.4),
+      A: new THREE.Vector3(-1.5, -1, -1),
+      B: new THREE.Vector3(2.0, -1, -1),
+      C: new THREE.Vector3(0.95, -1, 1.5),
+    },
+    faces: TRI_FACES,
+    edges: TRI_EDGES,
+    labels: TRI_LABELS
+  },
+  tri_isosceles_b: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác cân tại B',
+    name: 'Chóp S.ABC (đáy cân tại B)',
+    vertices: {
+      S: new THREE.Vector3(-0.6, 2.6, -0.4),
+      A: new THREE.Vector3(-1.5, -1, -1),
+      B: new THREE.Vector3(2.0, -1, -1),
+      C: new THREE.Vector3(-0.45, -1, 1.5),
+    },
+    faces: TRI_FACES,
+    edges: TRI_EDGES,
+    labels: TRI_LABELS
+  },
+  tri_isosceles_c: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác cân tại C',
+    name: 'Chóp S.ABC (đáy cân tại C)',
+    vertices: {
+      S: new THREE.Vector3(-0.5, 2.6, -0.4),
+      A: new THREE.Vector3(-1.8, -1, -1),
+      B: new THREE.Vector3(1.8, -1, -1),
+      C: new THREE.Vector3(0, -1, 1.6),
+    },
+    faces: TRI_FACES,
+    edges: TRI_EDGES,
+    labels: TRI_LABELS
+  },
+
+  // 3. Tứ diện ABCD (đáy BCD)
+  tetra_general: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy BCD là tam giác thường',
+    name: 'Tứ diện ABCD (đáy BCD thường)',
+    vertices: {
+      A: new THREE.Vector3(-0.5, 2.6, -0.4),
+      B: new THREE.Vector3(-1.6, -1, -1),
+      C: new THREE.Vector3(2.2, -1, -0.8),
+      D: new THREE.Vector3(0.2, -1, 1.5),
+    },
+    faces: TETRA_FACES,
+    edges: TETRA_EDGES,
+    labels: TETRA_LABELS
+  },
+  tetra_right_b: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy BCD là tam giác vuông tại B',
+    name: 'Tứ diện ABCD (đáy BCD vuông tại B)',
+    vertices: {
+      A: new THREE.Vector3(-0.5, 2.6, -0.3),
+      B: new THREE.Vector3(-1.2, -1, -1),
+      C: new THREE.Vector3(2.0, -1, -1),
+      D: new THREE.Vector3(-1.2, -1, 1.6),
+    },
+    faces: TETRA_FACES,
+    edges: TETRA_EDGES,
+    labels: TETRA_LABELS
+  },
+  tetra_right_c: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy BCD là tam giác vuông tại C',
+    name: 'Tứ diện ABCD (đáy BCD vuông tại C)',
+    vertices: {
+      A: new THREE.Vector3(-0.5, 2.6, -0.3),
+      B: new THREE.Vector3(-2.0, -1, -1),
+      C: new THREE.Vector3(1.5, -1, -1),
+      D: new THREE.Vector3(1.5, -1, 1.6),
+    },
+    faces: TETRA_FACES,
+    edges: TETRA_EDGES,
+    labels: TETRA_LABELS
+  },
+  tetra_right_d: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy BCD là tam giác vuông tại D',
+    name: 'Tứ diện ABCD (đáy BCD vuông tại D)',
+    vertices: {
+      A: new THREE.Vector3(-0.5, 2.6, -0.4),
+      B: new THREE.Vector3(-1.8, -1, -0.5),
+      C: new THREE.Vector3(2.0, -1, -0.3),
+      D: new THREE.Vector3(0, -1, 1.5),
+    },
+    faces: TETRA_FACES,
+    edges: TETRA_EDGES,
+    labels: TETRA_LABELS
+  },
+  tetra_equilateral: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy BCD là tam giác đều',
+    name: 'Tứ diện ABCD (đáy BCD đều)',
+    vertices: {
+      A: new THREE.Vector3(-0.5, 2.6, -0.3),
+      B: new THREE.Vector3(-1.8, -1, -1),
+      C: new THREE.Vector3(1.8, -1, -1),
+      D: new THREE.Vector3(0, -1, 2.12),
+    },
+    faces: TETRA_FACES,
+    edges: TETRA_EDGES,
+    labels: TETRA_LABELS
+  },
+  tetra_isosceles_b: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy BCD là tam giác cân tại B',
+    name: 'Tứ diện ABCD (đáy BCD cân tại B)',
+    vertices: {
+      A: new THREE.Vector3(-0.6, 2.6, -0.4),
+      B: new THREE.Vector3(-1.5, -1, -1),
+      C: new THREE.Vector3(2.0, -1, -1),
+      D: new THREE.Vector3(0.95, -1, 1.5),
+    },
+    faces: TETRA_FACES,
+    edges: TETRA_EDGES,
+    labels: TETRA_LABELS
+  },
+  tetra_isosceles_c: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy BCD là tam giác cân tại C',
+    name: 'Tứ diện ABCD (đáy BCD cân tại C)',
+    vertices: {
+      A: new THREE.Vector3(-0.6, 2.6, -0.4),
+      B: new THREE.Vector3(-1.5, -1, -1),
+      C: new THREE.Vector3(2.0, -1, -1),
+      D: new THREE.Vector3(-0.45, -1, 1.5),
+    },
+    faces: TETRA_FACES,
+    edges: TETRA_EDGES,
+    labels: TETRA_LABELS
+  },
+  tetra_isosceles_d: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy BCD là tam giác cân tại D',
+    name: 'Tứ diện ABCD (đáy BCD cân tại D)',
+    vertices: {
+      A: new THREE.Vector3(-0.5, 2.6, -0.4),
+      B: new THREE.Vector3(-1.8, -1, -1),
+      C: new THREE.Vector3(1.8, -1, -1),
+      D: new THREE.Vector3(0, -1, 1.6),
+    },
+    faces: TETRA_FACES,
+    edges: TETRA_EDGES,
+    labels: TETRA_LABELS
   }
 };
+
+// Legacy aliases so old state / bookmarks do not break
+SHAPES.parallelogramPyramid = SHAPES.quad_parallelogram;
+SHAPES.quadrilateralPyramid = SHAPES.quad_arbitrary;
+SHAPES.trapezoidPyramid = SHAPES.quad_trapezoid;
+SHAPES.rectanglePyramid = SHAPES.quad_rectangle;
+SHAPES.tetrahedron = SHAPES.tetra_general;
+SHAPES.triangularPyramid = SHAPES.tri_general;
+
+const ShapeHierarchySelect = ({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const btnRef = useRef(null);
+  const menuRef = useRef(null);
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 0, openLeft: false });
+
+  const currentShape = SHAPES[value] || SHAPES.quad_parallelogram;
+
+  const updatePosition = useCallback(() => {
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const openLeft = rect.left + 540 > window.innerWidth;
+      setPos({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+        openLeft
+      });
+    }
+  }, []);
+
+  const handleToggle = () => {
+    if (!isOpen) {
+      updatePosition();
+      const curCat = SHAPE_CATEGORIES.find(c => c.items.some(i => i.id === value));
+      setActiveCategory(curCat ? curCat.id : SHAPE_CATEGORIES[0].id);
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e) => {
+      if (
+        btnRef.current && !btnRef.current.contains(e.target) &&
+        menuRef.current && !menuRef.current.contains(e.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    const handleScroll = () => updatePosition();
+    window.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [isOpen, updatePosition]);
+
+  return (
+    <div style={{ position: 'relative', width: '100%' }}>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={handleToggle}
+        className="shape-select-btn"
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0.55rem 0.75rem',
+          background: 'var(--surface-color, #ffffff)',
+          border: `1.5px solid ${isOpen ? 'var(--primary-color, #2563eb)' : 'var(--border-color, #cbd5e1)'}`,
+          borderRadius: '8px',
+          cursor: 'pointer',
+          textAlign: 'left',
+          boxShadow: isOpen ? '0 0 0 3px rgba(37, 99, 235, 0.15)' : 'none',
+          transition: 'all 0.2s',
+          gap: '8px'
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+            {currentShape?.categoryName || 'Mô hình'}
+          </span>
+          <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+            {currentShape?.subName || currentShape?.name}
+          </span>
+        </div>
+        <span style={{ fontSize: '13px', color: '#64748b', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+          ▼
+        </span>
+      </button>
+
+      {isOpen && createPortal(
+        <div
+          ref={menuRef}
+          className="shape-hierarchy-dropdown"
+          style={{
+            position: 'fixed',
+            top: pos.top,
+            left: pos.left,
+            width: Math.max(260, pos.width),
+            background: '#ffffff',
+            borderRadius: '10px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.1)',
+            zIndex: 99999,
+            padding: '6px',
+            fontFamily: 'inherit'
+          }}
+        >
+          {SHAPE_CATEGORIES.map(category => {
+            const isCatActive = activeCategory === category.id;
+            const hasSelectedChild = category.items.some(i => i.id === value);
+            return (
+              <div
+                key={category.id}
+                className="shape-cat-row"
+                onMouseEnter={() => setActiveCategory(category.id)}
+                onClick={() => setActiveCategory(category.id)}
+                style={{
+                  position: 'relative',
+                  padding: '9px 12px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: isCatActive ? '#eff6ff' : 'transparent',
+                  color: isCatActive ? '#1d4ed8' : '#334155',
+                  fontWeight: hasSelectedChild ? 600 : 500,
+                  fontSize: '13.5px',
+                  transition: 'background 0.15s, color 0.15s'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>{category.icon}</span>
+                  <span>{category.name}</span>
+                </div>
+                <span style={{ fontSize: '12px', opacity: 0.6 }}>
+                  {pos.openLeft ? '◀' : '▶'}
+                </span>
+
+                {/* Submenu on hover */}
+                {isCatActive && (
+                  <div
+                    className="shape-submenu-flyout"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      ...(pos.openLeft
+                        ? { right: '100%', paddingRight: '6px' }
+                        : { left: '100%', paddingLeft: '6px' }),
+                      zIndex: 100000,
+                      cursor: 'default'
+                    }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <div
+                      style={{
+                        background: '#ffffff',
+                        borderRadius: '10px',
+                        border: '1px solid #e2e8f0',
+                        boxShadow: '0 12px 28px -4px rgba(0,0,0,0.18), 0 8px 12px -6px rgba(0,0,0,0.12)',
+                        padding: '6px',
+                        minWidth: '240px',
+                        maxHeight: '340px',
+                        overflowY: 'auto'
+                      }}
+                    >
+                      <div style={{ padding: '4px 10px 6px', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #f1f5f9', marginBottom: '4px' }}>
+                        Tùy chọn đáy
+                      </div>
+                      {category.items.map(subItem => {
+                        const isSelected = value === subItem.id;
+                        return (
+                          <div
+                            key={subItem.id}
+                            className="shape-sub-item-row"
+                            onClick={() => {
+                              onChange(subItem.id);
+                              setIsOpen(false);
+                            }}
+                            style={{
+                              padding: '8px 10px',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              background: isSelected ? '#dbeafe' : 'transparent',
+                              color: isSelected ? '#1e40af' : '#334155',
+                              fontWeight: isSelected ? 600 : 400,
+                              fontSize: '13px',
+                              transition: 'all 0.15s'
+                            }}
+                            onMouseEnter={e => {
+                              if (!isSelected) {
+                                e.currentTarget.style.background = '#f8fafc';
+                                e.currentTarget.style.color = '#2563eb';
+                              }
+                            }}
+                            onMouseLeave={e => {
+                              if (!isSelected) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.color = '#334155';
+                              }
+                            }}
+                          >
+                            <span>{subItem.name}</span>
+                            {isSelected && (
+                              <span style={{ color: '#2563eb', fontWeight: 'bold', fontSize: '13px' }}>✓</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
+
 
 const getPlaneNormal = (vertices, p1, p2, p3) => {
   const v1 = new THREE.Vector3().subVectors(vertices[p2], vertices[p1]);
@@ -992,7 +1544,7 @@ const SpaceGeometry3D = () => {
     controls.update();
   };
 
-  const [selectedShape, setSelectedShape] = useState('parallelogramPyramid');
+  const [selectedShape, setSelectedShape] = useState('quad_parallelogram');
   const [mode, setMode] = useState('planes'); // 'planes' | 'line_plane'
   const [useDashed, setUseDashed] = useState(true);
   const [view2DPlane, setView2DPlane] = useState(null);
@@ -1026,7 +1578,7 @@ const SpaceGeometry3D = () => {
   const [newInterLabel, setNewInterLabel] = useState('');
   const [suggestedInterLabel, setSuggestedInterLabel] = useState('O');
 
-  const shape = SHAPES[selectedShape];
+  const shape = SHAPES[selectedShape] || SHAPES.quad_parallelogram;
 
   const [swapVertices, setSwapVertices] = useState(false);
 
@@ -1048,21 +1600,26 @@ const SpaceGeometry3D = () => {
   }, [selectedShape, shape]);
 
   const swappedBaseVertices = useMemo(() => {
+    if (!shape) return {};
     const verts = {};
     for (const [k, v] of Object.entries(shape.vertices)) {
       verts[k] = v.clone();
     }
     
     if (swapVertices) {
-      if (selectedShape.includes('Pyramid') && !selectedShape.includes('triangular') && !selectedShape.includes('tetrahedron')) {
+      const isTetra = selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron';
+      const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
+      const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
+
+      if (isQuad) {
         const temp = verts['B'];
         verts['B'] = verts['D'];
         verts['D'] = temp;
-      } else if (selectedShape === 'tetrahedron') {
+      } else if (isTetra) {
         const temp = verts['C'];
         verts['C'] = verts['D'];
         verts['D'] = temp;
-      } else if (selectedShape === 'triangularPyramid') {
+      } else if (isTri) {
         const temp = verts['B'];
         verts['B'] = verts['C'];
         verts['C'] = temp;
@@ -1220,34 +1777,27 @@ const SpaceGeometry3D = () => {
         <h3 className="space-geom-title">Quan hệ song song</h3>
         
         <div className="control-group">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-            <label style={{ margin: 0 }}>Chọn mô hình</label>
-            {(selectedShape.includes('Pyramid') || selectedShape === 'tetrahedron') && (
-              <button
-                type="button"
-                onClick={() => setSwapVertices(!swapVertices)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '4px',
-                  padding: '4px 10px', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
-                  borderRadius: '999px', transition: 'all 0.2s',
-                  border: `1px solid ${swapVertices ? '#2563eb' : '#cbd5e1'}`,
-                  background: swapVertices ? '#dbeafe' : 'white',
-                  color: swapVertices ? '#1d4ed8' : '#475569'
-                }}
-              >
-                Đổi {selectedShape === 'tetrahedron' ? 'C ⇄ D' : selectedShape === 'triangularPyramid' ? 'B ⇄ C' : 'B ⇄ D'}
-              </button>
-            )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <label style={{ margin: 0, fontWeight: 600, color: '#334155' }}>Chọn mô hình</label>
+            <button
+              type="button"
+              onClick={() => setSwapVertices(!swapVertices)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                padding: '3px 9px', fontSize: '11.5px', fontWeight: 600, cursor: 'pointer',
+                borderRadius: '999px', transition: 'all 0.2s',
+                border: `1px solid ${swapVertices ? '#2563eb' : '#cbd5e1'}`,
+                background: swapVertices ? '#dbeafe' : 'white',
+                color: swapVertices ? '#1d4ed8' : '#475569'
+              }}
+            >
+              Đổi {(selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron') ? 'C ⇄ D' : (selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid') ? 'B ⇄ C' : 'B ⇄ D'}
+            </button>
           </div>
-          <select 
-            className="geom-select"
+          <ShapeHierarchySelect 
             value={selectedShape}
-            onChange={e => setSelectedShape(e.target.value)}
-          >
-            {Object.entries(SHAPES).map(([k, v]) => (
-              <option key={k} value={k}>{v.name}</option>
-            ))}
-          </select>
+            onChange={setSelectedShape}
+          />
         </div>
 
         <div className="control-group">
