@@ -13,6 +13,7 @@ import RelativePositionsOxyz from '../components/interactive/RelativePositionsOx
 import ConicSections from '../components/interactive/ConicSections';
 import CrossSection3D from '../components/interactive/CrossSection3D';
 import SpaceGeometry3D from '../components/interactive/SpaceGeometry3D';
+import PerpendicularGeometry3D from '../components/interactive/PerpendicularGeometry3D';
 
 const MATERIALS_DATA = {
   '10': [
@@ -25,6 +26,7 @@ const MATERIALS_DATA = {
     { id: 'trig-circle', title: 'Đường tròn lượng giác', chapter: 'Hàm số lượng giác' },
     { id: 'derivatives', title: 'Ý nghĩa hình học của đạo hàm', chapter: 'Đạo hàm' },
     { id: 'space-geometry', title: 'Quan hệ song song', chapter: 'Hình học không gian' },
+    { id: 'perpendicular-geometry', title: 'Quan hệ vuông góc', chapter: 'Hình học không gian' },
     { id: 'cross-section', title: 'Thiết diện trong không gian', chapter: 'Quan hệ song song' }
   ],
   '12': [
@@ -38,7 +40,20 @@ const MATERIALS_DATA = {
 const InteractiveMaterials = () => {
   const [activeGrade, setActiveGrade] = useState('10');
   const [activeMaterialId, setActiveMaterialId] = useState('set-ops');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768 && !sidebarCollapsed) {
+        // Automatically collapse on resize to mobile
+        setSidebarCollapsed(true);
+      } else if (window.innerWidth > 768 && sidebarCollapsed) {
+        setSidebarCollapsed(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [sidebarCollapsed]);
 
   const renderMaterial = () => {
     switch (activeMaterialId) {
@@ -64,6 +79,8 @@ const InteractiveMaterials = () => {
         return <ConicSections />;
       case 'space-geometry':
         return <SpaceGeometry3D />;
+      case 'perpendicular-geometry':
+        return <PerpendicularGeometry3D />;
       case 'cross-section':
         return <CrossSection3D />;
       default:
@@ -90,16 +107,7 @@ const InteractiveMaterials = () => {
       <div className="formulas-layout">
         {/* Sidebar / Menu */}
         <div
-          className="formulas-sidebar glass"
-          style={{
-            alignSelf: 'stretch',
-            width: sidebarCollapsed ? 0 : '300px',
-            marginRight: sidebarCollapsed ? '-1.5rem' : 0,
-            opacity: sidebarCollapsed ? 0 : 1,
-            borderWidth: sidebarCollapsed ? 0 : undefined,
-            pointerEvents: sidebarCollapsed ? 'none' : 'auto',
-            transition: 'width 0.3s ease, margin-right 0.3s ease, opacity 0.2s ease'
-          }}
+          className={`formulas-sidebar glass interactive-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}
         >
           
           <div style={{ width: '300px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
@@ -131,7 +139,12 @@ const InteractiveMaterials = () => {
                 <li 
                   key={mat.id}
                   className={`formula-item ${activeMaterialId === mat.id ? 'active' : ''}`}
-                  onClick={() => setActiveMaterialId(mat.id)}
+                  onClick={() => {
+                    setActiveMaterialId(mat.id);
+                    if (window.innerWidth <= 768) {
+                      setSidebarCollapsed(true);
+                    }
+                  }}
                   style={{ cursor: 'pointer', padding: '12px 1rem' }}
                 >
                   <span className="formula-name">
@@ -153,14 +166,15 @@ const InteractiveMaterials = () => {
               onClick={() => setSidebarCollapsed(false)}
               title="Hiện danh mục"
               style={{
-                position: 'absolute', top: '6px', left: '6px', zIndex: 30,
-                padding: '2px 8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-                color: '#334155', background: 'rgba(255,255,255,0.95)',
-                border: '1px solid #e2e8f0', borderRadius: '999px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                position: 'absolute', top: '12px', left: '12px', zIndex: 30,
+                padding: '6px 12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                color: 'var(--text-primary)', background: 'var(--bg-primary, rgba(255,255,255,0.95))',
+                border: '1px solid var(--border-color)', borderRadius: '999px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                display: 'flex', alignItems: 'center', gap: '4px'
               }}
             >
-              » Danh mục
+              <MonitorPlay size={16} /> Danh mục
             </button>
           )}
           {renderMaterial()}

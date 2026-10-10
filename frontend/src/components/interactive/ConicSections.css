@@ -277,11 +277,51 @@
 
 /* Responsive */
 @media (max-width: 900px) {
+  .conic-wrapper {
+    overflow-y: auto;
+  }
   .conic-container {
     flex-direction: column;
   }
+  .conic-sidebar {
+    
+    padding-right: 0;
+  }
   .conic-visualizer {
-    height: 400px;
+    height: 45vh; margin-top: 36px;
     flex: none;
   }
+}
+
+@media (max-width: 768px) {
+  .conic-container {
+    flex-direction: column !important;
+    overflow-y: auto;
+    height: 100%;
+    position: relative;
+    display: flex;
+  }
+  
+  
+  
+  .conic-visualizer {
+    order: 1 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    height: 45vh !important;
+    min-height: 45vh !important;
+    background: #fff;
+    margin-top: 0 !important;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  }
+  
+  .conic-sidebar {
+    width: 100% !important;
+    order: 2 !important;
+    padding-top: 16px !important;
+    padding-bottom: 300px !important; /* give extra scroll room */
+  }
+  
 }

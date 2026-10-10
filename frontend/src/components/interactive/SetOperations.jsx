@@ -66,21 +66,44 @@ const SetOperations = () => {
     }
   }, [customExpr]);
 
+  const getMousePosition = (e) => {
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0 };
+    
+    // Create an SVG point
+    const pt = svg.createSVGPoint();
+    
+    if (e.touches && e.touches.length > 0) {
+      pt.x = e.touches[0].clientX;
+      pt.y = e.touches[0].clientY;
+    } else {
+      pt.x = e.clientX;
+      pt.y = e.clientY;
+    }
+    
+    // Convert to SVG coordinates
+    const ctm = svg.getScreenCTM();
+    if (ctm) {
+      return pt.matrixTransform(ctm.inverse());
+    }
+    return { x: pt.x, y: pt.y };
+  };
+
   const handleMouseDown = (e, circle) => {
     e.stopPropagation();
-    const svgRect = svgRef.current.getBoundingClientRect();
+    const posSVG = getMousePosition(e);
     let pos = posA;
     if (circle === 'B') pos = posB;
     if (circle === 'C') pos = posC;
-    setOffset({ x: e.clientX - svgRect.left - pos.x, y: e.clientY - svgRect.top - pos.y });
+    setOffset({ x: posSVG.x - pos.x, y: posSVG.y - pos.y });
     setDragging(circle);
   };
 
   const handleMouseMove = (e) => {
     if (!dragging) return;
-    const svgRect = svgRef.current.getBoundingClientRect();
-    const x = e.clientX - svgRect.left - offset.x;
-    const y = e.clientY - svgRect.top - offset.y;
+    const posSVG = getMousePosition(e);
+    const x = posSVG.x - offset.x;
+    const y = posSVG.y - offset.y;
     if (dragging === 'A') setPosA({ x, y });
     else if (dragging === 'B') setPosB({ x, y });
     else if (dragging === 'C') setPosC({ x, y });
@@ -90,22 +113,20 @@ const SetOperations = () => {
   
   const handleTouchStart = (e, circle) => {
     e.stopPropagation();
-    const touch = e.touches[0];
-    const svgRect = svgRef.current.getBoundingClientRect();
+    const posSVG = getMousePosition(e);
     let pos = posA;
     if (circle === 'B') pos = posB;
     if (circle === 'C') pos = posC;
-    setOffset({ x: touch.clientX - svgRect.left - pos.x, y: touch.clientY - svgRect.top - pos.y });
+    setOffset({ x: posSVG.x - pos.x, y: posSVG.y - pos.y });
     setDragging(circle);
   };
   
   const handleTouchMove = (e) => {
     if (!dragging) return;
-    e.preventDefault();
-    const touch = e.touches[0];
-    const svgRect = svgRef.current.getBoundingClientRect();
-    const x = touch.clientX - svgRect.left - offset.x;
-    const y = touch.clientY - svgRect.top - offset.y;
+    // e.preventDefault(); // Moved to passive:false listener if needed, but here it might cause passive event warnings
+    const posSVG = getMousePosition(e);
+    const x = posSVG.x - offset.x;
+    const y = posSVG.y - offset.y;
     if (dragging === 'A') setPosA({ x, y });
     else if (dragging === 'B') setPosB({ x, y });
     else if (dragging === 'C') setPosC({ x, y });

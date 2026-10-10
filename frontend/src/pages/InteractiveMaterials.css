@@ -34,3 +34,54 @@
   color: var(--primary-color);
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+
+/* Clean Desktop & Mobile Sidebar Transitions */
+.interactive-sidebar {
+  transition: width 0.3s ease, margin-right 0.3s ease, opacity 0.2s ease, transform 0.3s ease;
+  width: 300px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (min-width: 769px) {
+  .interactive-sidebar.collapsed {
+    width: 0;
+    margin-right: -1.5rem;
+    opacity: 0;
+    border-width: 0;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .interactive-page-container .formulas-layout {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .interactive-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 50;
+    background: var(--bg-primary, #ffffff);
+    margin: 0 !important;
+    max-height: none !important;
+    transform: translateX(0);
+    border-radius: var(--radius-lg);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-theme="dark"] .interactive-sidebar {
+    background: var(--bg-secondary, #1e293b);
+  }
+
+  .interactive-sidebar.collapsed {
+    transform: translateX(-100%);
+    width: 100% !important; /* Keep width so animation looks right */
+    opacity: 1; /* Hide by sliding, not fading */
+    pointer-events: none !important;
+  }
+}

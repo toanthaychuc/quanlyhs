@@ -10,573 +10,1320 @@ import './SpaceGeometry3D.css';
 const SHAPE_CATEGORIES = [
   {
     id: 'quad',
-    name: 'Chóp tứ giác S.ABCD',
+    name: 'Khối chóp tứ giác S.ABCD',
     icon: '🔷',
+    subgroups: [
+      {
+        id: 'quad_sa',
+        name: 'Cạnh bên SA vuông góc với đáy',
+        items: [
+          { id: 'quad_sa_parallelogram', name: 'Đáy là hình bình hành' },
+          { id: 'quad_sa_square', name: 'Đáy là hình vuông' },
+          { id: 'quad_sa_rectangle', name: 'Đáy là hình chữ nhật' },
+          { id: 'quad_sa_rhombus', name: 'Đáy là hình thoi' },
+          { id: 'quad_sa_arbitrary', name: 'Đáy là tứ giác bất kì' },
+          { id: 'quad_sa_trapezoid', name: 'Đáy là hình thang' },
+          { id: 'quad_sa_trapezoid_2', name: 'Đáy là hình thang có AB = 2CD' }
+        ]
+      },
+      {
+        id: 'quad_sab',
+        name: 'Mặt bên (SAB) vuông góc với đáy',
+        items: [
+          { id: 'quad_sab_parallelogram', name: 'Đáy là hình bình hành' },
+          { id: 'quad_sab_square', name: 'Đáy là hình vuông' },
+          { id: 'quad_sab_rectangle', name: 'Đáy là hình chữ nhật' },
+          { id: 'quad_sab_rhombus', name: 'Đáy là hình thoi' },
+          { id: 'quad_sab_arbitrary', name: 'Đáy là tứ giác bất kì' },
+          { id: 'quad_sab_trapezoid', name: 'Đáy là hình thang' },
+          { id: 'quad_sab_trapezoid_2', name: 'Đáy là hình thang có AB = 2CD' }
+        ]
+      }
+    ],
     items: [
-      { id: 'quad_parallelogram', name: 'Đáy là hình bình hành' },
-      { id: 'quad_rectangle', name: 'Đáy là hình chữ nhật' },
-      { id: 'quad_square', name: 'Đáy là hình vuông' },
-      { id: 'quad_rhombus', name: 'Đáy là hình thoi' },
-      { id: 'quad_arbitrary', name: 'Đáy là tứ giác bất kì' },
-      { id: 'quad_trapezoid', name: 'Đáy là hình thang thường' },
-      { id: 'quad_trapezoid_ab_2cd', name: 'Đáy là hình thang có AB=2CD' },
+      { id: 'quad_regular', name: 'Khối chóp tứ giác đều' }
     ]
   },
   {
     id: 'tri',
-    name: 'Chóp tam giác S.ABC',
+    name: 'Khối chóp tam giác S.ABC',
     icon: '🔺',
+    subgroups: [
+      {
+        id: 'tri_sa',
+        name: 'Cạnh bên SA vuông góc với đáy',
+        items: [
+          { id: 'tri_sa_general', name: 'Đáy là tam giác thường' },
+          { id: 'tri_sa_equilateral', name: 'Đáy là tam giác đều' },
+          { id: 'tri_sa_right_a', name: 'Đáy là tam giác vuông tại A' },
+          { id: 'tri_sa_right_b', name: 'Đáy là tam giác vuông tại B' },
+          { id: 'tri_sa_right_c', name: 'Đáy là tam giác vuông tại C' },
+          { id: 'tri_sa_isos_a', name: 'Đáy là tam giác cân tại A' },
+          { id: 'tri_sa_isos_b', name: 'Đáy là tam giác cân tại B' },
+          { id: 'tri_sa_isos_c', name: 'Đáy là tam giác cân tại C' }
+        ]
+      },
+      {
+        id: 'tri_sab',
+        name: 'Mặt bên (SAB) vuông góc với đáy',
+        items: [
+          { id: 'tri_sab_general', name: 'Đáy là tam giác thường' },
+          { id: 'tri_sab_equilateral', name: 'Đáy là tam giác đều' },
+          { id: 'tri_sab_right_a', name: 'Đáy là tam giác vuông tại A' },
+          { id: 'tri_sab_right_b', name: 'Đáy là tam giác vuông tại B' },
+          { id: 'tri_sab_right_c', name: 'Đáy là tam giác vuông tại C' },
+          { id: 'tri_sab_isos_a', name: 'Đáy là tam giác cân tại A' },
+          { id: 'tri_sab_isos_b', name: 'Đáy là tam giác cân tại B' },
+          { id: 'tri_sab_isos_c', name: 'Đáy là tam giác cân tại C' }
+        ]
+      }
+    ],
     items: [
-      { id: 'tri_general', name: 'Đáy là tam giác thường' },
-      { id: 'tri_right_a', name: 'Đáy là tam giác vuông tại A' },
-      { id: 'tri_right_b', name: 'Đáy là tam giác vuông tại B' },
-      { id: 'tri_right_c', name: 'Đáy là tam giác vuông tại C' },
-      { id: 'tri_equilateral', name: 'Đáy là tam giác đều' },
-      { id: 'tri_isosceles_a', name: 'Đáy là tam giác cân tại A' },
-      { id: 'tri_isosceles_b', name: 'Đáy là tam giác cân tại B' },
-      { id: 'tri_isosceles_c', name: 'Đáy là tam giác cân tại C' },
+      { id: 'tri_regular', name: 'Khối chóp tam giác đều' }
     ]
   },
   {
     id: 'tetra',
-    name: 'Tứ diện ABCD',
+    name: 'Khối tứ diện ABCD',
     icon: '🔶',
+    subgroups: [
+      {
+        id: 'tetra_ab',
+        name: 'Cạnh bên AB vuông góc với đáy',
+        items: [
+          { id: 'tetra_ab_general', name: 'Đáy là tam giác thường' },
+          { id: 'tetra_ab_equilateral', name: 'Đáy là tam giác đều' },
+          { id: 'tetra_ab_right_b', name: 'Đáy là tam giác vuông tại B' },
+          { id: 'tetra_ab_right_c', name: 'Đáy là tam giác vuông tại C' },
+          { id: 'tetra_ab_right_d', name: 'Đáy là tam giác vuông tại D' },
+          { id: 'tetra_ab_isos_b', name: 'Đáy là tam giác cân tại B' },
+          { id: 'tetra_ab_isos_c', name: 'Đáy là tam giác cân tại C' },
+          { id: 'tetra_ab_isos_d', name: 'Đáy là tam giác cân tại D' }
+        ]
+      },
+      {
+        id: 'tetra_abc',
+        name: 'Mặt bên (ABC) vuông góc với đáy',
+        items: [
+          { id: 'tetra_abc_general', name: 'Đáy là tam giác thường' },
+          { id: 'tetra_abc_equilateral', name: 'Đáy là tam giác đều' },
+          { id: 'tetra_abc_right_b', name: 'Đáy là tam giác vuông tại B' },
+          { id: 'tetra_abc_right_c', name: 'Đáy là tam giác vuông tại C' },
+          { id: 'tetra_abc_right_d', name: 'Đáy là tam giác vuông tại D' },
+          { id: 'tetra_abc_isos_b', name: 'Đáy là tam giác cân tại B' },
+          { id: 'tetra_abc_isos_c', name: 'Đáy là tam giác cân tại C' },
+          { id: 'tetra_abc_isos_d', name: 'Đáy là tam giác cân tại D' }
+        ]
+      }
+    ],
     items: [
-      { id: 'tetra_general', name: 'Đáy BCD là tam giác thường' },
-      { id: 'tetra_right_b', name: 'Đáy BCD là tam giác vuông tại B' },
-      { id: 'tetra_right_c', name: 'Đáy BCD là tam giác vuông tại C' },
-      { id: 'tetra_right_d', name: 'Đáy BCD là tam giác vuông tại D' },
-      { id: 'tetra_equilateral', name: 'Đáy BCD là tam giác đều' },
-      { id: 'tetra_isosceles_b', name: 'Đáy BCD là tam giác cân tại B' },
-      { id: 'tetra_isosceles_c', name: 'Đáy BCD là tam giác cân tại C' },
-      { id: 'tetra_isosceles_d', name: 'Đáy BCD là tam giác cân tại D' },
+      { id: 'tetra_regular', name: 'Tứ diện đều' },
+      { id: 'tetra_right', name: 'Tứ diện vuông (O.ABC)' }
     ]
   },
   {
     id: 'prism_right',
-    name: 'Lăng trụ đứng',
+    name: 'Khối lăng trụ đứng',
     icon: '🏛️',
-    items: [
-      { id: 'prism_right_square', name: 'Đáy là hình vuông' },
-      { id: 'prism_right_rectangle', name: 'Đáy là hình chữ nhật' },
-      { id: 'prism_right_parallelogram', name: 'Đáy là hình bình hành' },
-      { id: 'prism_right_rhombus', name: 'Đáy là hình thoi' },
-      { id: 'prism_right_trapezoid', name: 'Đáy là hình thang' },
-      { id: 'prism_right_tri_right_a', name: 'Đáy là tam giác vuông tại A' },
-      { id: 'prism_right_tri_right_b', name: 'Đáy là tam giác vuông tại B' },
-      { id: 'prism_right_tri_right_c', name: 'Đáy là tam giác vuông tại C' },
-      { id: 'prism_right_tri_isosceles_a', name: 'Đáy là tam giác cân tại A' },
-      { id: 'prism_right_tri_isosceles_b', name: 'Đáy là tam giác cân tại B' },
-      { id: 'prism_right_tri_isosceles_c', name: 'Đáy là tam giác cân tại C' },
+    subgroups: [
+      {
+        id: 'prism_right_quad',
+        name: 'Tùy chọn đáy là tứ giác',
+        items: [
+          { id: 'prism_r_square', name: 'Đáy là hình vuông' },
+          { id: 'prism_r_rect', name: 'Đáy là hình chữ nhật' },
+          { id: 'prism_r_para', name: 'Đáy là hình bình hành' },
+          { id: 'prism_r_rhom', name: 'Đáy là hình thoi' },
+          { id: 'prism_r_trap', name: 'Đáy là hình thang' }
+        ]
+      },
+      {
+        id: 'prism_right_tri',
+        name: 'Tùy chọn đáy là tam giác',
+        items: [
+          { id: 'prism_r_t_right_a', name: 'Đáy là tam giác vuông tại A' },
+          { id: 'prism_r_t_right_b', name: 'Đáy là tam giác vuông tại B' },
+          { id: 'prism_r_t_right_c', name: 'Đáy là tam giác vuông tại C' },
+          { id: 'prism_r_t_isos_a', name: 'Đáy là tam giác cân tại A' },
+          { id: 'prism_r_t_isos_b', name: 'Đáy là tam giác cân tại B' },
+          { id: 'prism_r_t_isos_c', name: 'Đáy là tam giác cân tại C' }
+        ]
+      }
     ]
   },
   {
     id: 'prism_oblique',
-    name: 'Lăng trụ xiên',
+    name: 'Khối lăng trụ xiên',
     icon: '📐',
-    items: [
-      { id: 'prism_oblique_square', name: 'Đáy là hình vuông' },
-      { id: 'prism_oblique_rectangle', name: 'Đáy là hình chữ nhật' },
-      { id: 'prism_oblique_parallelogram', name: 'Đáy là hình bình hành' },
-      { id: 'prism_oblique_rhombus', name: 'Đáy là hình thoi' },
-      { id: 'prism_oblique_trapezoid', name: 'Đáy là hình thang' },
-      { id: 'prism_oblique_tri_right_a', name: 'Đáy là tam giác vuông tại A' },
-      { id: 'prism_oblique_tri_right_b', name: 'Đáy là tam giác vuông tại B' },
-      { id: 'prism_oblique_tri_right_c', name: 'Đáy là tam giác vuông tại C' },
-      { id: 'prism_oblique_tri_isosceles_a', name: 'Đáy là tam giác cân tại A' },
-      { id: 'prism_oblique_tri_isosceles_b', name: 'Đáy là tam giác cân tại B' },
-      { id: 'prism_oblique_tri_isosceles_c', name: 'Đáy là tam giác cân tại C' },
+    subgroups: [
+      {
+        id: 'prism_oblique_quad',
+        name: 'Tùy chọn đáy là tứ giác',
+        items: [
+          { id: 'prism_o_square', name: 'Đáy là hình vuông' },
+          { id: 'prism_o_rect', name: 'Đáy là hình chữ nhật' },
+          { id: 'prism_o_para', name: 'Đáy là hình bình hành' },
+          { id: 'prism_o_rhom', name: 'Đáy là hình thoi' },
+          { id: 'prism_o_trap', name: 'Đáy là hình thang' }
+        ]
+      },
+      {
+        id: 'prism_oblique_tri',
+        name: 'Tùy chọn đáy là tam giác',
+        items: [
+          { id: 'prism_o_t_right_a', name: 'Đáy là tam giác vuông tại A' },
+          { id: 'prism_o_t_right_b', name: 'Đáy là tam giác vuông tại B' },
+          { id: 'prism_o_t_right_c', name: 'Đáy là tam giác vuông tại C' },
+          { id: 'prism_o_t_isos_a', name: 'Đáy là tam giác cân tại A' },
+          { id: 'prism_o_t_isos_b', name: 'Đáy là tam giác cân tại B' },
+          { id: 'prism_o_t_isos_c', name: 'Đáy là tam giác cân tại C' }
+        ]
+      }
     ]
   }
 ];
 
-const QUAD_FACES = [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']];
-const QUAD_EDGES = [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']];
-const QUAD_LABELS = ['S', 'A', 'B', 'C', 'D'];
-
-const TRI_FACES = [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']];
-const TRI_EDGES = [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']];
-const TRI_LABELS = ['S', 'A', 'B', 'C'];
-
-const TETRA_FACES = [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']];
-const TETRA_EDGES = [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']];
-const TETRA_LABELS = ['A', 'B', 'C', 'D'];
-
-// Prism Geometry constants
-const PRISM_QUAD_FACES = [
-  ['A', 'B', 'C', 'D'],
-  ["A'", "B'", "C'", "D'"],
-  ['A', 'B', "B'", "A'"],
-  ['B', 'C', "C'", "B'"],
-  ['C', 'D', "D'", "C'"],
-  ['D', 'A', "A'", "D'"]
-];
-const PRISM_QUAD_EDGES = [
-  ['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A'],
-  ["A'", "B'"], ["B'", "C'"], ["C'", "D'"], ["D'", "A'"],
-  ['A', "A'"], ['B', "B'"], ['C', "C'"], ['D', "D'"]
-];
-const PRISM_QUAD_LABELS = ['A', 'B', 'C', 'D', "A'", "B'", "C'", "D'"];
-
-const PRISM_TRI_FACES = [
-  ['A', 'B', 'C'],
-  ["A'", "B'", "C'"],
-  ['A', 'B', "B'", "A'"],
-  ['B', 'C', "C'", "B'"],
-  ['C', 'A', "A'", "C'"]
-];
-const PRISM_TRI_EDGES = [
-  ['A', 'B'], ['B', 'C'], ['C', 'A'],
-  ["A'", "B'"], ["B'", "C'"], ["C'", "A'"],
-  ['A', "A'"], ['B', "B'"], ['C', "C'"]
-];
-const PRISM_TRI_LABELS = ['A', 'B', 'C', "A'", "B'", "C'"];
-
-const PRISM_BASES = {
-  square: {
-    A: new THREE.Vector3(-1.5, -1, -1.5),
-    B: new THREE.Vector3(1.5, -1, -1.5),
-    C: new THREE.Vector3(1.5, -1, 1.5),
-    D: new THREE.Vector3(-1.5, -1, 1.5),
-  },
-  rectangle: {
-    A: new THREE.Vector3(-1.8, -1, -1),
-    B: new THREE.Vector3(1.8, -1, -1),
-    C: new THREE.Vector3(1.8, -1, 1.5),
-    D: new THREE.Vector3(-1.8, -1, 1.5),
-  },
-  parallelogram: {
-    A: new THREE.Vector3(-1.5, -1, -1),
-    B: new THREE.Vector3(2.5, -1, -1),
-    C: new THREE.Vector3(1.5, -1, 1.5),
-    D: new THREE.Vector3(-2.5, -1, 1.5),
-  },
-  rhombus: {
-    A: new THREE.Vector3(-1.2, -1, -1),
-    B: new THREE.Vector3(2.0, -1, -1),
-    C: new THREE.Vector3(-0.12, -1, 1.4),
-    D: new THREE.Vector3(-3.32, -1, 1.4),
-  },
-  trapezoid: {
-    A: new THREE.Vector3(-1.5, -1, -1),
-    B: new THREE.Vector3(2.5, -1, -1),
-    C: new THREE.Vector3(1.0, -1, 1.5),
-    D: new THREE.Vector3(-1.6, -1, 1.5),
-  },
-  tri_right_a: {
-    A: new THREE.Vector3(-1.2, -1, -1),
-    B: new THREE.Vector3(2.0, -1, -1),
-    C: new THREE.Vector3(-1.2, -1, 1.6),
-  },
-  tri_right_b: {
-    A: new THREE.Vector3(-2.0, -1, -1),
-    B: new THREE.Vector3(1.5, -1, -1),
-    C: new THREE.Vector3(1.5, -1, 1.6),
-  },
-  tri_right_c: {
-    A: new THREE.Vector3(-1.8, -1, -0.5),
-    B: new THREE.Vector3(2.0, -1, -0.3),
-    C: new THREE.Vector3(0, -1, 1.5),
-  },
-  tri_isosceles_a: {
-    A: new THREE.Vector3(-1.5, -1, -1),
-    B: new THREE.Vector3(2.0, -1, -1),
-    C: new THREE.Vector3(0.95, -1, 1.5),
-  },
-  tri_isosceles_b: {
-    A: new THREE.Vector3(-2.0, -1, -0.5),
-    B: new THREE.Vector3(1.5, -1, -1),
-    C: new THREE.Vector3(0.2, -1, 1.5),
-  },
-  tri_isosceles_c: {
-    A: new THREE.Vector3(-1.8, -1, -0.8),
-    B: new THREE.Vector3(1.8, -1, -0.8),
-    C: new THREE.Vector3(0, -1, 1.6),
-  }
-};
-
-const SHIFT_RIGHT_PRISM = new THREE.Vector3(0, 2.6, 0);
-const SHIFT_OBLIQUE_PRISM = new THREE.Vector3(0.7, 2.5, 0.4);
-
-const makePrism = (categoryName, subName, name, baseVerts, shift) => {
-  const isQuad = Object.keys(baseVerts).length === 4;
-  const vertices = {};
-  for (const [k, v] of Object.entries(baseVerts)) {
-    vertices[k] = v.clone();
-    vertices[k + "'"] = new THREE.Vector3(v.x + shift.x, v.y + shift.y, v.z + shift.z);
-  }
-  return {
-    categoryName,
-    subName,
-    name,
-    vertices,
-    faces: isQuad ? PRISM_QUAD_FACES : PRISM_TRI_FACES,
-    edges: isQuad ? PRISM_QUAD_EDGES : PRISM_TRI_EDGES,
-    labels: isQuad ? PRISM_QUAD_LABELS : PRISM_TRI_LABELS
-  };
-};
-
 const SHAPES = {
-  // 1. Chóp tứ giác S.ABCD
-  quad_parallelogram: {
+  quad_sa_parallelogram: {
     categoryName: 'Chóp tứ giác S.ABCD',
     subName: 'Đáy là hình bình hành',
-    name: 'Chóp S.ABCD (đáy hình bình hành)',
+    name: 'S.ABCD (Đáy là hình bình hành)',
     vertices: {
-      S: new THREE.Vector3(-0.5, 2.5, 0),
-      A: new THREE.Vector3(-1.5, -1, -1),
-      B: new THREE.Vector3(2.5, -1, -1),
-      C: new THREE.Vector3(1.5, -1, 1.5),
-      D: new THREE.Vector3(-2.5, -1, 1.5),
+      "S": new THREE.Vector3(-1.5, 2.5, -1),
+      "A": new THREE.Vector3(-1.5, -1, -1),
+      "B": new THREE.Vector3(2.5, -1, -1),
+      "D": new THREE.Vector3(-2.5, -1, 1.5),
+      "C": new THREE.Vector3(1.5, -1, 1.5),
     },
-    faces: QUAD_FACES,
-    edges: QUAD_EDGES,
-    labels: QUAD_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'D']],
+    labels: ['S', 'A', 'B', 'C', 'D']
   },
-  quad_rectangle: {
-    categoryName: 'Chóp tứ giác S.ABCD',
-    subName: 'Đáy là hình chữ nhật',
-    name: 'Chóp S.ABCD (đáy hình chữ nhật)',
-    vertices: {
-      S: new THREE.Vector3(-0.6, 2.5, -0.6),
-      A: new THREE.Vector3(-1.8, -1, -1),
-      B: new THREE.Vector3(1.8, -1, -1),
-      C: new THREE.Vector3(1.8, -1, 1.5),
-      D: new THREE.Vector3(-1.8, -1, 1.5),
-    },
-    faces: QUAD_FACES,
-    edges: QUAD_EDGES,
-    labels: QUAD_LABELS
-  },
-  quad_square: {
+  quad_sa_square: {
     categoryName: 'Chóp tứ giác S.ABCD',
     subName: 'Đáy là hình vuông',
-    name: 'Chóp S.ABCD (đáy hình vuông)',
+    name: 'S.ABCD (Đáy là hình vuông)',
     vertices: {
-      S: new THREE.Vector3(-0.5, 2.6, -0.5),
-      A: new THREE.Vector3(-1.5, -1, -1.5),
-      B: new THREE.Vector3(1.5, -1, -1.5),
-      C: new THREE.Vector3(1.5, -1, 1.5),
-      D: new THREE.Vector3(-1.5, -1, 1.5),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(2, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2),
+      "C": new THREE.Vector3(2, 0, 2),
     },
-    faces: QUAD_FACES,
-    edges: QUAD_EDGES,
-    labels: QUAD_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'D']],
+    labels: ['S', 'A', 'B', 'C', 'D']
   },
-  quad_rhombus: {
+  quad_sa_rectangle: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình chữ nhật',
+    name: 'S.ABCD (Đáy là hình chữ nhật)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2),
+      "C": new THREE.Vector3(3, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'D']],
+    labels: ['S', 'A', 'B', 'C', 'D']
+  },
+  quad_sa_rhombus: {
     categoryName: 'Chóp tứ giác S.ABCD',
     subName: 'Đáy là hình thoi',
-    name: 'Chóp S.ABCD (đáy hình thoi)',
+    name: 'S.ABCD (Đáy là hình thoi)',
     vertices: {
-      S: new THREE.Vector3(-0.6, 2.5, -0.6),
-      A: new THREE.Vector3(-1.2, -1, -1),
-      B: new THREE.Vector3(2.0, -1, -1),
-      C: new THREE.Vector3(-0.12, -1, 1.4),
-      D: new THREE.Vector3(-3.32, -1, 1.4),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(2, 0, 0),
+      "D": new THREE.Vector3(1, 0, 1.732),
+      "C": new THREE.Vector3(3, 0, 1.732),
     },
-    faces: QUAD_FACES,
-    edges: QUAD_EDGES,
-    labels: QUAD_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'D']],
+    labels: ['S', 'A', 'B', 'C', 'D']
   },
-  quad_arbitrary: {
+  quad_sa_arbitrary: {
     categoryName: 'Chóp tứ giác S.ABCD',
     subName: 'Đáy là tứ giác bất kì',
-    name: 'Chóp S.ABCD (đáy tứ giác bất kì)',
+    name: 'S.ABCD (Đáy là tứ giác bất kì)',
     vertices: {
-      S: new THREE.Vector3(-0.4, 2.8, -0.4),
-      A: new THREE.Vector3(-2.0, -1, -1.2),
-      B: new THREE.Vector3(2.6, -1, -0.8),
-      C: new THREE.Vector3(1.8, -1, 1.6),
-      D: new THREE.Vector3(-2.2, -1, 1.2),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(1, 0, 3),
+      "C": new THREE.Vector3(4, 0, 1),
     },
-    faces: QUAD_FACES,
-    edges: QUAD_EDGES,
-    labels: QUAD_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'D']],
+    labels: ['S', 'A', 'B', 'C', 'D']
   },
-  quad_trapezoid: {
+  quad_sa_trapezoid: {
     categoryName: 'Chóp tứ giác S.ABCD',
-    subName: 'Đáy là hình thang thường',
-    name: 'Chóp S.ABCD (đáy hình thang thường)',
+    subName: 'Đáy là hình thang',
+    name: 'S.ABCD (Đáy là hình thang)',
     vertices: {
-      S: new THREE.Vector3(-0.5, 2.6, -0.6),
-      A: new THREE.Vector3(-1.5, -1, -1),
-      B: new THREE.Vector3(2.5, -1, -1),
-      C: new THREE.Vector3(1.0, -1, 1.5),
-      D: new THREE.Vector3(-1.6, -1, 1.5),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(4, 0, 0),
+      "D": new THREE.Vector3(1, 0, 2),
+      "C": new THREE.Vector3(2.5, 0, 2),
     },
-    faces: QUAD_FACES,
-    edges: QUAD_EDGES,
-    labels: QUAD_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'D']],
+    labels: ['S', 'A', 'B', 'C', 'D']
   },
-  quad_trapezoid_ab_2cd: {
+  quad_sa_trapezoid_2: {
     categoryName: 'Chóp tứ giác S.ABCD',
-    subName: 'Đáy là hình thang có AB=2CD',
-    name: 'Chóp S.ABCD (đáy hình thang AB=2CD)',
+    subName: 'Đáy là hình thang có AB = 2CD',
+    name: 'S.ABCD (Đáy là hình thang có AB = 2CD)',
     vertices: {
-      S: new THREE.Vector3(-0.6, 2.6, -0.6),
-      A: new THREE.Vector3(-2.0, -1, -1),
-      B: new THREE.Vector3(2.0, -1, -1),
-      C: new THREE.Vector3(0.5, -1, 1.5),
-      D: new THREE.Vector3(-1.5, -1, 1.5),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(4, 0, 0),
+      "D": new THREE.Vector3(1, 0, 2),
+      "C": new THREE.Vector3(3, 0, 2),
     },
-    faces: QUAD_FACES,
-    edges: QUAD_EDGES,
-    labels: QUAD_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'D']],
+    labels: ['S', 'A', 'B', 'C', 'D']
   },
-
-  // 2. Chóp tam giác S.ABC
-  tri_general: {
+  quad_sab_parallelogram: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình bình hành',
+    name: 'S.ABCD (Đáy là hình bình hành)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "D": new THREE.Vector3(-0.5, 0, 2),
+      "C": new THREE.Vector3(2.5, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'D', 'H']
+  },
+  quad_sab_square: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình vuông',
+    name: 'S.ABCD (Đáy là hình vuông)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "D": new THREE.Vector3(-1.5, 0, 3),
+      "C": new THREE.Vector3(1.5, 0, 3),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'D', 'H']
+  },
+  quad_sab_rectangle: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình chữ nhật',
+    name: 'S.ABCD (Đáy là hình chữ nhật)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "D": new THREE.Vector3(-1.5, 0, 2),
+      "C": new THREE.Vector3(1.5, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'D', 'H']
+  },
+  quad_sab_rhombus: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình thoi',
+    name: 'S.ABCD (Đáy là hình thoi)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "D": new THREE.Vector3(-0.5, 0, 2.8),
+      "C": new THREE.Vector3(2.5, 0, 2.8),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'D', 'H']
+  },
+  quad_sab_arbitrary: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là tứ giác bất kì',
+    name: 'S.ABCD (Đáy là tứ giác bất kì)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(2, 0, 0),
+      "H": new THREE.Vector3(0.25, 0.0, 0.0),
+      "D": new THREE.Vector3(-1, 0, 2),
+      "C": new THREE.Vector3(3, 0, 1.5),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'D', 'H']
+  },
+  quad_sab_trapezoid: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình thang',
+    name: 'S.ABCD (Đáy là hình thang)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(2.5, 0, 0),
+      "H": new THREE.Vector3(0.5, 0.0, 0.0),
+      "D": new THREE.Vector3(-0.5, 0, 2),
+      "C": new THREE.Vector3(1.5, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'D', 'H']
+  },
+  quad_sab_trapezoid_2: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Đáy là hình thang có AB = 2CD',
+    name: 'S.ABCD (Đáy là hình thang có AB = 2CD)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-2, 0, 0),
+      "B": new THREE.Vector3(2, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "D": new THREE.Vector3(-1, 0, 2),
+      "C": new THREE.Vector3(1, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'D', 'H']
+  },
+  quad_regular: {
+    categoryName: 'Chóp tứ giác S.ABCD',
+    subName: 'Khối chóp tứ giác đều',
+    name: 'Khối chóp tứ giác đều',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, -1.5),
+      "B": new THREE.Vector3(1.5, 0, -1.5),
+      "C": new THREE.Vector3(1.5, 0, 1.5),
+      "O": new THREE.Vector3(0.0, 0.0, 0.0),
+      "D": new THREE.Vector3(-1.5, 0, 1.5),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','D'], ['S','D','A'], ['A','B','C','D']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['S','D'], ['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A', 'C'], ['B', 'D'], ['S', 'O']],
+    rightAngles: [['S', 'O', 'A'], ['S', 'O', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'D', 'O']
+  },
+  tri_sa_general: {
     categoryName: 'Chóp tam giác S.ABC',
     subName: 'Đáy là tam giác thường',
-    name: 'Chóp S.ABC (đáy tam giác thường)',
+    name: 'S.ABC (Đáy là tam giác thường)',
     vertices: {
-      S: new THREE.Vector3(-0.5, 2.6, -0.4),
-      A: new THREE.Vector3(-1.6, -1, -1),
-      B: new THREE.Vector3(2.2, -1, -0.8),
-      C: new THREE.Vector3(0.2, -1, 1.5),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(1, 0, 2),
     },
-    faces: TRI_FACES,
-    edges: TRI_EDGES,
-    labels: TRI_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
   },
-  tri_right_a: {
-    categoryName: 'Chóp tam giác S.ABC',
-    subName: 'Đáy là tam giác vuông tại A',
-    name: 'Chóp S.ABC (đáy vuông tại A)',
-    vertices: {
-      S: new THREE.Vector3(-0.5, 2.6, -0.3),
-      A: new THREE.Vector3(-1.2, -1, -1),
-      B: new THREE.Vector3(2.0, -1, -1),
-      C: new THREE.Vector3(-1.2, -1, 1.6),
-    },
-    faces: TRI_FACES,
-    edges: TRI_EDGES,
-    labels: TRI_LABELS
-  },
-  tri_right_b: {
-    categoryName: 'Chóp tam giác S.ABC',
-    subName: 'Đáy là tam giác vuông tại B',
-    name: 'Chóp S.ABC (đáy vuông tại B)',
-    vertices: {
-      S: new THREE.Vector3(-0.6, 2.6, -0.4),
-      A: new THREE.Vector3(-2.0, -1, -1),
-      B: new THREE.Vector3(1.5, -1, -1),
-      C: new THREE.Vector3(1.5, -1, 1.6),
-    },
-    faces: TRI_FACES,
-    edges: TRI_EDGES,
-    labels: TRI_LABELS
-  },
-  tri_right_c: {
-    categoryName: 'Chóp tam giác S.ABC',
-    subName: 'Đáy là tam giác vuông tại C',
-    name: 'Chóp S.ABC (đáy vuông tại C)',
-    vertices: {
-      S: new THREE.Vector3(-0.5, 2.6, -0.4),
-      A: new THREE.Vector3(-1.8, -1, -0.5),
-      B: new THREE.Vector3(2.0, -1, -0.3),
-      C: new THREE.Vector3(0, -1, 1.5),
-    },
-    faces: TRI_FACES,
-    edges: TRI_EDGES,
-    labels: TRI_LABELS
-  },
-  tri_equilateral: {
+  tri_sa_equilateral: {
     categoryName: 'Chóp tam giác S.ABC',
     subName: 'Đáy là tam giác đều',
-    name: 'Chóp S.ABC (đáy tam giác đều)',
+    name: 'S.ABC (Đáy là tam giác đều)',
     vertices: {
-      S: new THREE.Vector3(-0.5, 2.6, -0.3),
-      A: new THREE.Vector3(-1.8, -1, -1),
-      B: new THREE.Vector3(1.8, -1, -1),
-      C: new THREE.Vector3(0, -1, 2.12),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 2.598),
     },
-    faces: TRI_FACES,
-    edges: TRI_EDGES,
-    labels: TRI_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
   },
-  tri_isosceles_a: {
+  tri_sa_right_a: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại A',
+    name: 'S.ABC (Đáy là tam giác vuông tại A)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(0, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
+  },
+  tri_sa_right_b: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại B',
+    name: 'S.ABC (Đáy là tam giác vuông tại B)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(3, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
+  },
+  tri_sa_right_c: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại C',
+    name: 'S.ABC (Đáy là tam giác vuông tại C)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 1.5),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
+  },
+  tri_sa_isos_a: {
     categoryName: 'Chóp tam giác S.ABC',
     subName: 'Đáy là tam giác cân tại A',
-    name: 'Chóp S.ABC (đáy cân tại A)',
+    name: 'S.ABC (Đáy là tam giác cân tại A)',
     vertices: {
-      S: new THREE.Vector3(-0.6, 2.6, -0.4),
-      A: new THREE.Vector3(-1.5, -1, -1),
-      B: new THREE.Vector3(2.0, -1, -1),
-      C: new THREE.Vector3(0.95, -1, 1.5),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(2, 0, 2),
+      "C": new THREE.Vector3(-2, 0, 2),
     },
-    faces: TRI_FACES,
-    edges: TRI_EDGES,
-    labels: TRI_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
   },
-  tri_isosceles_b: {
+  tri_sa_isos_b: {
     categoryName: 'Chóp tam giác S.ABC',
     subName: 'Đáy là tam giác cân tại B',
-    name: 'Chóp S.ABC (đáy cân tại B)',
+    name: 'S.ABC (Đáy là tam giác cân tại B)',
     vertices: {
-      S: new THREE.Vector3(-0.6, 2.6, -0.4),
-      A: new THREE.Vector3(-1.5, -1, -1),
-      B: new THREE.Vector3(2.0, -1, -1),
-      C: new THREE.Vector3(-0.45, -1, 1.5),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(3, 0, 3),
     },
-    faces: TRI_FACES,
-    edges: TRI_EDGES,
-    labels: TRI_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
   },
-  tri_isosceles_c: {
+  tri_sa_isos_c: {
     categoryName: 'Chóp tam giác S.ABC',
     subName: 'Đáy là tam giác cân tại C',
-    name: 'Chóp S.ABC (đáy cân tại C)',
+    name: 'S.ABC (Đáy là tam giác cân tại C)',
     vertices: {
-      S: new THREE.Vector3(-0.5, 2.6, -0.4),
-      A: new THREE.Vector3(-1.8, -1, -1),
-      B: new THREE.Vector3(1.8, -1, -1),
-      C: new THREE.Vector3(0, -1, 1.6),
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(4, 0, 0),
+      "C": new THREE.Vector3(2, 0, 3),
     },
-    faces: TRI_FACES,
-    edges: TRI_EDGES,
-    labels: TRI_LABELS
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
   },
-
-  // 3. Tứ diện ABCD (đáy BCD)
-  tetra_general: {
+  tri_sab_general: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác thường',
+    name: 'S.ABC (Đáy là tam giác thường)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(0.5, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_equilateral: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác đều',
+    name: 'S.ABC (Đáy là tam giác đều)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(0, 0, 2.598),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_right_a: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại A',
+    name: 'S.ABC (Đáy là tam giác vuông tại A)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(-1.5, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_right_b: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại B',
+    name: 'S.ABC (Đáy là tam giác vuông tại B)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(1.5, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_right_c: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông tại C',
+    name: 'S.ABC (Đáy là tam giác vuông tại C)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(0, 0, 1.5),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_isos_a: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác cân tại A',
+    name: 'S.ABC (Đáy là tam giác cân tại A)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(0, 0, 2.598),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_isos_b: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác cân tại B',
+    name: 'S.ABC (Đáy là tam giác cân tại B)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(0, 0, 2.598),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_isos_c: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác cân tại C',
+    name: 'S.ABC (Đáy là tam giác cân tại C)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(0, 0, 2),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_regular: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Khối chóp tam giác đều',
+    name: 'Khối chóp tam giác đều',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 1.732),
+      "B": new THREE.Vector3(-1.5, 0, -0.866),
+      "C": new THREE.Vector3(1.5, 0, -0.866),
+      "M": new THREE.Vector3(0.0, 0.0, -0.87),
+      "G": new THREE.Vector3(0.0, 0.0, 0.0),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['A', 'M'], ['S', 'G']],
+    rightAngles: [['S', 'G', 'A']],
+    labels: ['S', 'A', 'B', 'C', 'M', 'G']
+  },
+  tetra_ab_general: {
     categoryName: 'Tứ diện ABCD',
-    subName: 'Đáy BCD là tam giác thường',
-    name: 'Tứ diện ABCD (đáy BCD thường)',
+    subName: 'Đáy là tam giác thường',
+    name: 'ABCD (Đáy là tam giác thường)',
     vertices: {
-      A: new THREE.Vector3(-0.5, 2.6, -0.4),
-      B: new THREE.Vector3(-1.6, -1, -1),
-      C: new THREE.Vector3(2.2, -1, -0.8),
-      D: new THREE.Vector3(0.2, -1, 1.5),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(1, 0, 2),
     },
-    faces: TETRA_FACES,
-    edges: TETRA_EDGES,
-    labels: TETRA_LABELS
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
-  tetra_right_b: {
+  tetra_ab_equilateral: {
     categoryName: 'Tứ diện ABCD',
-    subName: 'Đáy BCD là tam giác vuông tại B',
-    name: 'Tứ diện ABCD (đáy BCD vuông tại B)',
+    subName: 'Đáy là tam giác đều',
+    name: 'ABCD (Đáy là tam giác đều)',
     vertices: {
-      A: new THREE.Vector3(-0.5, 2.6, -0.3),
-      B: new THREE.Vector3(-1.2, -1, -1),
-      C: new THREE.Vector3(2.0, -1, -1),
-      D: new THREE.Vector3(-1.2, -1, 1.6),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(1.5, 0, 2.598),
     },
-    faces: TETRA_FACES,
-    edges: TETRA_EDGES,
-    labels: TETRA_LABELS
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
-  tetra_right_c: {
+  tetra_ab_right_b: {
     categoryName: 'Tứ diện ABCD',
-    subName: 'Đáy BCD là tam giác vuông tại C',
-    name: 'Tứ diện ABCD (đáy BCD vuông tại C)',
+    subName: 'Đáy là tam giác vuông tại B',
+    name: 'ABCD (Đáy là tam giác vuông tại B)',
     vertices: {
-      A: new THREE.Vector3(-0.5, 2.6, -0.3),
-      B: new THREE.Vector3(-2.0, -1, -1),
-      C: new THREE.Vector3(1.5, -1, -1),
-      D: new THREE.Vector3(1.5, -1, 1.6),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2),
     },
-    faces: TETRA_FACES,
-    edges: TETRA_EDGES,
-    labels: TETRA_LABELS
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
-  tetra_right_d: {
+  tetra_ab_right_c: {
     categoryName: 'Tứ diện ABCD',
-    subName: 'Đáy BCD là tam giác vuông tại D',
-    name: 'Tứ diện ABCD (đáy BCD vuông tại D)',
+    subName: 'Đáy là tam giác vuông tại C',
+    name: 'ABCD (Đáy là tam giác vuông tại C)',
     vertices: {
-      A: new THREE.Vector3(-0.5, 2.6, -0.4),
-      B: new THREE.Vector3(-1.8, -1, -0.5),
-      C: new THREE.Vector3(2.0, -1, -0.3),
-      D: new THREE.Vector3(0, -1, 1.5),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(3, 0, 2),
     },
-    faces: TETRA_FACES,
-    edges: TETRA_EDGES,
-    labels: TETRA_LABELS
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
-  tetra_equilateral: {
+  tetra_ab_right_d: {
     categoryName: 'Tứ diện ABCD',
-    subName: 'Đáy BCD là tam giác đều',
-    name: 'Tứ diện ABCD (đáy BCD đều)',
+    subName: 'Đáy là tam giác vuông tại D',
+    name: 'ABCD (Đáy là tam giác vuông tại D)',
     vertices: {
-      A: new THREE.Vector3(-0.5, 2.6, -0.3),
-      B: new THREE.Vector3(-1.8, -1, -1),
-      C: new THREE.Vector3(1.8, -1, -1),
-      D: new THREE.Vector3(0, -1, 2.12),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(1.5, 0, 1.5),
     },
-    faces: TETRA_FACES,
-    edges: TETRA_EDGES,
-    labels: TETRA_LABELS
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
-  tetra_isosceles_b: {
+  tetra_ab_isos_b: {
     categoryName: 'Tứ diện ABCD',
-    subName: 'Đáy BCD là tam giác cân tại B',
-    name: 'Tứ diện ABCD (đáy BCD cân tại B)',
+    subName: 'Đáy là tam giác cân tại B',
+    name: 'ABCD (Đáy là tam giác cân tại B)',
     vertices: {
-      A: new THREE.Vector3(-0.6, 2.6, -0.4),
-      B: new THREE.Vector3(-1.5, -1, -1),
-      C: new THREE.Vector3(2.0, -1, -1),
-      D: new THREE.Vector3(0.95, -1, 1.5),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(2, 0, 2),
+      "D": new THREE.Vector3(-2, 0, 2),
     },
-    faces: TETRA_FACES,
-    edges: TETRA_EDGES,
-    labels: TETRA_LABELS
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
-  tetra_isosceles_c: {
+  tetra_ab_isos_c: {
     categoryName: 'Tứ diện ABCD',
-    subName: 'Đáy BCD là tam giác cân tại C',
-    name: 'Tứ diện ABCD (đáy BCD cân tại C)',
+    subName: 'Đáy là tam giác cân tại C',
+    name: 'ABCD (Đáy là tam giác cân tại C)',
     vertices: {
-      A: new THREE.Vector3(-0.6, 2.6, -0.4),
-      B: new THREE.Vector3(-1.5, -1, -1),
-      C: new THREE.Vector3(2.0, -1, -1),
-      D: new THREE.Vector3(-0.45, -1, 1.5),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(3, 0, 3),
     },
-    faces: TETRA_FACES,
-    edges: TETRA_EDGES,
-    labels: TETRA_LABELS
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
-  tetra_isosceles_d: {
+  tetra_ab_isos_d: {
     categoryName: 'Tứ diện ABCD',
-    subName: 'Đáy BCD là tam giác cân tại D',
-    name: 'Tứ diện ABCD (đáy BCD cân tại D)',
+    subName: 'Đáy là tam giác cân tại D',
+    name: 'ABCD (Đáy là tam giác cân tại D)',
     vertices: {
-      A: new THREE.Vector3(-0.5, 2.6, -0.4),
-      B: new THREE.Vector3(-1.8, -1, -1),
-      C: new THREE.Vector3(1.8, -1, -1),
-      D: new THREE.Vector3(0, -1, 1.6),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(4, 0, 0),
+      "D": new THREE.Vector3(2, 0, 3),
     },
-    faces: TETRA_FACES,
-    edges: TETRA_EDGES,
-    labels: TETRA_LABELS
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
-
-  // 4. Lăng trụ đứng
-  prism_right_square: makePrism('Lăng trụ đứng', 'Đáy là hình vuông', 'Lăng trụ đứng (đáy hình vuông)', PRISM_BASES.square, SHIFT_RIGHT_PRISM),
-  prism_right_rectangle: makePrism('Lăng trụ đứng', 'Đáy là hình chữ nhật', 'Lăng trụ đứng (đáy hình chữ nhật)', PRISM_BASES.rectangle, SHIFT_RIGHT_PRISM),
-  prism_right_parallelogram: makePrism('Lăng trụ đứng', 'Đáy là hình bình hành', 'Lăng trụ đứng (đáy hình bình hành)', PRISM_BASES.parallelogram, SHIFT_RIGHT_PRISM),
-  prism_right_rhombus: makePrism('Lăng trụ đứng', 'Đáy là hình thoi', 'Lăng trụ đứng (đáy hình thoi)', PRISM_BASES.rhombus, SHIFT_RIGHT_PRISM),
-  prism_right_trapezoid: makePrism('Lăng trụ đứng', 'Đáy là hình thang', 'Lăng trụ đứng (đáy hình thang)', PRISM_BASES.trapezoid, SHIFT_RIGHT_PRISM),
-  prism_right_tri_right_a: makePrism('Lăng trụ đứng', 'Đáy là tam giác vuông tại A', 'Lăng trụ đứng (đáy vuông tại A)', PRISM_BASES.tri_right_a, SHIFT_RIGHT_PRISM),
-  prism_right_tri_right_b: makePrism('Lăng trụ đứng', 'Đáy là tam giác vuông tại B', 'Lăng trụ đứng (đáy vuông tại B)', PRISM_BASES.tri_right_b, SHIFT_RIGHT_PRISM),
-  prism_right_tri_right_c: makePrism('Lăng trụ đứng', 'Đáy là tam giác vuông tại C', 'Lăng trụ đứng (đáy vuông tại C)', PRISM_BASES.tri_right_c, SHIFT_RIGHT_PRISM),
-  prism_right_tri_isosceles_a: makePrism('Lăng trụ đứng', 'Đáy là tam giác cân tại A', 'Lăng trụ đứng (đáy cân tại A)', PRISM_BASES.tri_isosceles_a, SHIFT_RIGHT_PRISM),
-  prism_right_tri_isosceles_b: makePrism('Lăng trụ đứng', 'Đáy là tam giác cân tại B', 'Lăng trụ đứng (đáy cân tại B)', PRISM_BASES.tri_isosceles_b, SHIFT_RIGHT_PRISM),
-  prism_right_tri_isosceles_c: makePrism('Lăng trụ đứng', 'Đáy là tam giác cân tại C', 'Lăng trụ đứng (đáy cân tại C)', PRISM_BASES.tri_isosceles_c, SHIFT_RIGHT_PRISM),
-
-  // 5. Lăng trụ xiên
-  prism_oblique_square: makePrism('Lăng trụ xiên', 'Đáy là hình vuông', 'Lăng trụ xiên (đáy hình vuông)', PRISM_BASES.square, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_rectangle: makePrism('Lăng trụ xiên', 'Đáy là hình chữ nhật', 'Lăng trụ xiên (đáy hình chữ nhật)', PRISM_BASES.rectangle, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_parallelogram: makePrism('Lăng trụ xiên', 'Đáy là hình bình hành', 'Lăng trụ xiên (đáy hình bình hành)', PRISM_BASES.parallelogram, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_rhombus: makePrism('Lăng trụ xiên', 'Đáy là hình thoi', 'Lăng trụ xiên (đáy hình thoi)', PRISM_BASES.rhombus, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_trapezoid: makePrism('Lăng trụ xiên', 'Đáy là hình thang', 'Lăng trụ xiên (đáy hình thang)', PRISM_BASES.trapezoid, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_tri_right_a: makePrism('Lăng trụ xiên', 'Đáy là tam giác vuông tại A', 'Lăng trụ xiên (đáy vuông tại A)', PRISM_BASES.tri_right_a, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_tri_right_b: makePrism('Lăng trụ xiên', 'Đáy là tam giác vuông tại B', 'Lăng trụ xiên (đáy vuông tại B)', PRISM_BASES.tri_right_b, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_tri_right_c: makePrism('Lăng trụ xiên', 'Đáy là tam giác vuông tại C', 'Lăng trụ xiên (đáy vuông tại C)', PRISM_BASES.tri_right_c, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_tri_isosceles_a: makePrism('Lăng trụ xiên', 'Đáy là tam giác cân tại A', 'Lăng trụ xiên (đáy cân tại A)', PRISM_BASES.tri_isosceles_a, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_tri_isosceles_b: makePrism('Lăng trụ xiên', 'Đáy là tam giác cân tại B', 'Lăng trụ xiên (đáy cân tại B)', PRISM_BASES.tri_isosceles_b, SHIFT_OBLIQUE_PRISM),
-  prism_oblique_tri_isosceles_c: makePrism('Lăng trụ xiên', 'Đáy là tam giác cân tại C', 'Lăng trụ xiên (đáy cân tại C)', PRISM_BASES.tri_isosceles_c, SHIFT_OBLIQUE_PRISM)
+  tetra_abc_general: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác thường',
+    name: 'ABCD (Đáy là tam giác thường)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(0.5, 0, 2),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_equilateral: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác đều',
+    name: 'ABCD (Đáy là tam giác đều)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2.598),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_right_b: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông tại B',
+    name: 'ABCD (Đáy là tam giác vuông tại B)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(-1.5, 0, 2),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_right_c: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông tại C',
+    name: 'ABCD (Đáy là tam giác vuông tại C)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(1.5, 0, 2),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_right_d: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông tại D',
+    name: 'ABCD (Đáy là tam giác vuông tại D)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(0, 0, 1.5),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_isos_b: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác cân tại B',
+    name: 'ABCD (Đáy là tam giác cân tại B)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2.598),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_isos_c: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác cân tại C',
+    name: 'ABCD (Đáy là tam giác cân tại C)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2.598),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_isos_d: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác cân tại D',
+    name: 'ABCD (Đáy là tam giác cân tại D)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_regular: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Tứ diện đều',
+    name: 'Tứ diện đều',
+    vertices: {
+      "A": new THREE.Vector3(0, 2.45, 0),
+      "B": new THREE.Vector3(0, 0, 1.732),
+      "C": new THREE.Vector3(-1.5, 0, -0.866),
+      "D": new THREE.Vector3(1.5, 0, -0.866),
+      "M": new THREE.Vector3(0, 0, -0.866),
+      "G": new THREE.Vector3(0, 0, 0),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B'], ['B', 'M'], ['A', 'G']],
+    rightAngles: [['A', 'G', 'B']],
+    labels: ['A', 'B', 'C', 'D', 'M', 'G']
+  },
+  tetra_right: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Tứ diện vuông (O.ABC)',
+    name: 'Tứ diện vuông (O.ABC)',
+    vertices: {
+      "O": new THREE.Vector3(0, 0, 0),
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(0, 0, 3),
+    },
+    faces: [['O','A','B'], ['O','B','C'], ['O','C','A'], ['A','B','C']],
+    edges: [['O','A'], ['O','B'], ['O','C'], ['A','B'], ['B','C'], ['C','A']],
+    labels: ['O', 'A', 'B', 'C']
+  },
+  prism_r_square: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là hình vuông',
+    name: 'Lăng trụ đứng (Đáy là hình vuông)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(2, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2),
+      "C": new THREE.Vector3(2, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(2, 3, 0),
+      "D'": new THREE.Vector3(0, 3, 2),
+      "C'": new THREE.Vector3(2, 3, 2),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_r_rect: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là hình chữ nhật',
+    name: 'Lăng trụ đứng (Đáy là hình chữ nhật)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(0, 0, 2),
+      "C": new THREE.Vector3(3, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "D'": new THREE.Vector3(0, 3, 2),
+      "C'": new THREE.Vector3(3, 3, 2),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_r_para: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là hình bình hành',
+    name: 'Lăng trụ đứng (Đáy là hình bình hành)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(1, 0, 2),
+      "C": new THREE.Vector3(4, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "D'": new THREE.Vector3(1, 3, 2),
+      "C'": new THREE.Vector3(4, 3, 2),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_r_rhom: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là hình thoi',
+    name: 'Lăng trụ đứng (Đáy là hình thoi)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(2, 0, 0),
+      "D": new THREE.Vector3(1, 0, 1.732),
+      "C": new THREE.Vector3(3, 0, 1.732),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(2, 3, 0),
+      "D'": new THREE.Vector3(1, 3, 1.732),
+      "C'": new THREE.Vector3(3, 3, 1.732),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_r_trap: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là hình thang',
+    name: 'Lăng trụ đứng (Đáy là hình thang)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(4, 0, 0),
+      "D": new THREE.Vector3(1, 0, 2),
+      "C": new THREE.Vector3(3, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(4, 3, 0),
+      "D'": new THREE.Vector3(1, 3, 2),
+      "C'": new THREE.Vector3(3, 3, 2),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_r_t_right_a: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác vuông tại A',
+    name: 'Lăng trụ đứng (Đáy là tam giác vuông tại A)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(0, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(0, 3, 2),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_r_t_right_b: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác vuông tại B',
+    name: 'Lăng trụ đứng (Đáy là tam giác vuông tại B)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(3, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(3, 3, 2),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_r_t_right_c: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác vuông tại C',
+    name: 'Lăng trụ đứng (Đáy là tam giác vuông tại C)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 1.5),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(1.5, 3, 1.5),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_r_t_isos_a: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác cân tại A',
+    name: 'Lăng trụ đứng (Đáy là tam giác cân tại A)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(2, 0, 2),
+      "C": new THREE.Vector3(-2, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(2, 3, 2),
+      "C'": new THREE.Vector3(-2, 3, 2),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_r_t_isos_b: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác cân tại B',
+    name: 'Lăng trụ đứng (Đáy là tam giác cân tại B)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(3, 0, 3),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(3, 3, 3),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_r_t_isos_c: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác cân tại C',
+    name: 'Lăng trụ đứng (Đáy là tam giác cân tại C)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(4, 0, 0),
+      "C": new THREE.Vector3(2, 0, 3),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(4, 3, 0),
+      "C'": new THREE.Vector3(2, 3, 3),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_o_square: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là hình vuông',
+    name: 'Lăng trụ xiên (Đáy là hình vuông)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(1, 0, -1),
+      "D": new THREE.Vector3(-1, 0, 1),
+      "C": new THREE.Vector3(1, 0, 1),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(2, 3, 0),
+      "D'": new THREE.Vector3(0, 3, 2),
+      "C'": new THREE.Vector3(2, 3, 2),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_o_rect: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là hình chữ nhật',
+    name: 'Lăng trụ xiên (Đáy là hình chữ nhật)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "D": new THREE.Vector3(-1, 0, 1),
+      "C": new THREE.Vector3(2, 0, 1),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "D'": new THREE.Vector3(0, 3, 2),
+      "C'": new THREE.Vector3(3, 3, 2),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_o_para: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là hình bình hành',
+    name: 'Lăng trụ xiên (Đáy là hình bình hành)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "D": new THREE.Vector3(0, 0, 1),
+      "C": new THREE.Vector3(3, 0, 1),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "D'": new THREE.Vector3(1, 3, 2),
+      "C'": new THREE.Vector3(4, 3, 2),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_o_rhom: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là hình thoi',
+    name: 'Lăng trụ xiên (Đáy là hình thoi)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(1, 0, -1),
+      "D": new THREE.Vector3(0, 0, 0.732),
+      "C": new THREE.Vector3(2, 0, 0.732),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(2, 3, 0),
+      "D'": new THREE.Vector3(1, 3, 1.732),
+      "C'": new THREE.Vector3(3, 3, 1.732),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_o_trap: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là hình thang',
+    name: 'Lăng trụ xiên (Đáy là hình thang)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(3, 0, -1),
+      "D": new THREE.Vector3(0, 0, 1),
+      "C": new THREE.Vector3(2, 0, 1),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(4, 3, 0),
+      "D'": new THREE.Vector3(1, 3, 2),
+      "C'": new THREE.Vector3(3, 3, 2),
+    },
+    faces: [['A', 'B', 'C', 'D'], ['A\'', 'B\'', 'C\'', 'D\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'D', 'D\'', 'C\''], ['D', 'A', 'A\'', 'D\'']],
+    edges: [['A','B'], ['B','C'], ['C','D'], ['D','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','D\''], ['D\'','A\''], ['A','A\''], ['B','B\''], ['C','C\''], ['D','D\'']],
+    labels: ['A', 'B', 'C', 'D', 'A\'', 'B\'', 'C\'', 'D\'']
+  },
+  prism_o_t_right_a: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác vuông tại A',
+    name: 'Lăng trụ xiên (Đáy là tam giác vuông tại A)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "C": new THREE.Vector3(-1, 0, 1),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(0, 3, 2),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_o_t_right_b: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác vuông tại B',
+    name: 'Lăng trụ xiên (Đáy là tam giác vuông tại B)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "C": new THREE.Vector3(2, 0, 1),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(3, 3, 2),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_o_t_right_c: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác vuông tại C',
+    name: 'Lăng trụ xiên (Đáy là tam giác vuông tại C)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "C": new THREE.Vector3(0.5, 0, 0.5),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(1.5, 3, 1.5),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_o_t_isos_a: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác cân tại A',
+    name: 'Lăng trụ xiên (Đáy là tam giác cân tại A)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(1, 0, 1),
+      "C": new THREE.Vector3(-3, 0, 1),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(2, 3, 2),
+      "C'": new THREE.Vector3(-2, 3, 2),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_o_t_isos_b: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác cân tại B',
+    name: 'Lăng trụ xiên (Đáy là tam giác cân tại B)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "C": new THREE.Vector3(2, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(3, 3, 3),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_o_t_isos_c: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác cân tại C',
+    name: 'Lăng trụ xiên (Đáy là tam giác cân tại C)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(3, 0, -1),
+      "C": new THREE.Vector3(1, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(4, 3, 0),
+      "C'": new THREE.Vector3(2, 3, 3),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  }
 };
 
 // Legacy aliases so old state / bookmarks do not break
@@ -1029,6 +1776,26 @@ const getPlanesIntersection = (vertices, plane1, plane2) => {
   }
   
   return { point: pt, dir };
+};
+
+
+const RightAngleSymbol = ({ p1, p2, p3 }) => {
+  if (!p1 || !p2 || !p3) return null;
+  const size = 0.3;
+  // dir1 is from p2 to p1
+  const dir1 = new THREE.Vector3().subVectors(p1, p2).normalize();
+  // dir2 is from p2 to p3
+  const dir2 = new THREE.Vector3().subVectors(p3, p2).normalize();
+  
+  const pt1 = new THREE.Vector3().copy(p2).addScaledVector(dir1, size);
+  const pt2 = new THREE.Vector3().copy(pt1).addScaledVector(dir2, size);
+  const pt3 = new THREE.Vector3().copy(p2).addScaledVector(dir2, size);
+
+  return (
+    <group>
+      <Line points={[pt1, pt2, pt3]} color="#ef4444" lineWidth={1.5} dashed={false} />
+    </group>
+  );
 };
 
 const ShapeEdge = ({ edge, shape, useDashed }) => {
@@ -1852,11 +2619,11 @@ const Plane2DViewer = ({
   return createPortal(modalContent, document.body);
 };
 
-const SpaceGeometry3D = () => {
+const PerpendicularGeometry3D = () => {
   const [mounted, setMounted] = useState(false);
   const controlsRef = useRef(null);
 
-  const [selectedShape, setSelectedShape] = useState('quad_parallelogram');
+  const [selectedShape, setSelectedShape] = useState('quad_sa_parallelogram');
   const [mode, setMode] = useState('planes'); // 'planes' | 'line_plane'
   const [useDashed, setUseDashed] = useState(true);
   const [view2DPlane, setView2DPlane] = useState(null);
@@ -1881,6 +2648,7 @@ const SpaceGeometry3D = () => {
   const [selections, setSelections] = useState([[], [], [], []]);
   
   // Custom points
+  const [customRightAngles, setCustomRightAngles] = useState([]);
   const [customPoints, setCustomPoints] = useState([]);
   const [showCrossSection, setShowCrossSection] = useState(false);
   const [newPointLabel, setNewPointLabel] = useState('');
@@ -1993,6 +2761,13 @@ const SpaceGeometry3D = () => {
           verts["B'"] = verts["D'"];
           verts["D'"] = tempP;
         }
+
+        if (selectedShape.startsWith('quad_sab') && verts['H'] && verts['S']) {
+          const newH = new THREE.Vector3().addVectors(verts['A'], verts['B']).multiplyScalar(0.5);
+          const offsetS = new THREE.Vector3().subVectors(verts['S'], verts['H']);
+          verts['H'] = newH;
+          verts['S'] = new THREE.Vector3().addVectors(newH, offsetS);
+        }
       } else if (isTetra) {
         const temp = verts['C'];
         verts['C'] = verts['D'];
@@ -2005,6 +2780,13 @@ const SpaceGeometry3D = () => {
           const tempP = verts["B'"];
           verts["B'"] = verts["C'"];
           verts["C'"] = tempP;
+        }
+
+        if (selectedShape.startsWith('tri_sab') && verts['H'] && verts['S']) {
+          const newH = new THREE.Vector3().addVectors(verts['A'], verts['B']).multiplyScalar(0.5);
+          const offsetS = new THREE.Vector3().subVectors(verts['S'], verts['H']);
+          verts['H'] = newH;
+          verts['S'] = new THREE.Vector3().addVectors(newH, offsetS);
         }
       }
     }
@@ -2198,6 +2980,20 @@ const SpaceGeometry3D = () => {
           } else {
             verts[cp.label] = new THREE.Vector3().copy(P).add(v);
           }
+        }
+      } else if (cp.type === 'perpendicular') {
+        if (cp.line1 && cp.targetLine) {
+          const A = verts[cp.line1[0]]; // Điểm kẻ từ (vd A trong AH)
+          const B = verts[cp.targetLine[0]]; // Điểm đầu của đoạn thẳng vuông góc
+          const C = verts[cp.targetLine[1]]; // Điểm cuối của đoạn thẳng vuông góc
+          if (A && B && C) {
+            const BC = new THREE.Vector3().subVectors(C, B);
+            const BA = new THREE.Vector3().subVectors(A, B);
+            const t = BA.dot(BC) / BC.lengthSq();
+            verts[cp.label] = new THREE.Vector3().copy(B).add(BC.multiplyScalar(t));
+          }
+        } else if (cp.pos) {
+          verts[cp.label] = cp.pos;
         }
       } else {
         const p1 = verts[cp.edge[0]];
@@ -2427,6 +3223,53 @@ const SpaceGeometry3D = () => {
   };
 
   
+
+  const [perpLineP1, setPerpLineP1] = useState('');
+  const [perpLineP2, setPerpLineP2] = useState('');
+  const [perpTargetLine, setPerpTargetLine] = useState('');
+  const [perpPoint, setPerpPoint] = useState('');
+
+  const handleAddPerpendicularPoint = () => {
+    if (!perpLineP1 || !perpLineP2 || !perpTargetLine || !perpPoint) return;
+    const l1_p1 = perpTargetLine[0];
+    const l1_p2 = perpTargetLine[1];
+    
+    // Validate target line points exist
+    if (!activeVertices[l1_p1] || !activeVertices[l1_p2]) return;
+    // perpLineP1 is the source point (e.g. A in AH), it must exist
+    if (!activeVertices[perpLineP1]) return;
+
+    const source = activeVertices[perpLineP1];
+    const target1 = activeVertices[l1_p1];
+    const target2 = activeVertices[l1_p2];
+
+    const line3 = new THREE.Line3(target1, target2);
+    const closest = new THREE.Vector3();
+    line3.closestPointToPoint(source, true, closest);
+
+    // Save custom point and the connection
+    setCustomPoints(prev => [...prev, { 
+      label: perpPoint, 
+      pos: closest, 
+      type: 'perpendicular', 
+      line1: [perpLineP1, perpLineP2],
+      targetLine: perpTargetLine,
+      desc: `Kẻ ${perpLineP1}${perpLineP2} ⊥ ${perpTargetLine} tại ${perpPoint}` 
+    }]);
+    setConnections(prev => [...prev, [perpLineP1, perpPoint]]);
+    
+    // Add right angle symbol: between the new perpendicular line (source -> closest) and the target line (closest -> target2)
+    setCustomRightAngles(prev => [...prev, [perpLineP1, perpPoint, l1_p2]]);
+
+    // Add to custom mappings so it resolves globally
+    setCustomVerticesMap(prev => ({ ...prev, [perpPoint]: closest }));
+
+    setPerpLineP1('');
+    setPerpLineP2('');
+    setPerpTargetLine('');
+    setPerpPoint('');
+  };
+
   const handleAddParallelPoint = () => {
     if (!parallelPoint || parallelLine.length < 2 || !parallelLabel) return;
     const l1 = parallelLine[0].toUpperCase();
@@ -2510,7 +3353,7 @@ const handleAddIntersection = () => {
   return (
     <div className="space-geom-container">
       <div className="space-geom-sidebar">
-        <h3 className="space-geom-title">Quan hệ song song</h3>
+        <h3 className="space-geom-title">Quan hệ vuông góc</h3>
         
         <div className="control-group">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
@@ -2844,6 +3687,54 @@ const handleAddIntersection = () => {
             )}
           </div>
 
+          {/* Kẻ vuông góc */}
+          <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: '16px' }}>
+            <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Kẻ vuông góc</label>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input
+                type="text"
+                placeholder="AH"
+                maxLength={2}
+                className="geom-select"
+                style={{ width: '50px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', textTransform: 'uppercase' }}
+                value={perpLineP1 + perpLineP2}
+                onChange={(e) => {
+                  const val = e.target.value.toUpperCase();
+                  setPerpLineP1(val[0] || '');
+                  setPerpLineP2(val[1] || '');
+                }}
+              />
+              <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#64748b' }}>⊥</span>
+              <input
+                type="text"
+                placeholder="BC"
+                maxLength={2}
+                className="geom-select"
+                style={{ width: '50px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', textTransform: 'uppercase' }}
+                value={perpTargetLine}
+                onChange={(e) => setPerpTargetLine(e.target.value.toUpperCase())}
+              />
+              <span style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>tại</span>
+              <input
+                type="text"
+                placeholder="H"
+                maxLength={1}
+                className="geom-select"
+                style={{ width: '40px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', textTransform: 'uppercase' }}
+                value={perpPoint}
+                onChange={(e) => setPerpPoint(e.target.value.toUpperCase())}
+              />
+              <button
+                className="mode-btn"
+                style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
+                onClick={handleAddPerpendicularPoint}
+                disabled={!perpLineP1 || !perpLineP2 || !perpTargetLine || !perpPoint}
+              >
+                Kẻ
+              </button>
+            </div>
+          </div>
+
           {/* 2. Kẻ song song */}
           <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Kẻ song song</label>
@@ -3064,6 +3955,26 @@ const handleAddIntersection = () => {
               />
             ))}
             
+            {/* Draw Right Angles */}
+            {shape.rightAngles && shape.rightAngles.map((angle, i) => (
+              <RightAngleSymbol 
+                key={`ra-${i}`}
+                p1={swappedBaseVertices[angle[0]]}
+                p2={swappedBaseVertices[angle[1]]}
+                p3={swappedBaseVertices[angle[2]]}
+              />
+            ))}
+            
+
+            {customRightAngles && customRightAngles.map((angle, i) => (
+              <RightAngleSymbol 
+                key={`cra-${i}`}
+                p1={activeVertices[angle[0]]}
+                p2={activeVertices[angle[1]]}
+                p3={activeVertices[angle[2]]}
+              />
+            ))}
+
             {/* Draw active vertices with labels */}
             {activeLabels.map(v => {
               const isCustom = !shape.labels.includes(v);
@@ -3165,4 +4076,4 @@ const handleAddIntersection = () => {
   );
 };
 
-export default SpaceGeometry3D;
+export default PerpendicularGeometry3D;
