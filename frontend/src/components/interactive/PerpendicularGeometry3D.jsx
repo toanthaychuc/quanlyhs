@@ -22,8 +22,14 @@ const SHAPE_CATEGORIES = [
           { id: 'quad_sa_rectangle', name: 'Đáy là hình chữ nhật' },
           { id: 'quad_sa_rhombus', name: 'Đáy là hình thoi' },
           { id: 'quad_sa_arbitrary', name: 'Đáy là tứ giác bất kì' },
-          { id: 'quad_sa_trapezoid', name: 'Đáy là hình thang' },
-          { id: 'quad_sa_trapezoid_2', name: 'Đáy là hình thang có AB = 2CD' }
+          {
+            id: 'quad_sa_trapezoid_group',
+            name: 'Đáy là hình thang',
+            items: [
+              { id: 'quad_sa_trapezoid', name: 'Hình thang thường' },
+              { id: 'quad_sa_trapezoid_2', name: 'Hình thang có AB = 2CD' },
+            ]
+          }
         ]
       },
       {
@@ -35,8 +41,14 @@ const SHAPE_CATEGORIES = [
           { id: 'quad_sab_rectangle', name: 'Đáy là hình chữ nhật' },
           { id: 'quad_sab_rhombus', name: 'Đáy là hình thoi' },
           { id: 'quad_sab_arbitrary', name: 'Đáy là tứ giác bất kì' },
-          { id: 'quad_sab_trapezoid', name: 'Đáy là hình thang' },
-          { id: 'quad_sab_trapezoid_2', name: 'Đáy là hình thang có AB = 2CD' }
+          {
+            id: 'quad_sab_trapezoid_group',
+            name: 'Đáy là hình thang',
+            items: [
+              { id: 'quad_sab_trapezoid', name: 'Hình thang thường' },
+              { id: 'quad_sab_trapezoid_2', name: 'Hình thang có AB = 2CD' },
+            ]
+          }
         ]
       }
     ],
@@ -55,12 +67,33 @@ const SHAPE_CATEGORIES = [
         items: [
           { id: 'tri_sa_general', name: 'Đáy là tam giác thường' },
           { id: 'tri_sa_equilateral', name: 'Đáy là tam giác đều' },
-          { id: 'tri_sa_right_a', name: 'Đáy là tam giác vuông tại A' },
-          { id: 'tri_sa_right_b', name: 'Đáy là tam giác vuông tại B' },
-          { id: 'tri_sa_right_c', name: 'Đáy là tam giác vuông tại C' },
-          { id: 'tri_sa_isos_a', name: 'Đáy là tam giác cân tại A' },
-          { id: 'tri_sa_isos_b', name: 'Đáy là tam giác cân tại B' },
-          { id: 'tri_sa_isos_c', name: 'Đáy là tam giác cân tại C' }
+          {
+            id: 'tri_sa_right',
+            name: 'Đáy là tam giác vuông',
+            items: [
+              { id: 'tri_sa_right_a', name: 'Vuông tại A' },
+              { id: 'tri_sa_right_b', name: 'Vuông tại B' },
+              { id: 'tri_sa_right_c', name: 'Vuông tại C' },
+            ]
+          },
+          {
+            id: 'tri_sa_right_isos',
+            name: 'Đáy là tam giác vuông cân',
+            items: [
+              { id: 'tri_sa_right_isos_a', name: 'Vuông cân tại A' },
+              { id: 'tri_sa_right_isos_b', name: 'Vuông cân tại B' },
+              { id: 'tri_sa_right_isos_c', name: 'Vuông cân tại C' },
+            ]
+          },
+          {
+            id: 'tri_sa_isos',
+            name: 'Đáy là tam giác cân',
+            items: [
+              { id: 'tri_sa_isos_a', name: 'Cân tại A' },
+              { id: 'tri_sa_isos_b', name: 'Cân tại B' },
+              { id: 'tri_sa_isos_c', name: 'Cân tại C' },
+            ]
+          }
         ]
       },
       {
@@ -69,12 +102,33 @@ const SHAPE_CATEGORIES = [
         items: [
           { id: 'tri_sab_general', name: 'Đáy là tam giác thường' },
           { id: 'tri_sab_equilateral', name: 'Đáy là tam giác đều' },
-          { id: 'tri_sab_right_a', name: 'Đáy là tam giác vuông tại A' },
-          { id: 'tri_sab_right_b', name: 'Đáy là tam giác vuông tại B' },
-          { id: 'tri_sab_right_c', name: 'Đáy là tam giác vuông tại C' },
-          { id: 'tri_sab_isos_a', name: 'Đáy là tam giác cân tại A' },
-          { id: 'tri_sab_isos_b', name: 'Đáy là tam giác cân tại B' },
-          { id: 'tri_sab_isos_c', name: 'Đáy là tam giác cân tại C' }
+          {
+            id: 'tri_sab_right',
+            name: 'Đáy là tam giác vuông',
+            items: [
+              { id: 'tri_sab_right_a', name: 'Vuông tại A' },
+              { id: 'tri_sab_right_b', name: 'Vuông tại B' },
+              { id: 'tri_sab_right_c', name: 'Vuông tại C' },
+            ]
+          },
+          {
+            id: 'tri_sab_right_isos',
+            name: 'Đáy là tam giác vuông cân',
+            items: [
+              { id: 'tri_sab_right_isos_a', name: 'Vuông cân tại A' },
+              { id: 'tri_sab_right_isos_b', name: 'Vuông cân tại B' },
+              { id: 'tri_sab_right_isos_c', name: 'Vuông cân tại C' },
+            ]
+          },
+          {
+            id: 'tri_sab_isos',
+            name: 'Đáy là tam giác cân',
+            items: [
+              { id: 'tri_sab_isos_a', name: 'Cân tại A' },
+              { id: 'tri_sab_isos_b', name: 'Cân tại B' },
+              { id: 'tri_sab_isos_c', name: 'Cân tại C' },
+            ]
+          }
         ]
       }
     ],
@@ -93,12 +147,33 @@ const SHAPE_CATEGORIES = [
         items: [
           { id: 'tetra_ab_general', name: 'Đáy là tam giác thường' },
           { id: 'tetra_ab_equilateral', name: 'Đáy là tam giác đều' },
-          { id: 'tetra_ab_right_b', name: 'Đáy là tam giác vuông tại B' },
-          { id: 'tetra_ab_right_c', name: 'Đáy là tam giác vuông tại C' },
-          { id: 'tetra_ab_right_d', name: 'Đáy là tam giác vuông tại D' },
-          { id: 'tetra_ab_isos_b', name: 'Đáy là tam giác cân tại B' },
-          { id: 'tetra_ab_isos_c', name: 'Đáy là tam giác cân tại C' },
-          { id: 'tetra_ab_isos_d', name: 'Đáy là tam giác cân tại D' }
+          {
+            id: 'tetra_ab_right',
+            name: 'Đáy là tam giác vuông',
+            items: [
+              { id: 'tetra_ab_right_b', name: 'Vuông tại B' },
+              { id: 'tetra_ab_right_c', name: 'Vuông tại C' },
+              { id: 'tetra_ab_right_d', name: 'Vuông tại D' },
+            ]
+          },
+          {
+            id: 'tetra_ab_right_isos',
+            name: 'Đáy là tam giác vuông cân',
+            items: [
+              { id: 'tetra_ab_right_isos_b', name: 'Vuông cân tại B' },
+              { id: 'tetra_ab_right_isos_c', name: 'Vuông cân tại C' },
+              { id: 'tetra_ab_right_isos_d', name: 'Vuông cân tại D' },
+            ]
+          },
+          {
+            id: 'tetra_ab_isos',
+            name: 'Đáy là tam giác cân',
+            items: [
+              { id: 'tetra_ab_isos_b', name: 'Cân tại B' },
+              { id: 'tetra_ab_isos_c', name: 'Cân tại C' },
+              { id: 'tetra_ab_isos_d', name: 'Cân tại D' },
+            ]
+          }
         ]
       },
       {
@@ -107,12 +182,33 @@ const SHAPE_CATEGORIES = [
         items: [
           { id: 'tetra_abc_general', name: 'Đáy là tam giác thường' },
           { id: 'tetra_abc_equilateral', name: 'Đáy là tam giác đều' },
-          { id: 'tetra_abc_right_b', name: 'Đáy là tam giác vuông tại B' },
-          { id: 'tetra_abc_right_c', name: 'Đáy là tam giác vuông tại C' },
-          { id: 'tetra_abc_right_d', name: 'Đáy là tam giác vuông tại D' },
-          { id: 'tetra_abc_isos_b', name: 'Đáy là tam giác cân tại B' },
-          { id: 'tetra_abc_isos_c', name: 'Đáy là tam giác cân tại C' },
-          { id: 'tetra_abc_isos_d', name: 'Đáy là tam giác cân tại D' }
+          {
+            id: 'tetra_abc_right',
+            name: 'Đáy là tam giác vuông',
+            items: [
+              { id: 'tetra_abc_right_b', name: 'Vuông tại B' },
+              { id: 'tetra_abc_right_c', name: 'Vuông tại C' },
+              { id: 'tetra_abc_right_d', name: 'Vuông tại D' },
+            ]
+          },
+          {
+            id: 'tetra_abc_right_isos',
+            name: 'Đáy là tam giác vuông cân',
+            items: [
+              { id: 'tetra_abc_right_isos_b', name: 'Vuông cân tại B' },
+              { id: 'tetra_abc_right_isos_c', name: 'Vuông cân tại C' },
+              { id: 'tetra_abc_right_isos_d', name: 'Vuông cân tại D' },
+            ]
+          },
+          {
+            id: 'tetra_abc_isos',
+            name: 'Đáy là tam giác cân',
+            items: [
+              { id: 'tetra_abc_isos_b', name: 'Cân tại B' },
+              { id: 'tetra_abc_isos_c', name: 'Cân tại C' },
+              { id: 'tetra_abc_isos_d', name: 'Cân tại D' },
+            ]
+          }
         ]
       }
     ],
@@ -141,12 +237,33 @@ const SHAPE_CATEGORIES = [
         id: 'prism_right_tri',
         name: 'Tùy chọn đáy là tam giác',
         items: [
-          { id: 'prism_r_t_right_a', name: 'Đáy là tam giác vuông tại A' },
-          { id: 'prism_r_t_right_b', name: 'Đáy là tam giác vuông tại B' },
-          { id: 'prism_r_t_right_c', name: 'Đáy là tam giác vuông tại C' },
-          { id: 'prism_r_t_isos_a', name: 'Đáy là tam giác cân tại A' },
-          { id: 'prism_r_t_isos_b', name: 'Đáy là tam giác cân tại B' },
-          { id: 'prism_r_t_isos_c', name: 'Đáy là tam giác cân tại C' }
+          {
+            id: 'prism_r_t_right',
+            name: 'Đáy là tam giác vuông',
+            items: [
+              { id: 'prism_r_t_right_a', name: 'Vuông tại A' },
+              { id: 'prism_r_t_right_b', name: 'Vuông tại B' },
+              { id: 'prism_r_t_right_c', name: 'Vuông tại C' },
+            ]
+          },
+          {
+            id: 'prism_r_t_right_isos',
+            name: 'Đáy là tam giác vuông cân',
+            items: [
+              { id: 'prism_r_t_right_isos_a', name: 'Vuông cân tại A' },
+              { id: 'prism_r_t_right_isos_b', name: 'Vuông cân tại B' },
+              { id: 'prism_r_t_right_isos_c', name: 'Vuông cân tại C' },
+            ]
+          },
+          {
+            id: 'prism_r_t_isos',
+            name: 'Đáy là tam giác cân',
+            items: [
+              { id: 'prism_r_t_isos_a', name: 'Cân tại A' },
+              { id: 'prism_r_t_isos_b', name: 'Cân tại B' },
+              { id: 'prism_r_t_isos_c', name: 'Cân tại C' },
+            ]
+          }
         ]
       }
     ]
@@ -171,12 +288,33 @@ const SHAPE_CATEGORIES = [
         id: 'prism_oblique_tri',
         name: 'Tùy chọn đáy là tam giác',
         items: [
-          { id: 'prism_o_t_right_a', name: 'Đáy là tam giác vuông tại A' },
-          { id: 'prism_o_t_right_b', name: 'Đáy là tam giác vuông tại B' },
-          { id: 'prism_o_t_right_c', name: 'Đáy là tam giác vuông tại C' },
-          { id: 'prism_o_t_isos_a', name: 'Đáy là tam giác cân tại A' },
-          { id: 'prism_o_t_isos_b', name: 'Đáy là tam giác cân tại B' },
-          { id: 'prism_o_t_isos_c', name: 'Đáy là tam giác cân tại C' }
+          {
+            id: 'prism_o_t_right',
+            name: 'Đáy là tam giác vuông',
+            items: [
+              { id: 'prism_o_t_right_a', name: 'Vuông tại A' },
+              { id: 'prism_o_t_right_b', name: 'Vuông tại B' },
+              { id: 'prism_o_t_right_c', name: 'Vuông tại C' },
+            ]
+          },
+          {
+            id: 'prism_o_t_right_isos',
+            name: 'Đáy là tam giác vuông cân',
+            items: [
+              { id: 'prism_o_t_right_isos_a', name: 'Vuông cân tại A' },
+              { id: 'prism_o_t_right_isos_b', name: 'Vuông cân tại B' },
+              { id: 'prism_o_t_right_isos_c', name: 'Vuông cân tại C' },
+            ]
+          },
+          {
+            id: 'prism_o_t_isos',
+            name: 'Đáy là tam giác cân',
+            items: [
+              { id: 'prism_o_t_isos_a', name: 'Cân tại A' },
+              { id: 'prism_o_t_isos_b', name: 'Cân tại B' },
+              { id: 'prism_o_t_isos_c', name: 'Cân tại C' },
+            ]
+          }
         ]
       }
     ]
@@ -507,6 +645,51 @@ const SHAPES = {
     rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C']],
     labels: ['S', 'A', 'B', 'C']
   },
+  tri_sa_right_isos_a: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông cân tại A',
+    name: 'S.ABC (Đáy là tam giác vuông cân tại A)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(0, 0, 3),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C'], ['B', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C']
+  },
+  tri_sa_right_isos_b: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông cân tại B',
+    name: 'S.ABC (Đáy là tam giác vuông cân tại B)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(3, 0, 3),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C'], ['A', 'B', 'C']],
+    labels: ['S', 'A', 'B', 'C']
+  },
+  tri_sa_right_isos_c: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông cân tại C',
+    name: 'S.ABC (Đáy là tam giác vuông cân tại C)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 1.5),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    rightAngles: [['S', 'A', 'B'], ['S', 'A', 'C'], ['A', 'C', 'B']],
+    labels: ['S', 'A', 'B', 'C']
+  },
   tri_sa_isos_a: {
     categoryName: 'Chóp tam giác S.ABC',
     subName: 'Đáy là tam giác cân tại A',
@@ -632,6 +815,54 @@ const SHAPES = {
     rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B']],
     labels: ['S', 'A', 'B', 'C', 'H']
   },
+  tri_sab_right_isos_a: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông cân tại A',
+    name: 'S.ABC (Đáy là tam giác vuông cân tại A)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(-1.5, 0, 3),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B'], ['B', 'A', 'C']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_right_isos_b: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông cân tại B',
+    name: 'S.ABC (Đáy là tam giác vuông cân tại B)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(1.5, 0, 3),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B'], ['A', 'B', 'C']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
+  tri_sab_right_isos_c: {
+    categoryName: 'Chóp tam giác S.ABC',
+    subName: 'Đáy là tam giác vuông cân tại C',
+    name: 'S.ABC (Đáy là tam giác vuông cân tại C)',
+    vertices: {
+      "S": new THREE.Vector3(0, 3, 0),
+      "A": new THREE.Vector3(-1.5, 0, 0),
+      "B": new THREE.Vector3(1.5, 0, 0),
+      "H": new THREE.Vector3(0.0, 0.0, 0.0),
+      "C": new THREE.Vector3(0, 0, 1.5),
+    },
+    faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['S', 'H']],
+    rightAngles: [['S', 'H', 'A'], ['S', 'H', 'B'], ['A', 'C', 'B']],
+    labels: ['S', 'A', 'B', 'C', 'H']
+  },
   tri_sab_isos_a: {
     categoryName: 'Chóp tam giác S.ABC',
     subName: 'Đáy là tam giác cân tại A',
@@ -689,13 +920,10 @@ const SHAPES = {
       "A": new THREE.Vector3(0, 0, 1.732),
       "B": new THREE.Vector3(-1.5, 0, -0.866),
       "C": new THREE.Vector3(1.5, 0, -0.866),
-      "M": new THREE.Vector3(0.0, 0.0, -0.87),
-      "G": new THREE.Vector3(0.0, 0.0, 0.0),
     },
     faces: [['S','A','B'], ['S','B','C'], ['S','C','A'], ['A','B','C']],
-    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A'], ['A', 'M'], ['S', 'G']],
-    rightAngles: [['S', 'G', 'A']],
-    labels: ['S', 'A', 'B', 'C', 'M', 'G']
+    edges: [['S','A'], ['S','B'], ['S','C'], ['A','B'], ['B','C'], ['C','A']],
+    labels: ['S', 'A', 'B', 'C']
   },
   tetra_ab_general: {
     categoryName: 'Tứ diện ABCD',
@@ -765,6 +993,51 @@ const SHAPES = {
     },
     faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
     edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_ab_right_isos_b: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông cân tại B',
+    name: 'ABCD (Đáy là tam giác vuông cân tại B)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(0, 0, 3),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    rightAngles: [['A', 'B', 'C'], ['A', 'B', 'D'], ['C', 'B', 'D']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_ab_right_isos_c: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông cân tại C',
+    name: 'ABCD (Đáy là tam giác vuông cân tại C)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(3, 0, 3),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    rightAngles: [['A', 'B', 'C'], ['A', 'B', 'D'], ['B', 'C', 'D']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_ab_right_isos_d: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông cân tại D',
+    name: 'ABCD (Đáy là tam giác vuông cân tại D)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(0, 0, 0),
+      "C": new THREE.Vector3(3, 0, 0),
+      "D": new THREE.Vector3(1.5, 0, 1.5),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    rightAngles: [['A', 'B', 'C'], ['A', 'B', 'D'], ['B', 'D', 'C']],
     labels: ['A', 'B', 'C', 'D']
   },
   tetra_ab_isos_b: {
@@ -879,6 +1152,51 @@ const SHAPES = {
     edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
     labels: ['A', 'B', 'C', 'D']
   },
+  tetra_abc_right_isos_b: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông cân tại B',
+    name: 'ABCD (Đáy là tam giác vuông cân tại B)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(-1.5, 0, 3),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    rightAngles: [['C', 'B', 'D']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_right_isos_c: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông cân tại C',
+    name: 'ABCD (Đáy là tam giác vuông cân tại C)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(1.5, 0, 3),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    rightAngles: [['B', 'C', 'D']],
+    labels: ['A', 'B', 'C', 'D']
+  },
+  tetra_abc_right_isos_d: {
+    categoryName: 'Tứ diện ABCD',
+    subName: 'Đáy là tam giác vuông cân tại D',
+    name: 'ABCD (Đáy là tam giác vuông cân tại D)',
+    vertices: {
+      "A": new THREE.Vector3(0, 3, 0),
+      "B": new THREE.Vector3(-1.5, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 0),
+      "D": new THREE.Vector3(0, 0, 1.5),
+    },
+    faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    rightAngles: [['B', 'D', 'C']],
+    labels: ['A', 'B', 'C', 'D']
+  },
   tetra_abc_isos_b: {
     categoryName: 'Tứ diện ABCD',
     subName: 'Đáy là tam giác cân tại B',
@@ -930,13 +1248,10 @@ const SHAPES = {
       "B": new THREE.Vector3(0, 0, 1.732),
       "C": new THREE.Vector3(-1.5, 0, -0.866),
       "D": new THREE.Vector3(1.5, 0, -0.866),
-      "M": new THREE.Vector3(0, 0, -0.866),
-      "G": new THREE.Vector3(0, 0, 0),
     },
     faces: [['A','B','C'], ['A','C','D'], ['A','D','B'], ['B','C','D']],
-    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B'], ['B', 'M'], ['A', 'G']],
-    rightAngles: [['A', 'G', 'B']],
-    labels: ['A', 'B', 'C', 'D', 'M', 'G']
+    edges: [['A','B'], ['A','C'], ['A','D'], ['B','C'], ['C','D'], ['D','B']],
+    labels: ['A', 'B', 'C', 'D']
   },
   tetra_right: {
     categoryName: 'Tứ diện ABCD',
@@ -1088,6 +1403,57 @@ const SHAPES = {
     },
     faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
     edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_r_t_right_isos_a: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác vuông cân tại A',
+    name: 'Lăng trụ đứng (Đáy là tam giác vuông cân tại A)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(0, 0, 3),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(0, 3, 3),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    rightAngles: [['B', 'A', 'C']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_r_t_right_isos_b: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác vuông cân tại B',
+    name: 'Lăng trụ đứng (Đáy là tam giác vuông cân tại B)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(3, 0, 3),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(3, 3, 3),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    rightAngles: [['A', 'B', 'C']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_r_t_right_isos_c: {
+    categoryName: 'Lăng trụ đứng',
+    subName: 'Đáy là tam giác vuông cân tại C',
+    name: 'Lăng trụ đứng (Đáy là tam giác vuông cân tại C)',
+    vertices: {
+      "A": new THREE.Vector3(0, 0, 0),
+      "B": new THREE.Vector3(3, 0, 0),
+      "C": new THREE.Vector3(1.5, 0, 1.5),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(1.5, 3, 1.5),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    rightAngles: [['A', 'C', 'B']],
     labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
   },
   prism_r_t_isos_a: {
@@ -1276,6 +1642,57 @@ const SHAPES = {
     edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
     labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
   },
+  prism_o_t_right_isos_a: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác vuông cân tại A',
+    name: 'Lăng trụ xiên (Đáy là tam giác vuông cân tại A)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "C": new THREE.Vector3(-1, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(0, 3, 3),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    rightAngles: [['B', 'A', 'C']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_o_t_right_isos_b: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác vuông cân tại B',
+    name: 'Lăng trụ xiên (Đáy là tam giác vuông cân tại B)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "C": new THREE.Vector3(2, 0, 2),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(3, 3, 3),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    rightAngles: [['A', 'B', 'C']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
+  prism_o_t_right_isos_c: {
+    categoryName: 'Lăng trụ xiên',
+    subName: 'Đáy là tam giác vuông cân tại C',
+    name: 'Lăng trụ xiên (Đáy là tam giác vuông cân tại C)',
+    vertices: {
+      "A": new THREE.Vector3(-1, 0, -1),
+      "B": new THREE.Vector3(2, 0, -1),
+      "C": new THREE.Vector3(0.5, 0, 0.5),
+      "A'": new THREE.Vector3(0, 3, 0),
+      "B'": new THREE.Vector3(3, 3, 0),
+      "C'": new THREE.Vector3(1.5, 3, 1.5),
+    },
+    faces: [['A', 'B', 'C'], ['A\'', 'B\'', 'C\''], ['A', 'B', 'B\'', 'A\''], ['B', 'C', 'C\'', 'B\''], ['C', 'A', 'A\'', 'C\'']],
+    edges: [['A','B'], ['B','C'], ['C','A'], ['A\'','B\''], ['B\'','C\''], ['C\'','A\''], ['A','A\''], ['B','B\''], ['C','C\'']],
+    rightAngles: [['A', 'C', 'B']],
+    labels: ['A', 'B', 'C', 'A\'', 'B\'', 'C\'']
+  },
   prism_o_t_isos_a: {
     categoryName: 'Lăng trụ xiên',
     subName: 'Đáy là tam giác cân tại A',
@@ -1338,6 +1755,7 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeCatId, setActiveCatId] = useState(null);
   const [activeSubgroupId, setActiveSubgroupId] = useState(null);
+  const [activeSubSubgroupId, setActiveSubSubgroupId] = useState(null);
   const btnRef = useRef(null);
   const menuRef = useRef(null);
   const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
@@ -1345,9 +1763,14 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
   const updatePosition = useCallback(() => {
     if (btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
+      let left = rect.left;
+      const estimatedMaxWidth = 920;
+      if (left + estimatedMaxWidth > window.innerWidth - 10) {
+        left = Math.max(10, window.innerWidth - estimatedMaxWidth - 10);
+      }
       setPos({
         top: rect.bottom + 4,
-        left: rect.left,
+        left,
         width: rect.width
       });
     }
@@ -1357,8 +1780,50 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
     if (!isOpen) {
       setActiveCatId(null);
       setActiveSubgroupId(null);
+      setActiveSubSubgroupId(null);
       return;
     }
+
+    // Auto highlight active category, subgroup and sub-subgroup containing current value
+    for (const cat of SHAPE_CATEGORIES) {
+      let found = false;
+      if (cat.items) {
+        for (const item of cat.items) {
+          if (item.id === value) {
+            setActiveCatId(cat.id);
+            setActiveSubgroupId(null);
+            setActiveSubSubgroupId(null);
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found && cat.subgroups) {
+        for (const sg of cat.subgroups) {
+          if (sg.items) {
+            for (const item of sg.items) {
+              if (item.id === value) {
+                setActiveCatId(cat.id);
+                setActiveSubgroupId(sg.id);
+                setActiveSubSubgroupId(null);
+                found = true;
+                break;
+              }
+              if (item.items && item.items.some(sub => sub.id === value)) {
+                setActiveCatId(cat.id);
+                setActiveSubgroupId(sg.id);
+                setActiveSubSubgroupId(item.id);
+                found = true;
+                break;
+              }
+            }
+          }
+          if (found) break;
+        }
+      }
+      if (found) break;
+    }
+
     updatePosition();
     const handleClickOutside = (e) => {
       if (btnRef.current && !btnRef.current.contains(e.target) &&
@@ -1375,11 +1840,12 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
       window.removeEventListener('scroll', handleScroll, true);
       window.removeEventListener('resize', handleScroll);
     };
-  }, [isOpen, updatePosition]);
+  }, [isOpen, updatePosition, value]);
 
   const currentShape = SHAPES[value] || SHAPES.quad_parallelogram || Object.values(SHAPES)[0];
   const activeCat = SHAPE_CATEGORIES.find(c => c.id === activeCatId);
   const activeSubgroup = activeCat?.subgroups?.find(s => s.id === activeSubgroupId);
+  const activeSubSubgroup = activeSubgroup?.items?.find(item => item.id === activeSubSubgroupId && Array.isArray(item.items));
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
@@ -1433,7 +1899,7 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
         >
           {/* Level 1: Categories */}
           <div className="custom-scrollbar" style={{ 
-            width: Math.max(320, pos.width), 
+            width: Math.max(250, pos.width), 
             background: '#ffffff', 
             borderRadius: '10px', 
             border: '1px solid #e2e8f0', 
@@ -1442,7 +1908,7 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
             display: 'flex', 
             flexDirection: 'column', 
             gap: '4px',
-            maxHeight: '400px',
+            maxHeight: '420px',
             overflowY: 'auto'
           }}>
             {SHAPE_CATEGORIES.map(category => {
@@ -1450,7 +1916,11 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
               return (
                 <div
                   key={category.id}
-                  onMouseEnter={() => { setActiveCatId(category.id); setActiveSubgroupId(null); }}
+                  onMouseEnter={() => { 
+                    setActiveCatId(category.id); 
+                    setActiveSubgroupId(null); 
+                    setActiveSubSubgroupId(null); 
+                  }}
                   style={{
                     padding: '10px 14px',
                     borderRadius: '8px',
@@ -1475,10 +1945,10 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
             })}
           </div>
 
-          {/* Level 2: Subgroups or Items */}
+          {/* Level 2: Subgroups or Direct Items */}
           {activeCat && (
             <div className="custom-scrollbar" style={{ 
-              width: 300, 
+              width: 260, 
               background: '#ffffff', 
               borderRadius: '10px', 
               border: '1px solid #e2e8f0', 
@@ -1487,7 +1957,7 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
               display: 'flex', 
               flexDirection: 'column', 
               gap: '4px',
-              maxHeight: '400px',
+              maxHeight: '420px',
               overflowY: 'auto',
               animation: 'fadeIn 0.2s ease-out'
             }}>
@@ -1496,7 +1966,10 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
                 return (
                   <div
                     key={sg.id}
-                    onMouseEnter={() => setActiveSubgroupId(sg.id)}
+                    onMouseEnter={() => { 
+                      setActiveSubgroupId(sg.id); 
+                      setActiveSubSubgroupId(null); 
+                    }}
                     style={{
                       padding: '10px 14px',
                       borderRadius: '8px',
@@ -1517,35 +1990,42 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
                 );
               })}
 
-              {activeCat.items && activeCat.items.length > 0 && activeCat.subgroups && <div style={{height: '1px', background: '#e2e8f0', margin: '4px 0'}} />}
+              {activeCat.items && activeCat.items.length > 0 && activeCat.subgroups && (
+                <div style={{ height: '1px', background: '#e2e8f0', margin: '4px 0' }} />
+              )}
               
-              {activeCat.items && activeCat.items.map(item => (
-                <div
-                  key={item.id}
-                  onClick={() => { onChange(item.id); setIsOpen(false); }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = value === item.id ? '#dbeafe' : '#f8fafc'; setActiveSubgroupId(null); }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = value === item.id ? '#dbeafe' : 'transparent'; }}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '13.5px',
-                    background: value === item.id ? '#dbeafe' : 'transparent',
-                    color: value === item.id ? '#1d4ed8' : '#334155',
-                    fontWeight: value === item.id ? 600 : 500,
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  {item.name}
-                </div>
-              ))}
+              {activeCat.items && activeCat.items.map(item => {
+                const isSelected = value === item.id;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => { onChange(item.id); setIsOpen(false); }}
+                    onMouseEnter={() => { 
+                      setActiveSubgroupId(null); 
+                      setActiveSubSubgroupId(null); 
+                    }}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '13.5px',
+                      background: isSelected ? '#dbeafe' : 'transparent',
+                      color: isSelected ? '#1d4ed8' : '#334155',
+                      fontWeight: isSelected ? 600 : 500,
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {item.name}
+                  </div>
+                );
+              })}
             </div>
           )}
 
-          {/* Level 3: Items within Subgroup */}
+          {/* Level 3: Items or Sub-groups within Subgroup */}
           {activeSubgroup && (
             <div className="custom-scrollbar" style={{ 
-              width: 300, 
+              width: 220, 
               background: '#ffffff', 
               borderRadius: '10px', 
               border: '1px solid #e2e8f0', 
@@ -1554,30 +2034,100 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
               display: 'flex', 
               flexDirection: 'column', 
               gap: '4px',
-              maxHeight: '400px',
+              maxHeight: '420px',
               overflowY: 'auto',
               animation: 'fadeIn 0.2s ease-out'
             }}>
-              {activeSubgroup.items.map(item => (
-                <div
-                  key={item.id}
-                  onClick={() => { onChange(item.id); setIsOpen(false); }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = value === item.id ? '#dbeafe' : '#f8fafc'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = value === item.id ? '#dbeafe' : 'transparent'}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '13.5px',
-                    background: value === item.id ? '#dbeafe' : 'transparent',
-                    color: value === item.id ? '#1d4ed8' : '#334155',
-                    fontWeight: value === item.id ? 600 : 500,
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  {item.name}
-                </div>
-              ))}
+              {activeSubgroup.items.map(item => {
+                const hasSub = Array.isArray(item.items) && item.items.length > 0;
+                if (hasSub) {
+                  const isActive = activeSubSubgroupId === item.id;
+                  const isCurrentInSub = item.items.some(sub => sub.id === value);
+                  return (
+                    <div
+                      key={item.id}
+                      onMouseEnter={() => setActiveSubSubgroupId(item.id)}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        background: isActive ? '#f8fafc' : (isCurrentInSub ? '#eff6ff' : 'transparent'),
+                        fontWeight: isActive || isCurrentInSub ? 600 : 500,
+                        fontSize: '13.5px',
+                        color: isCurrentInSub ? '#1d4ed8' : (isActive ? '#0f172a' : '#334155'),
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      <span>{item.name}</span>
+                      <span style={{ fontSize: '12px', color: isActive || isCurrentInSub ? '#2563eb' : '#94a3b8' }}>▶</span>
+                    </div>
+                  );
+                }
+
+                const isSelected = value === item.id;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => { onChange(item.id); setIsOpen(false); }}
+                    onMouseEnter={() => setActiveSubSubgroupId(null)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '13.5px',
+                      background: isSelected ? '#dbeafe' : 'transparent',
+                      color: isSelected ? '#1d4ed8' : '#334155',
+                      fontWeight: isSelected ? 600 : 500,
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {item.name}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Level 4: Specific options for nested subgroup (Vuông tại A/B/C, Cân tại A/B/C, etc.) */}
+          {activeSubSubgroup && (
+            <div className="custom-scrollbar" style={{ 
+              width: 175, 
+              background: '#ffffff', 
+              borderRadius: '10px', 
+              border: '1px solid #e2e8f0', 
+              boxShadow: '0 10px 25px -5px rgba(0,0,0,0.15)', 
+              padding: '8px', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '4px',
+              maxHeight: '420px',
+              overflowY: 'auto',
+              animation: 'fadeIn 0.2s ease-out'
+            }}>
+              {activeSubSubgroup.items.map(subItem => {
+                const isSelected = value === subItem.id;
+                return (
+                  <div
+                    key={subItem.id}
+                    onClick={() => { onChange(subItem.id); setIsOpen(false); }}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '13.5px',
+                      background: isSelected ? '#dbeafe' : 'transparent',
+                      color: isSelected ? '#1d4ed8' : '#334155',
+                      fontWeight: isSelected ? 600 : 500,
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {subItem.name}
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -2676,13 +3226,31 @@ const PerpendicularGeometry3D = () => {
 
   const [swapVertices, setSwapVertices] = useState(false);
 
-  // Auto clear selections when shape changes
+  // Auto clear selections and initialize auxiliary points when shape changes
   React.useEffect(() => {
     setSelections([[], [], [], []]);
-    setCustomPoints([]);
-    setConnections([]);
     setSwapVertices(false);
     setCustomVerticesMap({});
+    
+    if (selectedShape === 'tetra_regular') {
+      setCustomPoints([
+        { label: 'M', edge: ['C', 'D'], ratio: 0.5 },
+        { label: 'G', edge: ['B', 'M'], ratio: 2 / 3 }
+      ]);
+      setConnections([['B', 'M'], ['A', 'G']]);
+      setCustomRightAngles([['A', 'G', 'B']]);
+    } else if (selectedShape === 'tri_regular') {
+      setCustomPoints([
+        { label: 'M', edge: ['B', 'C'], ratio: 0.5 },
+        { label: 'G', edge: ['A', 'M'], ratio: 2 / 3 }
+      ]);
+      setConnections([['A', 'M'], ['S', 'G']]);
+      setCustomRightAngles([['S', 'G', 'A']]);
+    } else {
+      setCustomPoints([]);
+      setConnections([]);
+      setCustomRightAngles([]);
+    }
     
     if (shape && shape.labels.length > 0) {
       setSelectedEditPoint(shape.labels[0]);
@@ -2750,7 +3318,7 @@ const PerpendicularGeometry3D = () => {
       const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
       const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
       const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
-      const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
+      const isPrismTri = selectedShape.includes('prism_') && (selectedShape.includes('tri_') || selectedShape.includes('_t_'));
 
       if (isQuad || isPrismQuad) {
         const temp = verts['B'];
@@ -2799,7 +3367,7 @@ const PerpendicularGeometry3D = () => {
     const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
     const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
     const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
-    const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
+    const isPrismTri = selectedShape.includes('prism_') && (selectedShape.includes('tri_') || selectedShape.includes('_t_'));
 
     if (swapVertices) {
       if (isQuad || isPrismQuad) {
@@ -2868,7 +3436,7 @@ const PerpendicularGeometry3D = () => {
     const isTri = selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid';
     const isQuad = selectedShape.startsWith('quad') || (selectedShape.includes('Pyramid') && !isTri);
     const isPrismQuad = selectedShape.includes('prism_') && (selectedShape.includes('square') || selectedShape.includes('rectangle') || selectedShape.includes('parallelogram') || selectedShape.includes('rhombus') || selectedShape.includes('trapezoid'));
-    const isPrismTri = selectedShape.includes('prism_') && selectedShape.includes('tri_');
+    const isPrismTri = selectedShape.includes('prism_') && (selectedShape.includes('tri_') || selectedShape.includes('_t_'));
 
     if (swapVertices) {
       if (isQuad || isPrismQuad) {
@@ -2965,44 +3533,66 @@ const PerpendicularGeometry3D = () => {
 
   const activeVertices = useMemo(() => {
     const verts = { ...swappedBaseVertices };
-    customPoints.forEach(cp => {
-      if (cp.type === 'intersection') {
-        const pt = getLinesIntersection(verts, cp.line1, cp.line2);
-        if (pt) verts[cp.label] = pt;
-      } else if (cp.type === 'parallel' || cp.type === 'parallel_neg') {
-        const P = verts[cp.edge[0]];
-        const A = verts[cp.edge[1]];
-        const B = verts[cp.edge[2]];
-        if (P && A && B) {
-          const v = new THREE.Vector3().subVectors(B, A).multiplyScalar(0.95);
-          if (cp.type === 'parallel_neg') {
-            verts[cp.label] = new THREE.Vector3().copy(P).sub(v);
+    let remaining = [...customPoints];
+    let progress = true;
+    while (remaining.length > 0 && progress) {
+      progress = false;
+      const nextRemaining = [];
+      for (const cp of remaining) {
+        if (cp.type === 'intersection') {
+          const pt = getLinesIntersection(verts, cp.line1, cp.line2);
+          if (pt) {
+            verts[cp.label] = pt;
+            progress = true;
           } else {
-            verts[cp.label] = new THREE.Vector3().copy(P).add(v);
+            nextRemaining.push(cp);
           }
-        }
-      } else if (cp.type === 'perpendicular') {
-        if (cp.line1 && cp.targetLine) {
-          const A = verts[cp.line1[0]]; // Điểm kẻ từ (vd A trong AH)
-          const B = verts[cp.targetLine[0]]; // Điểm đầu của đoạn thẳng vuông góc
-          const C = verts[cp.targetLine[1]]; // Điểm cuối của đoạn thẳng vuông góc
-          if (A && B && C) {
-            const BC = new THREE.Vector3().subVectors(C, B);
-            const BA = new THREE.Vector3().subVectors(A, B);
-            const t = BA.dot(BC) / BC.lengthSq();
-            verts[cp.label] = new THREE.Vector3().copy(B).add(BC.multiplyScalar(t));
+        } else if (cp.type === 'parallel' || cp.type === 'parallel_neg') {
+          const P = verts[cp.edge[0]];
+          const A = verts[cp.edge[1]];
+          const B = verts[cp.edge[2]];
+          if (P && A && B) {
+            const v = new THREE.Vector3().subVectors(B, A).multiplyScalar(0.95);
+            if (cp.type === 'parallel_neg') {
+              verts[cp.label] = new THREE.Vector3().copy(P).sub(v);
+            } else {
+              verts[cp.label] = new THREE.Vector3().copy(P).add(v);
+            }
+            progress = true;
+          } else {
+            nextRemaining.push(cp);
           }
-        } else if (cp.pos) {
-          verts[cp.label] = cp.pos;
-        }
-      } else {
-        const p1 = verts[cp.edge[0]];
-        const p2 = verts[cp.edge[1]];
-        if (p1 && p2) {
-          verts[cp.label] = new THREE.Vector3().copy(p1).lerp(p2, cp.ratio);
+        } else if (cp.type === 'perpendicular') {
+          if (cp.line1 && cp.targetLine) {
+            const A = verts[cp.line1[0]]; // Điểm kẻ từ (vd A trong AH)
+            const B = verts[cp.targetLine[0]]; // Điểm đầu của đoạn thẳng vuông góc
+            const C = verts[cp.targetLine[1]]; // Điểm cuối của đoạn thẳng vuông góc
+            if (A && B && C) {
+              const BC = new THREE.Vector3().subVectors(C, B);
+              const BA = new THREE.Vector3().subVectors(A, B);
+              const t = BA.dot(BC) / BC.lengthSq();
+              verts[cp.label] = new THREE.Vector3().copy(B).add(BC.multiplyScalar(t));
+              progress = true;
+            } else {
+              nextRemaining.push(cp);
+            }
+          } else if (cp.pos) {
+            verts[cp.label] = cp.pos;
+            progress = true;
+          }
+        } else {
+          const p1 = verts[cp.edge[0]];
+          const p2 = verts[cp.edge[1]];
+          if (p1 && p2) {
+            verts[cp.label] = new THREE.Vector3().copy(p1).lerp(p2, cp.ratio);
+            progress = true;
+          } else {
+            nextRemaining.push(cp);
+          }
         }
       }
-    });
+      remaining = nextRemaining;
+    }
     return verts;
   }, [swappedBaseVertices, customPoints]);
   
@@ -3023,6 +3613,20 @@ const PerpendicularGeometry3D = () => {
   const lineName = (pts) => parallelLines.find(l => pts.includes(l.label))?.label ?? pts.join('');
 
   const isParallelConn = (c) => c.some(p => p.startsWith('_neg_') || parallelLines.some(l => l.label === p));
+
+  const selectableEdges = useMemo(() => {
+    const list = [...shape.edges];
+    connections.forEach(c => {
+      if (isParallelConn(c)) return;
+      const [u, v] = c;
+      if (!u || !v) return;
+      const exists = list.some(e => (e[0] === u && e[1] === v) || (e[0] === v && e[1] === u));
+      if (!exists) {
+        list.push([u, v]);
+      }
+    });
+    return list;
+  }, [shape.edges, connections, parallelLines]);
 
   const parseLineInput = (raw) => {
     const s = raw.trim();
@@ -3217,9 +3821,31 @@ const PerpendicularGeometry3D = () => {
 
   const removeCustomPoint = (label) => {
     const neg = `_neg_${label}`;
-    setCustomPoints(customPoints.filter(p => p.label !== label && p.label !== neg));
-    setSelections(prev => prev.map(sel => (sel.includes(label) ? [] : sel)));
-    setConnections(connections.filter(c => c[0] !== label && c[1] !== label && c[0] !== neg && c[1] !== neg));
+    const toRemove = new Set([label, neg]);
+
+    let changed = true;
+    while (changed) {
+      changed = false;
+      customPoints.forEach(p => {
+        if (!toRemove.has(p.label)) {
+          const dependsOnRemoved = 
+            (p.edge && p.edge.some(v => toRemove.has(v))) ||
+            (p.line1 && p.line1.some(v => toRemove.has(v))) ||
+            (p.line2 && p.line2.some(v => toRemove.has(v))) ||
+            (p.targetLine && (toRemove.has(p.targetLine[0]) || toRemove.has(p.targetLine[1])));
+          if (dependsOnRemoved) {
+            toRemove.add(p.label);
+            toRemove.add(`_neg_${p.label}`);
+            changed = true;
+          }
+        }
+      });
+    }
+
+    setCustomPoints(prev => prev.filter(p => !toRemove.has(p.label)));
+    setSelections(prev => prev.map(sel => (sel.some(v => toRemove.has(v)) ? [] : sel)));
+    setConnections(prev => prev.filter(c => !toRemove.has(c[0]) && !toRemove.has(c[1])));
+    setCustomRightAngles(prev => prev.filter(ang => !ang.some(v => toRemove.has(v))));
   };
 
   
@@ -3370,7 +3996,7 @@ const handleAddIntersection = () => {
                 color: swapVertices ? '#1d4ed8' : '#475569'
               }}
             >
-              Đổi {(selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron') ? 'C ⇄ D' : (selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid') ? 'B ⇄ C' : 'B ⇄ D'}
+              Đổi {(selectedShape.startsWith('tetra') || selectedShape === 'tetrahedron') ? 'C ⇄ D' : (selectedShape.startsWith('tri') || selectedShape === 'triangularPyramid' || selectedShape.includes('_t_') || selectedShape.includes('tri_')) ? 'B ⇄ C' : 'B ⇄ D'}
             </button>
           </div>
           <ShapeHierarchySelect 
@@ -3642,7 +4268,7 @@ const handleAddIntersection = () => {
                 onChange={e => setNewPointEdge(e.target.value)}
               >
                 <option value="">Cạnh</option>
-                {shape.edges.map((edge, i) => (
+                {selectableEdges.map((edge, i) => (
                   <option key={`opt-edge-${i}`} value={edge.join(',')}>{edge.join('')}</option>
                 ))}
               </select>
