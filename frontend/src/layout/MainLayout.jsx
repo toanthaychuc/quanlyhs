@@ -56,6 +56,7 @@ import { ThemeToggleIcon } from '../components/ThemeToggleIcon';
 import AnimatedIcon from '../components/AnimatedIcon';
 import { getClasses } from '../services/classService';
 import { getGamification } from '../services/examService';
+import { getSetting } from '../services/settingService';
 import { calculateRank } from '../utils/rankUtils';
 import './MainLayout.css';
 
@@ -138,6 +139,14 @@ const MainLayout = () => {
   const [guestAllowedPaths, setGuestAllowedPaths] = useState(getGuestAllowedPaths);
 
   useEffect(() => {
+    // Tự động đồng bộ quyền khách từ Cloud (Supabase) để các máy khách/thiết bị khác cập nhật tức thì
+    getSetting('teacher_guest_allowed_paths', null, true).then(remotePaths => {
+      if (Array.isArray(remotePaths) && remotePaths.length > 0) {
+        setGuestAllowedPaths(remotePaths);
+        localStorage.setItem('app_teacher_guest_allowed_paths', JSON.stringify(remotePaths));
+      }
+    }).catch(err => console.warn('Lỗi đồng bộ quyền khách từ Cloud:', err));
+
     const handlePermissionsUpdated = (e) => {
       if (e.detail?.allowedPaths && Array.isArray(e.detail.allowedPaths)) {
         setGuestAllowedPaths(e.detail.allowedPaths);
@@ -159,8 +168,8 @@ const MainLayout = () => {
     currentStudentId !== 'khach_tudolamde@gmail.com' && 
     String(currentStudentId).trim() !== ''
   );
-  // Chỉ thực sự coi là khách khi: không phải giáo viên, có cờ isGuestMode, và KHÔNG PHẢI học sinh chính thức
-  const isActualGuest = !isTeacher && Boolean(isGuestMode) && !isEnrolledStudent;
+  // Khách = Bất kỳ ai không phải giáo viên và không phải học sinh chính thức đã đăng nhập
+  const isActualGuest = !isTeacher && !isEnrolledStudent;
 
   // Xử lý chặn các mục menu đối với chế độ "Học mà không cần đăng nhập" (Guest Mode)
   const handleNavClick = (e, path, isLocked) => {
@@ -172,13 +181,14 @@ const MainLayout = () => {
     }
   };
 
-  // Bảo vệ routing: Nếu học sinh ở chế độ khách vào đường dẫn bị khóa (qua URL), tự động chuyển về /exams
+  // Bảo vệ routing: Nếu học sinh ở chế độ khách vào đường dẫn bị khóa (qua URL), tự động chuyển về mục hợp lệ
   useEffect(() => {
     if (isActualGuest) {
       const currentPath = location.pathname;
       const allowed = Array.isArray(guestAllowedPaths) ? guestAllowedPaths : DEFAULT_GUEST_ALLOWED_PATHS;
       if (!allowed.includes(currentPath)) {
-        navigate('/exams', { replace: true });
+        const fallback = allowed.length > 0 ? (allowed.find(p => p !== '/') || allowed[0]) : '/exams';
+        navigate(fallback, { replace: true });
       }
     }
   }, [isActualGuest, location.pathname, guestAllowedPaths, navigate]);

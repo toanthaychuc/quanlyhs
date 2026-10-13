@@ -19,11 +19,13 @@ import {
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { pushAllLocalDataToCloud, pullAllDataFromCloud } from '../services/syncService';
+import { getSetting, saveSetting } from '../services/settingService';
 import MathView from './MathView';
 
 export const GUEST_MENU_OPTIONS = [
   { path: '/exams', label: 'Thi thử' },
   { path: '/documents', label: 'Tài liệu' },
+  { path: '/interactive', label: 'Học liệu tương tác' },
   { path: '/forum', label: 'Hỏi đáp' },
   { path: '/formulas', label: 'Tra công thức' },
   { path: '/', label: 'Dashboard' },
@@ -82,6 +84,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
         } else {
           setGuestAllowed(['/exams', '/documents', '/forum']);
         }
+
+        // Tải cấu hình phân quyền mới nhất từ Cloud nếu có
+        getSetting('teacher_guest_allowed_paths', null, true).then(remote => {
+          if (Array.isArray(remote) && remote.length > 0) {
+            setGuestAllowed(remote);
+          }
+        }).catch(() => {});
       }
       const savedScale = Number(localStorage.getItem('app_font_scale')) || 100;
       setFontScale(savedScale);
@@ -116,6 +125,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
       localStorage.setItem('app_teacher_ai_model', aiModel === 'custom' ? customModel.trim() : aiModel);
       localStorage.setItem('app_teacher_latex_preamble', latexPreamble);
       localStorage.setItem('app_teacher_guest_allowed_paths', JSON.stringify(guestAllowed));
+      
+      // Đồng bộ ngay lên Supabase Cloud để học sinh ở máy khác nhận quyền mới tức thì
+      saveSetting('teacher_guest_allowed_paths', guestAllowed).catch(err => {
+        console.error('Lỗi lưu quyền khách lên Cloud:', err);
+      });
+
       // Kích hoạt sự kiện để các component khác (MathView, TikZ, MainLayout) nhận biết thay đổi
       window.dispatchEvent(new Event('app-settings-updated'));
       window.dispatchEvent(new CustomEvent('guest_permissions_updated', { detail: { allowedPaths: guestAllowed } }));

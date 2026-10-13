@@ -133,9 +133,9 @@ export const RoleProvider = ({ children }) => {
       if (isRoomUrl) {
         return true;
       }
-      return localStorage.getItem('edumanager_is_guest') === 'true';
+      return true; // Mặc định chưa đăng nhập là khách
     } catch (_) {
-      return false;
+      return true;
     }
   });
 
@@ -254,12 +254,12 @@ export const RoleProvider = ({ children }) => {
     setCurrentStudentId('');
     setRole('student');
     setHasEnteredApp(false);
-    setIsGuestMode(false);
+    setIsGuestMode(true);
     localStorage.removeItem('edumanager_has_entered');
     localStorage.removeItem('edumanager_user_email');
     localStorage.removeItem('edumanager_user_role');
     localStorage.removeItem('edumanager_current_student_id');
-    localStorage.removeItem('edumanager_is_guest');
+    localStorage.setItem('edumanager_is_guest', 'true');
   };
 
   const safeEmail = (currentUserEmail || '').trim().toLowerCase();

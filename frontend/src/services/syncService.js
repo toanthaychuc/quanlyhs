@@ -87,6 +87,12 @@ export async function pushAllLocalDataToCloud() {
     if (rawTarget) {
       await saveSetting('target_score', rawTarget);
     }
+    const rawGuest = localStorage.getItem('app_teacher_guest_allowed_paths');
+    if (rawGuest) {
+      try {
+        await saveSetting('teacher_guest_allowed_paths', JSON.parse(rawGuest));
+      } catch (_) {}
+    }
 
     return { success: true, results };
   } catch (err) {
@@ -100,15 +106,20 @@ export async function pushAllLocalDataToCloud() {
  */
 export async function pullAllDataFromCloud() {
   try {
-    const [classes, exams, assignments, documents, notices] = await Promise.all([
+    const [classes, exams, assignments, documents, notices, guestPaths] = await Promise.all([
       getClasses(true),
       getExams(true),
       getAssignments(true),
       getDocuments(true),
       getNotices(true),
+      getSetting('teacher_guest_allowed_paths', null, true),
     ]);
 
-    return { success: true, data: { classes, exams, assignments, documents, notices } };
+    if (Array.isArray(guestPaths) && guestPaths.length > 0) {
+      localStorage.setItem('app_teacher_guest_allowed_paths', JSON.stringify(guestPaths));
+    }
+
+    return { success: true, data: { classes, exams, assignments, documents, notices, guestPaths } };
   } catch (err) {
     console.error('[syncService] pullAllDataFromCloud error:', err);
     return { success: false, error: err.message };
