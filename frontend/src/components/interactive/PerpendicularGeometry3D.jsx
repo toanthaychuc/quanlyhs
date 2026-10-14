@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Html, Line, MapControls, OrthographicCamera, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import { useRole } from '../../context/RoleContext';
@@ -2568,6 +2568,27 @@ const CustomConnectionLine = ({ p1, p2, shape, useDashed, isExternalLine }) => {
   );
 };
 
+const formatRatio = (ratio, startLabel, endLabel) => {
+  if (typeof ratio !== 'number' || isNaN(ratio)) return '';
+  const edgeStr = startLabel && endLabel ? ` ${startLabel}${endLabel}` : '';
+  if (Math.abs(ratio - 0.5) < 0.015) return `1/2${edgeStr}`;
+  if (Math.abs(ratio - 1 / 3) < 0.015) return `1/3${edgeStr}`;
+  if (Math.abs(ratio - 2 / 3) < 0.015) return `2/3${edgeStr}`;
+  if (Math.abs(ratio - 0.25) < 0.015) return `1/4${edgeStr}`;
+  if (Math.abs(ratio - 0.75) < 0.015) return `3/4${edgeStr}`;
+  return `${Math.round(ratio * 100)}%${edgeStr}`;
+};
+
+const formatRatioBadge = (ratio) => {
+  if (typeof ratio !== 'number' || isNaN(ratio)) return '1/2';
+  if (Math.abs(ratio - 0.5) < 0.015) return '1/2';
+  if (Math.abs(ratio - 1 / 3) < 0.015) return '1/3';
+  if (Math.abs(ratio - 2 / 3) < 0.015) return '2/3';
+  if (Math.abs(ratio - 0.25) < 0.015) return '1/4';
+  if (Math.abs(ratio - 0.75) < 0.015) return '3/4';
+  return `${Math.round(ratio * 100)}%`;
+};
+
 const DraggableVertex = ({
   label,
   displayLabel,
@@ -2575,99 +2596,244 @@ const DraggableVertex = ({
   pos,
   isCustom,
   isEditing,
+  edgeConstraint,
   onDragStart,
   onDrag,
+  onDragRatio,
   onDragEnd,
   mounted
 }) => {
   const [hovered, setHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
   const dragPlaneRef = useRef(new THREE.Plane());
   const intersectPointRef = useRef(new THREE.Vector3());
+  const windowListenersRef = useRef({ move: null, up: null });
+  const { camera, gl } = useThree();
+
+  const isEdgePoint = Boolean(edgeConstraint && edgeConstraint.start && edgeConstraint.end);
+  const canDrag = (isEditing && !isCustom) || isEdgePoint;
+
+  const cleanupListeners = () => {
+    if (windowListenersRef.current.move) {
+      window.removeEventListener('pointermove', windowListenersRef.current.move);
+      windowListenersRef.current.move = null;
+    }
+    if (windowListenersRef.current.up) {
+      window.removeEventListener('pointerup', windowListenersRef.current.up);
+      windowListenersRef.current.up = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      cleanupListeners();
+      if (isDraggingRef.current) {
+        document.body.style.cursor = 'auto';
+      }
+    };
+  }, []);
 
   const handlePointerDown = (e) => {
-    if (!isEditing || isCustom) return;
+    if (!canDrag) return;
     e.stopPropagation();
     isDraggingRef.current = true;
-    const camDir = e.camera.getWorldDirection(new THREE.Vector3()).negate();
-    dragPlaneRef.current.setFromNormalAndCoplanarPoint(camDir, pos);
-    onDragStart(label);
-    if (e.target && e.target.setPointerCapture) {
-      try {
-        e.target.setPointerCapture(e.pointerId);
-      } catch (err) {}
+    setIsDragging(true);
+    document.body.style.cursor = 'grabbing';
+    if (onDragStart) onDragStart(label);
+
+    cleanupListeners();
+
+    if (isEdgePoint) {
+      const handleWindowPointerMove = (evt) => {
+        if (!isDraggingRef.current) return;
+        const rect = gl.domElement.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+        const mouseX = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+        const mouseY = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(new THREE.Vector2(mouseX, mouseY), camera);
+        const u = raycaster.ray.direction;
+        const O = raycaster.ray.origin;
+        const A = edgeConstraint.start;
+        const B = edgeConstraint.end;
+        const v = new THREE.Vector3().subVectors(B, A);
+        const c = v.lengthSq();
+        if (c < 1e-6) return;
+
+        const b = u.dot(v);
+        const w0 = new THREE.Vector3().subVectors(A, O);
+        const d = u.dot(w0);
+        const eDot = v.dot(w0);
+        const denom = c - b * b;
+
+        let t = 0.5;
+        if (denom > 1e-6) {
+          t = (b * d - eDot) / denom;
+        } else {
+          t = (d * b - eDot) / c;
+        }
+
+        let targetT = Math.max(0.01, Math.min(0.99, t));
+
+        // Snap to common proportions: 1/4, 1/3, 1/2, 2/3, 3/4
+        const snapList = [
+          { val: 0.5 },
+          { val: 1 / 3 },
+          { val: 2 / 3 },
+          { val: 0.25 },
+          { val: 0.75 },
+        ];
+        for (const sp of snapList) {
+          if (Math.abs(targetT - sp.val) < 0.025) {
+            targetT = sp.val;
+            break;
+          }
+        }
+
+        targetT = Math.round(targetT * 1000) / 1000;
+        if (onDragRatio) {
+          onDragRatio(label, targetT);
+        }
+      };
+
+      const handleWindowPointerUp = () => {
+        cleanupListeners();
+        isDraggingRef.current = false;
+        setIsDragging(false);
+        document.body.style.cursor = 'auto';
+        if (onDragEnd) onDragEnd(label);
+      };
+
+      windowListenersRef.current.move = handleWindowPointerMove;
+      windowListenersRef.current.up = handleWindowPointerUp;
+      window.addEventListener('pointermove', handleWindowPointerMove);
+      window.addEventListener('pointerup', handleWindowPointerUp);
+    } else {
+      // Free base vertex drag
+      const camDir = camera.getWorldDirection(new THREE.Vector3()).negate();
+      dragPlaneRef.current.setFromNormalAndCoplanarPoint(camDir, pos);
+
+      const handleWindowPointerMove = (evt) => {
+        if (!isDraggingRef.current) return;
+        const rect = gl.domElement.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+        const mouseX = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+        const mouseY = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(new THREE.Vector2(mouseX, mouseY), camera);
+        if (raycaster.ray.intersectPlane(dragPlaneRef.current, intersectPointRef.current)) {
+          if (onDrag) {
+            onDrag(intersectPointRef.current.clone());
+          }
+        }
+      };
+
+      const handleWindowPointerUp = () => {
+        cleanupListeners();
+        isDraggingRef.current = false;
+        setIsDragging(false);
+        document.body.style.cursor = 'auto';
+        if (onDragEnd) onDragEnd(label);
+      };
+
+      windowListenersRef.current.move = handleWindowPointerMove;
+      windowListenersRef.current.up = handleWindowPointerUp;
+      window.addEventListener('pointermove', handleWindowPointerMove);
+      window.addEventListener('pointerup', handleWindowPointerUp);
     }
   };
 
-  const handlePointerMove = (e) => {
-    if (!isDraggingRef.current || !isEditing) return;
-    e.stopPropagation();
-    if (e.ray.intersectPlane(dragPlaneRef.current, intersectPointRef.current)) {
-      onDrag(label, intersectPointRef.current.clone());
+  const handlePointerOver = (e) => {
+    if (canDrag) {
+      e.stopPropagation();
+      setHovered(true);
+      document.body.style.cursor = 'grab';
     }
   };
 
-  const handlePointerUp = (e) => {
-    if (!isDraggingRef.current) return;
-    e.stopPropagation();
-    isDraggingRef.current = false;
-    onDragEnd(label);
-    if (e.target && e.target.releasePointerCapture) {
-      try {
-        e.target.releasePointerCapture(e.pointerId);
-      } catch (err) {}
+  const handlePointerOut = (e) => {
+    if (canDrag) {
+      e.stopPropagation();
+      setHovered(false);
+      if (!isDraggingRef.current) {
+        document.body.style.cursor = 'auto';
+      }
     }
   };
 
-  const radius = isEditing && !isCustom ? 0.12 : (isCustom ? 0.05 : 0.06);
-  const color = isEditing && !isCustom 
-    ? (hovered ? '#f59e0b' : '#2563eb') 
-    : (isCustom ? '#10b981' : '#334155');
+  const radius = isEdgePoint
+    ? (isDragging ? 0.085 : (hovered ? 0.075 : 0.06))
+    : (isEditing && !isCustom ? 0.12 : (isCustom ? 0.05 : 0.06));
+
+  const color = isEdgePoint
+    ? (isDragging ? '#059669' : (hovered ? '#10b981' : '#10b981'))
+    : (isEditing && !isCustom 
+        ? (hovered ? '#f59e0b' : '#2563eb') 
+        : (isCustom ? '#10b981' : '#334155'));
 
   return (
     <group position={[pos.x, pos.y, pos.z]}>
-      {!hideDot && <mesh
-        onPointerOver={(e) => {
-          if (isEditing && !isCustom) {
-            e.stopPropagation();
-            setHovered(true);
-            document.body.style.cursor = 'grab';
-          }
-        }}
-        onPointerOut={(e) => {
-          if (isEditing && !isCustom) {
-            e.stopPropagation();
-            setHovered(false);
-            if (!isDraggingRef.current) document.body.style.cursor = 'auto';
-          }
-        }}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-      >
-        <sphereGeometry args={[radius, 24, 24]} />
-        <meshStandardMaterial 
-          color={color} 
-          emissive={isEditing && !isCustom && hovered ? '#f59e0b' : '#000000'}
-          emissiveIntensity={isEditing && !isCustom && hovered ? 0.5 : 0}
-        />
-      </mesh>}
+      {/* Invisible larger hit target for smooth grab */}
+      {canDrag && (
+        <mesh
+          visible={false}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+          onPointerDown={handlePointerDown}
+        >
+          <sphereGeometry args={[0.22, 12, 12]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+      )}
+
+      {!hideDot && (
+        <mesh
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+          onPointerDown={handlePointerDown}
+        >
+          <sphereGeometry args={[radius, 24, 24]} />
+          <meshStandardMaterial 
+            color={color} 
+            emissive={isEdgePoint ? (hovered || isDragging ? '#34d399' : '#059669') : (isEditing && !isCustom && hovered ? '#f59e0b' : '#000000')}
+            emissiveIntensity={isEdgePoint ? (hovered || isDragging ? 0.8 : 0.25) : (isEditing && !isCustom && hovered ? 0.5 : 0)}
+          />
+        </mesh>
+      )}
+
+      {isEdgePoint && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.08, 0.11, 24]} />
+          <meshBasicMaterial 
+            color={isDragging ? '#059669' : (hovered ? '#10b981' : '#34d399')} 
+            side={THREE.DoubleSide} 
+            transparent 
+            opacity={hovered || isDragging ? 0.85 : 0.4} 
+          />
+        </mesh>
+      )}
+
       {isEditing && !isCustom && (
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.15, 0.19, 32]} />
           <meshBasicMaterial color={hovered ? '#f59e0b' : '#3b82f6'} side={THREE.DoubleSide} transparent opacity={0.8} />
         </mesh>
       )}
+
       {mounted && (
         <Html center distanceFactor={12} style={{ pointerEvents: 'none', zIndex: 100 }}>
           <div style={{ 
-            color: isCustom ? '#059669' : (isEditing ? '#1d4ed8' : '#0f172a'), 
+            color: isEdgePoint ? '#047857' : (isCustom ? '#059669' : (isEditing ? '#1d4ed8' : '#0f172a')), 
             fontWeight: 'bold', 
             fontSize: isEditing ? '20px' : (isCustom ? '16px' : '18px'), 
             fontFamily: 'serif',
             transform: 'translate(14px, 0px)',
             textShadow: '1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff',
-            userSelect: 'none'
+            userSelect: 'none',
+            whiteSpace: 'nowrap'
           }}>
             {displayLabel ?? label}
           </div>
@@ -3617,16 +3783,15 @@ const PerpendicularGeometry3D = () => {
   const selectableEdges = useMemo(() => {
     const list = [...shape.edges];
     connections.forEach(c => {
-      if (isParallelConn(c)) return;
       const [u, v] = c;
-      if (!u || !v) return;
+      if (!u || !v || u.startsWith('_neg_') || v.startsWith('_neg_')) return;
       const exists = list.some(e => (e[0] === u && e[1] === v) || (e[0] === v && e[1] === u));
       if (!exists) {
         list.push([u, v]);
       }
     });
     return list;
-  }, [shape.edges, connections, parallelLines]);
+  }, [shape.edges, connections]);
 
   const parseLineInput = (raw) => {
     const s = raw.trim();
@@ -3810,7 +3975,7 @@ const PerpendicularGeometry3D = () => {
       return;
     }
     
-    setCustomPoints([...customPoints, {
+    setCustomPoints(prev => [...prev, {
       label,
       edge: edge,
       ratio: ratioNum / ratioDen
@@ -3847,6 +4012,15 @@ const PerpendicularGeometry3D = () => {
     setConnections(prev => prev.filter(c => !toRemove.has(c[0]) && !toRemove.has(c[1])));
     setCustomRightAngles(prev => prev.filter(ang => !ang.some(v => toRemove.has(v))));
   };
+
+  const updateCustomPointRatio = useCallback((label, newRatio) => {
+    setCustomPoints(prev => prev.map(p => {
+      if (p.label === label) {
+        return { ...p, ratio: newRatio };
+      }
+      return p;
+    }));
+  }, []);
 
   
 
@@ -3919,7 +4093,7 @@ const PerpendicularGeometry3D = () => {
     const v = new THREE.Vector3().subVectors(B, A).multiplyScalar(0.95);
     const Q = new THREE.Vector3().copy(P).add(v);
     
-    setCustomPoints([...customPoints, {
+    setCustomPoints(prev => [...prev, {
       label: pLabel,
       type: 'parallel',
       edge: [parallelPoint, l1, l2], // metadata
@@ -3930,7 +4104,7 @@ const PerpendicularGeometry3D = () => {
       edge: [parallelPoint, l1, l2],
     }]);
     
-    setConnections([...connections, [parallelPoint, pLabel], [parallelPoint, `_neg_${pLabel}`]]);
+    setConnections(prev => [...prev, [parallelPoint, pLabel], [parallelPoint, `_neg_${pLabel}`]]);
     setParallelLabel('');
     setParallelLine('');
   };
@@ -3962,7 +4136,7 @@ const handleAddIntersection = () => {
       return;
     }
     
-    setCustomPoints([...customPoints, { 
+    setCustomPoints(prev => [...prev, { 
       label: finalLabel, 
       type: 'intersection', 
       line1: l1, 
@@ -4302,10 +4476,27 @@ const handleAddIntersection = () => {
               <span>{newPointEdge ? newPointEdge.split(',').join('') : ''}</span>
             </div>
             {customPoints.some(p => !p.type) && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
                 {customPoints.filter(p => !p.type).map(p => (
-                  <span key={p.label} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    {`${p.label} ∈ ${p.edge.join('')}`}
+                  <span 
+                    key={p.label} 
+                    title="Có thể kéo thả điểm này trực tiếp trên hình 3D"
+                    style={{ 
+                      fontSize: '12px', 
+                      background: '#f0fdf4', 
+                      color: '#166534',
+                      padding: '4px 8px', 
+                      borderRadius: '6px', 
+                      border: '1px solid #bbf7d0', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '6px' 
+                    }}
+                  >
+                    <span style={{ fontWeight: '600' }}>{`${p.label} ∈ ${p.edge.join('')}`}</span>
+                    <span style={{ fontSize: '11px', background: '#dcfce7', padding: '1px 5px', borderRadius: '4px', color: '#15803d', fontWeight: 'bold' }}>
+                      {formatRatioBadge(p.ratio)}
+                    </span>
                     <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
                   </span>
                 ))}
@@ -4430,12 +4621,13 @@ const handleAddIntersection = () => {
                 style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
                 onClick={() => {
                   if (connectP1 && connectP2 && connectP1 !== connectP2) {
-                    const exists = connections.some(c => (c[0]===connectP1 && c[1]===connectP2) || (c[0]===connectP2 && c[1]===connectP1));
-                    if (!exists) {
-                      setConnections([...connections, [connectP1, connectP2]]);
-                      setConnectP1('');
-                      setConnectP2('');
-                    }
+                    setConnections(prev => {
+                      const exists = prev.some(c => (c[0]===connectP1 && c[1]===connectP2) || (c[0]===connectP2 && c[1]===connectP1));
+                      if (exists) return prev;
+                      return [...prev, [connectP1, connectP2]];
+                    });
+                    setConnectP1('');
+                    setConnectP2('');
                   }
                 }}
               >
@@ -4606,6 +4798,16 @@ const handleAddIntersection = () => {
               const isCustom = !shape.labels.includes(v);
               const pos = activeVertices[v];
               if (!pos || v.startsWith('_neg_')) return null;
+
+              const edgePoint = customPoints.find(p => p.label === v && !p.type && p.edge && p.edge.length === 2);
+              const edgeConstraint = edgePoint && activeVertices[edgePoint.edge[0]] && activeVertices[edgePoint.edge[1]] ? {
+                start: activeVertices[edgePoint.edge[0]],
+                end: activeVertices[edgePoint.edge[1]],
+                startLabel: edgePoint.edge[0],
+                endLabel: edgePoint.edge[1],
+                ratio: edgePoint.ratio ?? 0.5
+              } : null;
+
               return (
                 <DraggableVertex
                   key={`vertex-node-${v}`}
@@ -4618,8 +4820,10 @@ const handleAddIntersection = () => {
                   pos={pos}
                   isCustom={isCustom}
                   isEditing={isEditingPoints}
+                  edgeConstraint={edgeConstraint}
                   onDragStart={() => setIsDraggingVertex(true)}
                   onDrag={(newPos) => updatePointCoord(v, newPos.x, newPos.y, newPos.z)}
+                  onDragRatio={updateCustomPointRatio}
                   onDragEnd={() => setIsDraggingVertex(false)}
                   mounted={mounted}
                 />
