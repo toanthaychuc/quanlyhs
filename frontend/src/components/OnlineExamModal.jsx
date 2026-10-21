@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, QrCode, Link2, Copy, Check, 
   Settings, Users, Clock, ShieldAlert, Sparkles, Trash2, 
-  ExternalLink, CheckCircle, RefreshCw, FileSpreadsheet
+  ExternalLink, CheckCircle, RefreshCw, FileSpreadsheet, Eye
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import './OnlineExamModal.css';
@@ -15,7 +15,7 @@ import {
   extractExamTikzBlocks, buildExamCachedSvgs, checkBackendHealth 
 } from '../utils/tikzCacheUtils';
 
-export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = null, onRoomUpdated }) {
+export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = null, onRoomUpdated, onReviewSubmission }) {
   if (!isOpen || !exam) return null;
 
   const [activeRoom, setActiveRoom] = useState(initialRoom || null);
@@ -386,6 +386,7 @@ export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = n
                           <th style={{ width: 120 }}>Mã HS</th>
                           <th style={{ width: 95, textAlign: 'center' }}>Điểm</th>
                           <th style={{ width: 85, textAlign: 'right' }}>Thời gian</th>
+                          <th style={{ width: 65, textAlign: 'center' }}>Xem</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -416,6 +417,31 @@ export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = n
                             </td>
                             <td style={{ textAlign: 'right', fontSize: '0.75rem', color: '#64748b' }}>
                               {sub.submittedAt ? new Date(sub.submittedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '-'}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onReviewSubmission?.(sub);
+                                }}
+                                title="Bấm để xem chi tiết bài làm của học sinh này"
+                                style={{
+                                  background: 'rgba(99, 102, 241, 0.1)',
+                                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                                  color: '#4f46e5',
+                                  borderRadius: '6px',
+                                  padding: '4px 8px',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 500
+                                }}
+                              >
+                                <Eye size={13} /> Xem
+                              </button>
                             </td>
                           </tr>
                         ))}

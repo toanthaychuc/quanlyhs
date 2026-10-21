@@ -106,11 +106,19 @@ const parseLatexStringToQuestions = (rawText) => {
     return expandedBlocks.map((rawBlockObj, index) => {
       let block = rawBlockObj.text.trim();
 
+      // Trích xuất tất cả ID và tag câu hỏi (VD: %[1D1N2-4]%[Dự án A]%[THPT Chuyên] hoặc [1D1N2-4][...]) 
       let tags = [];
-      block = block.replace(/^\s*(?:%?\s*\[([^\]]+)\]\s*)+/g, (match, tag) => {
-          tags.push(tag.trim());
-          return '';
-      }).trim();
+      const tagPrefixMatch = block.match(/^\s*(?:%?\s*\[[^\]]+\]\s*)+/);
+      if (tagPrefixMatch) {
+        const prefix = tagPrefixMatch[0];
+        const bracketRegex = /\[([^\]]+)\]/g;
+        let bMatch;
+        while ((bMatch = bracketRegex.exec(prefix)) !== null) {
+          const t = bMatch[1].trim();
+          if (t) tags.push(t);
+        }
+        block = block.slice(tagPrefixMatch[0].length).trim();
+      }
 
       block = block.replace(/^\s*(?:\[[^\]]*\]\s*)+/g, '').trim();
       block = block.replace(/\\par\s*(?=\\shortans)/gi, '').trim();

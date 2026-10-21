@@ -1,4 +1,4 @@
-import { getExams, getStudentHistory } from './examService';
+import { getExams, getStudentHistory, getStudentAnswerForQuestion } from './examService';
 
 const DAILY_REVIEW_KEY = 'edumanager_daily_review_v3';
 
@@ -115,7 +115,7 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
     let currentClusterContext = null;
     let clusterRemaining = 0;
 
-    (exam.questions || []).forEach(q => {
+    (exam.questions || []).forEach((q, idx) => {
       // Bảo tồn clusterContext cho các câu trong cùng chùm/cụm
       if (q.clusterContext) {
         currentClusterContext = q.clusterContext;
@@ -146,9 +146,9 @@ export const generateDailyReviewQuestions = async (studentId, studentGrade) => {
       allValidQuestions.push(qWithContext);
 
       if (latestSession) {
-        const uAns = userAnswers[q.id];
+        const uAns = getStudentAnswerForQuestion(userAnswers, q, idx);
         // Nếu đã trả lời và trả lời sai
-        if (uAns && uAns !== q.correctAnswer) {
+        if (uAns && String(uAns).trim().toUpperCase() !== String(q.correctAnswer).trim().toUpperCase()) {
           wrongQuestions.push(qWithContext);
           const tags = getQuestionTags(q);
           tags.forEach(t => wrongTags.add(t));

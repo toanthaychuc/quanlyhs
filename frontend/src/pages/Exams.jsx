@@ -21,6 +21,7 @@ import './Exams.css';
 import {
   getExams, saveExam, deleteExam,
   submitExamSession, getStudentHistory, getAllExamSessions, deleteExamSession,
+  getStudentAnswerForQuestion, calculateExamScore, regradeExamSessions,
   updateGamification, getGamification,
   saveUnfinishedExam, getUnfinishedExam, clearUnfinishedExam,
   createExamRoom, getExamRoom, closeExamRoom, deleteExamRoom,
@@ -56,7 +57,7 @@ const questionsToLatexString = (questions) => {
       latexLines.push(`%%%=== Cụm câu ${i + 1} đến ${i + q.clusterLength} ===%%%`);
       let exLine = `\\begin{ex}`;
       if (q.tags && q.tags.length > 0) {
-        exLine += `%[${q.tags.join('][')}]`;
+        exLine += q.tags.map(t => `%[${t}]`).join('');
       }
       latexLines.push(exLine);
       latexLines.push(`\\sochc{${q.clusterLength}}`);
@@ -66,7 +67,11 @@ const questionsToLatexString = (questions) => {
         const subQ = questions[i + j];
         if (!subQ) break;
         
-        latexLines.push(`\\begin{chc}`);
+        let chcLine = `\\begin{chc}`;
+        if (subQ.tags && subQ.tags.length > 0) {
+          chcLine += subQ.tags.map(t => `%[${t}]`).join('');
+        }
+        latexLines.push(chcLine);
         latexLines.push(`\t${subQ.content}`);
         
         if (subQ.questionType === 'true_false') {
@@ -96,7 +101,7 @@ const questionsToLatexString = (questions) => {
       latexLines.push(`%%%=== Câu ${i + 1} ===%%%`);
       let exLine = `\\begin{ex}`;
       if (q.tags && q.tags.length > 0) {
-        exLine += `%[${q.tags.join('][')}]`;
+        exLine += q.tags.map(t => `%[${t}]`).join('');
       }
       latexLines.push(exLine);
       latexLines.push(`\t${q.content}`);
@@ -129,7 +134,7 @@ const questionsToLatexString = (questions) => {
 };
 
 // Phân tích mã nguồn LaTeX đa năng hỗ trợ 4 dạng câu hỏi chuẩn Bộ GD&ĐT
-const parseLatexStringToQuestions = (rawText) => {
+const parseLatexStringToQuestions = (rawText, existingQuestions = []) => {
   if (!rawText || !rawText.trim()) return [];
 
   try {
@@ -184,14 +189,21 @@ const parseLatexStringToQuestions = (rawText) => {
   return expandedBlocks.map((rawBlockObj, index) => {
     let block = rawBlockObj.text.trim();
     
-    // Trích xuất ID câu hỏi (VD: %[1D1H5-5] hoặc [1D1H5-5]) 
+    // Trích xuất tất cả ID và tag câu hỏi (VD: %[1D1N2-4]%[Dự án A]%[THPT Chuyên] hoặc [1D1N2-4][...]) 
     let tags = [];
-    block = block.replace(/^\s*(?:%?\s*\[([^\]]+)\]\s*)+/g, (match, tag) => {
-        tags.push(tag.trim());
-        return '';
-    }).trim();
+    const tagPrefixMatch = block.match(/^\s*(?:%?\s*\[[^\]]+\]\s*)+/);
+    if (tagPrefixMatch) {
+      const prefix = tagPrefixMatch[0];
+      const bracketRegex = /\[([^\]]+)\]/g;
+      let bMatch;
+      while ((bMatch = bracketRegex.exec(prefix)) !== null) {
+        const t = bMatch[1].trim();
+        if (t) tags.push(t);
+      }
+      block = block.slice(tagPrefixMatch[0].length).trim();
+    }
     
-    // Bỏ qua các tag phân loại câu hỏi dạng [thm], [2D1B1-1] ở đầu khối nếu còn sót
+    // Bỏ qua các tag phân loại câu hỏi dạng [thm] ở đầu khối nếu còn sót
     block = block.replace(/^\s*(?:\[[^\]]*\]\s*)+/g, '').trim();
     block = block.replace(/\\par\s*(?=\\shortans)/gi, '').trim();
 
@@ -338,7 +350,7 @@ const parseLatexStringToQuestions = (rawText) => {
     }
 
       return cleanQuestionObj({
-        id: 'q_' + Date.now() + '_' + index,
+        id: (existingQuestions && existingQuestions[index]?.id) || ('q_' + Date.now() + '_' + index),
         questionType,
         content: questionContent || `Câu hỏi ${index + 1}`,
         options,
@@ -605,18 +617,25 @@ const Exams = () => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [examResult, setExamResult] = useState(null);
   const [showKeypad, setShowKeypad] = useState(null);
+  const [reviewingStudentInfo, setReviewingStudentInfo] = useState(null);
   const timerRef = useRef(null);
 
   const handleReviewHistory = (historySession, exam) => {
     setCurrentExam(exam);
     setUserAnswers(historySession.answers || {});
     setFlaggedQuestions(historySession.flagged || {});
+    // Luôn tính lại điểm số dựa trên nội dung đề thi hiện tại để đảm bảo hiển thị đúng nhất kể cả sau khi sửa đáp án
+    const recalculated = calculateExamScore(exam, historySession.answers || {});
     setExamResult({
-      score: historySession.score,
-      correctCount: historySession.correctCount,
-      totalQuestions: historySession.totalQuestions,
+      score: recalculated.score !== undefined ? recalculated.score : historySession.score,
+      correctCount: recalculated.correctCount !== undefined ? recalculated.correctCount : historySession.correctCount,
+      totalQuestions: recalculated.totalQuestions || historySession.totalQuestions,
       timeSpentSeconds: historySession.timeSpent || 0
     });
+    setReviewingStudentInfo(historySession.studentName ? {
+      name: historySession.studentName,
+      className: historySession.className || historySession.studentClass || ''
+    } : null);
     setExamMode('result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -1314,39 +1333,57 @@ const Exams = () => {
       trueFalse: { correct1: 0, correct2: 0, correct3: 0, correct4: 0 }
     };
 
-    currentExam.questions.forEach((q) => {
-      const uAns = userAnswers[q.id];
+    currentExam.questions.forEach((q, idx) => {
+      const uAns = getStudentAnswerForQuestion(userAnswers, q, idx);
       let isQuestionCorrect = false;
 
       if (q.questionType === 'true_false') {
         let subCorrect = 0;
-        (q.options || []).forEach(opt => {
-          const userPick = uAns?.[opt.key];
-          const expected = opt.isCorrectTrue ? 'T' : 'F';
-          if (userPick === expected) subCorrect += 1;
+        let hasAnyPick = false;
+        (q.options || []).forEach((opt, optIdx) => {
+          let userPick = uAns?.[opt.key] 
+            ?? uAns?.[opt.key?.toLowerCase()] 
+            ?? uAns?.[opt.key?.toUpperCase()];
+          if (userPick === undefined && Array.isArray(uAns)) {
+            userPick = uAns[optIdx];
+          }
+          if (userPick !== undefined && userPick !== null && userPick !== '') {
+            hasAnyPick = true;
+          }
+          const normUser = (userPick === true || userPick === 'T' || userPick === 'true' || userPick === 'Đúng')
+            ? 'T'
+            : ((userPick === false || userPick === 'F' || userPick === 'false' || userPick === 'Sai') ? 'F' : userPick);
+          const expected = Boolean(opt.isCorrectTrue) ? 'T' : 'F';
+          if (normUser === expected) subCorrect += 1;
         });
 
-        if (subCorrect === 4 && uAns) { correctCount += 1; isQuestionCorrect = true; }
+        if (subCorrect === 4 && hasAnyPick) { correctCount += 1; isQuestionCorrect = true; }
 
-        if (hasPointsConfig && uAns) {
-          if (subCorrect === 1) totalCalculatedScore += pConfig.trueFalse.correct1;
-          else if (subCorrect === 2) totalCalculatedScore += pConfig.trueFalse.correct2;
-          else if (subCorrect === 3) totalCalculatedScore += pConfig.trueFalse.correct3;
-          else if (subCorrect === 4) totalCalculatedScore += pConfig.trueFalse.correct4;
+        if (hasPointsConfig && hasAnyPick) {
+          const tfConfig = pConfig.trueFalse || {};
+          if (subCorrect === 1) totalCalculatedScore += (parseFloat(tfConfig.correct1) || 0);
+          else if (subCorrect === 2) totalCalculatedScore += (parseFloat(tfConfig.correct2) || 0);
+          else if (subCorrect === 3) totalCalculatedScore += (parseFloat(tfConfig.correct3) || 0);
+          else if (subCorrect === 4) totalCalculatedScore += (parseFloat(tfConfig.correct4) || 0);
         }
       } else if (q.questionType === 'short_answer') {
         const cleanUser = String(uAns || '').trim().replace(/,/g, '.');
         const cleanTarget = String(q.correctAnswer || '').trim().replace(/,/g, '.');
-        if (cleanUser === cleanTarget) {
+        const numUser = Number(cleanUser);
+        const numTarget = Number(cleanTarget);
+        const isNumericMatch = !isNaN(numUser) && !isNaN(numTarget) && cleanUser !== '' && cleanTarget !== '' && numUser === numTarget;
+        if ((cleanUser !== '' && cleanUser === cleanTarget) || isNumericMatch) {
           correctCount += 1;
           isQuestionCorrect = true;
-          if (hasPointsConfig) totalCalculatedScore += pConfig.shortAnswer;
+          if (hasPointsConfig) totalCalculatedScore += (parseFloat(pConfig.shortAnswer) || 0);
         }
       } else {
-        if (uAns === q.correctAnswer) {
+        const uVal = (uAns !== undefined && uAns !== null) ? String(uAns).trim().toUpperCase() : '';
+        const targetVal = (q.correctAnswer !== undefined && q.correctAnswer !== null) ? String(q.correctAnswer).trim().toUpperCase() : '';
+        if (uVal !== '' && targetVal !== '' && uVal === targetVal) {
           correctCount += 1;
           isQuestionCorrect = true;
-          if (hasPointsConfig) totalCalculatedScore += pConfig.multipleChoice;
+          if (hasPointsConfig) totalCalculatedScore += (parseFloat(pConfig.multipleChoice) || 0);
         }
       }
 
@@ -1883,7 +1920,8 @@ const Exams = () => {
   };
 
   const handleParseLatexInput = () => {
-    const parsed = parseLatexStringToQuestions(examFormData.latexBulkCode);
+    const existingExam = editingExamId ? exams.find(e => e.id === editingExamId) : null;
+    const parsed = parseLatexStringToQuestions(examFormData.latexBulkCode, existingExam?.questions || editorQuestions);
     if (parsed.length > 0) {
       setEditorQuestions(parsed);
       
@@ -1900,11 +1938,12 @@ const Exams = () => {
     }
   };
 
-  const handleSaveExam = (e) => {
+  const handleSaveExam = async (e) => {
     e.preventDefault();
     
     let finalQuestions = editorQuestions;
-    const parsed = parseLatexStringToQuestions(examFormData.latexBulkCode);
+    const existingExam = editingExamId ? exams.find(e => e.id === editingExamId) : null;
+    const parsed = parseLatexStringToQuestions(examFormData.latexBulkCode, existingExam?.questions || editorQuestions);
     if (parsed.length > 0) {
       finalQuestions = parsed;
     }
@@ -1934,11 +1973,72 @@ const Exams = () => {
       setExams(prev => [newExamObj, ...prev]);
     }
 
-    // Lưu trực tiếp lên Supabase
-    saveExam(newExamObj);
+    // Lưu trực tiếp lên Supabase / LocalStorage
+    await saveExam(newExamObj);
+
+    let regradeNote = '';
+    if (editingExamId) {
+      // Tự động chấm lại toàn bộ bài làm của học sinh nếu đề thi được sửa
+      try {
+        const regradeRes = await regradeExamSessions(newExamObj);
+        // Cập nhật teacherExamStats state trực tiếp để giáo viên thấy điểm mới ngay lập tức
+        setTeacherExamStats(prev => {
+          if (!prev[editingExamId]) return prev;
+          const updatedSessions = prev[editingExamId].map(session => {
+            const recalculated = calculateExamScore(newExamObj, session.answers);
+            return {
+              ...session,
+              score: recalculated.score,
+              correctCount: recalculated.correctCount,
+              totalQuestions: recalculated.totalQuestions
+            };
+          });
+          return {
+            ...prev,
+            [editingExamId]: updatedSessions
+          };
+        });
+
+        if (regradeRes.updatedCount > 0) {
+          regradeNote = `\n\n🎯 Đã tự động chấm lại và cập nhật điểm mới cho ${regradeRes.updatedCount} bài làm của học sinh!`;
+        }
+      } catch (regradeErr) {
+        console.warn('Lỗi khi tự động chấm lại bài làm sau khi sửa đề:', regradeErr);
+      }
+    }
 
     setIsEditorOpen(false);
-    alert(`Đã lưu thành công bài kiểm tra: "${newExamObj.title}" với ${finalQuestions.length} câu hỏi!`);
+    alert(`Đã lưu thành công bài kiểm tra: "${newExamObj.title}" với ${finalQuestions.length} câu hỏi!${regradeNote}`);
+  };
+
+  const handleRegradeExam = async (e, targetExam) => {
+    if (e) e.stopPropagation();
+    if (!targetExam || !targetExam.id) return;
+
+    try {
+      const regradeRes = await regradeExamSessions(targetExam);
+      setTeacherExamStats(prev => {
+        if (!prev[targetExam.id]) return prev;
+        const updatedSessions = prev[targetExam.id].map(session => {
+          const recalculated = calculateExamScore(targetExam, session.answers);
+          return {
+            ...session,
+            score: recalculated.score,
+            correctCount: recalculated.correctCount,
+            totalQuestions: recalculated.totalQuestions
+          };
+        });
+        return {
+          ...prev,
+          [targetExam.id]: updatedSessions
+        };
+      });
+
+      alert(`Đã hoàn tất chấm lại bài làm cho đề "${targetExam.title}"! ${regradeRes.updatedCount > 0 ? `Cập nhật điểm mới cho ${regradeRes.updatedCount} bài làm.` : 'Tất cả điểm số hiện tại đã chính xác theo đáp án mới nhất.'}`);
+    } catch (err) {
+      console.error('Lỗi khi chấm lại bài làm:', err);
+      alert('Có lỗi xảy ra khi chấm lại bài làm.');
+    }
   };
 
   const getExamsByCurriculumId = (currId) => {
@@ -2480,7 +2580,7 @@ const Exams = () => {
           </div>
 
           <div className="score-summary-info">
-            <h2>Kết quả làm bài thi</h2>
+            <h2>{reviewingStudentInfo ? `Bài làm của: ${reviewingStudentInfo.name} ${reviewingStudentInfo.className ? `(${reviewingStudentInfo.className})` : ''}` : 'Kết quả làm bài thi'}</h2>
             <p className="result-exam-name">{currentExam.title}</p>
             
             <div className="result-stats-row">
@@ -2523,13 +2623,14 @@ const Exams = () => {
           </div>
 
           <div className="result-actions">
-            {!currentRoom && (
+            {!currentRoom && !reviewingStudentInfo && (
               <button className="btn btn-primary" onClick={() => handleStartExam(currentExam)}>
                 <RotateCcw size={16} /> Làm lại đề này
               </button>
             )}
             <button className="btn btn-outline" onClick={() => {
               setCurrentRoom(null);
+              setReviewingStudentInfo(null);
               setExamMode('list');
             }}>
               <ArrowLeft size={16} /> Về danh sách đề
@@ -2538,13 +2639,17 @@ const Exams = () => {
         </div>
 
         <div className="review-questions-list">
-          <h3 className="section-heading">Chi tiết bài làm & Lời giải</h3>
+          <h3 className="section-heading">
+            {reviewingStudentInfo 
+              ? `Chi tiết bài làm của học sinh: ${reviewingStudentInfo.name} ${reviewingStudentInfo.className ? `(${reviewingStudentInfo.className})` : ''}` 
+              : 'Chi tiết bài làm & Lời giải'}
+          </h3>
 
           {currentExam.questions.map((q, idx) => {
-            const userChoice = userAnswers[q.id];
+            const userChoice = getStudentAnswerForQuestion(userAnswers, q, idx);
 
             return (
-              <div key={q.id} className="review-question-card card">
+              <div key={q.id || idx} className="review-question-card card">
                 <div className="review-card-header">
                   <span className="review-q-num">Câu {idx + 1} {getQuestionTypeBadge(q.questionType)}</span>
                 </div>
@@ -2556,8 +2661,13 @@ const Exams = () => {
                 {/* Đúng sai review */}
                 {q.questionType === 'true_false' && (
                   <div className="tf-review-table">
-                    {(q.options || []).map(opt => {
-                      const userPick = userChoice?.[opt.key];
+                    {(q.options || []).map((opt, optIdx) => {
+                      let userPick = userChoice?.[opt.key] 
+                        || userChoice?.[opt.key?.toLowerCase()] 
+                        || userChoice?.[opt.key?.toUpperCase()];
+                      if (!userPick && Array.isArray(userChoice)) {
+                        userPick = userChoice[optIdx];
+                      }
                       const correctPick = opt.isCorrectTrue ? 'T' : 'F';
                       const isSubCorrect = userPick === correctPick;
 
@@ -2569,7 +2679,8 @@ const Exams = () => {
                           <div className="tf-status-pills">
                             <span className="badge-expected">Đáp án: <strong>{opt.isCorrectTrue ? 'Đúng' : 'Sai'}</strong></span>
                             <span className={isSubCorrect ? 'badge-user-ok' : 'badge-user-bad'}>
-                              Bạn chọn: {userPick === 'T' ? 'Đúng' : (userPick === 'F' ? 'Sai' : 'Chưa làm')}
+                              {reviewingStudentInfo ? 'Học sinh chọn:' : 'Bạn chọn:'}{' '}
+                              <strong>{userPick === 'T' ? 'Đúng' : (userPick === 'F' ? 'Sai' : 'Chưa làm')}</strong>
                             </span>
                           </div>
                         </div>
@@ -2579,42 +2690,91 @@ const Exams = () => {
                 )}
 
                 {/* Trả lời ngắn review */}
-                {q.questionType === 'short_answer' && (
-                  <div className="sa-review-box">
-                    <div className="sa-review-pill">
-                      <span>Đáp án đúng: <strong style={{ color: '#059669' }}>{q.correctAnswer}</strong></span>
+                {q.questionType === 'short_answer' && (() => {
+                  const hasAnswer = userChoice !== undefined && userChoice !== null && String(userChoice).trim() !== '';
+                  const cleanUser = String(userChoice || '').trim().replace(/,/g, '.');
+                  const cleanTarget = String(q.correctAnswer || '').trim().replace(/,/g, '.');
+                  const numUser = Number(cleanUser);
+                  const numTarget = Number(cleanTarget);
+                  const isNumericMatch = !isNaN(numUser) && !isNaN(numTarget) && cleanUser !== '' && cleanTarget !== '' && numUser === numTarget;
+                  const isCorrectShortAns = hasAnswer && ((cleanUser !== '' && cleanUser === cleanTarget) || isNumericMatch);
+
+                  return (
+                    <div className="sa-review-box">
+                      <div className="sa-review-pill">
+                        <span>Đáp án đúng: <strong style={{ color: '#059669' }}>{q.correctAnswer}</strong></span>
+                      </div>
+                      <div className="sa-review-user">
+                        <span style={{ 
+                          color: !hasAnswer ? '#6b7280' : (isCorrectShortAns ? '#059669' : '#ef4444') 
+                        }}>
+                          {reviewingStudentInfo ? 'Học sinh điền:' : 'Bạn đã điền:'}{' '}
+                          <strong>{hasAnswer ? String(userChoice) : 'Chưa điền'}</strong>
+                        </span>
+                      </div>
                     </div>
-                    <div className="sa-review-user">
-                      <span style={{ 
-                        color: (userChoice || '').trim() === (q.correctAnswer || '').trim() ? '#059669' : '#ef4444' 
-                      }}>
-                        Bạn đã điền: <strong>{userChoice || 'Chưa điền'}</strong>
-                      </span>
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* 4 phương án review */}
                 {(!q.questionType || q.questionType === 'multiple_choice') && (
                   <div className="review-options-grid">
                     {q.options.map(opt => {
-                      const isUserPick = userChoice === opt.key;
-                      const isKeyCorrect = opt.key === q.correctAnswer;
+                      const isUserPick = userChoice !== undefined && userChoice !== null &&
+                        String(userChoice).trim().toUpperCase() === String(opt.key).trim().toUpperCase();
+                      const isKeyCorrect = String(opt.key).trim().toUpperCase() === String(q.correctAnswer).trim().toUpperCase();
 
                       let optClass = 'review-option';
                       if (isKeyCorrect) optClass += ' correct-option';
                       if (isUserPick && !isKeyCorrect) optClass += ' wrong-option';
 
                       return (
-                        <div key={opt.key} className={optClass}>
+                        <div key={opt.key} className={optClass} style={{ position: 'relative' }}>
                           <span className="review-opt-key">{opt.key}</span>
                           <div className="review-opt-text">
                             <MathView text={opt.text} cachedSvgs={currentExam?.cached_svgs || null} />
                           </div>
                           {isKeyCorrect && <Check size={16} className="text-emerald check-icon" />}
+                          {isUserPick && (
+                            <span style={{
+                              marginLeft: 'auto',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              background: isKeyCorrect ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                              color: isKeyCorrect ? '#059669' : '#ef4444',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {reviewingStudentInfo ? 'Học sinh chọn' : 'Bạn chọn'}
+                            </span>
+                          )}
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {/* Tự luận review */}
+                {q.questionType === 'essay' && (
+                  <div className="essay-review-box" style={{ 
+                    background: 'var(--surface-color, #f8fafc)', 
+                    padding: '0.9rem 1.1rem', 
+                    borderRadius: '8px', 
+                    border: '1px solid var(--border-color, #e2e8f0)',
+                    marginTop: '0.8rem'
+                  }}>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-secondary, #475569)', marginBottom: '0.35rem' }}>
+                      {reviewingStudentInfo ? 'Bài làm / Ghi chú của học sinh:' : 'Bài làm / Ghi chú của bạn:'}
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.95rem', 
+                      color: userChoice ? 'var(--text-color, #1e293b)' : '#94a3b8', 
+                      fontStyle: userChoice ? 'normal' : 'italic',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {userChoice || '(Không có câu trả lời / ghi chú)'}
+                    </div>
                   </div>
                 )}
 
@@ -3190,11 +3350,35 @@ const Exams = () => {
                                     {teacherExamStats[ex.id]?.length > 0 && isTeacher && (
                                       <div className="sub-exam-teacher-stats" style={{ borderTop: '1px dashed #e5e7eb', marginTop: '0.4rem', paddingTop: '0.4rem', paddingLeft: '0.5rem' }}>
                                         <div 
-                                          style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                                          onClick={() => toggleTeacherStats(ex.id)}
+                                          style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}
                                         >
-                                          {expandedTeacherStats[ex.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />} 
-                                          Danh sách các học sinh đã làm ({teacherExamStats[ex.id].length})
+                                          <div
+                                            onClick={() => toggleTeacherStats(ex.id)}
+                                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                          >
+                                            {expandedTeacherStats[ex.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />} 
+                                            Danh sách các học sinh đã làm ({teacherExamStats[ex.id].length})
+                                          </div>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => handleRegradeExam(e, ex)}
+                                            title="Chấm lại toàn bộ bài làm theo đáp án và cấu hình điểm mới nhất"
+                                            style={{
+                                              background: 'rgba(16, 185, 129, 0.08)',
+                                              border: '1px solid #10b981',
+                                              color: '#059669',
+                                              borderRadius: '4px',
+                                              padding: '1px 6px',
+                                              fontSize: '0.7rem',
+                                              fontWeight: 600,
+                                              cursor: 'pointer',
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              gap: '3px'
+                                            }}
+                                          >
+                                            <RotateCcw size={10} /> Chấm lại điểm
+                                          </button>
                                         </div>
                                         {expandedTeacherStats[ex.id] && (
                                           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', maxHeight: '150px', overflowY: 'auto' }}>
@@ -3360,11 +3544,35 @@ const Exams = () => {
                 {teacherExamStats[exam.id]?.length > 0 && isTeacher && (
                   <div className="exam-history-section" style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.6rem', marginTop: '0.6rem' }}>
                     <div 
-                      style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                      onClick={() => toggleTeacherStats(exam.id)}
+                      style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.3rem 0', fontWeight: '500', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}
                     >
-                      {expandedTeacherStats[exam.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />} 
-                      Danh sách các học sinh đã làm ({teacherExamStats[exam.id].length})
+                      <div
+                        onClick={() => toggleTeacherStats(exam.id)}
+                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        {expandedTeacherStats[exam.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />} 
+                        Danh sách các học sinh đã làm ({teacherExamStats[exam.id].length})
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => handleRegradeExam(e, exam)}
+                        title="Chấm lại toàn bộ bài làm theo đáp án và cấu hình điểm mới nhất"
+                        style={{
+                          background: 'rgba(16, 185, 129, 0.08)',
+                          border: '1px solid #10b981',
+                          color: '#059669',
+                          borderRadius: '4px',
+                          padding: '1px 6px',
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px'
+                        }}
+                      >
+                        <RotateCcw size={10} /> Chấm lại điểm
+                      </button>
                     </div>
                     {expandedTeacherStats[exam.id] && (
                       <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', maxHeight: '180px', overflowY: 'auto' }}>
@@ -3813,6 +4021,10 @@ const Exams = () => {
         exam={selectedExamForModal}
         initialRoom={selectedExamForModal ? (activeRoomsMap[selectedExamForModal.id] || null) : null}
         onRoomUpdated={handleRoomUpdated}
+        onReviewSubmission={(sub) => {
+          setIsOnlineExamModalOpen(false);
+          handleReviewHistory(sub, selectedExamForModal);
+        }}
       />
 
       {/* Popup Cảnh Báo Gian Lận Chuyển Tab */}

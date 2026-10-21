@@ -4,6 +4,7 @@
  */
 
 import { decodeTags } from './idDecoder';
+import { getStudentAnswerForQuestion } from '../services/examService';
 
 /**
  * Compute tag-based stats from a student's history.
@@ -38,18 +39,20 @@ export function computeStudentAnalytics(history, allExamsList) {
 
     const userAnswers = latestSession.answers;
 
-    exam.questions.forEach(q => {
+    exam.questions.forEach((q, idx) => {
       if (!q.tags || q.tags.length === 0) return;
 
       // Determine correctness
       let isCorrect = false;
-      const uAns = userAnswers[q.id];
+      const uAns = getStudentAnswerForQuestion(userAnswers, q, idx);
 
       if (q.questionType === 'true_false') {
         let subCorrect = 0;
-        (q.options || []).forEach(opt => {
+        (q.options || []).forEach((opt, optIdx) => {
+          let userPick = uAns?.[opt.key] || uAns?.[opt.key?.toLowerCase()] || uAns?.[opt.key?.toUpperCase()];
+          if (!userPick && Array.isArray(uAns)) userPick = uAns[optIdx];
           const expected = opt.isCorrectTrue ? 'T' : 'F';
-          if (uAns?.[opt.key] === expected) subCorrect++;
+          if (userPick === expected) subCorrect++;
         });
         if (subCorrect === 4) isCorrect = true;
       } else if (q.questionType === 'short_answer') {
@@ -57,7 +60,7 @@ export function computeStudentAnalytics(history, allExamsList) {
         const cleanTarget = String(q.correctAnswer || '').trim().replace(/,/g, '.');
         if (cleanUser === cleanTarget && cleanTarget !== '') isCorrect = true;
       } else {
-        if (uAns === q.correctAnswer && q.correctAnswer) isCorrect = true;
+        if (String(uAns || '').trim().toUpperCase() === String(q.correctAnswer || '').trim().toUpperCase() && q.correctAnswer) isCorrect = true;
       }
 
       const decodedTags = decodeTags(q.tags);
@@ -155,17 +158,19 @@ export function computeClassAnalytics(allSessions, allExamsList, classId) {
     Object.values(studentLatest).forEach(session => {
       const userAnswers = session.answers || {};
 
-      exam.questions.forEach(q => {
+      exam.questions.forEach((q, idx) => {
         if (!q.tags || q.tags.length === 0) return;
 
         let isCorrect = false;
-        const uAns = userAnswers[q.id];
+        const uAns = getStudentAnswerForQuestion(userAnswers, q, idx);
 
         if (q.questionType === 'true_false') {
           let subCorrect = 0;
-          (q.options || []).forEach(opt => {
+          (q.options || []).forEach((opt, optIdx) => {
+            let userPick = uAns?.[opt.key] || uAns?.[opt.key?.toLowerCase()] || uAns?.[opt.key?.toUpperCase()];
+            if (!userPick && Array.isArray(uAns)) userPick = uAns[optIdx];
             const expected = opt.isCorrectTrue ? 'T' : 'F';
-            if (uAns?.[opt.key] === expected) subCorrect++;
+            if (userPick === expected) subCorrect++;
           });
           if (subCorrect === 4) isCorrect = true;
         } else if (q.questionType === 'short_answer') {
@@ -173,7 +178,7 @@ export function computeClassAnalytics(allSessions, allExamsList, classId) {
           const cleanTarget = String(q.correctAnswer || '').trim().replace(/,/g, '.');
           if (cleanUser === cleanTarget && cleanTarget !== '') isCorrect = true;
         } else {
-          if (uAns === q.correctAnswer && q.correctAnswer) isCorrect = true;
+          if (String(uAns || '').trim().toUpperCase() === String(q.correctAnswer || '').trim().toUpperCase() && q.correctAnswer) isCorrect = true;
         }
 
         const decodedTags = decodeTags(q.tags);

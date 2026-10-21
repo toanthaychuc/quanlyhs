@@ -730,10 +730,82 @@ export const normalizeLatexString = (str = '') => {
   text = replaceMacroWithBraces(text, '\\heva', c => `$\\heva{${c}}$`);
   text = replaceMacroWithBraces(text, '\\hoac', c => `$\\hoac{${c}}$`);
 
-  text = replaceMacroWithBraces(text, '\\textbf', c => `**${c}**`);
-  text = replaceMacroWithBraces(text, '\\textit', c => `*${c}*`);
-  text = replaceMacroWithBraces(text, '\\underline', c => `<u>${c}</u>`);
-  text = text.replace(/\{\s*\\(it|bf)(?![a-zA-Z])\s*([^}]+)\}/g, (match, type, content) => type === 'it' ? `*${content}*` : `**${content}**`);
+  const unwrapInnerBraces = (str) => {
+    let inner = (str || '').trim();
+    inner = inner.replace(/^\\(?:bf|boldmath)\s*/, '');
+    inner = inner.replace(/^\\text\{([^}]+)\}$/, '$1');
+    while (inner.startsWith('{') && inner.endsWith('}')) {
+      let d = 0;
+      let ok = true;
+      for (let j = 0; j < inner.length - 1; j++) {
+        if (inner[j] === '{') d++;
+        else if (inner[j] === '}') d--;
+        if (d === 0) { ok = false; break; }
+      }
+      if (ok) inner = inner.slice(1, -1).trim();
+      else break;
+    }
+    return inner;
+  };
+
+  text = replaceMacroWithBraces(text, '\\textbf', c => `**${unwrapInnerBraces(c)}**`);
+  text = replaceMacroWithBraces(text, '\\textit', c => `*${unwrapInnerBraces(c)}*`);
+  text = replaceMacroWithBraces(text, '\\underline', c => `<u>${unwrapInnerBraces(c)}</u>`);
+
+  // Xử lý các nhóm đổi font có ngoặc nhọn: {\bf ...}, {\it ...}, {\rm ...}, {\em ...} (hỗ trợ ngoặc lồng như {\bf{sai}})
+  let balancedFontResult = '';
+  let fIdx = 0;
+  while (fIdx < text.length) {
+    const fMatch = text.slice(fIdx).match(/^\{\s*\\(bf|it|rm|em)(?:series)?(?![a-zA-Z])/);
+    if (!fMatch) {
+      balancedFontResult += text[fIdx];
+      fIdx++;
+      continue;
+    }
+
+    const fontType = fMatch[1];
+    const prefixLen = fMatch[0].length;
+    let depth = 1;
+    let closeIdx = -1;
+
+    for (let k = fIdx + 1; k < text.length; k++) {
+      if (text[k] === '{') depth++;
+      else if (text[k] === '}') {
+        depth--;
+        if (depth === 0) {
+          closeIdx = k;
+          break;
+        }
+      }
+    }
+
+    if (closeIdx === -1) {
+      balancedFontResult += text[fIdx];
+      fIdx++;
+      continue;
+    }
+
+    let inner = text.slice(fIdx + prefixLen, closeIdx);
+    inner = unwrapInnerBraces(inner);
+
+    if (fontType === 'it' || fontType === 'em') {
+      balancedFontResult += `*${inner}*`;
+    } else if (fontType === 'bf') {
+      balancedFontResult += `**${inner}**`;
+    } else {
+      balancedFontResult += inner;
+    }
+
+    fIdx = closeIdx + 1;
+  }
+  text = balancedFontResult;
+
+  // Xử lý \bf{...} hoặc \it{...} trực tiếp (không có ngoặc mở ở trước \bf)
+  text = text.replace(/\\bf\s*\{([^{}]+)\}/g, (m, c) => `**${unwrapInnerBraces(c)}**`);
+  text = text.replace(/\\it\s*\{([^{}]+)\}/g, (m, c) => `*${unwrapInnerBraces(c)}*`);
+
+  // Xử lý \bf từ đơn (ví dụ \bf sai hoặc \bf đúng)
+  text = text.replace(/\\bf\s+([a-zA-Z0-9_\u00C0-\u024F\u1EA0-\u1EF9]+)/g, '**$1**');
   text = text.replace(/\\(?:bfseries|rm)\b/g, '');
 
   // 14. Các macro phụ trợ trong ex_test: \boxEX, \EXbox, \circled, \circEX, \squareEX, \TF

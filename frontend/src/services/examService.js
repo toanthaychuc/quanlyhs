@@ -242,6 +242,308 @@ export async function getStudentHistory(studentId) {
   }
 }
 
+/**
+ * Trích xuất đáp án của học sinh cho câu hỏi q (ở vị trí index idx trong đề thi).
+ * Hỗ trợ các trường hợp:
+ * 1. Khớp chính xác ID: answers[q.id]
+ * 2. Khớp trực tiếp theo index: answers[idx], answers[String(idx)], answers[`q_${idx}`]
+ * 3. Khớp theo hậu tố số thứ tự câu hỏi: q_timestamp_12 -> 12 == idx
+ * 4. Khớp theo hậu tố số thứ tự trong ID câu hỏi gốc
+ */
+export function getStudentAnswerForQuestion(answers, q, idx) {
+  if (!answers || typeof answers !== 'object') return undefined;
+
+  // 1. Khớp chính xác theo ID câu hỏi
+  if (q?.id && answers[q.id] !== undefined) {
+    return answers[q.id];
+  }
+
+  // 2. Khớp theo index trực tiếp (ví dụ key là '0', 0, hoặc 'q_0')
+  if (idx !== undefined && idx !== null) {
+    if (answers[idx] !== undefined) return answers[idx];
+    const sIdx = String(idx);
+    if (answers[sIdx] !== undefined) return answers[sIdx];
+    if (answers[`q_${sIdx}`] !== undefined) return answers[`q_${sIdx}`];
+  }
+
+  const entries = Object.entries(answers);
+
+  // 3. Khớp theo hậu tố index (_0, _1, _12...) của ID trong answers
+  if (idx !== undefined && idx !== null) {
+    const targetIdx = Number(idx);
+    const indexMatch = entries.find(([k]) => {
+      const match = k.match(/(?:^|_)(\d+)$/);
+      return match && parseInt(match[1], 10) === targetIdx;
+    });
+    if (indexMatch !== undefined) {
+      return indexMatch[1];
+    }
+  }
+
+  // 4. Khớp theo hậu tố index của chính q.id nếu q.id có dạng ..._idx
+  if (q?.id) {
+    const qMatch = q.id.match(/(?:^|_)(\d+)$/);
+    if (qMatch) {
+      const qIdx = parseInt(qMatch[1], 10);
+      const fallbackEntry = entries.find(([k]) => {
+        const m = k.match(/(?:^|_)(\d+)$/);
+        return m && parseInt(m[1], 10) === qIdx;
+      });
+      if (fallbackEntry !== undefined) return fallbackEntry[1];
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Tính điểm cho bài làm của học sinh dựa trên đề thi và danh sách đáp án.
+ * Hỗ trợ 4 dạng câu hỏi:
+ * - Trắc nghiệm 4 lựa chọn (multiple_choice): so sánh chuỗi đáp án (A, B, C, D)
+ * - Đúng/Sai (true_false): tính số ý đúng (1-4 ý) và áp dụng thang điểm bậc thang
+ * - Trả lời ngắn (short_answer): so sánh chuỗi (chuẩn hóa dấu phẩy/chấm) và so sánh giá trị số
+ * - Tự luận (essay): nếu có
+ * Hỗ trợ cả điểm theo cấu hình pointsConfig (hoặc points_config) lẫn thang điểm 10 mặc định.
+ */
+export function calculateExamScore(exam, answers) {
+  if (!exam || !Array.isArray(exam.questions)) {
+    return { score: 0, correctCount: 0, totalQuestions: 0 };
+  }
+
+  let correctCount = 0;
+  let totalCalculatedScore = 0;
+  const pConfig = exam.pointsConfig || exam.points_config;
+  const hasPointsConfig = !!(pConfig && (
+    pConfig.multipleChoice !== undefined ||
+    pConfig.shortAnswer !== undefined ||
+    pConfig.trueFalse !== undefined
+  ));
+
+  exam.questions.forEach((q, idx) => {
+    const uAns = getStudentAnswerForQuestion(answers, q, idx);
+
+    if (q.questionType === 'true_false') {
+      let subCorrect = 0;
+      let hasAnyPick = false;
+      (q.options || []).forEach((opt, optIdx) => {
+        let userPick = uAns?.[opt.key] 
+          ?? uAns?.[opt.key?.toLowerCase()] 
+          ?? uAns?.[opt.key?.toUpperCase()];
+        if (userPick === undefined && Array.isArray(uAns)) {
+          userPick = uAns[optIdx];
+        }
+        if (userPick !== undefined && userPick !== null && userPick !== '') {
+          hasAnyPick = true;
+        }
+
+        const normUser = (userPick === true || userPick === 'T' || userPick === 'true' || userPick === 'Đúng')
+          ? 'T'
+          : ((userPick === false || userPick === 'F' || userPick === 'false' || userPick === 'Sai') ? 'F' : userPick);
+
+        const expected = Boolean(opt.isCorrectTrue) ? 'T' : 'F';
+        if (normUser === expected) {
+          subCorrect += 1;
+        }
+      });
+
+      if (subCorrect === 4 && hasAnyPick) {
+        correctCount += 1;
+      }
+
+      if (hasPointsConfig && hasAnyPick) {
+        const tfConfig = pConfig.trueFalse || {};
+        if (subCorrect === 1) totalCalculatedScore += (parseFloat(tfConfig.correct1) || 0);
+        else if (subCorrect === 2) totalCalculatedScore += (parseFloat(tfConfig.correct2) || 0);
+        else if (subCorrect === 3) totalCalculatedScore += (parseFloat(tfConfig.correct3) || 0);
+        else if (subCorrect === 4) totalCalculatedScore += (parseFloat(tfConfig.correct4) || 0);
+      }
+    } else if (q.questionType === 'short_answer') {
+      const cleanUser = String(uAns || '').trim().replace(/,/g, '.');
+      const cleanTarget = String(q.correctAnswer || '').trim().replace(/,/g, '.');
+      const numUser = Number(cleanUser);
+      const numTarget = Number(cleanTarget);
+      const isNumericMatch = !isNaN(numUser) && !isNaN(numTarget) && cleanUser !== '' && cleanTarget !== '' && numUser === numTarget;
+
+      if ((cleanUser !== '' && cleanUser === cleanTarget) || isNumericMatch) {
+        correctCount += 1;
+        if (hasPointsConfig) totalCalculatedScore += (parseFloat(pConfig.shortAnswer) || 0);
+      }
+    } else if (q.questionType === 'essay') {
+      // essay không chấm tự động
+    } else {
+      // Multiple choice (mặc định)
+      const uVal = (uAns !== undefined && uAns !== null) ? String(uAns).trim().toUpperCase() : '';
+      const targetVal = (q.correctAnswer !== undefined && q.correctAnswer !== null) ? String(q.correctAnswer).trim().toUpperCase() : '';
+      if (uVal !== '' && targetVal !== '' && uVal === targetVal) {
+        correctCount += 1;
+        if (hasPointsConfig) totalCalculatedScore += (parseFloat(pConfig.multipleChoice) || 0);
+      }
+    }
+  });
+
+  const totalQuestions = exam.questions.length;
+  const score = hasPointsConfig
+    ? Number(totalCalculatedScore.toFixed(2))
+    : (totalQuestions > 0 ? Number(((correctCount / totalQuestions) * 10).toFixed(1)) : 0);
+
+  return { score, correctCount, totalQuestions };
+}
+
+/**
+ * Tự động chấm lại toàn bộ các bài làm của học sinh cho đề thi `exam`
+ * Cập nhật trên:
+ * - Supabase bảng `exam_sessions`
+ * - Supabase bảng `system_settings` (các bài nộp phòng thi exam_subs_*)
+ * - LocalStorage `HISTORY_KEY` (edumanager_completed_exams)
+ * - LocalStorage `ROOM_SUBMISSIONS_KEY` (edumanager_room_submissions)
+ * Bảo tồn tuyệt đối dữ liệu nộp bài hiện có (thời gian làm, mã học sinh, đáp án chọn, v.v.)
+ */
+export async function regradeExamSessions(exam) {
+  if (!exam || !exam.id || !Array.isArray(exam.questions) || exam.questions.length === 0) {
+    return { success: false, updatedCount: 0 };
+  }
+
+  let localHistoryUpdatedCount = 0;
+  let localRoomUpdatedCount = 0;
+  let dbUpdatedCount = 0;
+
+  // 1. Cập nhật LocalStorage HISTORY_KEY
+  try {
+    const all = JSON.parse(localStorage.getItem(HISTORY_KEY) || '{}');
+    let historyChanged = false;
+    Object.keys(all).forEach(studentId => {
+      const studentHistory = all[studentId];
+      if (studentHistory && studentHistory[exam.id]) {
+        const sessions = Array.isArray(studentHistory[exam.id]) ? studentHistory[exam.id] : [studentHistory[exam.id]];
+        sessions.forEach(session => {
+          const recalculated = calculateExamScore(exam, session.answers);
+          if (session.score !== recalculated.score || session.correctCount !== recalculated.correctCount || session.totalQuestions !== recalculated.totalQuestions) {
+            session.score = recalculated.score;
+            session.correctCount = recalculated.correctCount;
+            session.totalQuestions = recalculated.totalQuestions;
+            historyChanged = true;
+            localHistoryUpdatedCount++;
+          }
+        });
+        studentHistory[exam.id] = sessions;
+      }
+    });
+    if (historyChanged) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(all));
+    }
+  } catch (err) {
+    console.warn('[examService] Error regrading local history:', err);
+  }
+
+  // 2. Cập nhật LocalStorage ROOM_SUBMISSIONS_KEY
+  try {
+    const allRooms = JSON.parse(localStorage.getItem(ROOM_SUBMISSIONS_KEY) || '{}');
+    let roomChanged = false;
+    Object.keys(allRooms).forEach(roomId => {
+      const subs = allRooms[roomId] || [];
+      subs.forEach(sub => {
+        if (sub.examId === exam.id) {
+          const recalculated = calculateExamScore(exam, sub.answers);
+          if (sub.score !== recalculated.score || sub.correctCount !== recalculated.correctCount || sub.totalQuestions !== recalculated.totalQuestions) {
+            sub.score = recalculated.score;
+            sub.correctCount = recalculated.correctCount;
+            sub.totalQuestions = recalculated.totalQuestions;
+            roomChanged = true;
+            localRoomUpdatedCount++;
+          }
+        }
+      });
+    });
+    if (roomChanged) {
+      localStorage.setItem(ROOM_SUBMISSIONS_KEY, JSON.stringify(allRooms));
+    }
+  } catch (err) {
+    console.warn('[examService] Error regrading local room submissions:', err);
+  }
+
+  // 3. Cập nhật Supabase exam_sessions
+  if (isSupabaseReady()) {
+    try {
+      const { data, error } = await supabase
+        .from('exam_sessions')
+        .select('id, answers, score, correct_count, total_questions')
+        .eq('exam_id', exam.id);
+
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const updates = [];
+        for (const row of data) {
+          const recalculated = calculateExamScore(exam, row.answers);
+          if (row.score !== recalculated.score || row.correct_count !== recalculated.correctCount || row.total_questions !== recalculated.totalQuestions) {
+            updates.push(
+              supabase
+                .from('exam_sessions')
+                .update({
+                  score: recalculated.score,
+                  correct_count: recalculated.correctCount,
+                  total_questions: recalculated.totalQuestions
+                })
+                .eq('id', row.id)
+            );
+            dbUpdatedCount++;
+          }
+        }
+        if (updates.length > 0) {
+          await Promise.all(updates);
+        }
+      }
+    } catch (err) {
+      console.warn('[examService] Error regrading supabase exam_sessions:', err);
+    }
+
+    // 4. Cập nhật Supabase system_settings cho exam_subs_*
+    try {
+      const { data: roomSettings, error: roomErr } = await supabase
+        .from('system_settings')
+        .select('key, value')
+        .like('key', 'exam_subs_%');
+
+      if (!roomErr && Array.isArray(roomSettings)) {
+        for (const item of roomSettings) {
+          if (Array.isArray(item.value)) {
+            let hasChange = false;
+            const updatedSubs = item.value.map(sub => {
+              if (sub.examId === exam.id) {
+                const recalculated = calculateExamScore(exam, sub.answers);
+                if (sub.score !== recalculated.score || sub.correctCount !== recalculated.correctCount || sub.totalQuestions !== recalculated.totalQuestions) {
+                  hasChange = true;
+                  return {
+                    ...sub,
+                    score: recalculated.score,
+                    correctCount: recalculated.correctCount,
+                    totalQuestions: recalculated.totalQuestions
+                  };
+                }
+              }
+              return sub;
+            });
+            if (hasChange) {
+              await supabase
+                .from('system_settings')
+                .upsert({ key: item.key, value: updatedSubs }, { onConflict: 'key' });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[examService] Error regrading system_settings room subs:', err);
+    }
+  }
+
+  const updatedCount = Math.max(dbUpdatedCount, localHistoryUpdatedCount + localRoomUpdatedCount);
+  return {
+    success: true,
+    updatedCount,
+    dbUpdatedCount,
+    localHistoryUpdatedCount,
+    localRoomUpdatedCount
+  };
+}
+
 export async function deleteExamSession(sessionId, studentId, examId, completedAt) {
   // Try to delete from Supabase if ready and has ID
   if (isSupabaseReady() && sessionId) {
