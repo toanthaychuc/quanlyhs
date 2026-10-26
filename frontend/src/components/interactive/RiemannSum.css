@@ -32,6 +32,10 @@
   border: 1px solid var(--border-color);
 }
 
+.preset-group {
+  border-left: 3.5px solid var(--primary-color, #4f46e5);
+}
+
 .control-group label {
   font-size: 0.875rem;
   font-weight: 600;

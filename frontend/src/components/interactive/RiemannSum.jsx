@@ -80,7 +80,167 @@ const calculateDefiniteIntegral = (f, g, a, b, n = 1000) => {
   return (sum * h) / 3;
 };
 
+const PRESETS = [
+  {
+    id: 'p1_parabol_basic',
+    name: '1. y = x² - 2x và trục Ox trên [0, 2] (Đề THPT QG)',
+    latex: 'x^2 - 2x',
+    expr: 'x^2 - 2*x',
+    a: 0,
+    b: 2,
+    hasSecond: false,
+    latexG: '0',
+    exprG: '0',
+    pan: { x: 0, y: 40 },
+    scale: 80
+  },
+  {
+    id: 'p2_cubic',
+    name: '2. y = x³ - 3x và trục Ox trên [0, √3] (Đề THPT QG 2021)',
+    latex: 'x^3 - 3x',
+    expr: 'x^3 - 3*x',
+    a: 0,
+    b: 1.73,
+    hasSecond: false,
+    latexG: '0',
+    exprG: '0',
+    pan: { x: 0, y: 30 },
+    scale: 75
+  },
+  {
+    id: 'p3_line_and_parabola',
+    name: '3. y = 2x và parabol y = x² trên [0, 2] (Đề Tham Khảo BGD)',
+    latex: '2x',
+    expr: '2*x',
+    a: 0,
+    b: 2,
+    hasSecond: true,
+    latexG: 'x^2',
+    exprG: 'x^2',
+    pan: { x: -20, y: 60 },
+    scale: 70
+  },
+  {
+    id: 'p4_parabol_down',
+    name: '4. Parabol y = 4 - x² và trục Ox trên [-2, 2] (Sở Hà Nội)',
+    latex: '4 - x^2',
+    expr: '4 - x^2',
+    a: -2,
+    b: 2,
+    hasSecond: false,
+    latexG: '0',
+    exprG: '0',
+    pan: { x: 0, y: 70 },
+    scale: 60
+  },
+  {
+    id: 'p5_sqrt_and_line',
+    name: '5. y = √x và y = x trên [0, 1] (Sở Nam Định)',
+    latex: '\\sqrt{x}',
+    expr: 'sqrt(x)',
+    a: 0,
+    b: 1,
+    hasSecond: true,
+    latexG: 'x',
+    exprG: 'x',
+    pan: { x: 0, y: 50 },
+    scale: 120
+  },
+  {
+    id: 'p6_parabol_shift',
+    name: '6. y = x² - 4x + 3 và trục Ox trên [1, 3] (Chuyên Lam Sơn)',
+    latex: 'x^2 - 4x + 3',
+    expr: 'x^2 - 4*x + 3',
+    a: 1,
+    b: 3,
+    hasSecond: false,
+    latexG: '0',
+    exprG: '0',
+    pan: { x: -40, y: 30 },
+    scale: 75
+  },
+  {
+    id: 'p7_exp',
+    name: '7. y = eˣ và trục Ox trên [0, 2] (Chuyên Phan Bội Châu)',
+    latex: 'e^x',
+    expr: 'exp(x)',
+    a: 0,
+    b: 2,
+    hasSecond: false,
+    latexG: '0',
+    exprG: '0',
+    pan: { x: 0, y: 90 },
+    scale: 45
+  },
+  {
+    id: 'p8_sin',
+    name: '8. y = sin(x) và trục Ox trên [0, π] (Sở Bắc Ninh)',
+    latex: '\\sin(x)',
+    expr: 'sin(x)',
+    a: 0,
+    b: 3.14,
+    hasSecond: false,
+    latexG: '0',
+    exprG: '0',
+    pan: { x: -30, y: 40 },
+    scale: 80
+  },
+  {
+    id: 'p9_two_parabolas',
+    name: '9. y = 2 - x² và y = x² trên [-1, 1] (Chuyên KHTN)',
+    latex: '2 - x^2',
+    expr: '2 - x^2',
+    a: -1,
+    b: 1,
+    hasSecond: true,
+    latexG: 'x^2',
+    exprG: 'x^2',
+    pan: { x: 0, y: 40 },
+    scale: 85
+  },
+  {
+    id: 'p10_hyperbola',
+    name: '10. y = 1/x và trục Ox trên [1, e] (Sở Vĩnh Phúc)',
+    latex: '\\frac{1}{x}',
+    expr: '1/x',
+    a: 1,
+    b: 2.72,
+    hasSecond: false,
+    latexG: '0',
+    exprG: '0',
+    pan: { x: -30, y: 40 },
+    scale: 80
+  },
+  {
+    id: 'p11_circle_cap',
+    name: '11. Cung tròn y = √(4 - x²) và y = 1 (Chuyên ĐH Vinh)',
+    latex: '\\sqrt{4 - x^2}',
+    expr: 'sqrt(4 - x^2)',
+    a: -1.73,
+    b: 1.73,
+    hasSecond: true,
+    latexG: '1',
+    exprG: '1',
+    pan: { x: 0, y: 50 },
+    scale: 85
+  },
+  {
+    id: 'p12_sgk_sqrt',
+    name: '12. y = √x trên [0, 4] (Cơ bản SGK)',
+    latex: '\\sqrt{x}',
+    expr: 'sqrt(x)',
+    a: 0,
+    b: 4,
+    hasSecond: false,
+    latexG: '0',
+    exprG: '0',
+    pan: { x: 0, y: 50 },
+    scale: 60
+  }
+];
+
 const RiemannSum = () => {
+  const [selectedPresetId, setSelectedPresetId] = useState('p12_sgk_sqrt');
   const [customExpr, setCustomExpr] = useState('sqrt(x)'); // For evaluating
   const [customLatex, setCustomLatex] = useState('\\sqrt{x}'); // For MathLive
   const [customA, setCustomA] = useState(0);
@@ -88,22 +248,43 @@ const RiemannSum = () => {
   const [method, setMethod] = useState('left'); // 'left', 'right', 'mid'
   const [n, setN] = useState(10);
   const [useTwoFuncs, setUseTwoFuncs] = useState(false);
-  const [customExprG, setCustomExprG] = useState('sqrt(3*x)');
-  const [customLatexG, setCustomLatexG] = useState('\\sqrt{3x}');
+  const [customExprG, setCustomExprG] = useState('0');
+  const [customLatexG, setCustomLatexG] = useState('0');
   const mfRef = useRef(null);
   const mfGRef = useRef(null);
+  const isInternalChangeRef = useRef(false);
+  const isInternalChangeGRef = useRef(false);
+
+  // Sync MathLive field f(x)
+  useEffect(() => {
+    const mf = mfRef.current;
+    if (!mf) return;
+    if (!isInternalChangeRef.current && mf.value !== customLatex) {
+      mf.value = customLatex;
+    }
+    isInternalChangeRef.current = false;
+  }, [customLatex]);
+
+  // Sync MathLive field g(x)
+  useEffect(() => {
+    const mfG = mfGRef.current;
+    if (!mfG) return;
+    if (!isInternalChangeGRef.current && mfG.value !== customLatexG) {
+      mfG.value = customLatexG;
+    }
+    isInternalChangeGRef.current = false;
+  }, [customLatexG, useTwoFuncs]);
 
   useEffect(() => {
     const mf = mfRef.current;
     if (!mf) return;
     
-    // Set initial value
     mf.value = customLatex;
     
     const handleInput = () => {
+      isInternalChangeRef.current = true;
       setCustomLatex(mf.value);
-      let ascii = mf.getValue('ascii-math');
-      // Sometimes ascii-math returns \cdot for multiplication, or pi
+      let ascii = mf.getValue('ascii-math') || '';
       ascii = ascii.replace(/\\cdot/g, '*');
       setCustomExpr(ascii);
     };
@@ -120,15 +301,37 @@ const RiemannSum = () => {
     mfG.value = customLatexG;
     
     const handleInputG = () => {
+      isInternalChangeGRef.current = true;
       setCustomLatexG(mfG.value);
-      let ascii = mfG.getValue('ascii-math');
+      let ascii = mfG.getValue('ascii-math') || '';
       ascii = ascii.replace(/\\cdot/g, '*');
       setCustomExprG(ascii);
     };
     
     mfG.addEventListener('input', handleInputG);
     return () => mfG.removeEventListener('input', handleInputG);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useTwoFuncs]);
+
+  // Handle Preset selection
+  const handleSelectPreset = (e) => {
+    const pId = e.target.value;
+    setSelectedPresetId(pId);
+    const target = PRESETS.find(p => p.id === pId);
+    if (!target) return;
+    
+    setCustomLatex(target.latex);
+    setCustomExpr(target.expr);
+    setCustomA(target.a);
+    setCustomB(target.b);
+    setUseTwoFuncs(!!target.hasSecond);
+    if (target.hasSecond) {
+      setCustomLatexG(target.latexG);
+      setCustomExprG(target.exprG);
+    }
+    if (target.pan) setPan(target.pan);
+    if (target.scale) setScale(target.scale);
+  };
   
   // Viewport/panning state
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -218,6 +421,7 @@ const RiemannSum = () => {
       svgElement.addEventListener('wheel', handleWheel, { passive: false });
       return () => svgElement.removeEventListener('wheel', handleWheel);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scale]);
 
   // Handle reset pan
@@ -418,6 +622,21 @@ const RiemannSum = () => {
       <div className="riemann-sidebar">
         <h3 className="riemann-title">Diện tích hình phẳng</h3>
         
+        {/* Preset Selector */}
+        <div className="control-group preset-group">
+          <label htmlFor="riemann-preset-select">Bài toán mẫu từ các đề thi:</label>
+          <select 
+            id="riemann-preset-select"
+            className="func-select" 
+            value={selectedPresetId} 
+            onChange={handleSelectPreset}
+          >
+            {PRESETS.map(p => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="control-group">
           <label>Hàm số f(x)</label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
@@ -584,7 +803,7 @@ const RiemannSum = () => {
             {/* Riemann Rectangles */}
             {rects.map((rect, i) => {
               const { px: px1, py: py1 } = toPx(rect.xMath, rect.y1);
-              const { px: px2, py: py2 } = toPx(rect.xMath + rect.wMath, rect.y2);
+              const { py: py2 } = toPx(rect.xMath + rect.wMath, rect.y2);
               
               const x = px1;
               const y = Math.min(py1, py2);

@@ -41,3 +41,13 @@ backend/tikz_cache/
 scratch/
 test_*.mjs
 test_*.js
+fix_*.js
+*.scratch.*
+add_parallel.js
+inject_origin.js
+remove_duplicate.js
+rename_*.js
+replace_shapes.js
+swap_xy.js
+update_parallel_line.js
+check_supabase.js

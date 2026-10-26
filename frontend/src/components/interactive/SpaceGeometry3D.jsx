@@ -6,6 +6,21 @@ import * as THREE from 'three';
 import { useRole } from '../../context/RoleContext';
 import { getSetting, saveSetting } from '../../services/settingService';
 import './SpaceGeometry3D.css';
+import {
+  GeoGebraToolbar,
+  GeoGebraMoveIcon,
+  GeoGebraPlaneIcon,
+  GeoGebraPointIcon,
+  GeoGebraLineIcon,
+  GeoGebraParallelIcon,
+  GeoGebraPerpIcon,
+  GeoGebraPerpBisectorIcon,
+  GeoGebraIntersectIcon
+} from './GeoGebraToolbar';
+import { InteractiveEdge } from './InteractiveEdge';
+import { EdgePointModal, IntersectionModal, PerpendicularModal, PerpendicularBisectorModal
+} from './GeometryModals';
+import { CanvasInstructionBar, SELECTION_SLOT_COLORS } from './CanvasInstructionBar';
 
 const SHAPE_CATEGORIES = [
   {
@@ -1108,11 +1123,11 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
   );
 };
 
-const PlaneMesh = ({ vertices, selected, color }) => {
-  const geom = useMemo(() => {
-    if (selected.length < 3) return null;
+const PlaneMesh = ({ vertices, selected, color = '#3b82f6', opacity = 0.35, borderColor }) => {
+  const { geometry, orderedPts } = useMemo(() => {
+    if (selected.length < 3) return { geometry: null, orderedPts: [] };
     const pts = selected.map(v => vertices[v]).filter(Boolean);
-    if (pts.length < 3) return null;
+    if (pts.length < 3) return { geometry: null, orderedPts: [] };
 
     const n = new THREE.Vector3()
       .crossVectors(new THREE.Vector3().subVectors(pts[1], pts[0]), new THREE.Vector3().subVectors(pts[2], pts[0]))
@@ -1128,33 +1143,40 @@ const PlaneMesh = ({ vertices, selected, color }) => {
       return Math.atan2(da.dot(w), da.dot(u)) - Math.atan2(db.dot(w), db.dot(u));
     });
 
-    const geometry = new THREE.BufferGeometry().setFromPoints(ordered);
+    const geom = new THREE.BufferGeometry().setFromPoints(ordered);
     const indices = [];
     for (let i = 1; i < ordered.length - 1; i++) indices.push(0, i, i + 1);
-    geometry.setIndex(indices);
-    geometry.computeVertexNormals();
-    return geometry;
+    geom.setIndex(indices);
+    geom.computeVertexNormals();
+    return { geometry: geom, orderedPts: ordered };
   }, [vertices, selected]);
 
-  if (!geom) return null;
+  if (!geometry) return null;
+
+  const loopPts = orderedPts.length >= 3 ? [...orderedPts, orderedPts[0]] : null;
 
   return (
-    <mesh geometry={geom}>
-      <meshBasicMaterial color={color} transparent opacity={0.3} side={THREE.DoubleSide} depthWrite={false} />
-    </mesh>
+    <group>
+      <mesh geometry={geometry}>
+        <meshBasicMaterial color={color} transparent opacity={opacity} side={THREE.DoubleSide} depthWrite={false} />
+      </mesh>
+      {loopPts && (
+        <Line points={loopPts} color={borderColor || color} lineWidth={2.5} depthTest={false} renderOrder={9} />
+      )}
+    </group>
   );
 };
 
 const IntersectionLine = ({ point, dir }) => {
-  if (!point || !dir) return null;
-  
   const pts = useMemo(() => {
+    if (!point || !dir) return null;
     return [
       new THREE.Vector3().copy(point).add(dir.clone().multiplyScalar(10)),
       new THREE.Vector3().copy(point).add(dir.clone().multiplyScalar(-10))
     ];
   }, [point, dir]);
-  
+
+  if (!pts) return null;
   return <Line points={pts} color="#8b5cf6" lineWidth={4} />;
 };
 
@@ -1291,6 +1313,34 @@ const getPlanesIntersection = (vertices, plane1, plane2) => {
   
   return { point: pt, dir };
 };
+
+const RightAngleSymbol = ({ p1, p2, p3 }) => {
+  if (!p1 || !p2 || !p3) return null;
+  const v1 = new THREE.Vector3().subVectors(p1, p2);
+  const v2 = new THREE.Vector3().subVectors(p3, p2);
+  const d1 = v1.length();
+  const d2 = v2.length();
+  if (d1 < 1e-4 || d2 < 1e-4) return null;
+
+  const dir1 = v1.clone().divideScalar(d1);
+  const dir2 = v2.clone().divideScalar(d2);
+
+  // If collinear (angle ~ 0 or ~ 180), cannot draw right angle
+  if (Math.abs(Math.abs(dir1.dot(dir2)) - 1) < 1e-4) return null;
+
+  const size = Math.min(0.2, d1 * 0.22, d2 * 0.22);
+
+  const pt1 = new THREE.Vector3().copy(p2).addScaledVector(dir1, size);
+  const pt2 = new THREE.Vector3().copy(pt1).addScaledVector(dir2, size);
+  const pt3 = new THREE.Vector3().copy(p2).addScaledVector(dir2, size);
+
+  return (
+    <group>
+      <Line points={[pt1, pt2, pt3]} color="#ef4444" lineWidth={1.5} dashed={false} />
+    </group>
+  );
+};
+
 
 const ShapeEdge = ({ edge, shape, useDashed }) => {
   const solidRef = useRef();
@@ -1512,24 +1562,32 @@ const CustomConnectionLine = ({ p1, p2, shape, useDashed, isExternalLine }) => {
   );
 };
 
-const formatRatio = (ratio, startLabel, endLabel) => {
+const formatRatio = (ratio, startLabel = 'A', endLabel = 'B') => {
   if (typeof ratio !== 'number' || isNaN(ratio)) return '';
   const edgeStr = startLabel && endLabel ? ` ${startLabel}${endLabel}` : '';
-  if (Math.abs(ratio - 0.5) < 0.015) return `1/2${edgeStr}`;
+  if (Math.abs(ratio - 0.5) < 0.015) return `1/2${edgeStr} (Trung điểm)`;
+  if (Math.abs(ratio - (-1)) < 0.015) return `${startLabel} là t.đ ${endLabel ? `M${endLabel}` : 'đoạn'}`;
+  if (Math.abs(ratio - 2) < 0.015) return `${endLabel} là t.đ ${startLabel ? `${startLabel}M` : 'đoạn'}`;
   if (Math.abs(ratio - 1 / 3) < 0.015) return `1/3${edgeStr}`;
   if (Math.abs(ratio - 2 / 3) < 0.015) return `2/3${edgeStr}`;
   if (Math.abs(ratio - 0.25) < 0.015) return `1/4${edgeStr}`;
   if (Math.abs(ratio - 0.75) < 0.015) return `3/4${edgeStr}`;
+  if (ratio < 0) return `k = ${ratio}${edgeStr} (Tia đối)`;
+  if (ratio > 1) return `k = ${ratio}${edgeStr} (Kéo dài)`;
   return `${Math.round(ratio * 100)}%${edgeStr}`;
 };
 
-const formatRatioBadge = (ratio) => {
+const formatRatioBadge = (ratio, startLabel, endLabel) => {
   if (typeof ratio !== 'number' || isNaN(ratio)) return '1/2';
   if (Math.abs(ratio - 0.5) < 0.015) return '1/2';
+  if (Math.abs(ratio - (-1)) < 0.015) return startLabel ? `${startLabel} t.đ` : 'k = -1';
+  if (Math.abs(ratio - 2) < 0.015) return endLabel ? `${endLabel} t.đ` : 'k = 2';
   if (Math.abs(ratio - 1 / 3) < 0.015) return '1/3';
   if (Math.abs(ratio - 2 / 3) < 0.015) return '2/3';
   if (Math.abs(ratio - 0.25) < 0.015) return '1/4';
   if (Math.abs(ratio - 0.75) < 0.015) return '3/4';
+  if (ratio < 0) return `k = ${Number(ratio.toFixed(2))}`;
+  if (ratio > 1) return `k = ${Number(ratio.toFixed(2))}`;
   return `${Math.round(ratio * 100)}%`;
 };
 
@@ -1541,6 +1599,11 @@ const DraggableVertex = ({
   isCustom,
   isEditing,
   edgeConstraint,
+  isClickable,
+  isSelected,
+  selectionRole,
+  selectionColor,
+  onClick,
   onDragStart,
   onDrag,
   onDragRatio,
@@ -1550,6 +1613,8 @@ const DraggableVertex = ({
   const [hovered, setHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
+  const pointerDownPosRef = useRef({ x: 0, y: 0 });
+  const lastClickTimeRef = useRef(0);
   const dragPlaneRef = useRef(new THREE.Plane());
   const intersectPointRef = useRef(new THREE.Vector3());
   const windowListenersRef = useRef({ move: null, up: null });
@@ -1579,8 +1644,10 @@ const DraggableVertex = ({
   }, []);
 
   const handlePointerDown = (e) => {
-    if (!canDrag) return;
     e.stopPropagation();
+    pointerDownPosRef.current = { x: e.clientX, y: e.clientY };
+
+    if (!canDrag) return;
     isDraggingRef.current = true;
     setIsDragging(true);
     document.body.style.cursor = 'grabbing';
@@ -1619,18 +1686,23 @@ const DraggableVertex = ({
           t = (d * b - eDot) / c;
         }
 
-        let targetT = Math.max(0.01, Math.min(0.99, t));
+        let targetT = Math.max(-5, Math.min(5, t));
 
-        // Snap to common proportions: 1/4, 1/3, 1/2, 2/3, 3/4
         const snapList = [
+          { val: -2 },
+          { val: -1 },
+          { val: -0.5 },
           { val: 0.5 },
           { val: 1 / 3 },
           { val: 2 / 3 },
           { val: 0.25 },
           { val: 0.75 },
+          { val: 1.5 },
+          { val: 2 },
+          { val: 3 },
         ];
         for (const sp of snapList) {
-          if (Math.abs(targetT - sp.val) < 0.025) {
+          if (Math.abs(targetT - sp.val) < 0.035) {
             targetT = sp.val;
             break;
           }
@@ -1690,16 +1762,31 @@ const DraggableVertex = ({
     }
   };
 
+  const handlePointerUp = (e) => {
+    const dx = e.clientX - pointerDownPosRef.current.x;
+    const dy = e.clientY - pointerDownPosRef.current.y;
+    const now = Date.now();
+    if (Math.hypot(dx, dy) <= 6 && isClickable && onClick) {
+      if (now - lastClickTimeRef.current < 250) {
+        e.stopPropagation();
+        return;
+      }
+      lastClickTimeRef.current = now;
+      e.stopPropagation();
+      onClick(label);
+    }
+  };
+
   const handlePointerOver = (e) => {
-    if (canDrag) {
+    if (canDrag || isClickable) {
       e.stopPropagation();
       setHovered(true);
-      document.body.style.cursor = 'grab';
+      document.body.style.cursor = canDrag ? 'grab' : 'pointer';
     }
   };
 
   const handlePointerOut = (e) => {
-    if (canDrag) {
+    if (canDrag || isClickable) {
       e.stopPropagation();
       setHovered(false);
       if (!isDraggingRef.current) {
@@ -1720,16 +1807,17 @@ const DraggableVertex = ({
 
   return (
     <group position={[pos.x, pos.y, pos.z]}>
-      {/* Invisible larger hit target for smooth grab */}
-      {canDrag && (
+      {/* Invisible hit target for smooth grab or direct click */}
+      {(canDrag || isClickable) && (
         <mesh
           visible={false}
           onPointerOver={handlePointerOver}
           onPointerOut={handlePointerOut}
           onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
         >
           <sphereGeometry args={[0.22, 12, 12]} />
-          <meshBasicMaterial transparent opacity={0} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
       )}
 
@@ -1738,17 +1826,31 @@ const DraggableVertex = ({
           onPointerOver={handlePointerOver}
           onPointerOut={handlePointerOut}
           onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
         >
-          <sphereGeometry args={[radius, 24, 24]} />
+          <sphereGeometry args={[isSelected ? radius * 1.35 : radius, 24, 24]} />
           <meshStandardMaterial 
-            color={color} 
-            emissive={isEdgePoint ? (hovered || isDragging ? '#34d399' : '#059669') : (isEditing && !isCustom && hovered ? '#f59e0b' : '#000000')}
-            emissiveIntensity={isEdgePoint ? (hovered || isDragging ? 0.8 : 0.25) : (isEditing && !isCustom && hovered ? 0.5 : 0)}
+            color={isSelected ? (selectionRole === 'picked' ? '#f59e0b' : (selectionColor || '#2563eb')) : color} 
+            emissive={isSelected ? (selectionRole === 'picked' ? '#f59e0b' : (selectionColor || '#2563eb')) : (isEdgePoint ? (hovered || isDragging ? '#34d399' : '#059669') : (isEditing && !isCustom && hovered ? '#f59e0b' : '#000000'))}
+            emissiveIntensity={isSelected ? 0.75 : (isEdgePoint ? (hovered || isDragging ? 0.8 : 0.25) : (isEditing && !isCustom && hovered ? 0.5 : 0))}
           />
         </mesh>
       )}
 
-      {isEdgePoint && (
+      {/* Luminous ring indicator when selected */}
+      {isSelected && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.09, 0.14, 32]} />
+          <meshBasicMaterial 
+            color={selectionRole === 'picked' ? '#f59e0b' : (selectionColor || '#2563eb')} 
+            side={THREE.DoubleSide} 
+            transparent 
+            opacity={0.9} 
+          />
+        </mesh>
+      )}
+
+      {isEdgePoint && !isSelected && (
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.08, 0.11, 24]} />
           <meshBasicMaterial 
@@ -1760,7 +1862,7 @@ const DraggableVertex = ({
         </mesh>
       )}
 
-      {isEditing && !isCustom && (
+      {isEditing && !isCustom && !isSelected && (
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.15, 0.19, 32]} />
           <meshBasicMaterial color={hovered ? '#f59e0b' : '#3b82f6'} side={THREE.DoubleSide} transparent opacity={0.8} />
@@ -1768,9 +1870,9 @@ const DraggableVertex = ({
       )}
 
       {mounted && (
-        <Html center distanceFactor={12} style={{ pointerEvents: 'none', zIndex: 100 }}>
+        <Html center distanceFactor={12} zIndexRange={[100, 0]} style={{ pointerEvents: 'none' }}>
           <div style={{ 
-            color: isEdgePoint ? '#047857' : (isCustom ? '#059669' : (isEditing ? '#1d4ed8' : '#0f172a')), 
+            color: isSelected ? (selectionRole === 'picked' ? '#d97706' : (selectionColor || '#1d4ed8')) : (isEdgePoint ? '#047857' : (isCustom ? '#059669' : (isEditing ? '#1d4ed8' : '#0f172a'))), 
             fontWeight: 'bold', 
             fontSize: isEditing ? '20px' : (isCustom ? '16px' : '18px'), 
             fontFamily: 'serif',
@@ -2092,7 +2194,7 @@ const Plane2DViewer = ({
       addLine(u, v, 'connection');
     });
 
-    // 4. Lines used for intersections in this plane
+    // 4. Lines used for intersections or extended points in this plane
     (customPoints || []).forEach(cp => {
       if (cp.type === 'intersection') {
         if (cp.line1 && cp.line1.length === 2) {
@@ -2101,6 +2203,9 @@ const Plane2DViewer = ({
         if (cp.line2 && cp.line2.length === 2) {
           addLine(cp.line2[0], cp.line2[1], 'connection');
         }
+      } else if (!cp.type && cp.edge && cp.edge.length === 2 && typeof cp.ratio === 'number' && (cp.ratio < -0.001 || cp.ratio > 1.001)) {
+        const anchor = cp.ratio < 0 ? cp.edge[0] : cp.edge[1];
+        addLine(cp.label, anchor, 'connection');
       }
     });
 
@@ -2314,6 +2419,7 @@ const SpaceGeometry3D = () => {
   const [newPointEdge, setNewPointEdge] = useState('');
   const [ratioNum, setRatioNum] = useState(1);
   const [ratioDen, setRatioDen] = useState(2);
+  const [pointPlacement, setPointPlacement] = useState('inside'); // 'inside' | 'extended_A' | 'extended_B'
   
   // Connections
   const [connections, setConnections] = useState([]);
@@ -2324,6 +2430,18 @@ const SpaceGeometry3D = () => {
   const [parallelLine, setParallelLine] = useState('');
   const [parallelLabel, setParallelLabel] = useState('');
 
+  // Perpendicular states
+  const [customRightAngles, setCustomRightAngles] = useState([]);
+  const [perpLineP1, setPerpLineP1] = useState('');
+  const [perpLineP2, setPerpLineP2] = useState('');
+  const [perpTargetLine, setPerpTargetLine] = useState('');
+  const [perpPoint, setPerpPoint] = useState('');
+  const [perpModal, setPerpModal] = useState({ isOpen: false, point: null, targetLine: null });
+  const [perpBisectorModal, setPerpBisectorModal] = useState({ isOpen: false, point: null, targetLine: null });
+  const [bisectorPoint, setBisectorPoint] = useState('');
+  const [bisectorTargetLine, setBisectorTargetLine] = useState('');
+  const [bisectorPlane, setBisectorPlane] = useState('');
+
 
   // Intersections
   const [interLine1, setInterLine1] = useState('');
@@ -2333,13 +2451,96 @@ const SpaceGeometry3D = () => {
 
   const shape = SHAPES[selectedShape] || SHAPES.quad_parallelogram;
 
+  const bisectorCandidatePlanes = useMemo(() => {
+    if (!bisectorTargetLine || bisectorTargetLine.length < 2) {
+      return (shape?.faces || []).map(f => ({
+        id: f.join(''),
+        label: `(${f.join('')})`,
+        refPt: f[0],
+        face: f
+      }));
+    }
+    const l1 = bisectorTargetLine[0].toUpperCase();
+    const l2 = bisectorTargetLine[1].toUpperCase();
+    const candidates = [];
+    const seenFaceSignatures = new Set();
+    (shape?.faces || []).forEach(f => {
+      if (f.includes(l1) && f.includes(l2)) {
+        const sig = [...f].sort().join('-');
+        if (!seenFaceSignatures.has(sig)) {
+          seenFaceSignatures.add(sig);
+          const refPt = f.find(v => v !== l1 && v !== l2 && v !== bisectorPoint) || f.find(v => v !== l1 && v !== l2);
+          const faceName = f.join('');
+          candidates.push({
+            id: faceName,
+            label: `(${faceName})`,
+            refPt,
+            face: f
+          });
+        }
+      }
+    });
+    if (candidates.length < 2 && shape?.labels) {
+      shape.labels.forEach(v => {
+        if (v !== l1 && v !== l2 && v !== bisectorPoint) {
+          const isRepresented = candidates.some(c => c.refPt === v || (c.face && c.face.includes(v)));
+          if (!isRepresented) {
+            candidates.push({
+              id: `${v}${l1}${l2}`,
+              label: `(${v}${l1}${l2})`,
+              refPt: v,
+              face: [v, l1, l2]
+            });
+          }
+        }
+      });
+    }
+    if (candidates.length === 0) {
+      (shape?.faces || []).forEach(f => {
+        candidates.push({
+          id: f.join(''),
+          label: `(${f.join('')})`,
+          refPt: f[0],
+          face: f
+        });
+      });
+    }
+    return candidates;
+  }, [bisectorTargetLine, bisectorPoint, shape]);
+
   const [swapVertices, setSwapVertices] = useState(false);
+  const [activeTool, setActiveTool] = useState('pointer'); // 'pointer' | 'plane' | 'point_on_edge' | 'segment' | 'parallel' | 'intersection'
+
+  // Canvas Direct Manipulation States
+  const [activeSelectionSlot, setActiveSelectionSlot] = useState(0);
+  const [pickedPoints, setPickedPoints] = useState([]);
+  const [pickedLine, setPickedLine] = useState(null);
+  const [pickedLines, setPickedLines] = useState([]);
+  const [edgePointModal, setEdgePointModal] = useState({ isOpen: false, edge: null });
+  const [intersectionModal, setIntersectionModal] = useState({ isOpen: false, line1: null, line2: null });
+  const [actionToast, setActionToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
+
+  const showToast = useCallback((msg) => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setActionToast(msg);
+    toastTimeoutRef.current = setTimeout(() => {
+      setActionToast(null);
+    }, 2500);
+  }, []);
+
+  useEffect(() => {
+    setPickedPoints([]);
+    setPickedLine(null);
+    setPickedLines([]);
+  }, [activeTool]);
 
   // Auto clear selections when shape changes
   React.useEffect(() => {
     setSelections([[], [], [], []]);
     setCustomPoints([]);
     setConnections([]);
+    setCustomRightAngles([]);
     setSwapVertices(false);
     setCustomVerticesMap({});
     
@@ -2617,9 +2818,21 @@ const SpaceGeometry3D = () => {
       const nextRemaining = [];
       for (const cp of remaining) {
         if (cp.type === 'intersection') {
-          const pt = getLinesIntersection(verts, cp.line1, cp.line2);
+          let pt = null;
+          if (cp.line1 && cp.line2 && verts[cp.line1[0]] && verts[cp.line1[1]] && verts[cp.line2[0]] && verts[cp.line2[1]]) {
+            pt = getLinesIntersection(verts, cp.line1, cp.line2);
+          }
           if (pt) {
             verts[cp.label] = pt;
+            progress = true;
+          } else if (cp.edge && verts[cp.edge[0]] && verts[cp.edge[1]]) {
+            const pA = verts[cp.edge[0]];
+            const pB = verts[cp.edge[1]];
+            const r = cp.ratio !== undefined ? cp.ratio : 0.5;
+            verts[cp.label] = new THREE.Vector3().lerpVectors(pA, pB, r);
+            progress = true;
+          } else if (cp.pos || customVerticesMap[cp.label]) {
+            verts[cp.label] = cp.pos ? cp.pos.clone() : customVerticesMap[cp.label].clone();
             progress = true;
           } else {
             nextRemaining.push(cp);
@@ -2638,6 +2851,74 @@ const SpaceGeometry3D = () => {
             progress = true;
           } else {
             nextRemaining.push(cp);
+          }
+        } else if (cp.type === 'perpendicular') {
+          if (cp.line1 && cp.targetLine) {
+            const A = verts[cp.line1[0]];
+            const B = verts[cp.targetLine[0]];
+            const C = verts[cp.targetLine[1]];
+            if (A && B && C) {
+              const BC = new THREE.Vector3().subVectors(C, B);
+              const BA = new THREE.Vector3().subVectors(A, B);
+              const t = BA.dot(BC) / BC.lengthSq();
+              verts[cp.label] = new THREE.Vector3().copy(B).add(BC.multiplyScalar(t));
+              progress = true;
+            } else {
+              nextRemaining.push(cp);
+            }
+          } else if (cp.pos) {
+            verts[cp.label] = cp.pos;
+            progress = true;
+          }
+        } else if (cp.type === 'perp_bisector_line' || cp.type === 'perp_bisector_neg') {
+          const base = cp.basePoint ? verts[cp.basePoint] : null;
+          const A = cp.targetLine ? verts[cp.targetLine[0]] : null;
+          const B = cp.targetLine ? verts[cp.targetLine[1]] : null;
+          const ref = cp.refPoint ? verts[cp.refPoint] : null;
+          if (base && A && B) {
+            const u = new THREE.Vector3().subVectors(B, A);
+            const uLenSq = u.lengthSq();
+            let dir = null;
+            if (ref && uLenSq > 1e-6) {
+              const w = new THREE.Vector3().subVectors(ref, base);
+              const v = new THREE.Vector3().subVectors(w, u.clone().multiplyScalar(w.dot(u) / uLenSq));
+              if (v.lengthSq() > 1e-6) {
+                dir = v.normalize();
+              }
+            }
+            if (!dir && cp.dir) {
+              dir = new THREE.Vector3(cp.dir.x, cp.dir.y, cp.dir.z);
+            }
+            if (!dir) {
+              dir = new THREE.Vector3(-u.z, 0, u.x).normalize();
+              if (dir.lengthSq() < 1e-6) dir = new THREE.Vector3(0, 1, 0);
+            }
+            const len = cp.length || Math.max(1.5, u.length() * 0.95);
+            const sign = cp.type === 'perp_bisector_neg' ? -1 : 1;
+            verts[cp.label] = new THREE.Vector3().copy(base).addScaledVector(dir, sign * len);
+            progress = true;
+          } else if (cp.x !== undefined && cp.y !== undefined && cp.z !== undefined) {
+            verts[cp.label] = new THREE.Vector3(cp.x, cp.y, cp.z);
+            progress = true;
+          } else {
+            nextRemaining.push(cp);
+          }
+        } else if (cp.type === 'perp_bisector') {
+          if (cp.x !== undefined && cp.y !== undefined && cp.z !== undefined) {
+            verts[cp.label] = new THREE.Vector3(cp.x, cp.y, cp.z);
+            progress = true;
+          } else if (cp.pos) {
+            verts[cp.label] = cp.pos.clone();
+            progress = true;
+          } else if (cp.edge && cp.edge.length >= 2) {
+            const p1 = verts[cp.edge[0]];
+            const p2 = verts[cp.edge[1]];
+            if (p1 && p2) {
+              verts[cp.label] = new THREE.Vector3().copy(p1).lerp(p2, cp.ratio !== undefined ? cp.ratio : 0.5);
+              progress = true;
+            } else {
+              nextRemaining.push(cp);
+            }
           }
         } else {
           const p1 = verts[cp.edge[0]];
@@ -2660,7 +2941,11 @@ const SpaceGeometry3D = () => {
   }, [shape, customPoints]);
 
   const pointLabels = useMemo(() => {
-    const lineLabels = new Set(customPoints.filter(p => p.type?.startsWith('parallel')).map(p => p.label));
+    const lineLabels = new Set(
+      customPoints
+        .filter(p => p.type?.startsWith('parallel') || p.type?.startsWith('perp_bisector_') || p.label.startsWith('_neg_'))
+        .map(p => p.label)
+    );
     return activeLabels.filter(v => !lineLabels.has(v));
   }, [activeLabels, customPoints]);
 
@@ -2669,9 +2954,68 @@ const SpaceGeometry3D = () => {
     [customPoints]
   );
 
-  const lineName = (pts) => parallelLines.find(l => pts.includes(l.label))?.label ?? pts.join('');
+  const lineName = (pts) => (!pts || !Array.isArray(pts)) ? '' : (parallelLines.find(l => pts.includes(l.label))?.label ?? pts.join(''));
 
-  const isParallelConn = (c) => c.some(p => p.startsWith('_neg_') || parallelLines.some(l => l.label === p));
+  const isParallelConn = (c) => c.some(p => p.startsWith('_neg_') || parallelLines.some(l => l.label === p) || customPoints.some(cp => cp.label === p && (cp.type?.startsWith('parallel') || cp.type?.startsWith('perp_bisector_'))));
+
+  const geoGebraTools = useMemo(() => [
+    {
+      id: 'pointer',
+      name: 'Di chuyển & Quan sát',
+      shortDesc: 'Xoay, di chuyển và phóng to/thu nhỏ mô hình 3D',
+      icon: GeoGebraMoveIcon,
+      badgeCount: 0
+    },
+    {
+      id: 'point_on_edge',
+      name: 'Lấy điểm thuộc cạnh',
+      shortDesc: 'Lấy điểm M nằm trên cạnh theo tỉ lệ chỉ định',
+      icon: GeoGebraPointIcon,
+      badgeCount: customPoints.filter(p => !p.type).length
+    },
+    {
+      id: 'intersection',
+      name: 'Tìm giao điểm giữa 2 đường',
+      shortDesc: 'Tìm giao điểm của hai đường thẳng đồng phẳng',
+      icon: GeoGebraIntersectIcon,
+      badgeCount: customPoints.filter(p => p.type === 'intersection').length
+    },
+    {
+      id: 'segment',
+      name: 'Nối điểm (Đoạn thẳng)',
+      shortDesc: 'Nối hai điểm bất kỳ tạo thành đoạn thẳng mới',
+      icon: GeoGebraLineIcon,
+      badgeCount: connections.filter(c => !isParallelConn(c)).length
+    },
+    {
+      id: 'plane',
+      name: 'Chọn mặt phẳng / Đường thẳng',
+      shortDesc: 'Chọn các đỉnh để tạo đường thẳng hoặc mặt phẳng xét quan hệ',
+      icon: GeoGebraPlaneIcon,
+      badgeCount: selections.filter(s => s.length > 0).length
+    },
+    {
+      id: 'parallel',
+      name: 'Kẻ đường song song',
+      shortDesc: 'Kẻ đường thẳng qua một điểm và song song với một cạnh/đoạn thẳng',
+      icon: GeoGebraParallelIcon,
+      badgeCount: parallelLines.length
+    },
+    {
+      id: 'perpendicular',
+      name: 'Kẻ đường vuông góc',
+      shortDesc: 'Hạ đường vuông góc từ một điểm xuống một cạnh/đoạn thẳng',
+      icon: GeoGebraPerpIcon,
+      badgeCount: customPoints.filter(p => p.type === 'perpendicular').length
+    },
+    {
+      id: 'perp_bisector',
+      name: 'Kẻ đường trung trực',
+      shortDesc: 'Kẻ đường trung trực của đoạn thẳng đi qua một điểm',
+      icon: GeoGebraPerpBisectorIcon,
+      badgeCount: customPoints.filter(p => p.type === 'perp_bisector_line' || (p.type === 'perp_bisector' && p.desc)).length
+    }
+  ], [selections, customPoints, connections, parallelLines, isParallelConn]);
 
   const selectableEdges = useMemo(() => {
     const list = [...shape.edges];
@@ -2685,6 +3029,496 @@ const SpaceGeometry3D = () => {
     });
     return list;
   }, [shape.edges, connections]);
+
+  const suggestedEdgeLabel = useMemo(() => {
+    return ['M', 'N', 'P', 'Q', 'E', 'F', 'K', 'I', 'J', 'H'].find(l => !activeLabels.includes(l)) || 'M';
+  }, [activeLabels]);
+
+  const suggestedInterLabelComputed = useMemo(() => {
+    if (intersectionModal.line1 && intersectionModal.line2) {
+      const s1 = `${intersectionModal.line1[0]}${intersectionModal.line1[1]}`;
+      const s2 = `${intersectionModal.line2[0]}${intersectionModal.line2[1]}`;
+      const full = `${s1}_${s2}`;
+      if (full.includes('A') && full.includes('C') && full.includes('B') && full.includes('D') && !activeLabels.includes('O')) {
+        return 'O';
+      }
+    }
+    return ['O', 'I', 'K', 'J', 'E', 'F', 'H', 'G'].find(l => !activeLabels.includes(l)) || 'O';
+  }, [intersectionModal, activeLabels]);
+
+  const suggestedMidpointLabel = useMemo(() => {
+    return ['M', 'N', 'P', 'Q', 'I', 'J', 'K', 'E', 'F', 'H'].find(l => !activeLabels.includes(l)) || 'M';
+  }, [activeLabels]);
+
+  const suggestedPerpLabelComputed = useMemo(() => {
+    return ['H', 'K', 'I', 'J', 'E', 'F', 'M', 'N'].find(l => !activeLabels.includes(l)) || 'H';
+  }, [activeLabels]);
+
+  const renderedRightAngles = useMemo(() => {
+    const rawList = [...(shape.rightAngles || []), ...customRightAngles];
+    const unique = [];
+    const seenVertexMap = new Map();
+
+    for (const ang of rawList) {
+      if (!ang || ang.length < 3) continue;
+      const [r1, vertex, r2] = ang;
+      if (!vertex || !r1 || !r2) continue;
+      if (r1 === vertex || r2 === vertex || r1 === r2) continue;
+
+      const existing = seenVertexMap.get(vertex) || [];
+      const isDuplicate = existing.some(([e1, e2]) =>
+        (e1 === r1 && e2 === r2) ||
+        (e1 === r2 && e2 === r1) ||
+        (e1 === r1) // Only one right angle symbol for the same perpendicular ray at this vertex
+      );
+
+      if (!isDuplicate) {
+        unique.push(ang);
+        seenVertexMap.set(vertex, [...existing, [r1, r2]]);
+      }
+    }
+    return unique;
+  }, [shape.rightAngles, customRightAngles]);
+
+  const createDirectPerpBisector = useCallback((pLabel, targetLine, chosenRefPt, planeLabel) => {
+    if (!pLabel || !targetLine || targetLine.length < 2) return;
+    const l1 = targetLine[0].toUpperCase();
+    const l2 = targetLine[1].toUpperCase();
+    if (l1 === l2) return;
+
+    const P = activeVertices[pLabel];
+    const A = activeVertices[l1];
+    const B = activeVertices[l2];
+    if (!P || !A || !B) return;
+
+    const u = new THREE.Vector3().subVectors(B, A);
+    const uLenSq = u.lengthSq();
+    if (uLenSq < 1e-6) return;
+
+    // 1. Determine basePoint on line AB
+    const lineAB = new THREE.Line3(A, B);
+    const closestOnAB = new THREE.Vector3();
+    lineAB.closestPointToPoint(P, false, closestOnAB);
+    const distToLine = P.distanceTo(closestOnAB);
+
+    let basePointLabel = pLabel;
+    let basePos = P.clone();
+
+    if (distToLine > 0.08) {
+      // P is outside AB: base point is the midpoint of AB
+      const midPos = new THREE.Vector3().addVectors(A, B).multiplyScalar(0.5);
+      let existingMid = activeLabels.find(l => {
+        const pos = activeVertices[l];
+        return pos && pos.distanceTo(midPos) < 0.08;
+      });
+
+      if (existingMid) {
+        basePointLabel = existingMid;
+        basePos = activeVertices[existingMid].clone();
+      } else {
+        const midLabel = ['M', 'N', 'P', 'Q', 'I', 'J', 'K', 'E', 'F', 'H'].find(l => !activeLabels.includes(l)) || 'M';
+        setCustomPoints(prev => [...prev, {
+          label: midLabel,
+          pos: midPos,
+          edge: [l1, l2],
+          ratio: 0.5,
+          desc: `Trung điểm ${midLabel} của ${l1}${l2}`
+        }]);
+        setCustomVerticesMap(prev => ({ ...prev, [midLabel]: midPos }));
+        basePointLabel = midLabel;
+        basePos = midPos;
+      }
+    }
+
+    // 2. Determine reference point for the plane containing AB
+    let refPt = chosenRefPt;
+    if (!refPt) {
+      if (distToLine > 0.08) {
+        // P is outside AB, so P defines plane (P, A, B)
+        refPt = pLabel;
+      } else {
+        // P is on AB. Find a face containing AB.
+        const candFaces = (shape.faces || []).filter(f => f.includes(l1) && f.includes(l2));
+        let chosenFace = candFaces.find(f => f.length >= 4 || f.every(v => v !== 'S'));
+        if (!chosenFace && candFaces.length > 0) chosenFace = candFaces[0];
+
+        if (chosenFace) {
+          const facePt = chosenFace.find(v => v !== l1 && v !== l2 && v !== pLabel);
+          if (facePt && activeVertices[facePt]) refPt = facePt;
+        }
+        if (!refPt) {
+          refPt = Object.keys(activeVertices).find(v => v !== l1 && v !== l2 && v !== pLabel && activeVertices[v]);
+        }
+      }
+    }
+
+    const ref = (refPt && activeVertices[refPt]) ? activeVertices[refPt] : new THREE.Vector3(0, 1, 0);
+
+    // 3. Compute in-plane perpendicular vector to AB at basePoint
+    const w = new THREE.Vector3().subVectors(ref, basePos);
+    const v = new THREE.Vector3().subVectors(w, u.clone().multiplyScalar(w.dot(u) / uLenSq));
+    let dir;
+    if (v.lengthSq() > 1e-6) {
+      dir = v.normalize();
+    } else {
+      dir = new THREE.Vector3(-u.z, 0, u.x).normalize();
+      if (dir.lengthSq() < 1e-6) dir = new THREE.Vector3(0, 1, 0);
+    }
+
+    const length = Math.max(1.5, u.length() * 0.95);
+
+    let nextIndex = 1;
+    while (activeLabels.includes('m' + nextIndex) || customPoints.some(cp => cp.label === 'm' + nextIndex)) {
+      nextIndex++;
+    }
+    const lineLabel = 'm' + nextIndex;
+    const negLabel = '_neg_' + lineLabel;
+
+    const Q1 = new THREE.Vector3().copy(basePos).addScaledVector(dir, length);
+    const Q2 = new THREE.Vector3().copy(basePos).addScaledVector(dir, -length);
+
+    const descStr = `Đường trung trực của ${l1}${l2} qua ${pLabel}` + (planeLabel ? ` trong (${planeLabel})` : '');
+
+    setCustomPoints(prev => [...prev, {
+      label: lineLabel,
+      type: 'perp_bisector_line',
+      basePoint: basePointLabel,
+      refPoint: refPt,
+      targetLine: [l1, l2],
+      dir: { x: dir.x, y: dir.y, z: dir.z },
+      length,
+      x: Q1.x, y: Q1.y, z: Q1.z,
+      desc: descStr
+    }, {
+      label: negLabel,
+      type: 'perp_bisector_neg',
+      basePoint: basePointLabel,
+      refPoint: refPt,
+      targetLine: [l1, l2],
+      dir: { x: dir.x, y: dir.y, z: dir.z },
+      length,
+      x: Q2.x, y: Q2.y, z: Q2.z
+    }]);
+
+    setConnections(prev => [...prev, [basePointLabel, lineLabel], [basePointLabel, negLabel]]);
+    setCustomRightAngles(prev => [
+      ...prev.filter(ang => ang[1] !== basePointLabel),
+      [lineLabel, basePointLabel, l2]
+    ]);
+    showToast(`Đã kẻ đường trung trực của ${l1}${l2} qua ${pLabel}` + (planeLabel ? ` trong (${planeLabel})!` : '!'));
+  }, [activeVertices, activeLabels, customPoints, shape, showToast]);
+
+  const createDirectParallelLine = useCallback((p, line) => {
+    const l1 = line[0].toUpperCase();
+    const l2 = line[1].toUpperCase();
+    const P = activeVertices[p];
+    const A = activeVertices[l1];
+    const B = activeVertices[l2];
+    if (!P || !A || !B) return;
+
+    let nextIndex = 1;
+    while (activeLabels.includes(`d${nextIndex}`) || customPoints.some(cp => cp.label === `d${nextIndex}`)) {
+      nextIndex++;
+    }
+    const pLabel = `d${nextIndex}`;
+
+    const v = new THREE.Vector3().subVectors(B, A).multiplyScalar(0.95);
+    const Q = new THREE.Vector3().copy(P).add(v);
+
+    setCustomPoints(prev => [...prev, {
+      label: pLabel,
+      type: 'parallel',
+      edge: [p, l1, l2],
+      x: Q.x, y: Q.y, z: Q.z
+    }, {
+      label: `_neg_${pLabel}`,
+      type: 'parallel_neg',
+      edge: [p, l1, l2]
+    }]);
+
+    setConnections(prev => [...prev, [p, pLabel], [p, `_neg_${pLabel}`]]);
+    showToast(`Đã vẽ đường thẳng qua ${p} // ${l1}${l2}!`);
+  }, [activeVertices, activeLabels, customPoints, showToast]);
+
+  const handleCanvasVertexClick = useCallback((label) => {
+    if (activeTool === 'plane') {
+      toggleSelectionVertex(activeSelectionSlot, label);
+      return;
+    }
+    if (activeTool === 'segment') {
+      if (pickedPoints.length === 0) {
+        setPickedPoints([label]);
+        return;
+      }
+      const p1 = pickedPoints[0];
+      const p2 = label;
+      setPickedPoints([]);
+      if (p1 === p2) return;
+
+      setConnections(prev => {
+        const exists = prev.some(c => (c[0] === p1 && c[1] === p2) || (c[0] === p2 && c[1] === p1));
+        if (exists) return prev;
+        return [...prev, [p1, p2]];
+      });
+      showToast(`Đã nối đoạn thẳng ${p1}${p2}!`);
+      return;
+    }
+    if (activeTool === 'parallel') {
+      if (pickedLine) {
+        createDirectParallelLine(label, pickedLine);
+        setPickedLine(null);
+        setPickedPoints([]);
+      } else {
+        setPickedPoints([label]);
+      }
+      return;
+    }
+    if (activeTool === 'perpendicular') {
+      if (pickedLine) {
+        setPerpModal({ isOpen: true, point: label, targetLine: pickedLine });
+        setPickedLine(null);
+        setPickedPoints([]);
+      } else {
+        setPickedPoints([label]);
+      }
+      return;
+    }
+    if (activeTool === 'perp_bisector') {
+      if (pickedLine) {
+        setPerpBisectorModal({ isOpen: true, point: label, targetLine: pickedLine });
+        setPickedLine(null);
+        setPickedPoints([]);
+      } else {
+        setPickedPoints([label]);
+      }
+      return;
+    }
+  }, [activeTool, activeSelectionSlot, pickedPoints, pickedLine, createDirectParallelLine, createDirectPerpBisector, showToast]);
+
+  const handleCanvasEdgeClick = useCallback((edge) => {
+    if (activeTool === 'point_on_edge') {
+      setEdgePointModal({ isOpen: true, edge });
+      return;
+    }
+    if (activeTool === 'parallel') {
+      if (pickedPoints[0]) {
+        createDirectParallelLine(pickedPoints[0], edge);
+        setPickedPoints([]);
+        setPickedLine(null);
+      } else {
+        setPickedLine(edge);
+      }
+      return;
+    }
+    if (activeTool === 'perpendicular') {
+      if (pickedPoints[0]) {
+        setPerpModal({ isOpen: true, point: pickedPoints[0], targetLine: edge });
+        setPickedPoints([]);
+        setPickedLine(null);
+      } else {
+        setPickedLine(edge);
+      }
+      return;
+    }
+    if (activeTool === 'perp_bisector') {
+      if (pickedPoints[0]) {
+        setPerpBisectorModal({ isOpen: true, point: pickedPoints[0], targetLine: edge });
+        setPickedPoints([]);
+        setPickedLine(null);
+      } else {
+        setPickedLine(edge);
+      }
+      return;
+    }
+    if (activeTool === 'intersection') {
+      setPickedLines(prev => {
+        if (prev.length === 0) {
+          return [edge];
+        }
+        const l1 = prev[0];
+        const l2 = edge;
+        if ((l1[0] === l2[0] && l1[1] === l2[1]) || (l1[0] === l2[1] && l1[1] === l2[0])) {
+          return [];
+        }
+        const pt = getLinesIntersection(activeVertices, l1, l2);
+        if (!pt) {
+          alert(`Hai đường thẳng ${l1[0]}${l1[1]} và ${l2[0]}${l2[1]} không cắt nhau trong không gian (chéo nhau hoặc song song)!`);
+          return [];
+        }
+        setIntersectionModal({ isOpen: true, line1: l1, line2: l2 });
+        return [];
+      });
+      return;
+    }
+  }, [activeTool, pickedPoints, activeVertices, createDirectParallelLine, showToast]);
+
+  const handleEdgePointModalSubmit = ({ edge, label, ratio }) => {
+    const p1 = activeVertices[edge[0]];
+    const p2 = activeVertices[edge[1]];
+    if (!p1 || !p2) return;
+
+    setCustomPoints(prev => [...prev, {
+      label,
+      edge,
+      ratio
+    }]);
+    setEdgePointModal({ isOpen: false, edge: null });
+    showToast(`Đã tạo điểm ${label} trên cạnh ${edge[0]}${edge[1]}!`);
+  };
+
+  const handleIntersectionModalSubmit = ({ line1, line2, label }) => {
+    const pt = getLinesIntersection(activeVertices, line1, line2);
+    let edgeData = null;
+    let ratioData = null;
+
+    if (pt) {
+      for (const candLine of [line2, line1]) {
+        if (!candLine || candLine.length < 2) continue;
+        const [u, v] = candLine;
+        const pU = activeVertices[u];
+        const pV = activeVertices[v];
+        if (pU && pV && shape.labels.includes(u) && shape.labels.includes(v)) {
+          const dirEdge = new THREE.Vector3().subVectors(pV, pU);
+          const dirPt = new THREE.Vector3().subVectors(pt, pU);
+          const lenSq = dirEdge.lengthSq();
+          if (lenSq > 1e-6) {
+            edgeData = [u, v];
+            ratioData = dirPt.dot(dirEdge) / lenSq;
+            break;
+          }
+        }
+      }
+    }
+
+    setCustomPoints(prev => [...prev, {
+      label,
+      type: 'intersection',
+      line1,
+      line2,
+      pos: pt ? pt.clone() : undefined,
+      edge: edgeData,
+      ratio: ratioData,
+      desc: `Giao điểm ${label} của ${line1[0]}${line1[1]} và ${line2[0]}${line2[1]}`
+    }]);
+
+    if (pt) {
+      setCustomVerticesMap(prev => ({ ...prev, [label]: pt.clone() }));
+    }
+
+    setIntersectionModal({ isOpen: false, line1: null, line2: null });
+    showToast(`Đã tạo giao điểm ${label} giữa ${line1[0]}${line1[1]} và ${line2[0]}${line2[1]}!`);
+  };
+
+  const handleAddPerpendicularBisectorPoint = () => {
+    if (!bisectorPoint || !bisectorTargetLine || bisectorTargetLine.length < 2) return;
+    const l1 = bisectorTargetLine[0].toUpperCase();
+    const l2 = bisectorTargetLine[1].toUpperCase();
+    const chosenPlaneId = bisectorPlane || bisectorCandidatePlanes[0]?.id;
+    const chosenCand = bisectorCandidatePlanes.find(c => c.id === chosenPlaneId) || bisectorCandidatePlanes[0];
+    const refPt = chosenCand?.refPt || null;
+    const planeLabel = chosenCand?.id || chosenPlaneId || '';
+
+    createDirectPerpBisector(bisectorPoint, [l1, l2], refPt, planeLabel);
+    setBisectorPoint('');
+    setBisectorTargetLine('');
+    setBisectorPlane('');
+  };
+
+  const handlePerpendicularBisectorModalSubmit = ({ point, targetLine, refPt, planeLabel }) => {
+    createDirectPerpBisector(point, targetLine, refPt, planeLabel);
+    setPerpBisectorModal({ isOpen: false, point: null, targetLine: null });
+    setBisectorPoint('');
+    setBisectorTargetLine('');
+  };
+
+  const handlePerpendicularModalSubmit = ({ point, targetLine, footLabel }) => {
+    const source = activeVertices[point];
+    const target1 = activeVertices[targetLine[0]];
+    const target2 = activeVertices[targetLine[1]];
+    if (!source || !target1 || !target2) return;
+
+    const line3 = new THREE.Line3(target1, target2);
+    const closest = new THREE.Vector3();
+    line3.closestPointToPoint(source, true, closest);
+
+    setCustomPoints(prev => [...prev, {
+      label: footLabel,
+      pos: closest,
+      type: 'perpendicular',
+      line1: [point, footLabel],
+      targetLine: String(targetLine[0]) + String(targetLine[1]),
+      desc: 'Kẻ ' + point + footLabel + ' ⊥ ' + targetLine[0] + targetLine[1] + ' tại ' + footLabel
+    }]);
+    setConnections(prev => [...prev, [point, footLabel]]);
+    let refTarget = targetLine[1];
+    if (activeVertices[refTarget] && closest.distanceTo(activeVertices[refTarget]) < 0.05) {
+      refTarget = targetLine[0];
+    }
+    setCustomRightAngles(prev => [
+      ...prev.filter(ang => ang[1] !== footLabel),
+      [point, footLabel, refTarget]
+    ]);
+    setCustomVerticesMap(prev => ({ ...prev, [footLabel]: closest }));
+    setPerpModal({ isOpen: false, point: null, targetLine: null });
+    showToast('Đã hạ đường vuông góc ' + point + footLabel + ' ⊥ ' + targetLine[0] + targetLine[1] + '!');
+  };
+
+  const handleAddPerpendicularPoint = () => {
+    if (!perpLineP1 || !perpLineP2 || !perpTargetLine || !perpPoint) return;
+    const l1_p1 = perpTargetLine[0];
+    const l1_p2 = perpTargetLine[1];
+
+    if (!activeVertices[l1_p1] || !activeVertices[l1_p2]) return;
+    if (!activeVertices[perpLineP1]) return;
+
+    const source = activeVertices[perpLineP1];
+    const target1 = activeVertices[l1_p1];
+    const target2 = activeVertices[l1_p2];
+
+    const line3 = new THREE.Line3(target1, target2);
+    const closest = new THREE.Vector3();
+    line3.closestPointToPoint(source, true, closest);
+
+    setCustomPoints(prev => [...prev, {
+      label: perpPoint,
+      pos: closest,
+      type: 'perpendicular',
+      line1: [perpLineP1, perpLineP2],
+      targetLine: perpTargetLine,
+      desc: `Kẻ ${perpLineP1}${perpLineP2} ⊥ ${perpTargetLine} tại ${perpPoint}`
+    }]);
+    setConnections(prev => [...prev, [perpLineP1, perpPoint]]);
+    let refTarget = l1_p2;
+    if (activeVertices[refTarget] && closest.distanceTo(activeVertices[refTarget]) < 0.05) {
+      refTarget = l1_p1;
+    }
+    setCustomRightAngles(prev => [
+      ...prev.filter(ang => ang[1] !== perpPoint),
+      [perpLineP1, perpPoint, refTarget]
+    ]);
+    setCustomVerticesMap(prev => ({ ...prev, [perpPoint]: closest }));
+
+    setPerpLineP1('');
+    setPerpLineP2('');
+    setPerpTargetLine('');
+    setPerpPoint('');
+  };
+
+  const handleResetCanvasSelection = (mode) => {
+    if (mode === 'plane_slot') {
+      setSelections(prev => {
+        const next = [...prev];
+        next[activeSelectionSlot] = [];
+        return next;
+      });
+      showToast('Đã xóa lựa chọn mặt hiện tại.');
+    } else {
+      setPickedPoints([]);
+      setPickedLine(null);
+      setPickedLines([]);
+      showToast('Đã hủy lựa chọn.');
+    }
+  };
 
   const parseLineInput = (raw) => {
     const s = raw.trim();
@@ -2868,10 +3702,17 @@ const SpaceGeometry3D = () => {
       return;
     }
     
+    let calculatedRatio = ratioNum / ratioDen;
+    if (pointPlacement === 'extended_A') {
+      calculatedRatio = -(ratioNum / ratioDen);
+    } else if (pointPlacement === 'extended_B') {
+      calculatedRatio = 1 + (ratioNum / ratioDen);
+    }
+
     setCustomPoints(prev => [...prev, {
       label,
       edge: edge,
-      ratio: ratioNum / ratioDen
+      ratio: Math.round(calculatedRatio * 1000) / 1000
     }]);
     
     setNewPointLabel('');
@@ -2886,10 +3727,14 @@ const SpaceGeometry3D = () => {
       changed = false;
       customPoints.forEach(p => {
         if (!toRemove.has(p.label)) {
+          // Do not cascade delete intersection points! They are persistent geometric points.
+          if (p.type === 'intersection') return;
+
           const dependsOnRemoved = 
             (p.edge && p.edge.some(v => toRemove.has(v))) ||
             (p.line1 && p.line1.some(v => toRemove.has(v))) ||
-            (p.line2 && p.line2.some(v => toRemove.has(v)));
+            (p.line2 && p.line2.some(v => toRemove.has(v))) ||
+            (p.targetLine && (toRemove.has(p.targetLine[0]) || toRemove.has(p.targetLine[1])));
           if (dependsOnRemoved) {
             toRemove.add(p.label);
             toRemove.add(`_neg_${p.label}`);
@@ -2899,9 +3744,34 @@ const SpaceGeometry3D = () => {
       });
     }
 
-    setCustomPoints(prev => prev.filter(p => !toRemove.has(p.label)));
+    // Preserve intersection points if one of their intersecting lines is removed
+    setCustomPoints(prev => prev
+      .filter(p => !toRemove.has(p.label))
+      .map(p => {
+        if (p.type === 'intersection') {
+          const dependsOnRemoved = 
+            (p.line1 && p.line1.some(v => toRemove.has(v))) ||
+            (p.line2 && p.line2.some(v => toRemove.has(v)));
+          if (dependsOnRemoved) {
+            const currentPos = activeVertices[p.label] || p.pos;
+            return {
+              ...p,
+              pos: currentPos ? currentPos.clone() : p.pos,
+              edge: (p.edge && !p.edge.some(v => toRemove.has(v))) ? p.edge : undefined,
+              ratio: (p.edge && !p.edge.some(v => toRemove.has(v))) ? p.ratio : undefined,
+              line1: (p.line1 && !p.line1.some(v => toRemove.has(v))) ? p.line1 : undefined,
+              line2: (p.line2 && !p.line2.some(v => toRemove.has(v))) ? p.line2 : undefined,
+              desc: `Điểm ${p.label}`
+            };
+          }
+        }
+        return p;
+      })
+    );
+
     setSelections(prev => prev.map(sel => (sel.some(v => toRemove.has(v)) ? [] : sel)));
     setConnections(prev => prev.filter(c => !toRemove.has(c[0]) && !toRemove.has(c[1])));
+    setCustomRightAngles(prev => prev.filter(ang => !ang.some(v => toRemove.has(v))));
   };
 
   const updateCustomPointRatio = useCallback((label, newRatio) => {
@@ -2980,12 +3850,37 @@ const handleAddIntersection = () => {
       return;
     }
     
+    let edgeData = null;
+    let ratioData = null;
+    for (const candLine of [l2, l1]) {
+      if (!candLine || candLine.length < 2) continue;
+      const [u, v] = candLine;
+      const pU = activeVertices[u];
+      const pV = activeVertices[v];
+      if (pU && pV && shape.labels.includes(u) && shape.labels.includes(v)) {
+        const dirEdge = new THREE.Vector3().subVectors(pV, pU);
+        const dirPt = new THREE.Vector3().subVectors(pt, pU);
+        const lenSq = dirEdge.lengthSq();
+        if (lenSq > 1e-6) {
+          edgeData = [u, v];
+          ratioData = dirPt.dot(dirEdge) / lenSq;
+          break;
+        }
+      }
+    }
+
     setCustomPoints(prev => [...prev, { 
       label: finalLabel, 
       type: 'intersection', 
       line1: l1, 
-      line2: l2 
+      line2: l2,
+      pos: pt.clone(),
+      edge: edgeData,
+      ratio: ratioData,
+      desc: `Giao điểm ${finalLabel} của ${l1.join('')} và ${l2.join('')}`
     }]);
+
+    setCustomVerticesMap(prev => ({ ...prev, [finalLabel]: pt.clone() }));
     
     const nextChar = String.fromCharCode(finalLabel.charCodeAt(0) + 1);
     setSuggestedInterLabel(nextChar);
@@ -3223,294 +4118,601 @@ const handleAddIntersection = () => {
           </div>
         </div>
 
-        <div className="selection-panel" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {selections.map((sel, idx) => (
-            <div className="control-group" key={`sel-${idx}`} style={{ margin: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <label style={{ margin: 0, fontSize: '13px' }}>Chọn đường hoặc mặt {idx + 1}</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {sel.length >= 3 && numPlanes === 1 && (
-                    <label style={{ fontSize: '11px', color: '#16a34a', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '3px', cursor: 'pointer', margin: 0 }}>
-                      <input type="checkbox" checked={showCrossSection} onChange={e => setShowCrossSection(e.target.checked)} style={{ accentColor: '#16a34a', cursor: 'pointer' }} />
-                      Thiết diện
-                    </label>
-                  )}
-                  {sel.length >= 3 && (
-                    <button onClick={() => setView2DPlane(sel)} style={{ fontSize: '11px', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
-                      Xem 2D
-                    </button>
+        {/* ========================================================= */}
+        {/* THANH CÔNG CỤ GEOGEBRA (GeoGebra Toolbar)                 */}
+        {/* ========================================================= */}
+        <GeoGebraToolbar
+          tools={geoGebraTools}
+          activeTool={activeTool}
+          onSelectTool={(id) => setActiveTool(id)}
+          title="Công cụ"
+        />
+
+        <div className="geogebra-active-panel">
+            {/* Banner hiển thị tên và mô tả công cụ đang chọn */}
+            <div className="geogebra-tool-banner">
+              <div className="geogebra-tool-banner-title">
+                {(() => {
+                  const cur = geoGebraTools.find(t => t.id === activeTool);
+                  if (!cur) return null;
+                  const IconComp = cur.icon;
+                  return (
+                    <>
+                      <IconComp />
+                      <span>{cur.name}</span>
+                    </>
+                  );
+                })()}
+              </div>
+              <div className="geogebra-tool-banner-desc">
+                {geoGebraTools.find(t => t.id === activeTool)?.shortDesc}
+              </div>
+            </div>
+
+            {/* 1. Công cụ: Di chuyển & Quan sát */}
+            {activeTool === 'pointer' && (
+              <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <div style={{ fontSize: '13px', color: '#475569', lineHeight: 1.6, marginBottom: '14px' }}>
+                  💡 <b>Thao tác chuột trên hình 3D:</b><br />
+                  • <b>Kéo chuột trái:</b> Xoay đa chiều mô hình.<br />
+                  • <b>Giữ chuột phải & kéo:</b> Di chuyển vị trí góc nhìn.<br />
+                  • <b>Lăn con trỏ chuột:</b> Phóng to / Thu nhỏ hình.
+                </div>
+                
+                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    Đối tượng đã tạo ({customPoints.length + connections.length}):
+                  </div>
+                  {customPoints.length === 0 && connections.length === 0 ? (
+                    <div style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>
+                      Chưa có điểm hoặc đường dựng thêm. Chọn các icon GeoGebra ở trên để thao tác.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {customPoints.filter(p => !p.type).map(p => (
+                        <span key={`p-${p.label}`} style={{ fontSize: '12px', background: '#f0fdf4', color: '#166534', padding: '4px 8px', borderRadius: '6px', border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontWeight: '600' }}>{`${p.label} ∈ ${p.edge.join('')}`}</span>
+                          <span style={{ fontSize: '11px', background: '#dcfce7', padding: '1px 5px', borderRadius: '4px', color: '#15803d', fontWeight: 'bold' }}>
+                            {formatRatioBadge(p.ratio)}
+                          </span>
+                          <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                        </span>
+                      ))}
+                      {parallelLines.map(l => (
+                        <span key={`pconn-${l.label}`} style={{ fontSize: '12px', background: '#eff6ff', color: '#1e40af', padding: '4px 8px', borderRadius: '6px', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {l.label}
+                          <button onClick={() => removeCustomPoint(l.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                        </span>
+                      ))}
+                      {connections.map((c, i) => (isParallelConn(c) ? null : (
+                        <span key={`conn-${i}`} style={{ fontSize: '12px', background: '#f8fafc', color: '#334155', padding: '4px 8px', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {c[0]}{c[1]}
+                          <button onClick={() => setConnections(prev => prev.filter((_, idx) => idx !== i))} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                        </span>
+                      )))}
+                      {customPoints.filter(p => p.type === 'intersection').map(p => (
+                        <span key={`inter-${p.label}`} style={{ fontSize: '12px', background: '#fef2f2', color: '#991b1b', padding: '4px 8px', borderRadius: '6px', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {p.line1 && p.line2 ? `${p.label} (${lineName(p.line1)} ∩ ${lineName(p.line2)})` : (p.edge ? `${p.label} ∈ ${p.edge.join('')}` : `Điểm ${p.label}`)}
+                          <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
-              <div className="vertex-selector">
-                {pointLabels.map(v => {
-                  let activeClass = '';
-                  if (sel.includes(v)) {
-                    activeClass = sel.length === 2 ? 'active line' : 'active plane1';
-                  }
+            )}
+
+            {/* 2. Công cụ: Chọn mặt phẳng / Đường thẳng */}
+            {activeTool === 'plane' && (
+              <div className="selection-panel" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {selections.map((sel, idx) => {
+                  const colorInfo = SELECTION_SLOT_COLORS[idx % SELECTION_SLOT_COLORS.length];
                   return (
-                    <button 
-                      key={`p-${idx}-${v}`}
-                      className={`vertex-btn ${activeClass}`}
-                      onClick={() => toggleSelectionVertex(idx, v)}
-                    >
-                      {v}
-                    </button>
+                    <div className="control-group" key={`sel-${idx}`} style={{ margin: 0, borderLeft: `4px solid ${colorInfo.primary}`, paddingLeft: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '13px', color: colorInfo.text, fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: colorInfo.primary }} />
+                          Chọn đường hoặc mặt {idx + 1}
+                        </label>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          {sel.length >= 3 && numPlanes === 1 && (
+                            <label style={{ fontSize: '11px', color: '#16a34a', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '3px', cursor: 'pointer', margin: 0 }}>
+                              <input type="checkbox" checked={showCrossSection} onChange={e => setShowCrossSection(e.target.checked)} style={{ accentColor: '#16a34a', cursor: 'pointer' }} />
+                              Thiết diện
+                            </label>
+                          )}
+                          {sel.length >= 3 && (
+                            <button onClick={() => setView2DPlane(sel)} style={{ fontSize: '11px', color: colorInfo.primary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}>
+                              Xem 2D
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="vertex-selector">
+                        {pointLabels.map(v => {
+                          const isSelectedInThisSlot = sel.includes(v);
+                          return (
+                            <button 
+                              key={`p-${idx}-${v}`}
+                              className={`vertex-btn ${isSelectedInThisSlot ? 'active' : ''}`}
+                              style={isSelectedInThisSlot ? {
+                                backgroundColor: colorInfo.bg,
+                                color: colorInfo.text,
+                                borderColor: colorInfo.primary,
+                                fontWeight: 'bold',
+                                boxShadow: `0 1px 3px ${colorInfo.badge}`
+                              } : undefined}
+                              onClick={() => toggleSelectionVertex(idx, v)}
+                            >
+                              {v}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-            </div>
-          ))}
-        </div>
+            )}
 
-        <div className="functional-cards" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          
-          {/* 1. Thêm điểm trên cạnh */}
-          <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Thêm điểm trên cạnh</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <input 
-                type="text" 
-                className="geom-select"
-                style={{ width: '40px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={newPointLabel}
-                onChange={e => setNewPointLabel(e.target.value.toUpperCase())}
-                maxLength={2}
-                placeholder="M"
-              />
-              <span style={{ fontWeight: 'bold', color: '#64748b' }}>∈</span>
-              <select 
-                className="geom-select" 
-                style={{ width: '110px', padding: '0.4rem 1.2rem 0.4rem 0.6rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={newPointEdge}
-                onChange={e => setNewPointEdge(e.target.value)}
-              >
-                <option value="">Cạnh</option>
-                {selectableEdges.map((edge, i) => (
-                  <option key={`opt-edge-${i}`} value={edge.join(',')}>{edge.join('')}</option>
-                ))}
-              </select>
-              <button 
-                className="mode-btn" 
-                style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
-                onClick={handleAddPoint}
-              >
-                Thêm
-              </button>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: 'bold', color: '#475569' }}>
-              <span>Tỉ lệ: {newPointEdge ? newPointEdge.split(',')[0] : ''}{newPointLabel || 'M'} =</span>
-              <input 
-                type="number" 
-                min="0" 
-                className="geom-select"
-                value={ratioNum}
-                onChange={e => setRatioNum(parseInt(e.target.value) || 0)}
-                style={{ width: '45px', padding: '0.3rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-              />
-              <span>/</span>
-              <input 
-                type="number" 
-                min="1" 
-                className="geom-select"
-                value={ratioDen}
-                onChange={e => setRatioDen(Math.max(1, parseInt(e.target.value) || 1))}
-                style={{ width: '45px', padding: '0.3rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-              />
-              <span>{newPointEdge ? newPointEdge.split(',').join('') : ''}</span>
-            </div>
-            {customPoints.some(p => !p.type) && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
-                {customPoints.filter(p => !p.type).map(p => (
-                  <span 
-                    key={p.label} 
-                    title="Có thể kéo thả điểm này trực tiếp trên hình 3D"
-                    style={{ 
-                      fontSize: '12px', 
-                      background: '#f0fdf4', 
-                      color: '#166534',
-                      padding: '4px 8px', 
-                      borderRadius: '6px', 
-                      border: '1px solid #bbf7d0', 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '6px' 
+            {/* 3. Công cụ: Lấy điểm thuộc cạnh */}
+            {activeTool === 'point_on_edge' && (
+              <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Thêm điểm trên cạnh</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <input 
+                    type="text" 
+                    className="geom-select"
+                    style={{ width: '40px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={newPointLabel}
+                    onChange={e => setNewPointLabel(e.target.value.toUpperCase())}
+                    maxLength={2}
+                    placeholder="M"
+                  />
+                  <span style={{ fontWeight: 'bold', color: '#64748b' }}>∈</span>
+                  <select 
+                    className="geom-select" 
+                    style={{ width: '110px', padding: '0.4rem 1.2rem 0.4rem 0.6rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={newPointEdge}
+                    onChange={e => setNewPointEdge(e.target.value)}
+                  >
+                    <option value="">Cạnh</option>
+                    {selectableEdges.map((edge, i) => (
+                      <option key={`opt-edge-${i}`} value={edge.join(',')}>{edge.join('')}</option>
+                    ))}
+                  </select>
+                  <button 
+                    className="mode-btn" 
+                    style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
+                    onClick={handleAddPoint}
+                  >
+                    Thêm
+                  </button>
+                </div>
+                {/* Vị trí điểm trên đường thẳng */}
+                <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+                  <button
+                    type="button"
+                    className={`geom-placement-tab ${pointPlacement === 'inside' ? 'active' : ''}`}
+                    style={{ padding: '3px 6px', fontSize: '11px' }}
+                    onClick={() => { setPointPlacement('inside'); setRatioNum(1); setRatioDen(2); }}
+                  >
+                    Trong đoạn
+                  </button>
+                  <button
+                    type="button"
+                    className={`geom-placement-tab ${pointPlacement === 'extended_A' ? 'active' : ''}`}
+                    style={{ padding: '3px 6px', fontSize: '11px' }}
+                    onClick={() => { setPointPlacement('extended_A'); setRatioNum(1); setRatioDen(1); }}
+                    title={`Tia đối của tia ${newPointEdge ? newPointEdge.split(',').join('') : 'AB'}`}
+                  >
+                    Tia đối {newPointEdge ? newPointEdge.split(',').join('') : 'AB'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`geom-placement-tab ${pointPlacement === 'extended_B' ? 'active' : ''}`}
+                    style={{ padding: '3px 6px', fontSize: '11px' }}
+                    onClick={() => { setPointPlacement('extended_B'); setRatioNum(1); setRatioDen(1); }}
+                    title={`Tia đối của tia ${newPointEdge ? newPointEdge.split(',').reverse().join('') : 'BA'}`}
+                  >
+                    Tia đối {newPointEdge ? newPointEdge.split(',').reverse().join('') : 'BA'}
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 'bold', color: '#475569' }}>
+                  <span>
+                    {pointPlacement === 'inside' && `Tỉ lệ: ${newPointEdge ? newPointEdge.split(',')[0] : ''}{newPointLabel || 'M'} =`}
+                    {pointPlacement === 'extended_A' && `Khoảng cách: ${newPointEdge ? newPointEdge.split(',')[0] : 'A'}${newPointLabel || 'M'} =`}
+                    {pointPlacement === 'extended_B' && `Khoảng cách: ${newPointEdge ? newPointEdge.split(',')[1] : 'B'}${newPointLabel || 'M'} =`}
+                  </span>
+                  <input 
+                    type="number" 
+                    min="1" 
+                    className="geom-select"
+                    value={ratioNum}
+                    onChange={e => setRatioNum(parseInt(e.target.value) || 1)}
+                    style={{ width: '45px', padding: '0.3rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                  />
+                  <span>/</span>
+                  <input 
+                    type="number" 
+                    min="1" 
+                    className="geom-select"
+                    value={ratioDen}
+                    onChange={e => setRatioDen(Math.max(1, parseInt(e.target.value) || 1))}
+                    style={{ width: '45px', padding: '0.3rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                  />
+                  <span>{newPointEdge ? newPointEdge.split(',').join('') : ''}</span>
+                </div>
+
+                {pointPlacement === 'extended_A' && ratioNum === 1 && ratioDen === 1 && (
+                  <div style={{ fontSize: '11px', color: '#1d4ed8', marginTop: '4px', fontWeight: 'bold' }}>
+                    📍 {newPointEdge ? newPointEdge.split(',')[0] : 'A'} là trung điểm của đoạn {newPointLabel || 'M'}{newPointEdge ? newPointEdge.split(',')[1] : 'B'} (k = -1)
+                  </div>
+                )}
+
+                {pointPlacement === 'extended_B' && ratioNum === 1 && ratioDen === 1 && (
+                  <div style={{ fontSize: '11px', color: '#1d4ed8', marginTop: '4px', fontWeight: 'bold' }}>
+                    📍 {newPointEdge ? newPointEdge.split(',')[1] : 'B'} là trung điểm của đoạn {newPointEdge ? newPointEdge.split(',')[0] : 'A'}{newPointLabel || 'M'} (k = 2)
+                  </div>
+                )}
+
+                {customPoints.some(p => !p.type) && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
+                    {customPoints.filter(p => !p.type).map(p => (
+                      <span 
+                        key={p.label} 
+                        title="Có thể kéo thả điểm này trực tiếp trên hình 3D"
+                        style={{ 
+                          fontSize: '12px', 
+                          background: '#f0fdf4', 
+                          color: '#166534',
+                          padding: '4px 8px', 
+                          borderRadius: '6px', 
+                          border: '1px solid #bbf7d0', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '6px' 
+                        }}
+                      >
+                        <span style={{ fontWeight: '600' }}>{`${p.label} ∈ ${p.edge.join('')}`}</span>
+                        <span style={{ fontSize: '11px', background: '#dcfce7', padding: '1px 5px', borderRadius: '4px', color: '#15803d', fontWeight: 'bold' }}>
+                          {formatRatioBadge(p.ratio, p.edge?.[0], p.edge?.[1])}
+                        </span>
+                        <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 4. Công cụ: Kẻ song song */}
+            {activeTool === 'parallel' && (
+              <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Kẻ song song</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <select 
+                    className="geom-select" 
+                    style={{ width: '70px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={parallelPoint}
+                    onChange={e => setParallelPoint(e.target.value)}
+                  >
+                    <option value="">Qua</option>
+                    {pointLabels.map(v => <option key={`pp1-${v}`} value={v}>{v}</option>)}
+                  </select>
+                  <span style={{ fontWeight: 'bold', color: '#64748b' }}>//</span>
+                  <input 
+                    type="text" 
+                    className="geom-select"
+                    style={{ width: '50px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={parallelLine}
+                    onChange={e => setParallelLine(e.target.value)}
+                    maxLength={2}
+                    placeholder="AB"
+                  />
+                  <input 
+                    type="text" 
+                    className="geom-select"
+                    style={{ width: '50px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={parallelLabel}
+                    onChange={e => setParallelLabel(e.target.value)}
+                    maxLength={2}
+                    placeholder="Tên"
+                  />
+                  <button 
+                    className="mode-btn" 
+                    style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
+                    onClick={handleAddParallelPoint}
+                  >
+                    Kẻ
+                  </button>
+                </div>
+                {parallelLines.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '12px' }}>
+                    {parallelLines.map(l => (
+                      <span key={`pconn-${l.label}`} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {l.label}
+                        <button onClick={() => removeCustomPoint(l.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Công cụ: Kẻ vuông góc */}
+            {/* Công cụ: Kẻ đường trung trực */}
+              {activeTool === 'perp_bisector' && (
+                <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: '16px' }}>
+                  <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Kẻ đường trung trực</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                    <select
+                      className="geom-select"
+                      style={{ width: '52px', padding: '0.35rem 2px', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '13px' }}
+                      value={bisectorPoint}
+                      onChange={e => setBisectorPoint(e.target.value)}
+                    >
+                      <option value="">Qua</option>
+                      {pointLabels.map(v => <option key={'pbp-' + v} value={v}>{v}</option>)}
+                    </select>
+                    <span style={{ fontSize: '12px', fontWeight: '600', color: '#64748b' }}>của</span>
+                    <input
+                      type="text"
+                      placeholder="AB"
+                      maxLength={2}
+                      className="geom-select"
+                      style={{ width: '38px', padding: '0.35rem 2px', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', textTransform: 'uppercase', fontSize: '13px' }}
+                      value={bisectorTargetLine}
+                      onChange={e => setBisectorTargetLine(e.target.value.toUpperCase())}
+                    />
+                    <span style={{ fontSize: '12px', fontWeight: '600', color: '#64748b' }}>trong</span>
+                    <select
+                      className="geom-select"
+                      style={{ flex: 1, minWidth: '70px', padding: '0.35rem 2px', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}
+                      value={bisectorPlane || bisectorCandidatePlanes[0]?.id || ''}
+                      onChange={e => setBisectorPlane(e.target.value)}
+                    >
+                      {bisectorCandidatePlanes.map(p => (
+                        <option key={'bp-' + p.id} value={p.id}>{p.label}</option>
+                      ))}
+                    </select>
+                    <button
+                      className="mode-btn"
+                      style={{ backgroundColor: '#fff', border: '1px solid #c7d2fe', color: '#4f46e5', fontWeight: 600, borderRadius: '8px', padding: '0.35rem 0.65rem', fontSize: '12.5px', marginLeft: 'auto', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                      onClick={handleAddPerpendicularBisectorPoint}
+                      disabled={!bisectorPoint || !bisectorTargetLine || bisectorTargetLine.length < 2}
+                    >
+                      Kẻ
+                    </button>
+                  </div>
+                  {customPoints.some(p => (p.type === 'perp_bisector_line' || p.type === 'perp_bisector') && p.desc) && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '12px' }}>
+                      {customPoints.filter(p => (p.type === 'perp_bisector_line' || p.type === 'perp_bisector') && p.desc).map(p => (
+                        <span key={p.label} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {p.desc}
+                          <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTool === 'perpendicular' && (
+              <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: '16px' }}>
+                <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Kẻ vuông góc</label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    placeholder="AH"
+                    maxLength={2}
+                    className="geom-select"
+                    style={{ width: '50px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', textTransform: 'uppercase' }}
+                    value={perpLineP1 + perpLineP2}
+                    onChange={(e) => {
+                      const val = e.target.value.toUpperCase();
+                      setPerpLineP1(val[0] || '');
+                      setPerpLineP2(val[1] || '');
+                    }}
+                  />
+                  <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#64748b' }}>⊥</span>
+                  <input
+                    type="text"
+                    placeholder="BC"
+                    maxLength={2}
+                    className="geom-select"
+                    style={{ width: '50px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', textTransform: 'uppercase' }}
+                    value={perpTargetLine}
+                    onChange={(e) => setPerpTargetLine(e.target.value.toUpperCase())}
+                  />
+                  <span style={{ fontSize: '14px', whiteSpace: 'nowrap' }}>tại</span>
+                  <input
+                    type="text"
+                    placeholder="H"
+                    maxLength={1}
+                    className="geom-select"
+                    style={{ width: '40px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0', textTransform: 'uppercase' }}
+                    value={perpPoint}
+                    onChange={(e) => setPerpPoint(e.target.value.toUpperCase())}
+                  />
+                  <button
+                    className="mode-btn"
+                    style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
+                    onClick={handleAddPerpendicularPoint}
+                    disabled={!perpLineP1 || !perpLineP2 || !perpTargetLine || !perpPoint}
+                  >
+                    Kẻ
+                  </button>
+                </div>
+                {customPoints.some(p => p.type === 'perpendicular') && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '12px' }}>
+                    {customPoints.filter(p => p.type === 'perpendicular').map(p => (
+                      <span key={p.label} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {p.desc}
+                        <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 5. Công cụ: Nối điểm */}
+            {activeTool === 'segment' && (
+              <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Nối điểm</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <select 
+                    className="geom-select" 
+                    style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={connectP1}
+                    onChange={e => setConnectP1(e.target.value)}
+                  >
+                    <option value="">Điểm 1</option>
+                    {pointLabels.map(v => <option key={`cp1-${v}`} value={v}>{v}</option>)}
+                  </select>
+                  <select 
+                    className="geom-select" 
+                    style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={connectP2}
+                    onChange={e => setConnectP2(e.target.value)}
+                  >
+                    <option value="">Điểm 2</option>
+                    {pointLabels.map(v => <option key={`cp2-${v}`} value={v}>{v}</option>)}
+                  </select>
+                  <button 
+                    className="mode-btn" 
+                    style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
+                    onClick={() => {
+                      if (connectP1 && connectP2 && connectP1 !== connectP2) {
+                        setConnections(prev => {
+                          const exists = prev.some(c => (c[0]===connectP1 && c[1]===connectP2) || (c[0]===connectP2 && c[1]===connectP1));
+                          if (exists) return prev;
+                          return [...prev, [connectP1, connectP2]];
+                        });
+                        setConnectP1('');
+                        setConnectP2('');
+                      }
                     }}
                   >
-                    <span style={{ fontWeight: '600' }}>{`${p.label} ∈ ${p.edge.join('')}`}</span>
-                    <span style={{ fontSize: '11px', background: '#dcfce7', padding: '1px 5px', borderRadius: '4px', color: '#15803d', fontWeight: 'bold' }}>
-                      {formatRatioBadge(p.ratio)}
-                    </span>
-                    <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
-                  </span>
-                ))}
+                    Nối
+                  </button>
+                </div>
+                
+                {connections.filter(c => !isParallelConn(c)).length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '12px' }}>
+                    {connections.map((c, i) => (isParallelConn(c) ? null : (
+                      <span key={`conn-${i}`} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {c[0]}{c[1]}
+                        <button onClick={() => setConnections(prev => prev.filter((_, idx) => idx !== i))} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                      </span>
+                    )))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 6. Công cụ: Giao điểm 2 đường */}
+            {activeTool === 'intersection' && (
+              <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Giao điểm 2 đường</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <input 
+                    type="text" 
+                    className="geom-select"
+                    style={{ width: '45px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={interLine1}
+                    onChange={e => setInterLine1(e.target.value)}
+                    maxLength={2}
+                    placeholder="AC"
+                  />
+                  <span style={{ fontWeight: 'bold', color: '#64748b' }}>∩</span>
+                  <input 
+                    type="text" 
+                    className="geom-select"
+                    style={{ width: '45px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={interLine2}
+                    onChange={e => setInterLine2(e.target.value)}
+                    maxLength={2}
+                    placeholder="BD"
+                  />
+                  <span style={{ fontWeight: 'bold', color: '#64748b' }}>= {'{'}</span>
+                  <input 
+                    type="text" 
+                    className="geom-select"
+                    style={{ width: '40px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                    value={newInterLabel}
+                    onChange={e => setNewInterLabel(e.target.value)}
+                    maxLength={2}
+                    placeholder={suggestedInterLabel || "O"}
+                  />
+                  <span style={{ fontWeight: 'bold', color: '#64748b' }}>{'}'}</span>
+                  <button 
+                    className="mode-btn" 
+                    style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 0.8rem', marginLeft: 'auto' }}
+                    onClick={handleAddIntersection}
+                  >
+                    Tạo
+                  </button>
+                </div>
+                
+                {customPoints.some(p => p.type === 'intersection') && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '12px' }}>
+                    {customPoints.filter(p => p.type === 'intersection').map(p => (
+                      <span key={p.label} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {p.type === 'intersection' ? (p.line1 && p.line2 ? `${p.label} (${lineName(p.line1)} ∩ ${lineName(p.line2)})` : (p.edge ? `${p.label} ∈ ${p.edge.join('')}` : `Điểm ${p.label}`)) : p.type === 'parallel' ? `${p.label} (// ${p.edge[1]}${p.edge[2]})` : `${p.label} ∈ ${p.edge.join('')}`}
+                        <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
-
-          {/* 2. Kẻ song song */}
-          <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Kẻ song song</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <select 
-                className="geom-select" 
-                style={{ width: '70px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={parallelPoint}
-                onChange={e => setParallelPoint(e.target.value)}
-              >
-                <option value="">Qua</option>
-                {pointLabels.map(v => <option key={`pp1-${v}`} value={v}>{v}</option>)}
-              </select>
-              <span style={{ fontWeight: 'bold', color: '#64748b' }}>//</span>
-              <input 
-                type="text" 
-                className="geom-select"
-                style={{ width: '50px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={parallelLine}
-                onChange={e => setParallelLine(e.target.value)}
-                maxLength={2}
-                placeholder="AB"
-              />
-              <input 
-                type="text" 
-                className="geom-select"
-                style={{ width: '50px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={parallelLabel}
-                onChange={e => setParallelLabel(e.target.value)}
-                maxLength={2}
-                placeholder="Tên"
-              />
-              <button 
-                className="mode-btn" 
-                style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
-                onClick={handleAddParallelPoint}
-              >
-                Kẻ
-              </button>
-            </div>
-          </div>
-
-          {/* 3. Kẻ nối điểm */}
-          <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Nối điểm</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <select 
-                className="geom-select" 
-                style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={connectP1}
-                onChange={e => setConnectP1(e.target.value)}
-              >
-                <option value="">Điểm 1</option>
-                {pointLabels.map(v => <option key={`cp1-${v}`} value={v}>{v}</option>)}
-              </select>
-              <select 
-                className="geom-select" 
-                style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={connectP2}
-                onChange={e => setConnectP2(e.target.value)}
-              >
-                <option value="">Điểm 2</option>
-                {pointLabels.map(v => <option key={`cp2-${v}`} value={v}>{v}</option>)}
-              </select>
-              <button 
-                className="mode-btn" 
-                style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 1rem', marginLeft: 'auto' }}
-                onClick={() => {
-                  if (connectP1 && connectP2 && connectP1 !== connectP2) {
-                    setConnections(prev => {
-                      const exists = prev.some(c => (c[0]===connectP1 && c[1]===connectP2) || (c[0]===connectP2 && c[1]===connectP1));
-                      if (exists) return prev;
-                      return [...prev, [connectP1, connectP2]];
-                    });
-                    setConnectP1('');
-                    setConnectP2('');
-                  }
-                }}
-              >
-                Nối
-              </button>
-            </div>
-            
-            {(connections.length > 0 || parallelLines.length > 0) && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '12px' }}>
-                {parallelLines.map(l => (
-                  <span key={`pconn-${l.label}`} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    {l.label}
-                    <button onClick={() => removeCustomPoint(l.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
-                  </span>
-                ))}
-                {connections.map((c, i) => (isParallelConn(c) ? null : (
-                  <span key={`conn-${i}`} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    {c[0]}{c[1]}
-                    <button onClick={() => setConnections(connections.filter((_, idx) => idx !== i))} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
-                  </span>
-                )))}
-              </div>
-            )}
-          </div>
-
-          {/* 4. Giao điểm 2 đường */}
-          <div className="feature-card" style={{ background: '#fff', borderRadius: '12px', padding: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <label style={{ color: '#4f46e5', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>+ Giao điểm 2 đường</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <input 
-                type="text" 
-                className="geom-select"
-                style={{ width: '45px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={interLine1}
-                onChange={e => setInterLine1(e.target.value)}
-                maxLength={2}
-                placeholder="AC"
-              />
-              <span style={{ fontWeight: 'bold', color: '#64748b' }}>∩</span>
-              <input 
-                type="text" 
-                className="geom-select"
-                style={{ width: '45px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={interLine2}
-                onChange={e => setInterLine2(e.target.value)}
-                maxLength={2}
-                placeholder="BD"
-              />
-              <span style={{ fontWeight: 'bold', color: '#64748b' }}>= {'{'}</span>
-              <input 
-                type="text" 
-                className="geom-select"
-                style={{ width: '40px', padding: '0.4rem', textAlign: 'center', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                value={newInterLabel}
-                onChange={e => setNewInterLabel(e.target.value)}
-                maxLength={2}
-                placeholder={suggestedInterLabel || "O"}
-              />
-              <span style={{ fontWeight: 'bold', color: '#64748b' }}>{'}'}</span>
-              <button 
-                className="mode-btn" 
-                style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '8px', padding: '0.4rem 0.8rem', marginLeft: 'auto' }}
-                onClick={handleAddIntersection}
-              >
-                Tạo
-              </button>
-            </div>
-            
-            {customPoints.some(p => p.type === 'intersection') && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '12px' }}>
-                {customPoints.filter(p => p.type === 'intersection').map(p => (
-                  <span key={p.label} style={{ fontSize: '12px', background: 'var(--background-color)', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    {p.type === 'intersection' ? `${p.label} (${lineName(p.line1)} ∩ ${lineName(p.line2)})` : p.type === 'parallel' ? `${p.label} (// ${p.edge[1]}${p.edge[2]})` : `${p.label} ∈ ${p.edge.join('')}`}
-                    <button onClick={() => removeCustomPoint(p.label)} style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', padding: '0 2px', fontWeight: 'bold' }}>×</button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
       </div>
-<div className="space-geom-main">
-        <div className="hint-overlay">
+
+      <div className="space-geom-main">
+        <div className="hint-overlay" style={{ bottom: '16px', left: '16px', top: 'auto' }}>
           {getHint()}
         </div>
         
         <div className="canvas-container" style={{ position: 'relative' }}>
+          {/* Thanh công cụ GeoGebra nổi trên khung nhìn 3D */}
+          <div className="geogebra-canvas-floating-bar" title="Thanh công cụ">
+            {geoGebraTools.map(tool => {
+              const IconComp = tool.icon;
+              const isActive = activeTool === tool.id;
+              return (
+                <button
+                  key={`canvas-${tool.id}`}
+                  type="button"
+                  className={`geogebra-tool-button ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveTool(tool.id);
+                  }}
+                  title={`${tool.name}${tool.shortDesc ? `: ${tool.shortDesc}` : ''}`}
+                >
+                  <IconComp />
+                  <span className="ggb-triangle" />
+                  {tool.badgeCount > 0 && <span className="geogebra-tool-badge">{tool.badgeCount}</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Thanh hướng dẫn tương tác trực tiếp trên 3D Canvas */}
+          <CanvasInstructionBar
+            activeTool={activeTool}
+            activeSelectionSlot={activeSelectionSlot}
+            setActiveSelectionSlot={setActiveSelectionSlot}
+            selections={selections}
+            pickedPoints={pickedPoints}
+            pickedLine={pickedLine}
+            pickedLines={pickedLines}
+            onResetSelection={handleResetCanvasSelection}
+          />
+
           <button
             type="button"
             onClick={resetView}
@@ -3568,6 +4770,51 @@ const handleAddIntersection = () => {
                 useDashed={useDashed}
               />
             ))}
+
+            {/* Interactive Edges for direct canvas clicking and hovering */}
+            {selectableEdges.map((edge, idx) => {
+              const isEdgeInteractive = ['point_on_edge', 'parallel', 'perpendicular', 'perp_bisector', 'intersection'].includes(activeTool);
+              const isSelected = 
+                (pickedLine && ((pickedLine[0] === edge[0] && pickedLine[1] === edge[1]) || (pickedLine[0] === edge[1] && pickedLine[1] === edge[0]))) ||
+                (pickedLines.some(l => (l[0] === edge[0] && l[1] === edge[1]) || (l[0] === edge[1] && l[1] === edge[0])));
+                
+              return (
+                <InteractiveEdge 
+                  key={`interactive-edge-${edge[0]}-${edge[1]}-${idx}`}
+                  edge={edge}
+                  vertices={activeVertices}
+                  isInteractive={isEdgeInteractive}
+                  isSelected={isSelected}
+                  onClick={handleCanvasEdgeClick}
+                />
+              );
+            })}
+
+            {/* Draw extension lines for custom points outside segment (k < 0 or k > 1) */}
+            {customPoints
+              .filter(p => !p.type && p.edge && p.edge.length === 2 && typeof p.ratio === 'number' && (p.ratio < -0.001 || p.ratio > 1.001))
+              .map(p => {
+                const pM = activeVertices[p.label];
+                const pA = activeVertices[p.edge[0]];
+                const pB = activeVertices[p.edge[1]];
+                if (!pM) return null;
+                const anchor = p.ratio < 0 ? pA : pB;
+                if (!anchor) return null;
+                return (
+                  <group key={`ext-line-${p.label}`}>
+                    <Line 
+                      points={[anchor, pM]} 
+                      color="#64748b" 
+                      lineWidth={1.8} 
+                      dashed 
+                      dashSize={0.25} 
+                      gapSize={0.15} 
+                      depthTest={false} 
+                      renderOrder={6} 
+                    />
+                  </group>
+                );
+              })}
             
             {/* Draw active vertices with labels */}
             {activeLabels.map(v => {
@@ -3584,6 +4831,13 @@ const handleAddIntersection = () => {
                 ratio: edgePoint.ratio ?? 0.5
               } : null;
 
+              const isVertexClickable = ['plane', 'segment', 'parallel', 'perpendicular', 'perp_bisector'].includes(activeTool);
+              const isSelectedInSlot = activeTool === 'plane' && selections[activeSelectionSlot]?.includes(v);
+              const isPicked = pickedPoints.includes(v);
+              const isVertexSelected = isSelectedInSlot || isPicked;
+              const selectionRole = isPicked ? 'picked' : 'slot';
+              const selectionSlotColor = isSelectedInSlot ? SELECTION_SLOT_COLORS[activeSelectionSlot % SELECTION_SLOT_COLORS.length]?.primary : undefined;
+
               return (
                 <DraggableVertex
                   key={`vertex-node-${v}`}
@@ -3595,8 +4849,13 @@ const handleAddIntersection = () => {
                   })()}
                   pos={pos}
                   isCustom={isCustom}
-                  isEditing={isEditingPoints}
-                  edgeConstraint={edgeConstraint}
+                  isEditing={isEditingPoints && activeTool === 'pointer'}
+                  edgeConstraint={activeTool === 'pointer' ? edgeConstraint : null}
+                  isClickable={isVertexClickable}
+                  isSelected={isVertexSelected}
+                  selectionRole={selectionRole}
+                  selectionColor={selectionSlotColor}
+                  onClick={handleCanvasVertexClick}
                   onDragStart={() => setIsDraggingVertex(true)}
                   onDrag={(newPos) => updatePointCoord(v, newPos.x, newPos.y, newPos.z)}
                   onDragRatio={updateCustomPointRatio}
@@ -3606,22 +4865,32 @@ const handleAddIntersection = () => {
               );
             })}
             
-            {/* Draw selections */}
+            {/* Draw selections with distinct colors for each slot */}
             {selections.map((sel, idx) => {
+              const colorInfo = SELECTION_SLOT_COLORS[idx % SELECTION_SLOT_COLORS.length];
               if (sel.length === 2) {
                 const p1 = activeVertices[sel[0]], p2 = activeVertices[sel[1]];
                 if (p1 && p2) {
                   return (
                     <group key={`sel-line-${idx}`}>
-                      <Line points={[p1, p2]} color="#3b82f6" lineWidth={3} depthTest={false} renderOrder={10} />
-                      <Line points={[p1, p2]} color="#3b82f6" lineWidth={3} dashed dashSize={0.2} gapSize={0.2} />
+                      <Line points={[p1, p2]} color={colorInfo.primary} lineWidth={3.5} depthTest={false} renderOrder={10} />
+                      <Line points={[p1, p2]} color={colorInfo.border} lineWidth={3.5} dashed dashSize={0.2} gapSize={0.2} />
                     </group>
                   );
                 }
               } else if (sel.length >= 3) {
                 const pts = sel.map(v => activeVertices[v]).filter(Boolean);
                 if (pts.length >= 3) {
-                  return <PlaneMesh key={`sel-plane-${idx}`} vertices={activeVertices} selected={sel} color="rgba(59, 130, 246, 0.2)" />;
+                  return (
+                    <PlaneMesh 
+                      key={`sel-plane-${idx}`} 
+                      vertices={activeVertices} 
+                      selected={sel} 
+                      color={colorInfo.fill} 
+                      opacity={colorInfo.opacity}
+                      borderColor={colorInfo.border}
+                    />
+                  );
                 }
               }
               return null;
@@ -3656,8 +4925,8 @@ const handleAddIntersection = () => {
               if (!p1 || !p2) return null;
               
               const isExternalLine = 
-                (c[0].startsWith('_neg_') || customPoints.some(p => p.label === c[0] && p.type?.startsWith('parallel'))) ||
-                (c[1].startsWith('_neg_') || customPoints.some(p => p.label === c[1] && p.type?.startsWith('parallel')));
+                (c[0].startsWith('_neg_') || customPoints.some(p => p.label === c[0] && (p.type?.startsWith('parallel') || p.type?.startsWith('perp_bisector_')))) ||
+                (c[1].startsWith('_neg_') || customPoints.some(p => p.label === c[1] && (p.type?.startsWith('parallel') || p.type?.startsWith('perp_bisector_'))));
                 
               return (
                 <CustomConnectionLine 
@@ -3671,11 +4940,66 @@ const handleAddIntersection = () => {
               );
             })}
             
+            {/* Right angle symbols */}
+            {renderedRightAngles.map((ang, i) => {
+              const p1 = activeVertices[ang[0]];
+              const p2 = activeVertices[ang[1]];
+              const p3 = activeVertices[ang[2]];
+              if (!p1 || !p2 || !p3) return null;
+              return <RightAngleSymbol key={`ra-${i}-${ang.join('-')}`} p1={p1} p2={p2} p3={p3} />;
+            })}
+            
             {/* Cross Section Mesh */}
             {crossSectionPlane && showCrossSection && (
               <CrossSectionMesh vertices={activeVertices} shapeEdges={shape.edges} selectedPts={crossSectionPlane} />
             )}
-            </Canvas>
+          </Canvas>
+
+          {/* Direct Manipulation Modals */}
+          <EdgePointModal
+            isOpen={edgePointModal.isOpen}
+            edge={edgePointModal.edge}
+            defaultLabel={suggestedEdgeLabel}
+            existingLabels={activeLabels}
+            onSubmit={handleEdgePointModalSubmit}
+            onClose={() => setEdgePointModal({ isOpen: false, edge: null })}
+          />
+
+          <IntersectionModal
+            isOpen={intersectionModal.isOpen}
+            line1={intersectionModal.line1}
+            line2={intersectionModal.line2}
+            defaultLabel={suggestedInterLabelComputed}
+            existingLabels={activeLabels}
+            onSubmit={handleIntersectionModalSubmit}
+            onClose={() => setIntersectionModal({ isOpen: false, line1: null, line2: null })}
+          />
+
+          <PerpendicularModal
+            isOpen={perpModal.isOpen}
+            point={perpModal.point}
+            targetLine={perpModal.targetLine}
+            defaultLabel={suggestedPerpLabelComputed}
+            existingLabels={activeLabels}
+            onSubmit={handlePerpendicularModalSubmit}
+            onClose={() => setPerpModal({ isOpen: false, point: null, targetLine: null })}
+          />
+
+          <PerpendicularBisectorModal
+            isOpen={perpBisectorModal.isOpen}
+            point={perpBisectorModal.point}
+            targetLine={perpBisectorModal.targetLine}
+            shape={shape}
+            activeVertices={activeVertices}
+            onSubmit={handlePerpendicularBisectorModalSubmit}
+            onClose={() => setPerpBisectorModal({ isOpen: false, point: null, targetLine: null })}
+          />
+
+          {actionToast && (
+            <div className="canvas-action-toast">
+              {actionToast}
+            </div>
+          )}
         </div>
       </div>
     </div>

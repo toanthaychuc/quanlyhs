@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MonitorPlay } from 'lucide-react';
 import './InteractiveMaterials.css';
 import SetOperations from '../components/interactive/SetOperations';
@@ -14,6 +14,7 @@ import ConicSections from '../components/interactive/ConicSections';
 import CrossSection3D from '../components/interactive/CrossSection3D';
 import SpaceGeometry3D from '../components/interactive/SpaceGeometry3D';
 import PerpendicularGeometry3D from '../components/interactive/PerpendicularGeometry3D';
+import SpaceAngles3D from '../components/interactive/SpaceAngles3D';
 
 const MATERIALS_DATA = {
   '10': [
@@ -27,6 +28,7 @@ const MATERIALS_DATA = {
     { id: 'derivatives', title: 'Ý nghĩa hình học của đạo hàm', chapter: 'Đạo hàm' },
     { id: 'space-geometry', title: 'Quan hệ song song', chapter: 'Hình học không gian' },
     { id: 'perpendicular-geometry', title: 'Quan hệ vuông góc', chapter: 'Hình học không gian' },
+    { id: 'space-angles', title: 'Góc trong không gian', chapter: 'Hình học không gian' },
     { id: 'cross-section', title: 'Thiết diện trong không gian', chapter: 'Quan hệ song song' }
   ],
   '12': [
@@ -42,10 +44,27 @@ const InteractiveMaterials = () => {
   const [activeMaterialId, setActiveMaterialId] = useState('set-ops');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768);
 
-  React.useEffect(() => {
+  // Persistent customizable width for customization area across ALL lessons
+  const [materialSidebarWidth, setMaterialSidebarWidth] = useState(() => {
+    try {
+      const saved = localStorage.getItem('interactive_material_sidebar_width');
+      const parsed = parseInt(saved, 10);
+      return !isNaN(parsed) && parsed >= 250 && parsed <= 850 ? parsed : 360;
+    } catch {
+      return 360;
+    }
+  });
+
+  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
+  const [resizerPos, setResizerPos] = useState({ left: '380px', top: '1.5rem', height: 'calc(100% - 3rem)' });
+  const [isResizerVisible, setIsResizerVisible] = useState(false);
+  const mainContentRef = useRef(null);
+  const dragStartXRef = useRef(0);
+  const dragStartWidthRef = useRef(360);
+
+  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth <= 768 && !sidebarCollapsed) {
-        // Automatically collapse on resize to mobile
         setSidebarCollapsed(true);
       } else if (window.innerWidth > 768 && sidebarCollapsed) {
         setSidebarCollapsed(false);
@@ -54,6 +73,122 @@ const InteractiveMaterials = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [sidebarCollapsed]);
+
+  // Dynamically calculate resizer bar position at the right edge of active lesson's sidebar
+  const updateResizerPosition = useCallback(() => {
+    if (window.innerWidth <= 768) {
+      setIsResizerVisible(false);
+      return;
+    }
+    const container = mainContentRef.current;
+    if (!container) return;
+
+    const sidebarEl = container.querySelector(
+      '.solid-sidebar, .riemann-sidebar, .func-invest-sidebar, .space-geom-sidebar, .space-angles-sidebar, .oxyz-sidebar, .cross-section-sidebar, .conic-sidebar, .trig-sidebar, .ineq-sidebar, .quad-sidebar, .derivative-sidebar, .set-ops-controls, [class*="-sidebar"]'
+    );
+
+    if (!sidebarEl) {
+      setIsResizerVisible(false);
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const sidebarRect = sidebarEl.getBoundingClientRect();
+
+    // The resizer sits right in the gap after the sidebar
+    const left = sidebarRect.right - containerRect.left + 8;
+    const top = sidebarRect.top - containerRect.top;
+    const height = sidebarRect.height;
+
+    setResizerPos({
+      left: `${left}px`,
+      top: `${top}px`,
+      height: `${height}px`
+    });
+    setIsResizerVisible(true);
+  }, []);
+
+  // Update resizer position on material change or window resize
+  useEffect(() => {
+    const timer = setTimeout(updateResizerPosition, 80);
+    window.addEventListener('resize', updateResizerPosition);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateResizerPosition);
+    };
+  }, [activeMaterialId, materialSidebarWidth, updateResizerPosition]);
+
+  // Dragging event handlers for the resizer bar
+  const handleResizerMouseDown = (e) => {
+    e.preventDefault();
+    setIsResizingSidebar(true);
+    dragStartXRef.current = e.clientX;
+    dragStartWidthRef.current = materialSidebarWidth;
+  };
+
+  const handleResizerTouchStart = (e) => {
+    if (e.touches && e.touches[0]) {
+      setIsResizingSidebar(true);
+      dragStartXRef.current = e.touches[0].clientX;
+      dragStartWidthRef.current = materialSidebarWidth;
+    }
+  };
+
+  const handleResizerDoubleClick = () => {
+    const defaultWidth = 360;
+    setMaterialSidebarWidth(defaultWidth);
+    try {
+      localStorage.setItem('interactive_material_sidebar_width', String(defaultWidth));
+    } catch {}
+    window.dispatchEvent(new Event('resize'));
+  };
+
+  useEffect(() => {
+    if (!isResizingSidebar) return;
+
+    const handlePointerMove = (e) => {
+      const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0]?.clientX);
+      if (clientX === undefined) return;
+
+      const container = mainContentRef.current;
+      if (!container) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const maxAllowed = Math.min(window.innerWidth - 300, Math.floor(containerRect.width * 0.75), 850);
+      const minAllowed = 250;
+
+      const deltaX = clientX - dragStartXRef.current;
+      const targetWidth = Math.round(dragStartWidthRef.current + deltaX);
+      const clampedWidth = Math.max(minAllowed, Math.min(maxAllowed, targetWidth));
+
+      setMaterialSidebarWidth(clampedWidth);
+
+      // Smooth real-time update of resizer left position while dragging
+      const currentLeft = clientX - containerRect.left;
+      setResizerPos(prev => ({ ...prev, left: `${currentLeft}px` }));
+    };
+
+    const handlePointerUp = () => {
+      setIsResizingSidebar(false);
+      try {
+        localStorage.setItem('interactive_material_sidebar_width', String(materialSidebarWidth));
+      } catch {}
+      window.dispatchEvent(new Event('resize'));
+      setTimeout(updateResizerPosition, 30);
+    };
+
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
+    window.addEventListener('touchmove', handlePointerMove, { passive: false });
+    window.addEventListener('touchend', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handlePointerMove);
+      window.removeEventListener('mouseup', handlePointerUp);
+      window.removeEventListener('touchmove', handlePointerMove);
+      window.removeEventListener('touchend', handlePointerUp);
+    };
+  }, [isResizingSidebar, materialSidebarWidth, updateResizerPosition]);
 
   const renderMaterial = () => {
     switch (activeMaterialId) {
@@ -81,6 +216,8 @@ const InteractiveMaterials = () => {
         return <SpaceGeometry3D />;
       case 'perpendicular-geometry':
         return <PerpendicularGeometry3D />;
+      case 'space-angles':
+        return <SpaceAngles3D />;
       case 'cross-section':
         return <CrossSection3D />;
       default:
@@ -159,7 +296,19 @@ const InteractiveMaterials = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="formulas-main glass" style={{ height: '100%', padding: '1.5rem', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+        <div 
+          ref={mainContentRef}
+          className="formulas-main glass" 
+          style={{ 
+            height: '100%', 
+            padding: '1.5rem', 
+            overflow: 'hidden', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            position: 'relative',
+            '--interactive-sidebar-width': `${materialSidebarWidth}px`
+          }}
+        >
           {sidebarCollapsed && (
             <button
               type="button"
@@ -177,7 +326,35 @@ const InteractiveMaterials = () => {
               <MonitorPlay size={16} /> Danh mục
             </button>
           )}
+
           {renderMaterial()}
+
+          {/* Universal Resizer Bar between Customization Area and Visualizer */}
+          <div
+            className={`material-sidebar-resizer ${isResizingSidebar ? 'dragging' : ''}`}
+            style={{
+              left: resizerPos.left,
+              top: resizerPos.top,
+              height: resizerPos.height,
+              display: isResizerVisible ? 'flex' : 'none'
+            }}
+            onMouseDown={handleResizerMouseDown}
+            onTouchStart={handleResizerTouchStart}
+            onDoubleClick={handleResizerDoubleClick}
+            title="Kéo ngang để mở rộng hoặc thu hẹp khu vực tùy chỉnh (Nháy đúp để về 360px mặc định)"
+          >
+            <div className="resizer-visual-line" />
+            <div className="resizer-handle-grip" title="Kéo ngang để thay đổi độ rộng">
+              <span className="resizer-dot" />
+              <span className="resizer-dot" />
+              <span className="resizer-dot" />
+            </div>
+          </div>
+
+          {/* Fullscreen transparent backdrop while dragging */}
+          {isResizingSidebar && (
+            <div className="resizer-drag-backdrop" />
+          )}
         </div>
       </div>
     </div>

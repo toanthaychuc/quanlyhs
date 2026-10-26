@@ -85,3 +85,148 @@
     pointer-events: none !important;
   }
 }
+
+/* =========================================================================
+   Universal Resizable Customization Sidebar across ALL Interactive Materials
+   ========================================================================= */
+.interactive-page-container {
+  --interactive-sidebar-width: 360px;
+}
+
+@media (min-width: 769px) {
+  /* Apply customizable width to sidebar in all 14 interactive components */
+  .solid-sidebar,
+  .riemann-sidebar,
+  .func-invest-sidebar,
+  .space-geom-sidebar,
+  .space-angles-sidebar,
+  .oxyz-sidebar,
+  .cross-section-sidebar,
+  .conic-sidebar,
+  .trig-sidebar,
+  .ineq-sidebar,
+  .quad-sidebar,
+  .derivative-sidebar,
+  .set-ops-controls {
+    width: var(--interactive-sidebar-width, 360px) !important;
+    min-width: 250px !important;
+    max-width: min(80vw, 850px) !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ConicSections: Ensure visualizer flexes while sidebar respects custom width */
+  .conic-sidebar {
+    flex: none !important;
+  }
+  .conic-visualizer {
+    flex: 1 !important;
+  }
+
+  /* SetOperations: Side-by-side desktop layout with resizable controls */
+  .set-ops-container {
+    flex-direction: row !important;
+    gap: 20px !important;
+    height: 100% !important;
+  }
+  .set-ops-controls {
+    height: 100% !important;
+    overflow-y: auto !important;
+    padding-right: 8px !important;
+  }
+  .set-ops-container .svg-container {
+    flex: 1 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+}
+
+/* Resizer Divider Bar between Customization Area and Visualizer */
+.material-sidebar-resizer {
+  position: absolute;
+  width: 20px;
+  transform: translateX(-50%);
+  z-index: 25;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+  transition: opacity 0.15s ease;
+}
+
+.material-sidebar-resizer .resizer-visual-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--border-color, #e2e8f0);
+  border-radius: 1px;
+  transition: background-color 0.2s, box-shadow 0.2s, width 0.2s;
+}
+
+.material-sidebar-resizer:hover .resizer-visual-line,
+.material-sidebar-resizer.dragging .resizer-visual-line {
+  background-color: var(--primary-color, #4f46e5);
+  width: 3px;
+  box-shadow: 0 0 8px rgba(79, 70, 229, 0.45);
+}
+
+.material-sidebar-resizer .resizer-handle-grip {
+  position: relative;
+  z-index: 2;
+  width: 14px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--surface-color, #ffffff);
+  border: 1px solid var(--border-color, #cbd5e1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .material-sidebar-resizer .resizer-handle-grip {
+  background: var(--bg-secondary, #1e293b);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.material-sidebar-resizer:hover .resizer-handle-grip,
+.material-sidebar-resizer.dragging .resizer-handle-grip {
+  border-color: var(--primary-color, #4f46e5);
+  background: var(--primary-color, #4f46e5);
+  transform: scale(1.08);
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.4);
+}
+
+.material-sidebar-resizer .resizer-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: var(--text-secondary, #94a3b8);
+  transition: background-color 0.2s;
+}
+
+.material-sidebar-resizer:hover .resizer-dot,
+.material-sidebar-resizer.dragging .resizer-dot {
+  background-color: #ffffff;
+}
+
+/* Fullscreen Drag Backdrop to capture all pointer events smoothly */
+.resizer-drag-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  cursor: col-resize !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  background: transparent;
+}

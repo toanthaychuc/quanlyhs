@@ -25,6 +25,8 @@ const FunctionInvestigation = () => {
   const [r2D, setR2D] = useState(1);
   const [r2E, setR2E] = useState(1);
   
+  const [showDerivative, setShowDerivative] = useState(false);
+  
   const svgRef = useRef(null);
   const [svgSize, setSvgSize] = useState({ width: 800, height: 600 });
   
@@ -111,6 +113,66 @@ const FunctionInvestigation = () => {
     if (funcType === 'cubic') return fCubic;
     if (funcType === 'rational11') return fRat11;
     return fRat21;
+  };
+
+  const fPrimeCubic = (x) => 3 * cA * x * x + 2 * cB * x + cC;
+  const fPrimeRat11 = (x) => {
+    const denom = r1C * x + r1D;
+    if (Math.abs(denom) < 1e-9) return NaN;
+    return (r1A * r1D - r1B * r1C) / (denom * denom);
+  };
+  const fPrimeRat21 = (x) => {
+    const denom = r2D * x + r2E;
+    if (Math.abs(denom) < 1e-9) return NaN;
+    const A = r2A * r2D;
+    const B = 2 * r2A * r2E;
+    const C = r2B * r2E - r2C * r2D;
+    return (A * x * x + B * x + C) / (denom * denom);
+  };
+
+  const getCurrentFPrime = () => {
+    if (funcType === 'cubic') return fPrimeCubic;
+    if (funcType === 'rational11') return fPrimeRat11;
+    return fPrimeRat21;
+  };
+
+  const getDerivativePath = () => {
+    let path = "";
+    const step = 0.05;
+    let isFirst = true;
+    const fPrime = getCurrentFPrime();
+
+    for (let x = -30; x <= 30; x += step) {
+      if (funcType === 'rational11' && Math.abs(r1C * x + r1D) < 0.1) {
+        isFirst = true;
+        continue;
+      }
+      if (funcType === 'rational21' && Math.abs(r2D * x + r2E) < 0.1) {
+        isFirst = true;
+        continue;
+      }
+
+      let y = fPrime(x);
+      if (isNaN(y) || !isFinite(y)) {
+        isFirst = true;
+        continue;
+      }
+
+      const { px, py } = toPx(x, y);
+
+      if (py < -5000 || py > 5000 || isNaN(py)) {
+        isFirst = true;
+        continue;
+      }
+
+      if (isFirst) {
+        path += `M ${px} ${py} `;
+        isFirst = false;
+      } else {
+        path += `L ${px} ${py} `;
+      }
+    }
+    return path;
   };
 
   const getPath = () => {
@@ -593,6 +655,25 @@ const FunctionInvestigation = () => {
           )}
         </div>
 
+        {/* Option: Đồ thị của đạo hàm */}
+        <div className="func-options-card">
+          <label className="func-checkbox-label" htmlFor="derivative-toggle-cb">
+            <input 
+              id="derivative-toggle-cb"
+              type="checkbox" 
+              className="func-checkbox-input"
+              checked={showDerivative} 
+              onChange={(e) => setShowDerivative(e.target.checked)} 
+            />
+            <span className="func-checkbox-text">Đồ thị của đạo hàm</span>
+            <span className="derivative-badge" title="Đồ thị hàm số y' hiển thị bằng nét đứt màu cam">
+              <svg width="24" height="6" style={{ overflow: 'visible', verticalAlign: 'middle' }}>
+                <line x1="0" y1="3" x2="24" y2="3" stroke="#ea580c" strokeWidth="2.5" strokeDasharray="5,3" />
+              </svg>
+            </span>
+          </label>
+        </div>
+
         {/* Analysis Data */}
         <div className="func-analysis">
           <h4>Thông số nổi bật</h4>
@@ -618,6 +699,14 @@ const FunctionInvestigation = () => {
             <MousePointer2 size={20} />
           </button>
         </div>
+        {showDerivative && (
+          <div className="graph-derivative-legend">
+            <svg width="24" height="10" style={{ overflow: 'visible' }}>
+              <line x1="0" y1="5" x2="24" y2="5" stroke="#ea580c" strokeWidth="2.5" strokeDasharray="5,3" />
+            </svg>
+            <span>Đồ thị đạo hàm <span className="math-formula">y'</span></span>
+          </div>
+        )}
         <svg 
           ref={svgRef}
           width="100%" 
@@ -677,6 +766,17 @@ const FunctionInvestigation = () => {
 
           {/* Function Curve */}
           <path d={getPath()} fill="none" stroke="#3b82f6" strokeWidth="3" />
+
+          {/* Derivative Curve (Dashed) */}
+          {showDerivative && (
+            <path 
+              d={getDerivativePath()} 
+              fill="none" 
+              stroke="#ea580c" 
+              strokeWidth="2.5" 
+              strokeDasharray="6,4" 
+            />
+          )}
 
           {/* Interesting Points */}
           {drawPoint(0, analysis.oy, '#eab308', funcType === 'rational11' ? 'frac:b,d' : (funcType === 'rational21' ? 'frac:c,e' : 'd'))}
