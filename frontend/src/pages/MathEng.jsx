@@ -184,15 +184,11 @@ const MathEng = () => {
     }
   });
 
-  // UI Feedback & Voice States
+  // UI Feedback States (Google Translate TTS voice set to en-GB & 1.0x by default)
+  const voiceAccent = 'en-GB';
+  const voiceSpeed = 'normal';
   const [copiedId, setCopiedId] = useState(null);
   const [speakingId, setSpeakingId] = useState(null);
-  const [voiceAccent, setVoiceAccent] = useState(() => {
-    return localStorage.getItem('matheng_voice_accent') || 'en-US';
-  }); // 'en-US' | 'en-GB'
-  const [voiceSpeed, setVoiceSpeed] = useState(() => {
-    return localStorage.getItem('matheng_voice_speed') || 'normal';
-  }); // 'normal' | 'slow'
 
   const searchInputRef = useRef(null);
   const audioRef = useRef(null);
@@ -213,16 +209,6 @@ const MathEng = () => {
       }
     };
   }, []);
-
-  // Persist Voice Preferences
-  useEffect(() => {
-    try {
-      localStorage.setItem('matheng_voice_accent', voiceAccent);
-      localStorage.setItem('matheng_voice_speed', voiceSpeed);
-    } catch {
-      // Ignore storage errors
-    }
-  }, [voiceAccent, voiceSpeed]);
 
   // Persist Saved Terms
   useEffect(() => {
@@ -471,69 +457,32 @@ const MathEng = () => {
           </div>
         </div>
 
-        <div className="matheng-header-actions">
-          {/* Google Translate Voice & Speed Selector */}
-          <div className="matheng-voice-controls" title="Tuỳ chỉnh giọng đọc chuẩn Google Dịch">
-            <div className="matheng-voice-pill-group">
-              <button
-                type="button"
-                className={`matheng-voice-btn ${voiceAccent === 'en-US' ? 'active' : ''}`}
-                onClick={() => setVoiceAccent('en-US')}
-                title="Giọng đọc Google Dịch chuẩn Anh - Mỹ (US)"
-              >
-                <span>🇺🇸 Anh-Mỹ</span>
-              </button>
-              <button
-                type="button"
-                className={`matheng-voice-btn ${voiceAccent === 'en-GB' ? 'active' : ''}`}
-                onClick={() => setVoiceAccent('en-GB')}
-                title="Giọng đọc Google Dịch chuẩn Anh - Anh (UK)"
-              >
-                <span>🇬🇧 Anh-Anh</span>
-              </button>
-            </div>
-            <button
-              type="button"
-              className={`matheng-speed-btn ${voiceSpeed === 'slow' ? 'active' : ''}`}
-              onClick={() => setVoiceSpeed((prev) => (prev === 'normal' ? 'slow' : 'normal'))}
-              title={
-                voiceSpeed === 'slow'
-                  ? 'Đang bật chế độ đọc chậm rõ từng âm như Google Dịch (0.8x)'
-                  : 'Bấm để chuyển sang chế độ đọc chậm rõ (0.8x)'
-              }
-            >
-              <Volume2 size={14} />
-              <span>{voiceSpeed === 'slow' ? 'Đọc chậm (0.8x)' : 'Tốc độ 1.0x'}</span>
-            </button>
-          </div>
-
-          {/* Mode Switcher Tabs */}
-          <div className="matheng-mode-tabs">
-            <button
-              className={`matheng-mode-tab ${activeTab === 'vocab' ? 'active' : ''}`}
-              onClick={() => setActiveTab('vocab')}
-            >
-              <BookOpen size={17} />
-              <span>Thuật ngữ Toán học</span>
-              <span className="matheng-tab-count">{MATH_VOCABULARY.length}</span>
-            </button>
-            <button
-              className={`matheng-mode-tab ${activeTab === 'classroom' ? 'active' : ''}`}
-              onClick={() => setActiveTab('classroom')}
-            >
-              <Users size={17} />
-              <span>Giao tiếp lớp học</span>
-              <span className="matheng-tab-count">{CLASSROOM_PHRASES.length}</span>
-            </button>
-            <button
-              className={`matheng-mode-tab ${activeTab === 'flashcard' ? 'active' : ''}`}
-              onClick={() => setActiveTab('flashcard')}
-            >
-              <Sparkles size={17} />
-              <span>Thẻ ghi nhớ</span>
-              <span className="matheng-tab-count">{MATH_FLASHCARDS.length}</span>
-            </button>
-          </div>
+        {/* Mode Switcher Tabs */}
+        <div className="matheng-mode-tabs">
+          <button
+            className={`matheng-mode-tab ${activeTab === 'vocab' ? 'active' : ''}`}
+            onClick={() => setActiveTab('vocab')}
+          >
+            <BookOpen size={17} />
+            <span>Thuật ngữ Toán học</span>
+            <span className="matheng-tab-count">{MATH_VOCABULARY.length}</span>
+          </button>
+          <button
+            className={`matheng-mode-tab ${activeTab === 'classroom' ? 'active' : ''}`}
+            onClick={() => setActiveTab('classroom')}
+          >
+            <Users size={17} />
+            <span>Giao tiếp lớp học</span>
+            <span className="matheng-tab-count">{CLASSROOM_PHRASES.length}</span>
+          </button>
+          <button
+            className={`matheng-mode-tab ${activeTab === 'flashcard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('flashcard')}
+          >
+            <Sparkles size={17} />
+            <span>Thẻ ghi nhớ</span>
+            <span className="matheng-tab-count">{MATH_FLASHCARDS.length}</span>
+          </button>
         </div>
       </header>
 
