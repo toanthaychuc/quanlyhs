@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MonitorPlay, Maximize2, Minimize2 } from 'lucide-react';
+import { MonitorPlay, Maximize2, Minimize2, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import './InteractiveMaterials.css';
 import SetOperations from '../components/interactive/SetOperations';
 import LinearInequalities from '../components/interactive/LinearInequalities';
@@ -334,7 +334,21 @@ const InteractiveMaterials = () => {
   return (
     <div className="formulas-page interactive-page-container">
       <div className="formulas-header">
-        <div className="formulas-title-area" style={{ flexShrink: 0 }}>
+        <div className="formulas-title-area" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+          {!isFullscreen && (
+            <button
+              type="button"
+              className={`interactive-sidebar-toggle-btn ${sidebarCollapsed ? 'is-collapsed' : ''}`}
+              onClick={() => {
+                setSidebarCollapsed(prev => !prev);
+                setTimeout(updateResizerPosition, 150);
+              }}
+              title={sidebarCollapsed ? "Mở danh mục học liệu" : "Thu gọn danh mục học liệu"}
+              aria-label={sidebarCollapsed ? "Mở danh mục học liệu" : "Thu gọn danh mục học liệu"}
+            >
+              {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+            </button>
+          )}
           <h1>
             <MonitorPlay className="text-primary" size={28} style={{ marginRight: '8px' }} />
             HỌC LIỆU TƯƠNG TÁC
@@ -410,24 +424,6 @@ const InteractiveMaterials = () => {
             '--interactive-sidebar-width': `${materialSidebarWidth}px`
           }}
         >
-          {sidebarCollapsed && !isFullscreen && (
-            <button
-              type="button"
-              onClick={() => setSidebarCollapsed(false)}
-              title="Hiện danh mục"
-              style={{
-                position: 'absolute', top: '12px', left: '12px', zIndex: 30,
-                padding: '6px 12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-                color: 'var(--text-primary)', background: 'var(--bg-primary, rgba(255,255,255,0.95))',
-                border: '1px solid var(--border-color)', borderRadius: '999px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                display: 'flex', alignItems: 'center', gap: '4px'
-              }}
-            >
-              <MonitorPlay size={16} /> Danh mục
-            </button>
-          )}
-
           {/* Dedicated Fullscreen Toggle Button for Active Interactive Material */}
           <button
             type="button"
