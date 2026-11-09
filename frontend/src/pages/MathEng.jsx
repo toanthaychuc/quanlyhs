@@ -68,7 +68,6 @@ const MathEng = () => {
 
   // Vocabulary States
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchDirection, setSearchDirection] = useState('both'); // 'both' | 'en2vi' | 'vi2en'
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showOnlySaved, setShowOnlySaved] = useState(false);
   const [savedTerms, setSavedTerms] = useState(() => {
@@ -178,23 +177,17 @@ const MathEng = () => {
           .map((s) => `${normalizeText(s.en)} ${normalizeText(s.vi)}`)
           .join(' ');
 
-        if (searchDirection === 'en2vi') {
-          return enNorm.includes(qNorm) || subtermsNorm.includes(qNorm);
-        } else if (searchDirection === 'vi2en') {
-          return viNorm.includes(qNorm) || subtermsNorm.includes(qNorm);
-        } else {
-          return (
-            enNorm.includes(qNorm) ||
-            viNorm.includes(qNorm) ||
-            exampleNorm.includes(qNorm) ||
-            subtermsNorm.includes(qNorm)
-          );
-        }
+        return (
+          enNorm.includes(qNorm) ||
+          viNorm.includes(qNorm) ||
+          exampleNorm.includes(qNorm) ||
+          subtermsNorm.includes(qNorm)
+        );
       }
 
       return true;
     });
-  }, [searchQuery, searchDirection, selectedCategory, showOnlySaved, savedTerms]);
+  }, [searchQuery, selectedCategory, showOnlySaved, savedTerms]);
 
   // Filter Classroom Phrases
   const filteredPhrases = useMemo(() => {
@@ -344,39 +337,14 @@ const MathEng = () => {
               )}
             </div>
 
-            {/* Direction Selector */}
-            <div className="matheng-direction-toggle">
-              <button
-                className={`matheng-dir-btn ${searchDirection === 'both' ? 'active' : ''}`}
-                onClick={() => setSearchDirection('both')}
-                title="Tìm kiếm hai chiều Anh - Việt"
-              >
-                <ArrowRightLeft size={14} />
-                <span>Song ngữ</span>
-              </button>
-              <button
-                className={`matheng-dir-btn ${searchDirection === 'en2vi' ? 'active' : ''}`}
-                onClick={() => setSearchDirection('en2vi')}
-                title="Tìm theo từ tiếng Anh"
-              >
-                🇬🇧 Anh → Việt
-              </button>
-              <button
-                className={`matheng-dir-btn ${searchDirection === 'vi2en' ? 'active' : ''}`}
-                onClick={() => setSearchDirection('vi2en')}
-                title="Tìm theo nghĩa tiếng Việt"
-              >
-                🇻🇳 Việt → Anh
-              </button>
-              <button
-                className={`matheng-bookmark-toggle-btn ${showOnlySaved ? 'active' : ''}`}
-                onClick={() => setShowOnlySaved(!showOnlySaved)}
-                title="Chỉ hiển thị các từ vựng đã đánh dấu yêu thích"
-              >
-                <BookmarkCheck size={15} />
-                <span>Đã lưu ({savedTerms.length})</span>
-              </button>
-            </div>
+            <button
+              className={`matheng-bookmark-toggle-btn ${showOnlySaved ? 'active' : ''}`}
+              onClick={() => setShowOnlySaved(!showOnlySaved)}
+              title="Chỉ hiển thị các từ vựng đã đánh dấu yêu thích"
+            >
+              <BookmarkCheck size={16} />
+              <span>Đã lưu ({savedTerms.length})</span>
+            </button>
           </div>
 
           {/* Category Filter Pills */}
@@ -525,7 +493,7 @@ const MathEng = () => {
             <div className="matheng-empty-state">
               <Languages size={48} className="matheng-empty-icon" />
               <h3>Không tìm thấy thuật ngữ phù hợp</h3>
-              <p>Hãy thử tìm kiếm bằng từ khóa khác hoặc chuyển sang chế độ tìm kiếm Song ngữ.</p>
+              <p>Hãy thử kiểm tra lại từ khóa hoặc chọn xem lại tất cả danh mục.</p>
               <button
                 className="matheng-reset-filter-btn primary"
                 onClick={() => {
