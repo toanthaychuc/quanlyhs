@@ -359,6 +359,47 @@
   color: #db2777;
 }
 
+.matheng-term-cat-badge.cat-general {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+}
+
+.matheng-load-more-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.matheng-load-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 2rem;
+  background: var(--card-bg, #ffffff);
+  border: 1.5px solid rgba(79, 70, 229, 0.3);
+  border-radius: 999px;
+  color: #4f46e5;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.08);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.matheng-load-more-btn:hover {
+  background: #eef2ff;
+  border-color: #4f46e5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.15);
+}
+
+.matheng-load-more-btn:active {
+  transform: translateY(0);
+}
+
 .matheng-term-actions {
   display: flex;
   align-items: center;

@@ -23,6 +23,7 @@ import {
   RotateCcw, 
   ChevronLeft, 
   ChevronRight, 
+  ChevronDown,
   Shuffle, 
   GraduationCap, 
   ArrowRightLeft,
@@ -54,6 +55,7 @@ const CATEGORY_ICON_MAP = {
   calculus: TrendingUp,
   statistics: BarChart3,
   arithmetic: Binary,
+  general: Sparkles,
   group: Users,
   time: Clock,
   board: PenTool,
@@ -70,6 +72,7 @@ const MathEng = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showOnlySaved, setShowOnlySaved] = useState(false);
+  const [displayLimit, setDisplayLimit] = useState(60);
   const [savedTerms, setSavedTerms] = useState(() => {
     try {
       const stored = localStorage.getItem('matheng_saved_terms');
@@ -188,6 +191,11 @@ const MathEng = () => {
       return true;
     });
   }, [searchQuery, selectedCategory, showOnlySaved, savedTerms]);
+
+  // Paginated visible vocabulary for smooth 60fps rendering
+  const visibleVocabulary = useMemo(() => {
+    return filteredVocabulary.slice(0, displayLimit);
+  }, [filteredVocabulary, displayLimit]);
 
   // Filter Classroom Phrases
   const filteredPhrases = useMemo(() => {
@@ -321,13 +329,17 @@ const MathEng = () => {
                 className="matheng-search-input"
                 placeholder="Tra cứu từ vựng toán (VD: hypotenuse, đạo hàm, tam giác, asymptote, prime...)"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setDisplayLimit(60);
+                }}
               />
               {searchQuery && (
                 <button
                   className="matheng-clear-btn"
                   onClick={() => {
                     setSearchQuery('');
+                    setDisplayLimit(60);
                     searchInputRef.current?.focus();
                   }}
                   title="Xóa tìm kiếm"
@@ -339,7 +351,10 @@ const MathEng = () => {
 
             <button
               className={`matheng-bookmark-toggle-btn ${showOnlySaved ? 'active' : ''}`}
-              onClick={() => setShowOnlySaved(!showOnlySaved)}
+              onClick={() => {
+                setShowOnlySaved(!showOnlySaved);
+                setDisplayLimit(60);
+              }}
               title="Chỉ hiển thị các từ vựng đã đánh dấu yêu thích"
             >
               <BookmarkCheck size={16} />
@@ -360,7 +375,10 @@ const MathEng = () => {
                 <button
                   key={cat.id}
                   className={`matheng-cat-pill ${isActive ? 'active' : ''}`}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => {
+                    setSelectedCategory(cat.id);
+                    setDisplayLimit(60);
+                  }}
                   title={cat.desc}
                 >
                   <IconComp size={15} />
@@ -385,6 +403,7 @@ const MathEng = () => {
                   setSearchQuery('');
                   setSelectedCategory('all');
                   setShowOnlySaved(false);
+                  setDisplayLimit(60);
                 }}
               >
                 Đặt lại bộ lọc
@@ -394,101 +413,118 @@ const MathEng = () => {
 
           {/* Vocabulary Cards Grid */}
           {filteredVocabulary.length > 0 ? (
-            <div className="matheng-vocab-grid">
-              {filteredVocabulary.map((term) => {
-                const isSaved = savedTerms.includes(term.id);
-                const isSpeaking = speakingId === term.id;
-                const isCopied = copiedId === term.id;
-                const catMeta = MATH_CATEGORIES.find((c) => c.id === term.category) || MATH_CATEGORIES[0];
-                const IconComp = CATEGORY_ICON_MAP[term.category] || Layers;
+            <>
+              <div className="matheng-vocab-grid">
+                {visibleVocabulary.map((term) => {
+                  const isSaved = savedTerms.includes(term.id);
+                  const isSpeaking = speakingId === term.id;
+                  const isCopied = copiedId === term.id;
+                  const catMeta = MATH_CATEGORIES.find((c) => c.id === term.category) || MATH_CATEGORIES[0];
+                  const IconComp = CATEGORY_ICON_MAP[term.category] || Layers;
 
-                return (
-                  <div key={term.id} className="matheng-term-card">
-                    {/* Card Header: Category Badge, Audio & Actions */}
-                    <div className="matheng-term-card-header">
-                      <span className={`matheng-term-cat-badge cat-${term.category}`}>
-                        <IconComp size={12} />
-                        {catMeta.name}
-                      </span>
-                      <div className="matheng-term-actions">
-                        <button
-                          className={`matheng-icon-action-btn ${isSpeaking ? 'active' : ''}`}
-                          onClick={() => speakText(term.en, term.id)}
-                          title="Phát âm tiếng Anh chuẩn"
-                        >
-                          <Volume2 size={16} />
-                        </button>
-                        <button
-                          className="matheng-icon-action-btn"
-                          onClick={() => handleCopy(`${term.en}: ${term.vi}`, term.id)}
-                          title="Sao chép thuật ngữ"
-                        >
-                          {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
-                        </button>
-                        <button
-                          className={`matheng-icon-action-btn ${isSaved ? 'saved' : ''}`}
-                          onClick={() => toggleSaveTerm(term.id)}
-                          title={isSaved ? 'Bỏ lưu' : 'Lưu vào từ vựng cần ôn'}
-                        >
-                          {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-                        </button>
+                  return (
+                    <div key={term.id} className="matheng-term-card">
+                      {/* Card Header: Category Badge, Audio & Actions */}
+                      <div className="matheng-term-card-header">
+                        <span className={`matheng-term-cat-badge cat-${term.category}`}>
+                          <IconComp size={12} />
+                          {catMeta.name}
+                        </span>
+                        <div className="matheng-term-actions">
+                          <button
+                            className={`matheng-icon-action-btn ${isSpeaking ? 'active' : ''}`}
+                            onClick={() => speakText(term.en, term.id)}
+                            title="Phát âm tiếng Anh chuẩn"
+                          >
+                            <Volume2 size={16} />
+                          </button>
+                          <button
+                            className="matheng-icon-action-btn"
+                            onClick={() => handleCopy(`${term.en}: ${term.vi}`, term.id)}
+                            title="Sao chép thuật ngữ"
+                          >
+                            {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
+                          </button>
+                          <button
+                            className={`matheng-icon-action-btn ${isSaved ? 'saved' : ''}`}
+                            onClick={() => toggleSaveTerm(term.id)}
+                            title={isSaved ? 'Bỏ lưu' : 'Lưu vào từ vựng cần ôn'}
+                          >
+                            {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+                          </button>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Main Term: English & Vietnamese side-by-side */}
-                    <div className="matheng-term-body">
-                      <div className="matheng-term-en-line">
-                        <span className="matheng-term-en">{term.en}</span>
-                        <span className="matheng-term-divider">:</span>
-                        <span className="matheng-term-vi">{term.vi}</span>
+                      {/* Main Term: English & Vietnamese side-by-side */}
+                      <div className="matheng-term-body">
+                        <div className="matheng-term-en-line">
+                          <span className="matheng-term-en">{term.en}</span>
+                          <span className="matheng-term-divider">:</span>
+                          <span className="matheng-term-vi">{term.vi}</span>
+                        </div>
+                        {term.ipa && (
+                          <div className="matheng-term-ipa-wrapper">
+                            <span className="matheng-term-ipa">{term.ipa}</span>
+                          </div>
+                        )}
                       </div>
-                      {term.ipa && (
-                        <div className="matheng-term-ipa-wrapper">
-                          <span className="matheng-term-ipa">{term.ipa}</span>
+
+                      {/* Example Sentence */}
+                      {term.example && (
+                        <div className="matheng-example-box">
+                          <div className="matheng-example-label">
+                            <Lightbulb size={13} />
+                            <span>Ví dụ trong ngữ cảnh toán học:</span>
+                          </div>
+                          <div className="matheng-example-text">"{term.example}"</div>
+                        </div>
+                      )}
+
+                      {/* Subterms / Collocations (if any) */}
+                      {term.subterms && term.subterms.length > 0 && (
+                        <div className="matheng-subterms-box">
+                          <div className="matheng-subterms-title">Thuật ngữ liên quan:</div>
+                          <ul className="matheng-subterms-list">
+                            {term.subterms.map((sub, sIdx) => {
+                              const subId = `${term.id}_sub_${sIdx}`;
+                              const isSubSpeaking = speakingId === subId;
+                              return (
+                                <li key={sIdx} className="matheng-subterm-item">
+                                  <span className="matheng-subterm-en">{sub.en}</span>
+                                  <span className="matheng-subterm-vi">{sub.vi}</span>
+                                  <button
+                                    className="matheng-subterm-speak-btn"
+                                    onClick={() => speakText(sub.en, subId)}
+                                    title="Nghe phát âm"
+                                  >
+                                    <Volume2 size={13} className={isSubSpeaking ? 'speaking' : ''} />
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
                         </div>
                       )}
                     </div>
+                  );
+                })}
+              </div>
 
-                    {/* Example Sentence */}
-                    {term.example && (
-                      <div className="matheng-example-box">
-                        <div className="matheng-example-label">
-                          <Lightbulb size={13} />
-                          <span>Ví dụ trong ngữ cảnh toán học:</span>
-                        </div>
-                        <div className="matheng-example-text">"{term.example}"</div>
-                      </div>
-                    )}
-
-                    {/* Subterms / Collocations (if any) */}
-                    {term.subterms && term.subterms.length > 0 && (
-                      <div className="matheng-subterms-box">
-                        <div className="matheng-subterms-title">Thuật ngữ liên quan:</div>
-                        <ul className="matheng-subterms-list">
-                          {term.subterms.map((sub, sIdx) => {
-                            const subId = `${term.id}_sub_${sIdx}`;
-                            const isSubSpeaking = speakingId === subId;
-                            return (
-                              <li key={sIdx} className="matheng-subterm-item">
-                                <span className="matheng-subterm-en">{sub.en}</span>
-                                <span className="matheng-subterm-vi">{sub.vi}</span>
-                                <button
-                                  className="matheng-subterm-speak-btn"
-                                  onClick={() => speakText(sub.en, subId)}
-                                  title="Nghe phát âm"
-                                >
-                                  <Volume2 size={13} className={isSubSpeaking ? 'speaking' : ''} />
-                                </button>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+              {displayLimit < filteredVocabulary.length && (
+                <div className="matheng-load-more-wrapper">
+                  <button
+                    type="button"
+                    className="matheng-load-more-btn"
+                    onClick={() => setDisplayLimit((prev) => prev + 60)}
+                  >
+                    <ChevronDown size={18} />
+                    <span>
+                      Xem thêm 60 thuật ngữ (Đang hiển thị {visibleVocabulary.length}/{filteredVocabulary.length})
+                    </span>
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="matheng-empty-state">
               <Languages size={48} className="matheng-empty-icon" />
@@ -500,6 +536,7 @@ const MathEng = () => {
                   setSearchQuery('');
                   setSelectedCategory('all');
                   setShowOnlySaved(false);
+                  setDisplayLimit(60);
                 }}
               >
                 Xem lại toàn bộ danh mục từ vựng
