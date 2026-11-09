@@ -1,11 +1,69 @@
 /**
  * Dữ liệu chuẩn Thuật ngữ Toán tiếng Anh & Câu lệnh giao tiếp lớp học song ngữ
+ * Bao quát toàn diện chương trình GDPT từ Lớp 1 đến Lớp 12 & Toán quốc tế (SAT, Cambridge, AP, IMO)
  * Nguồn tham khảo chính:
- * 1. "Một số từ vựng Toán tiếng Anh thông dụng trong các kỳ thi Toán Quốc tế" - Võ Quốc Bá Cẩn
- * 2. "The Concise Oxford Dictionary of Mathematics" - Oxford University Press
- * 3. "Building Academic Vocabulary: Mathematics" - Washington Educational Service Districts
- * 4. Chuẩn thuật ngữ Toán Cambridge IGCSE, AS/A Level, AP Calculus & SAT Math
+ * 1. Chương trình GDPT 2018 môn Toán từ Lớp 1 đến Lớp 12 (Bộ GD&ĐT)
+ * 2. "Building Academic Vocabulary: Mathematics" - Washington Educational Service Districts (K-12)
+ * 3. "Một số từ vựng Toán tiếng Anh thông dụng trong các kỳ thi Toán Quốc tế" - Võ Quốc Bá Cẩn
+ * 4. "The Concise Oxford Dictionary of Mathematics" - Oxford University Press
  */
+
+export const GRADE_LEVELS = [
+  {
+    "id": "all",
+    "name": "Tất cả các khối lớp (1 - 12)",
+    "shortName": "Tất cả lớp",
+    "badge": "K-12",
+    "color": "#4f46e5",
+    "desc": "Toàn bộ từ vựng toán từ Tiểu học đến THPT",
+    "count": 456
+  },
+  {
+    "id": "primary",
+    "name": "Tiểu học (Lớp 1 - 5)",
+    "shortName": "Lớp 1-5",
+    "badge": "Lớp 1-5",
+    "color": "#10b981",
+    "desc": "Số tự nhiên, phép tính cơ bản, phân số, số thập phân, hình phẳng, chu vi, diện tích",
+    "count": 51
+  },
+  {
+    "id": "middle",
+    "name": "THCS (Lớp 6 - 9)",
+    "shortName": "Lớp 6-9",
+    "badge": "Lớp 6-9",
+    "color": "#0ea5e9",
+    "desc": "Số nguyên, số hữu tỉ, phương trình, tam giác đồng dạng, định lý Pythagoras, đường tròn",
+    "count": 330
+  },
+  {
+    "id": "grade10",
+    "name": "THPT - Lớp 10",
+    "shortName": "Lớp 10",
+    "badge": "Lớp 10",
+    "color": "#8b5cf6",
+    "desc": "Mệnh đề, tập hợp, bất phương trình, véc-tơ Oxy, tam thức bậc hai, lượng giác tam giác, tổ hợp",
+    "count": 27
+  },
+  {
+    "id": "grade11",
+    "name": "THPT - Lớp 11",
+    "shortName": "Lớp 11",
+    "badge": "Lớp 11",
+    "color": "#f59e0b",
+    "desc": "Hàm số lượng giác, cấp số cộng/nhân, giới hạn, đạo hàm, hình học không gian, xác suất nâng cao",
+    "count": 24
+  },
+  {
+    "id": "grade12",
+    "name": "THPT - Lớp 12",
+    "shortName": "Lớp 12",
+    "badge": "Lớp 12",
+    "color": "#ef4444",
+    "desc": "Khảo sát hàm số, nguyên hàm - tích phân, tọa độ không gian Oxyz, số liệu ghép nhóm, Bayes",
+    "count": 24
+  }
+];
 
 export const MATH_CATEGORIES = [
   {
@@ -473,13 +531,26 @@ export const CLASSROOM_PHRASES = [
 
 export const MATH_VOCABULARY = [
   {
+    "en": "3D Cartesian coordinate system (Oxyz)",
+    "vi": "Hệ tọa độ Descartes trong không gian Oxyz",
+    "category": "geometry",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/kɑːˈtiːziən kəʊˈɔːdɪnət ˈsɪstəm/",
+    "example": "Space defined by three mutually perpendicular axes: Ox, Oy, Oz.",
+    "id": "term_449",
+    "letter": "#"
+  },
+  {
     "id": "term_1",
     "en": "Absolute value",
     "vi": "Giá trị tuyệt đối",
     "category": "general",
     "letter": "A",
     "ipa": "/ˈæbsəluːt ˈvæljuː/",
-    "example": "The absolute value of -5 is 5, written as |-5| = 5."
+    "example": "The absolute value of -5 is 5, written as |-5| = 5.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_2",
@@ -496,20 +567,37 @@ export const MATH_VOCABULARY = [
         "en": "Acute triangle",
         "vi": "Tam giác nhọn"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_3",
     "en": "Add (addition)",
     "vi": "Cộng (phép cộng)",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_4",
     "en": "Addend",
     "vi": "Một số hạng (trong tổng)",
     "category": "general",
+    "letter": "A",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Addition",
+    "vi": "Phép cộng",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/əˈdɪʃn/",
+    "example": "Addition is finding the total of two or more numbers (e.g. 3 + 5 = 8).",
+    "id": "term_374",
     "letter": "A"
   },
   {
@@ -517,14 +605,18 @@ export const MATH_VOCABULARY = [
     "en": "Addition rule",
     "vi": "Quy tắc cộng",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_5",
     "en": "Additive",
     "vi": "Cộng tính",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_7",
@@ -541,14 +633,18 @@ export const MATH_VOCABULARY = [
         "en": "Adjacent cells",
         "vi": "Các ô kề nhau"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_8",
     "en": "Alternative angles",
     "vi": "Góc so le",
     "category": "geometry",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_9",
@@ -557,7 +653,9 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "A",
     "ipa": "/ˈæltɪtjuːd/",
-    "example": "The altitude of a triangle is the perpendicular segment from a vertex to the opposite line."
+    "example": "The altitude of a triangle is the perpendicular segment from a vertex to the opposite line.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_10",
@@ -574,14 +672,18 @@ export const MATH_VOCABULARY = [
         "en": "Angle trisectors",
         "vi": "Các tia chia một góc thành ba góc bằng nhau"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_11",
     "en": "Annulus",
     "vi": "Hình vành khăn",
     "category": "geometry",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_361",
@@ -591,6 +693,19 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌænti-dɪˈrɪvətɪv/",
     "example": "F(x) is an antiderivative of f(x) if F'(x) = f(x).",
     "subterms": [],
+    "letter": "A",
+    "gradeId": "grade12",
+    "grade": "Lớp 12"
+  },
+  {
+    "en": "Antiderivative and Indefinite integral",
+    "vi": "Nguyên hàm và Tích phân bất định (∫ f(x)dx = F(x) + C)",
+    "category": "calculus",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˌæntidɪˈrɪvətɪv ænd ɪnˈdefɪnət ˈɪntɪɡrəl/",
+    "example": "F'(x) = f(x); never forget the integration constant C.",
+    "id": "term_445",
     "letter": "A"
   },
   {
@@ -598,27 +713,46 @@ export const MATH_VOCABULARY = [
     "en": "Arbitrary",
     "vi": "Bất kỳ, tùy ý",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_13",
     "en": "Arc",
     "vi": "Cung",
     "category": "geometry",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_14",
     "en": "Area",
     "vi": "Diện tích",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_15",
     "en": "Argument",
     "vi": "Lập luận, lý lẽ",
     "category": "general",
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Arithmetic progression (AP)",
+    "vi": "Cấp số cộng (u_n = u_1 + (n-1)d)",
+    "category": "algebra",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/əˈrɪθmətɪk prəˈɡreʃn/",
+    "example": "A sequence where consecutive terms differ by a constant common difference d.",
+    "id": "term_428",
     "letter": "A"
   },
   {
@@ -626,49 +760,63 @@ export const MATH_VOCABULARY = [
     "en": "Arrange",
     "vi": "Sắp xếp",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_17",
     "en": "Array",
     "vi": "Mảng hình chữ nhật",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_18",
     "en": "Ascending order",
     "vi": "Thứ tự tăng dần",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_19",
     "en": "Assign",
     "vi": "Gán",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_20",
     "en": "Associative",
     "vi": "Tính chất kết hợp",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_21",
     "en": "Assume",
     "vi": "Giả sử",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_22",
     "en": "Assumption",
     "vi": "Giả thiết",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_363",
@@ -691,6 +839,19 @@ export const MATH_VOCABULARY = [
         "vi": "Tiệm cận xiên"
       }
     ],
+    "letter": "A",
+    "gradeId": "grade12",
+    "grade": "Lớp 12"
+  },
+  {
+    "en": "Asymptotes (Vertical, Horizontal, Oblique)",
+    "vi": "Đường tiệm cận (Tiệm cận đứng, ngang, xiên)",
+    "category": "calculus",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˈæsɪmptəʊts/",
+    "example": "Lines that the curve approaches arbitrarily closely as coordinates tend to infinity or singularities.",
+    "id": "term_444",
     "letter": "A"
   },
   {
@@ -698,27 +859,46 @@ export const MATH_VOCABULARY = [
     "en": "At most",
     "vi": "Nhiều nhất là",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_24",
     "en": "Attack",
     "vi": "Tấn công",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_25",
     "en": "Attain",
     "vi": "Đạt được",
     "category": "general",
-    "letter": "A"
+    "letter": "A",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_26",
     "en": "Average",
     "vi": "Trung bình cộng",
     "category": "statistics",
+    "letter": "A",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Average (Mean)",
+    "vi": "Số trung bình cộng",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈævərɪdʒ/",
+    "example": "The average of 4, 6, and 8 is (4 + 6 + 8) / 3 = 6.",
+    "id": "term_386",
     "letter": "A"
   },
   {
@@ -736,13 +916,28 @@ export const MATH_VOCABULARY = [
         "en": "Vertical axis",
         "vi": "Trục tung"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_28",
     "en": "Base",
     "vi": "Đáy (tam giác, hình thang)",
     "category": "geometry",
+    "letter": "B",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Bayes' theorem",
+    "vi": "Công thức Bayes và Công thức xác suất toàn phần",
+    "category": "statistics",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/beɪz ˈθɪərəm/",
+    "example": "Calculates posterior probability by updating prior probability with new evidence.",
+    "id": "term_455",
     "letter": "B"
   },
   {
@@ -752,28 +947,47 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "B",
     "ipa": "/baɪˈnəʊmiəl/",
-    "example": "A binomial is a polynomial containing exactly two terms, such as (x + y)."
+    "example": "A binomial is a polynomial containing exactly two terms, such as (x + y).",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
+  },
+  {
+    "en": "Binomial theorem",
+    "vi": "Định lý nhị thức Niu-tơn (Newton)",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/baɪˈnəʊmiəl ˈθɪərəm/",
+    "example": "Expands powers of a binomial (a + b)^n using combinatorial coefficients.",
+    "id": "term_423",
+    "letter": "B"
   },
   {
     "id": "term_30",
     "en": "Bisect",
     "vi": "Chia đôi (thành hai phần bằng nhau)",
     "category": "geometry",
-    "letter": "B"
+    "letter": "B",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_31",
     "en": "Bisector",
     "vi": "Đường phân giác",
     "category": "geometry",
-    "letter": "B"
+    "letter": "B",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_32",
     "en": "Bold",
     "vi": "Đậm",
     "category": "general",
-    "letter": "B"
+    "letter": "B",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_33",
@@ -782,27 +996,46 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "ipa": "/kɑːˈtiːziən ˈsɪstəm/",
-    "example": "The Cartesian coordinate system uses perpendicular x and y axes."
+    "example": "The Cartesian coordinate system uses perpendicular x and y axes.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_34",
     "en": "Center",
     "vi": "Tâm (đường tròn)",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_37",
     "en": "Centimetre",
     "vi": "Xăng ti mét",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_35",
     "en": "Central",
     "vi": "Ở giữa, trung tâm",
     "category": "general",
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Central angle",
+    "vi": "Góc ở tâm",
+    "category": "geometry",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsentrəl ˈæŋɡl/",
+    "example": "The measure of a central angle equals the degree measure of its intercepted arc.",
+    "id": "term_406",
     "letter": "C"
   },
   {
@@ -810,6 +1043,19 @@ export const MATH_VOCABULARY = [
     "en": "Centroid",
     "vi": "Trọng tâm (của tam giác)",
     "category": "geometry",
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Chain rule",
+    "vi": "Quy tắc đạo hàm hàm hợp (y'_x = y'_u * u'_x)",
+    "category": "calculus",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/tʃeɪn ruːl/",
+    "example": "Differentiating composite function: [f(g(x))]' = f'(g(x)) * g'(x).",
+    "id": "term_436",
     "letter": "C"
   },
   {
@@ -817,35 +1063,45 @@ export const MATH_VOCABULARY = [
     "en": "Change",
     "vi": "Sự thay đổi, sự biến đổi",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_39",
     "en": "Chessboard",
     "vi": "Bàn cờ",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_40",
     "en": "Choice",
     "vi": "Sự lựa chọn",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_41",
     "en": "Chord",
     "vi": "Dây cung",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_42",
     "en": "Circle",
     "vi": "Đường tròn",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_43",
@@ -858,7 +1114,9 @@ export const MATH_VOCABULARY = [
         "en": "Circular track",
         "vi": "Đường (chạy) tròn"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_44",
@@ -867,14 +1125,18 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "ipa": "/ˈsɜːkəmˌsɜːkl/",
-    "example": "The circumcircle passes through all three vertices of the triangle."
+    "example": "The circumcircle passes through all three vertices of the triangle.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_45",
     "en": "Circumference",
     "vi": "Chu vi đường tròn",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_46",
@@ -883,35 +1145,56 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "C",
     "ipa": "/ˌkəʊɪˈfɪʃnt/",
-    "example": "In the quadratic 3x^2, the coefficient of x^2 is 3."
+    "example": "In the quadratic 3x^2, the coefficient of x^2 is 3.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Collinear vectors",
+    "vi": "Hai véc-tơ cùng phương",
+    "category": "geometry",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/kəʊˈlɪniə ˈvektəz/",
+    "example": "Two vectors are collinear if one is a scalar multiple of the other: u = k*v.",
+    "id": "term_419",
+    "letter": "C"
   },
   {
     "id": "term_47",
     "en": "Combination",
     "vi": "Tổ hợp",
     "category": "statistics",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
   },
   {
     "id": "term_48",
     "en": "Common Chung,",
     "vi": "thông thường",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_49",
     "en": "Common difference",
     "vi": "Công sai",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_50",
     "en": "Complement",
     "vi": "Phần bù",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_370",
@@ -938,48 +1221,73 @@ export const MATH_VOCABULARY = [
         "vi": "Số phức liên hợp"
       }
     ],
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_51",
     "en": "Composite numbers",
     "vi": "Hợp số",
     "category": "arithmetic",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_52",
     "en": "Comprise",
     "vi": "Gồm có, bao gồm",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_53",
     "en": "Compute",
     "vi": "Tính toán, ước tính",
     "category": "arithmetic",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_54",
     "en": "Concave polygon",
     "vi": "Đa giác lõm",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_55",
     "en": "Concentric circles",
     "vi": "Các đường tròn đồng tâm",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_56",
     "en": "Concurent lines",
     "vi": "Các đường thằng đồng quy",
     "category": "general",
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Conditional probability (P(A|B))",
+    "vi": "Xác suất có điều kiện",
+    "category": "statistics",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/kənˈdɪʃənl ˌprɒbəˈbɪləti/",
+    "example": "P(A|B) = P(AB) / P(B), the probability of event A given that B has occurred.",
+    "id": "term_454",
     "letter": "C"
   },
   {
@@ -987,14 +1295,18 @@ export const MATH_VOCABULARY = [
     "en": "Configuration",
     "vi": "Cách bố trí, cấu hình",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_58",
     "en": "Congruence",
     "vi": "Đồng dư",
     "category": "arithmetic",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_59",
@@ -1017,7 +1329,45 @@ export const MATH_VOCABULARY = [
       }
     ],
     "ipa": "/ˈkɒŋɡruənt/",
-    "example": "Two figures are congruent if they have the exact same shape and size."
+    "example": "Two figures are congruent if they have the exact same shape and size.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Congruent triangles",
+    "vi": "Hai tam giác bằng nhau",
+    "category": "geometry",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒŋɡruənt ˈtraɪæŋɡlz/",
+    "example": "Triangles can be proved congruent by SSS, SAS, or ASA criteria.",
+    "id": "term_403",
+    "letter": "C"
+  },
+  {
+    "en": "Conic sections (Ellipse, Hyperbola, Parabola)",
+    "vi": "Ba đường cô-núc (Elip, Hypebol, Parabol)",
+    "category": "geometry",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˈkɒnɪk ˈsekʃnz/",
+    "example": "The canonical equation of an ellipse is x^2/a^2 + y^2/b^2 = 1.",
+    "subterms": [
+      {
+        "en": "Focal length",
+        "vi": "Tiêu cự (2c)"
+      },
+      {
+        "en": "Major axis / Minor axis",
+        "vi": "Trục lớn / Trục nhỏ của Elip"
+      },
+      {
+        "en": "Eccentricity",
+        "vi": "Tâm sai (e = c/a)"
+      }
+    ],
+    "id": "term_421",
+    "letter": "C"
   },
   {
     "id": "term_60",
@@ -1034,35 +1384,45 @@ export const MATH_VOCABULARY = [
         "en": "Consecutive even integers",
         "vi": "Các số nguyên chẵn liên tiếp"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_61",
     "en": "Consequence",
     "vi": "Hệ quả",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "grade11",
+    "grade": "Lớp 11"
   },
   {
     "id": "term_62",
     "en": "Consequently Do",
     "vi": "đó, vì vậy",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_63",
     "en": "Consider Xem",
     "vi": "xét",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_64",
     "en": "Consist of",
     "vi": "Gồm có",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_65",
@@ -1075,20 +1435,37 @@ export const MATH_VOCABULARY = [
         "en": "Constant speed",
         "vi": "Vận tốc không đổi"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_66",
     "en": "Construction",
     "vi": "Sự xây dựng, sự dựng hình",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_67",
     "en": "Continued fraction",
     "vi": "Liên phân số",
     "category": "arithmetic",
+    "letter": "C",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Continuous function",
+    "vi": "Hàm số liên tục",
+    "category": "calculus",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/kənˈtɪnjuəs ˈfʌŋkʃn/",
+    "example": "f is continuous at x0 if lim f(x) as x->x0 equals f(x0).",
+    "id": "term_432",
     "letter": "C"
   },
   {
@@ -1096,21 +1473,27 @@ export const MATH_VOCABULARY = [
     "en": "Contradiction",
     "vi": "Sự mâu thuẫn",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_70",
     "en": "Conversely",
     "vi": "Ngược lại",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_69",
     "en": "Convex polygon",
     "vi": "Đa giác lồi",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_71",
@@ -1119,7 +1502,9 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "ipa": "/kəʊˈɔːdɪnəts/",
-    "example": "Point P has Cartesian coordinates (3, 4)."
+    "example": "Point P has Cartesian coordinates (3, 4).",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_72",
@@ -1128,35 +1513,45 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "C",
     "ipa": "/kəʊˈpraɪm/",
-    "example": "Numbers 8 and 9 are coprime because their greatest common divisor is 1."
+    "example": "Numbers 8 and 9 are coprime because their greatest common divisor is 1.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_73",
     "en": "Correspondence",
     "vi": "Phép tương ứng",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_75",
     "en": "Corresponding angles",
     "vi": "Các góc tương ứng",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_74",
     "en": "Corresponding sides",
     "vi": "Các cạnh tương ứng",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_76",
     "en": "Counting numbers",
     "vi": "Số đếm 1, 2, 3, …",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_373",
@@ -1166,20 +1561,37 @@ export const MATH_VOCABULARY = [
     "ipa": "/krɒs ˈprɒdʌkt/",
     "example": "The cross product produces a vector perpendicular to both operand vectors.",
     "subterms": [],
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "grade12",
+    "grade": "Lớp 12"
   },
   {
     "id": "term_77",
     "en": "Cross-section",
     "vi": "Mặt cắt",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_78",
     "en": "Cube",
     "vi": "Hình lập phương",
     "category": "geometry",
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Cube root",
+    "vi": "Căn bậc ba",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kjuːb ruːt/",
+    "example": "The cube root of 27 is 3, because 3^3 = 27.",
+    "id": "term_392",
     "letter": "C"
   },
   {
@@ -1187,27 +1599,46 @@ export const MATH_VOCABULARY = [
     "en": "Cuboid",
     "vi": "Hình khối",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_80",
     "en": "Curved surface area",
     "vi": "Diện tích mặt cong",
     "category": "general",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_81",
     "en": "Cyclic polygon",
     "vi": "Đa giác nội tiếp đường tròn",
     "category": "geometry",
-    "letter": "C"
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_82",
     "en": "Cylinder",
     "vi": "Hình trụ tròn",
     "category": "geometry",
+    "letter": "C",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Cylinder, Cone, Sphere",
+    "vi": "Hình trụ, Hình nón, Hình cầu",
+    "category": "geometry",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsɪlɪndə, kəʊn, sfɪə/",
+    "example": "Key 3D curved solids studied in Grade 9 geometry.",
+    "id": "term_407",
     "letter": "C"
   },
   {
@@ -1215,6 +1646,19 @@ export const MATH_VOCABULARY = [
     "en": "Decimal",
     "vi": "Số thập phân",
     "category": "arithmetic",
+    "letter": "D",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Decimal number",
+    "vi": "Số thập phân",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈdesɪml ˈnʌmbə/",
+    "example": "A decimal uses a decimal point to separate the whole number part from fractional parts (e.g. 3.14).",
+    "id": "term_383",
     "letter": "D"
   },
   {
@@ -1222,41 +1666,64 @@ export const MATH_VOCABULARY = [
     "en": "Decompose",
     "vi": "Phân tích ra thừa số",
     "category": "arithmetic",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_85",
     "en": "Decrease",
     "vi": "Giảm",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_86",
     "en": "Decreasing order",
     "vi": "Thứ tự giảm dần",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_87",
     "en": "Deduce",
     "vi": "Suy ra, luận ra",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_88",
     "en": "Deduct",
     "vi": "Trừ đi, khấu trừ",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_89",
     "en": "Define",
     "vi": "Định nghĩa",
     "category": "general",
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Definite integral",
+    "vi": "Tích phân xác định (tích phân từ a đến b)",
+    "category": "calculus",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˈdefɪnət ˈɪntɪɡrəl/",
+    "example": "Evaluated by Newton-Leibniz formula: integral_a^b f(x)dx = F(b) - F(a).",
+    "id": "term_446",
     "letter": "D"
   },
   {
@@ -1264,7 +1731,9 @@ export const MATH_VOCABULARY = [
     "en": "Degree",
     "vi": "Độ (số đo của góc)",
     "category": "geometry",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_91",
@@ -1273,14 +1742,18 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "D",
     "ipa": "/dɪˈnɒmɪneɪtə/",
-    "example": "In the fraction 3/4, 4 is the denominator."
+    "example": "In the fraction 3/4, 4 is the denominator.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_92",
     "en": "Depend",
     "vi": "Phụ thuộc",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_360",
@@ -1303,14 +1776,18 @@ export const MATH_VOCABULARY = [
         "vi": "Đạo hàm riêng"
       }
     ],
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "grade11",
+    "grade": "Lớp 11"
   },
   {
     "id": "term_93",
     "en": "Descending order",
     "vi": "Thứ tự giảm dần",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_94",
@@ -1319,7 +1796,9 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "ipa": "/daɪˈæɡənl/",
-    "example": "A square has two equal diagonals intersecting at right angles."
+    "example": "A square has two equal diagonals intersecting at right angles.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_95",
@@ -1328,20 +1807,37 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "D",
     "ipa": "/daɪˈæmɪtə/",
-    "example": "The diameter of a circle is twice its radius."
+    "example": "The diameter of a circle is twice its radius.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_96",
     "en": "Difference",
     "vi": "Hiệu",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_97",
     "en": "Digit",
     "vi": "Chữ số",
     "category": "arithmetic",
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Dihedral angle",
+    "vi": "Góc nhị diện (góc giữa hai nửa mặt phẳng)",
+    "category": "geometry",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/daɪˈhiːdrəl ˈæŋɡl/",
+    "example": "The angle formed by two intersecting half-planes sharing a common edge.",
+    "id": "term_439",
     "letter": "D"
   },
   {
@@ -1349,20 +1845,37 @@ export const MATH_VOCABULARY = [
     "en": "Dimenssion",
     "vi": "Kích thước",
     "category": "arithmetic",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_100",
     "en": "Direct proportion",
     "vi": "Tỉ lệ thuận",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_99",
     "en": "Direction",
     "vi": "Hướng",
     "category": "general",
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Direction vector & Normal vector",
+    "vi": "Véc-tơ chỉ phương & Véc-tơ pháp tuyến của đường thẳng",
+    "category": "geometry",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/daɪˈrekʃn ˈvektə & ˈnɔːml ˈvektə/",
+    "example": "A normal vector n(A, B) is perpendicular to the direction vector u(-B, A).",
+    "id": "term_420",
     "letter": "D"
   },
   {
@@ -1370,41 +1883,64 @@ export const MATH_VOCABULARY = [
     "en": "Distance",
     "vi": "Khoảng cách",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_102",
     "en": "Distinct",
     "vi": "Khác nhau, phân biệt",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_103",
     "en": "Distribute",
     "vi": "Phân chia, xếp (đồ vào túi, vào hộp…)",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_105",
     "en": "Divide (division)",
     "vi": "Chia (phép chia)",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_104",
     "en": "Dividend",
     "vi": "Số bị chia",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_106",
     "en": "Divisible",
     "vi": "Chia hết",
     "category": "arithmetic",
+    "letter": "D",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Division",
+    "vi": "Phép chia",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/dɪˈvɪʒn/",
+    "example": "Division splits a number into equal parts (e.g. 20 ÷ 4 = 5).",
+    "id": "term_376",
     "letter": "D"
   },
   {
@@ -1412,7 +1948,9 @@ export const MATH_VOCABULARY = [
     "en": "Divisor",
     "vi": "Ước số",
     "category": "arithmetic",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_365",
@@ -1422,7 +1960,9 @@ export const MATH_VOCABULARY = [
     "ipa": "/dəʊˈmeɪn ænd reɪndʒ/",
     "example": "The domain is the set of valid inputs; the range is the set of possible outputs.",
     "subterms": [],
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_372",
@@ -1432,77 +1972,99 @@ export const MATH_VOCABULARY = [
     "ipa": "/dɒt ˈprɒdʌkt/",
     "example": "The dot product of two perpendicular vectors is equal to zero (u . v = 0).",
     "subterms": [],
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
   },
   {
     "id": "term_108",
     "en": "Double",
     "vi": "Gấp đôi",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_109",
     "en": "Dozen",
     "vi": "Một tá (12 chiếc/cái)",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_110",
     "en": "Draw",
     "vi": "Vẽ, hòa (một trận đấu)",
     "category": "general",
-    "letter": "D"
+    "letter": "D",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_111",
     "en": "Edge",
     "vi": "Cạnh (của đa giác)",
     "category": "geometry",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_112",
     "en": "Element",
     "vi": "Phần tử (của tập hợp)",
     "category": "general",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
   },
   {
     "id": "term_113",
     "en": "Elevation",
     "vi": "Sự ngước lên, độ cao",
     "category": "arithmetic",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_114",
     "en": "Empty set",
     "vi": "Tập rỗng",
     "category": "general",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_115",
     "en": "Endpoint",
     "vi": "Điểm mút",
     "category": "general",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_116",
     "en": "Enlargement factor",
     "vi": "Tỉ số đồng dạng",
     "category": "general",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_117",
     "en": "Ensure",
     "vi": "Đảm bảo, chắc chắn rằng",
     "category": "general",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_118",
@@ -1515,13 +2077,28 @@ export const MATH_VOCABULARY = [
         "en": "Equal sized figures",
         "vi": "Các hình bằng nhau"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_119",
     "en": "Equation",
     "vi": "Phương trình",
     "category": "algebra",
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Equation of a sphere",
+    "vi": "Phương trình mặt cầu ((x-a)^2 + (y-b)^2 + (z-c)^2 = R^2)",
+    "category": "geometry",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ɪˈkweɪʒn əv ə sfɪə/",
+    "example": "Represents all points equidistant from center I(a, b, c) by radius R.",
+    "id": "term_451",
     "letter": "E"
   },
   {
@@ -1531,14 +2108,18 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "E",
     "ipa": "/ˌiːkwɪˈlætərəl ˈtraɪæŋɡl/",
-    "example": "All three interior angles of an equilateral triangle equal 60 degrees."
+    "example": "All three interior angles of an equilateral triangle equal 60 degrees.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_121",
     "en": "Evaluate",
     "vi": "Tính",
     "category": "general",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_122",
@@ -1551,13 +2132,39 @@ export const MATH_VOCABULARY = [
         "en": "Even integers",
         "vi": "Các số nguyên chẵn"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Even number",
+    "vi": "Số chẵn",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈiːvn ˈnʌmbə/",
+    "example": "An even number ends in 0, 2, 4, 6, or 8 and is divisible by 2.",
+    "id": "term_379",
+    "letter": "E"
   },
   {
     "id": "term_123",
     "en": "Exactly",
     "vi": "Chính xác, đúng đắn",
     "category": "general",
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Exponential function (y = a^x)",
+    "vi": "Hàm số mũ",
+    "category": "algebra",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˌekspəˈnenʃl ˈfʌŋkʃn/",
+    "example": "y = a^x has domain R, range (0, +infinity), always passes through (0, 1).",
+    "id": "term_434",
     "letter": "E"
   },
   {
@@ -1565,27 +2172,46 @@ export const MATH_VOCABULARY = [
     "en": "Expression",
     "vi": "Biểu thức",
     "category": "algebra",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_127",
     "en": "Exterior angle",
     "vi": "Góc ngoài (của tam giác)",
     "category": "geometry",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_125",
     "en": "External",
     "vi": "Bên ngoài",
     "category": "general",
-    "letter": "E"
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_126",
     "en": "Externally tangent",
     "vi": "Tiếp xúc ngoài",
     "category": "geometry",
+    "letter": "E",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Extrema of a function",
+    "vi": "Cực trị của hàm số (Cực đại & Cực tiểu)",
+    "category": "calculus",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ɪkˈstriːmə əv ə ˈfʌŋkʃn/",
+    "example": "Local maximum and minimum points where f'(x) changes sign.",
+    "id": "term_442",
     "letter": "E"
   },
   {
@@ -1593,49 +2219,63 @@ export const MATH_VOCABULARY = [
     "en": "Factor",
     "vi": "Ước số",
     "category": "arithmetic",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_129",
     "en": "Factorial Giai",
     "vi": "thừa",
     "category": "general",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_130",
     "en": "Figure",
     "vi": "Hình vẽ",
     "category": "general",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_131",
     "en": "Fill",
     "vi": "Điền vào",
     "category": "general",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_132",
     "en": "Flag",
     "vi": "Lá cờ",
     "category": "general",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_133",
     "en": "Fold",
     "vi": "Gấp (giấy)",
     "category": "general",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_134",
     "en": "Formula",
     "vi": "Công thức",
     "category": "general",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_135",
@@ -1648,41 +2288,86 @@ export const MATH_VOCABULARY = [
         "en": "Fraction written in its lowest form",
         "vi": "Phân số tối giản"
       }
-    ]
+    ],
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_136",
     "en": "Frame",
     "vi": "Khung",
     "category": "general",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_137",
     "en": "Frequency",
     "vi": "Tần số",
     "category": "statistics",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_138",
     "en": "Frustrum",
     "vi": "Hình nón cụt",
     "category": "general",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_139",
     "en": "Function",
     "vi": "Hàm số",
     "category": "algebra",
-    "letter": "F"
+    "letter": "F",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "General equation of a plane",
+    "vi": "Phương trình tổng quát của mặt phẳng (Ax + By + Cz + D = 0)",
+    "category": "geometry",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˈdʒenrəl ɪˈkweɪʒn əv ə pleɪn/",
+    "example": "Defined by normal vector n(A, B, C) perpendicular to the plane.",
+    "id": "term_452",
+    "letter": "G"
   },
   {
     "id": "term_140",
     "en": "Generate",
     "vi": "Tạo ra",
     "category": "general",
+    "letter": "G",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Geometric progression (GP)",
+    "vi": "Cấp số nhân (u_n = u_1 * q^(n-1))",
+    "category": "algebra",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˌdʒiːəˈmetrɪk prəˈɡreʃn/",
+    "example": "A sequence where each term after the first is found by multiplying by ratio q.",
+    "id": "term_429",
+    "letter": "G"
+  },
+  {
+    "en": "Global maximum and minimum",
+    "vi": "Giá trị lớn nhất (GTLN) và Giá trị nhỏ nhất (GTNN)",
+    "category": "calculus",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˈɡləʊbl ˈmæksɪməm ænd ˈmɪnɪməm/",
+    "example": "Max and min values of a continuous function on a closed interval [a, b].",
+    "id": "term_443",
     "letter": "G"
   },
   {
@@ -1690,6 +2375,19 @@ export const MATH_VOCABULARY = [
     "en": "Gradient",
     "vi": "Hệ số góc",
     "category": "geometry",
+    "letter": "G",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Greater than (>)",
+    "vi": "Lớn hơn (>)",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈɡreɪtə ðæn/",
+    "example": "8 is greater than 5, written as 8 > 5.",
+    "id": "term_381",
     "letter": "G"
   },
   {
@@ -1703,34 +2401,66 @@ export const MATH_VOCABULARY = [
         "en": "Greatest common divisor (gcd)",
         "vi": "Ước chung lớn nhất"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Grouped data variance & standard deviation",
+    "vi": "Phương sai và độ lệch chuẩn của mẫu số liệu ghép nhóm",
+    "category": "statistics",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ɡruːpt ˈdeɪtə ˈveəriəns/",
+    "example": "Measures spread for binned numerical data in Grade 12 statistics.",
+    "id": "term_456",
+    "letter": "G"
   },
   {
     "id": "term_143",
     "en": "Height",
     "vi": "Chiều cao",
     "category": "general",
-    "letter": "H"
+    "letter": "H",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_144",
     "en": "Hemisphere",
     "vi": "Bán cầu",
     "category": "geometry",
-    "letter": "H"
+    "letter": "H",
+    "gradeId": "grade12",
+    "grade": "Lớp 12"
   },
   {
     "id": "term_145",
     "en": "Hence",
     "vi": "Suy ra",
     "category": "general",
-    "letter": "H"
+    "letter": "H",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_146",
     "en": "Heptagon",
     "vi": "Hình thất giác",
     "category": "general",
+    "letter": "H",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Heron's formula",
+    "vi": "Công thức Hê-rông tính diện tích tam giác",
+    "category": "geometry",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˈherənz ˈfɔːmjələ/",
+    "example": "S = sqrt(p(p-a)(p-b)(p-c)), where p is the semi-perimeter.",
+    "id": "term_417",
     "letter": "H"
   },
   {
@@ -1738,21 +2468,27 @@ export const MATH_VOCABULARY = [
     "en": "Hexagon",
     "vi": "Hình lục giác",
     "category": "general",
-    "letter": "H"
+    "letter": "H",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_148",
     "en": "Hold",
     "vi": "Đúng, có hiệu lực",
     "category": "general",
-    "letter": "H"
+    "letter": "H",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_149",
     "en": "Horizontal",
     "vi": "Phương ngang",
     "category": "general",
-    "letter": "H"
+    "letter": "H",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_150",
@@ -1761,42 +2497,54 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "H",
     "ipa": "/haɪˈpɒtənjuːz/",
-    "example": "The hypotenuse is the longest side of a right-angled triangle, opposite the right angle."
+    "example": "The hypotenuse is the longest side of a right-angled triangle, opposite the right angle.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_151",
     "en": "Identical",
     "vi": "Giống nhau, bằng nhau",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_152",
     "en": "Identity",
     "vi": "Đẳng thức",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_153",
     "en": "Imply Cho",
     "vi": "thấy, dẫn đến",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_165",
     "en": "In terms of",
     "vi": "Theo, qua",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_168",
     "en": "In the form",
     "vi": "Dưới dạng",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_156",
@@ -1805,27 +2553,46 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "I",
     "ipa": "/ˈɪnˌsɜːkl/",
-    "example": "The incircle is tangent to all three sides of a triangle."
+    "example": "The incircle is tangent to all three sides of a triangle.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_157",
     "en": "Increase",
     "vi": "Tăng",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_158",
     "en": "Increasing order",
     "vi": "Thứ tự tăng dần",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_159",
     "en": "Indefinitely",
     "vi": "Vô hạn",
     "category": "general",
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Independent events",
+    "vi": "Hai biến cố độc lập (P(AB) = P(A) * P(B))",
+    "category": "statistics",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˌɪndɪˈpendənt ɪˈvents/",
+    "example": "Occurrence of one event does not affect the probability of the other.",
+    "id": "term_440",
     "letter": "I"
   },
   {
@@ -1833,14 +2600,18 @@ export const MATH_VOCABULARY = [
     "en": "Induction",
     "vi": "Phép quy nạp",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_155",
     "en": "Inductive",
     "vi": "Quy nạp",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_160",
@@ -1849,14 +2620,18 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "I",
     "ipa": "/ˌɪnɪˈkwɒləti/",
-    "example": "The triangle inequality states that the sum of any two sides exceeds the third side."
+    "example": "The triangle inequality states that the sum of any two sides exceeds the third side.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_161",
     "en": "Infinite sequence",
     "vi": "Dãy vô hạn",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "grade11",
+    "grade": "Lớp 11"
   },
   {
     "id": "term_364",
@@ -1866,6 +2641,30 @@ export const MATH_VOCABULARY = [
     "ipa": "/ɪnˈflekʃn pɔɪnt/",
     "example": "An inflection point is a point where the concavity of a curve changes.",
     "subterms": [],
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Inscribed angle",
+    "vi": "Góc nội tiếp đường tròn",
+    "category": "geometry",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪnˈskraɪbd ˈæŋɡl/",
+    "example": "An inscribed angle is half of the central angle subtending the same arc.",
+    "id": "term_405",
+    "letter": "I"
+  },
+  {
+    "en": "Inscribed quadrilateral",
+    "vi": "Tứ giác nội tiếp đường tròn",
+    "category": "geometry",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪnˈskraɪbd ˌkwɒdrɪˈlætərəl/",
+    "example": "In a cyclic/inscribed quadrilateral, opposite angles sum to 180 degrees.",
+    "id": "term_404",
     "letter": "I"
   },
   {
@@ -1879,7 +2678,9 @@ export const MATH_VOCABULARY = [
         "en": "The set of integers",
         "vi": "Tập các số nguyên"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_163",
@@ -1892,20 +2693,48 @@ export const MATH_VOCABULARY = [
         "en": "Integral solution",
         "vi": "Nghiệm nguyên"
       }
-    ]
+    ],
+    "gradeId": "grade12",
+    "grade": "Lớp 12"
+  },
+  {
+    "en": "Integration by parts",
+    "vi": "Phương pháp tích phân từng phần (∫ u dv = uv - ∫ v du)",
+    "category": "calculus",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˌɪntɪˈɡreɪʃn baɪ pɑːts/",
+    "example": "Used for products of polynomial, logarithmic, exponential, and trigonometric functions.",
+    "id": "term_447",
+    "letter": "I"
   },
   {
     "id": "term_164",
     "en": "Interior",
     "vi": "Phần trong, phía trong",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_166",
     "en": "Internal",
     "vi": "Bên trong",
     "category": "general",
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Interquartile range (IQR)",
+    "vi": "Khoảng tứ phân vị (Delta Q = Q3 - Q1)",
+    "category": "statistics",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˌɪntəkwaɪˈtaɪl reɪndʒ/",
+    "example": "The IQR measures statistical dispersion and is resistant to outliers.",
+    "id": "term_424",
     "letter": "I"
   },
   {
@@ -1913,6 +2742,30 @@ export const MATH_VOCABULARY = [
     "en": "Intersection",
     "vi": "Giao điểm (của đường thẳng, đường tròn), giao (của các tập hợp)",
     "category": "geometry",
+    "letter": "I",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
+  },
+  {
+    "en": "Intersection and Union of sets",
+    "vi": "Giao (∩) và Hợp (∪) của hai tập hợp",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˌɪntəˈsekʃn ænd ˈjuːniən/",
+    "example": "A ∩ B contains elements in both sets; A ∪ B contains elements in either set.",
+    "id": "term_412",
+    "letter": "I"
+  },
+  {
+    "en": "Intervals and Segments (R)",
+    "vi": "Khoảng, đoạn, nửa khoảng trên tập số thực",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˈɪntəvlz ænd ˈseɡmənts/",
+    "example": "Open interval (a, b), closed interval [a, b], half-open interval [a, b).",
+    "id": "term_413",
     "letter": "I"
   },
   {
@@ -1920,13 +2773,28 @@ export const MATH_VOCABULARY = [
     "en": "Inverse proportion",
     "vi": "Tỉ lệ nghịch",
     "category": "general",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_170",
     "en": "Irradius",
     "vi": "Bán kính đường tròn nội tiếp",
     "category": "geometry",
+    "letter": "I",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Irrational number",
+    "vi": "Số vô tỉ (I)",
+    "category": "arithmetic",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪˈræʃnəl ˈnʌmbə/",
+    "example": "An irrational number cannot be expressed as a simple fraction (e.g. pi and sqrt(2)).",
+    "id": "term_389",
     "letter": "I"
   },
   {
@@ -1934,7 +2802,9 @@ export const MATH_VOCABULARY = [
     "en": "Irreducible fraction",
     "vi": "Phân số tối giản",
     "category": "arithmetic",
-    "letter": "I"
+    "letter": "I",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_172",
@@ -1943,41 +2813,75 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "I",
     "ipa": "/aɪˈsɒsəliːz ˈtraɪæŋɡl/",
-    "example": "An isosceles triangle has at least two equal sides and two equal base angles."
+    "example": "An isosceles triangle has at least two equal sides and two equal base angles.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_173",
     "en": "Key",
     "vi": "Chìa khóa",
     "category": "general",
-    "letter": "K"
+    "letter": "K",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_174",
     "en": "Knight Con",
     "vi": "mã",
     "category": "general",
-    "letter": "K"
+    "letter": "K",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_175",
     "en": "Lap",
     "vi": "Một vòng khén kín",
     "category": "general",
-    "letter": "L"
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_176",
     "en": "Largest",
     "vi": "Lớn nhất",
     "category": "general",
-    "letter": "L"
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_177",
     "en": "Last digit",
     "vi": "Chữ số tận cùng",
     "category": "arithmetic",
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Law of Cosines",
+    "vi": "Định lý côsin trong tam giác (a^2 = b^2 + c^2 - 2bc.cosA)",
+    "category": "geometry",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/lɔː əv ˈkəʊsaɪnz/",
+    "example": "Used to find the remaining side or angles in any non-right triangle.",
+    "id": "term_415",
+    "letter": "L"
+  },
+  {
+    "en": "Law of Sines",
+    "vi": "Định lý sin trong tam giác (a/sinA = b/sinB = c/sinC = 2R)",
+    "category": "geometry",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/lɔː əv saɪnz/",
+    "example": "Relates the side lengths of a triangle to the sines of its angles and circumradius R.",
+    "id": "term_416",
     "letter": "L"
   },
   {
@@ -1991,20 +2895,37 @@ export const MATH_VOCABULARY = [
         "en": "Least common multiple (lcm)",
         "vi": "Bội chung nhỏ nhất"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_179",
     "en": "Left hand side",
     "vi": "Vế trái",
     "category": "general",
-    "letter": "L"
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_180",
     "en": "Left-most digit",
     "vi": "Chữ số đầu tiên (tính từ bên trái sang)",
     "category": "arithmetic",
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Less than (<)",
+    "vi": "Bé hơn (<)",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/les ðæn/",
+    "example": "3 is less than 7, written as 3 < 7.",
+    "id": "term_382",
     "letter": "L"
   },
   {
@@ -2012,14 +2933,18 @@ export const MATH_VOCABULARY = [
     "en": "Liar",
     "vi": "Người nói dối",
     "category": "general",
-    "letter": "L"
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_182",
     "en": "Lie",
     "vi": "Nằm trên",
     "category": "general",
-    "letter": "L"
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_362",
@@ -2038,6 +2963,30 @@ export const MATH_VOCABULARY = [
         "vi": "Giới hạn tại vô cực"
       }
     ],
+    "letter": "L",
+    "gradeId": "grade11",
+    "grade": "Lớp 11"
+  },
+  {
+    "en": "Limit of a function",
+    "vi": "Giới hạn của hàm số (lim f(x) khi x -> x0)",
+    "category": "calculus",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˈlɪmɪt əv ə ˈfʌŋkʃn/",
+    "example": "The value that f(x) approaches as x gets arbitrarily close to x0.",
+    "id": "term_431",
+    "letter": "L"
+  },
+  {
+    "en": "Limit of a sequence",
+    "vi": "Giới hạn của dãy số (lim u_n)",
+    "category": "calculus",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˈlɪmɪt əv ə ˈsiːkwəns/",
+    "example": "lim (1/n) as n approaches infinity equals 0.",
+    "id": "term_430",
     "letter": "L"
   },
   {
@@ -2055,20 +3004,70 @@ export const MATH_VOCABULARY = [
         "en": "Line a touches circle (C) at K",
         "vi": "Đường thẳng a tiếp xúc với đường tròn (C) tại K"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Line perpendicular to a plane",
+    "vi": "Đường thẳng vuông góc với mặt phẳng (d ⊥ (P))",
+    "category": "geometry",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/laɪn ˌpɜːpənˈdɪkjələ tu ə pleɪn/",
+    "example": "If a line is perpendicular to two intersecting lines in a plane, it is perpendicular to the plane.",
+    "id": "term_438",
+    "letter": "L"
+  },
+  {
+    "en": "Linear equation",
+    "vi": "Phương trình bậc nhất một ẩn (ax + b = 0)",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈlɪniə ɪˈkweɪʒn/",
+    "example": "A linear equation in one variable has the standard form ax + b = 0 (a != 0).",
+    "id": "term_393",
+    "letter": "L"
+  },
+  {
+    "en": "Linear function",
+    "vi": "Hàm số bậc nhất (y = ax + b)",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈlɪniə ˈfʌŋkʃn/",
+    "example": "The graph of the linear function y = ax + b is a straight line with slope a.",
+    "id": "term_395",
+    "letter": "L"
   },
   {
     "id": "term_184",
     "en": "Linear model",
     "vi": "Mô hình tuyến tính",
     "category": "statistics",
-    "letter": "L"
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_185",
     "en": "Locus",
     "vi": "Quỹ tích",
     "category": "general",
+    "letter": "L",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Logarithm (log, ln)",
+    "vi": "Lôgarit (cơ số a, tự nhiên ln, thập phân log)",
+    "category": "algebra",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˈlɒɡərɪðəm/",
+    "example": "log_a(b) = c means a^c = b (a > 0, a != 1, b > 0).",
+    "id": "term_433",
     "letter": "L"
   },
   {
@@ -2076,21 +3075,27 @@ export const MATH_VOCABULARY = [
     "en": "Magic square Ma",
     "vi": "phương",
     "category": "general",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_187",
     "en": "Major arc",
     "vi": "Cung lớn",
     "category": "geometry",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_188",
     "en": "Mark",
     "vi": "Đánh dấu",
     "category": "general",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_371",
@@ -2113,97 +3118,136 @@ export const MATH_VOCABULARY = [
         "vi": "Ma trận nghịch đảo"
       }
     ],
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_189",
     "en": "Maximum",
     "vi": "Giá trị lớn nhất",
     "category": "general",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_190",
     "en": "Mean",
     "vi": "Trung bình",
     "category": "statistics",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_191",
     "en": "Measure of angle",
     "vi": "Số đo góc",
     "category": "geometry",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_192",
     "en": "Median",
     "vi": "Trung vị (trong thống kê), đư ờng trung tuyến (của tam giác)",
     "category": "geometry",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_194",
     "en": "Midline",
     "vi": "Đường trung bình (của tam giác, hình thang)",
     "category": "geometry",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_193",
     "en": "Midpoint",
     "vi": "Trung điểm",
     "category": "geometry",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_195",
     "en": "Minimum",
     "vi": "Giá trị nhỏ nhất",
     "category": "general",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_196",
     "en": "Minor arc",
     "vi": "Cung nhỏ",
     "category": "geometry",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_197",
     "en": "Minus",
     "vi": "Dấu trừ",
     "category": "general",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_198",
     "en": "Mixed fraction",
     "vi": "Hỗn số",
     "category": "arithmetic",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_199",
     "en": "Mixture",
     "vi": "Hỗn hợp",
     "category": "general",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_200",
     "en": "Mode",
     "vi": "Mốt, thế vị, đa tần (kết quả của biến cố xảy ra nhiều nhất hay phép thử xảy ra tần số cao nhất)",
     "category": "statistics",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_201",
     "en": "Modulo",
     "vi": "Đồng dư",
     "category": "arithmetic",
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Monotonicity of functions",
+    "vi": "Tính đơn điệu của hàm số (đồng biến / nghịch biến)",
+    "category": "calculus",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˌmɒnətəˈnɪsəti əv ˈfʌŋkʃnz/",
+    "example": "f'(x) > 0 implies f is strictly increasing; f'(x) < 0 implies f is decreasing.",
+    "id": "term_441",
     "letter": "M"
   },
   {
@@ -2211,7 +3255,9 @@ export const MATH_VOCABULARY = [
     "en": "Multiple",
     "vi": "Bội số",
     "category": "arithmetic",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_203",
@@ -2224,20 +3270,48 @@ export const MATH_VOCABULARY = [
         "en": "Multiplication rule",
         "vi": "Quy tắc nhân"
       }
-    ]
+    ],
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Multiplication table",
+    "vi": "Bảng cửu chương",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˌmʌltɪplɪˈkeɪʃn ˈteɪbl/",
+    "example": "Students memorize the multiplication table from 2 to 9.",
+    "id": "term_377",
+    "letter": "M"
   },
   {
     "id": "term_204",
     "en": "Multiply",
     "vi": "Nhân",
     "category": "general",
-    "letter": "M"
+    "letter": "M",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_205",
     "en": "Natural numbers",
     "vi": "Số tự nhiên 1, 2, 3, …",
     "category": "general",
+    "letter": "N",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Negation of a proposition",
+    "vi": "Mệnh đề phủ định (~P)",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/nɪˈɡeɪʃn əv ə ˌprɒpəˈzɪʃn/",
+    "example": "The negation of P is false when P is true, and true when P is false.",
+    "id": "term_409",
     "letter": "N"
   },
   {
@@ -2251,14 +3325,29 @@ export const MATH_VOCABULARY = [
         "en": "Negative integers",
         "vi": "Các số nguyên âm"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Negative integer",
+    "vi": "Số nguyên âm",
+    "category": "arithmetic",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈneɡətɪv ˈɪntɪdʒə/",
+    "example": "Negative integers are integers less than zero, such as -1, -2, -3.",
+    "id": "term_388",
+    "letter": "N"
   },
   {
     "id": "term_207",
     "en": "Net",
     "vi": "Lưới (trải hình lên mặt phẳng)",
     "category": "geometry",
-    "letter": "N"
+    "letter": "N",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_369",
@@ -2268,13 +3357,28 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈnɔːml ˌdɪstrɪˈbjuːʃn/",
     "example": "A normal distribution is symmetric about its mean and shaped like a bell curve.",
     "subterms": [],
-    "letter": "N"
+    "letter": "N",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_208",
     "en": "Number",
     "vi": "Số",
     "category": "general",
+    "letter": "N",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Number line",
+    "vi": "Tia số / Trục số",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈnʌmbə laɪn/",
+    "example": "A number line displays numbers in order along a straight line.",
+    "id": "term_378",
     "letter": "N"
   },
   {
@@ -2282,28 +3386,36 @@ export const MATH_VOCABULARY = [
     "en": "Numerator",
     "vi": "Tử số",
     "category": "general",
-    "letter": "N"
+    "letter": "N",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_210",
     "en": "Observe",
     "vi": "Quan sát, nhận xét",
     "category": "general",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_211",
     "en": "Obtuse triangle",
     "vi": "Tam giác tù",
     "category": "geometry",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_212",
     "en": "Octagon",
     "vi": "Hình bát giác",
     "category": "general",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_213",
@@ -2316,76 +3428,120 @@ export const MATH_VOCABULARY = [
         "en": "Odd integers",
         "vi": "Các số nguyên lẻ"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Odd number",
+    "vi": "Số lẻ",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ɒd ˈnʌmbə/",
+    "example": "An odd number ends in 1, 3, 5, 7, or 9 and leaves a remainder of 1 when divided by 2.",
+    "id": "term_380",
+    "letter": "O"
   },
   {
     "id": "term_214",
     "en": "Once",
     "vi": "Một lần",
     "category": "general",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_215",
     "en": "Operations",
     "vi": "Các phép toán (cộng, trừ, nhân, chia, …)",
     "category": "general",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_216",
     "en": "Order",
     "vi": "Thứ tự",
     "category": "general",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_217",
     "en": "Original",
     "vi": "Ban đầu",
     "category": "general",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_218",
     "en": "Orthocenter",
     "vi": "Trực tâm",
     "category": "general",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_219",
     "en": "Outside",
     "vi": "Bên ngoài, ở ngoài",
     "category": "general",
-    "letter": "O"
+    "letter": "O",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_220",
     "en": "Pair",
     "vi": "Đôi, cặp",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_221",
     "en": "Pairwise",
     "vi": "Từng đôi một",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_222",
     "en": "Palindromic number",
     "vi": "Số viết xuôi viết ngược đều giống nhau (ví dụ 12321)",
     "category": "arithmetic",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_223",
     "en": "Parabola",
     "vi": "Đường cong parabol",
     "category": "general",
+    "letter": "P",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
+  },
+  {
+    "en": "Parabola (y = ax^2)",
+    "vi": "Đường parabol (đồ thị hàm số y = ax^2)",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/pəˈræbələ/",
+    "example": "The graph of y = ax^2 is a parabola with its vertex at the origin.",
+    "id": "term_397",
     "letter": "P"
   },
   {
@@ -2393,7 +3549,9 @@ export const MATH_VOCABULARY = [
     "en": "Parallel",
     "vi": "Song song",
     "category": "geometry",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_225",
@@ -2402,34 +3560,66 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "P",
     "ipa": "/ˌpærəˈleləɡræm/",
-    "example": "Opposite sides of a parallelogram are equal and parallel."
+    "example": "Opposite sides of a parallelogram are equal and parallel.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Parametric equations of a line in 3D",
+    "vi": "Phương trình tham số của đường thẳng trong không gian",
+    "category": "geometry",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˌpærəˈmetrɪk ɪˈkweɪʒnz əv ə laɪn/",
+    "example": "x = x0 + at, y = y0 + bt, z = z0 + ct with direction vector u(a, b, c).",
+    "id": "term_453",
+    "letter": "P"
   },
   {
     "id": "term_226",
     "en": "Parity",
     "vi": "Tính chẵn lẻ",
     "category": "arithmetic",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_227",
     "en": "Path",
     "vi": "Đường đi, lối đi",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_228",
     "en": "Patterns",
     "vi": "Kiểu lặp lại một kiểu sắp xếp (hình, số) nhiều lần",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_229",
     "en": "Pentagon",
     "vi": "Hình ngũ giác",
     "category": "general",
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Percentage",
+    "vi": "Tỉ số phần trăm (%)",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/pəˈsentɪdʒ/",
+    "example": "50 percent (50%) equals one half (1/2).",
+    "id": "term_384",
     "letter": "P"
   },
   {
@@ -2437,34 +3627,55 @@ export const MATH_VOCABULARY = [
     "en": "Perfect cube",
     "vi": "Số lập phương",
     "category": "geometry",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_231",
     "en": "Perfect square",
     "vi": "Số chính phương",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_232",
     "en": "Perfect square factors",
     "vi": "Các ước số là số chính phương",
     "category": "arithmetic",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_233",
     "en": "Perimeter",
     "vi": "Chu vi (của đa giác)",
     "category": "geometry",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_234",
     "en": "Period",
     "vi": "Chu kỳ",
     "category": "general",
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Periodic function",
+    "vi": "Hàm số tuần hoàn",
+    "category": "geometry",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˌpɪəriˈɒdɪk ˈfʌŋkʃn/",
+    "example": "f(x + T) = f(x); sin(x) and cos(x) have period T = 2*pi.",
+    "id": "term_427",
     "letter": "P"
   },
   {
@@ -2472,6 +3683,19 @@ export const MATH_VOCABULARY = [
     "en": "Permutation",
     "vi": "Hoán vị, Chỉnh hợp",
     "category": "statistics",
+    "letter": "P",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
+  },
+  {
+    "en": "Permutations and Combinations",
+    "vi": "Hoán vị (Pn), Chỉnh hợp (An^k) và Tổ hợp (Cn^k)",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˌpɜːmjuˈteɪʃnz ænd ˌkɒmbɪˈneɪʃnz/",
+    "example": "Permutations care about order; combinations disregard order.",
+    "id": "term_422",
     "letter": "P"
   },
   {
@@ -2487,14 +3711,18 @@ export const MATH_VOCABULARY = [
       }
     ],
     "ipa": "/ˌpɜːpənˈdɪkjələ/",
-    "example": "Two lines are perpendicular if they intersect at 90 degrees."
+    "example": "Two lines are perpendicular if they intersect at 90 degrees.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_237",
     "en": "Plus",
     "vi": "Dấu cộng",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_242",
@@ -2519,28 +3747,36 @@ export const MATH_VOCABULARY = [
         "en": "Point of tangency",
         "vi": "Tiếp điểm"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_238",
     "en": "Pole",
     "vi": "Cột, que",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_240",
     "en": "Polygon",
     "vi": "Hình đa giác",
     "category": "geometry",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_239",
     "en": "Polyhedron",
     "vi": "Đa diện",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_241",
@@ -2549,7 +3785,9 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "P",
     "ipa": "/ˌpɒlɪˈnəʊmiəl/",
-    "example": "P(x) = a_n*x^n + ... + a_0 is a polynomial of degree n."
+    "example": "P(x) = a_n*x^n + ... + a_0 is a polynomial of degree n.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_243",
@@ -2566,55 +3804,82 @@ export const MATH_VOCABULARY = [
         "en": "Positive real numbers",
         "vi": "Các số thực dương"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_244",
     "en": "Possess",
     "vi": "Có, sở hữu",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_245",
     "en": "Possibility",
     "vi": "Khả năng",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_246",
     "en": "Prime factorisation",
     "vi": "Phân tích ra thừa số nguyên tố",
     "category": "arithmetic",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_247",
     "en": "Prime numbers",
     "vi": "Các số nguyên tố",
     "category": "arithmetic",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_248",
     "en": "Probability",
     "vi": "Xác suất",
     "category": "statistics",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_250",
     "en": "Product",
     "vi": "Tích",
     "category": "general",
-    "letter": "P"
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_249",
     "en": "Property",
     "vi": "Tính chất",
     "category": "general",
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Proposition / Statement",
+    "vi": "Mệnh đề toán học",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˌprɒpəˈzɪʃn/",
+    "example": "A proposition is a declarative sentence that is either strictly true or false.",
+    "id": "term_408",
     "letter": "P"
   },
   {
@@ -2622,6 +3887,19 @@ export const MATH_VOCABULARY = [
     "en": "Pyramid",
     "vi": "Hình chóp",
     "category": "geometry",
+    "letter": "P",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Pythagorean theorem",
+    "vi": "Định lý Pythagoras (Pytago)",
+    "category": "geometry",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/paɪˌθæɡəˈriːən ˈθɪərəm/",
+    "example": "In a right triangle, a^2 + b^2 = c^2, where c is the hypotenuse.",
+    "id": "term_400",
     "letter": "P"
   },
   {
@@ -2629,7 +3907,9 @@ export const MATH_VOCABULARY = [
     "en": "Quadrant",
     "vi": "Góc phần tư",
     "category": "geometry",
-    "letter": "Q"
+    "letter": "Q",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_253",
@@ -2638,28 +3918,58 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "Q",
     "ipa": "/kwɒˈdrætɪk ɪˈkweɪʒn/",
-    "example": "ax^2 + bx + c = 0 can be solved using the quadratic formula."
+    "example": "ax^2 + bx + c = 0 can be solved using the quadratic formula.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Quadratic equation (ax^2 + bx + c = 0)",
+    "vi": "Phương trình bậc hai một ẩn",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kwɒˈdrætɪk ɪˈkweɪʒn/",
+    "example": "Solved using the quadratic formula: x = (-b +- sqrt(Delta)) / (2a).",
+    "id": "term_398",
+    "letter": "Q"
   },
   {
     "id": "term_254",
     "en": "Quadrilateral",
     "vi": "Hình tứ giác",
     "category": "geometry",
-    "letter": "Q"
+    "letter": "Q",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_255",
     "en": "Quarter",
     "vi": "Một phần tư",
     "category": "general",
-    "letter": "Q"
+    "letter": "Q",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_256",
     "en": "Quotient",
     "vi": "Thương (của phép chia)",
     "category": "general",
-    "letter": "Q"
+    "letter": "Q",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Radian (rad)",
+    "vi": "Đơn vị góc ra-đi-an",
+    "category": "geometry",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˈreɪdiən/",
+    "example": "pi radians is equal to 180 degrees (pi rad = 180°).",
+    "id": "term_426",
+    "letter": "R"
   },
   {
     "id": "term_257",
@@ -2668,28 +3978,36 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "R",
     "ipa": "/ˈreɪdiəs/",
-    "example": "The radius of a circle is the distance from its center to any point on its boundary."
+    "example": "The radius of a circle is the distance from its center to any point on its boundary.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_258",
     "en": "Range",
     "vi": "Khoảng giá trị",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_259",
     "en": "Rate",
     "vi": "Mức độ, tốc độ, năng suất",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_260",
     "en": "Ratio",
     "vi": "Tỉ lệ",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_261",
@@ -2702,21 +4020,27 @@ export const MATH_VOCABULARY = [
         "en": "The set of rational numbers",
         "vi": "Tập các số hữu tỉ"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_262",
     "en": "Ray",
     "vi": "Tia",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_263",
     "en": "Reach",
     "vi": "Đến, tới",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_264",
@@ -2729,7 +4053,20 @@ export const MATH_VOCABULARY = [
         "en": "The set of positive real numbers",
         "vi": "Tập các số thực"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Real numbers",
+    "vi": "Số thực (R)",
+    "category": "arithmetic",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈriːəl ˈnʌmbəz/",
+    "example": "The set of real numbers R comprises both rational and irrational numbers.",
+    "id": "term_390",
+    "letter": "R"
   },
   {
     "id": "term_265",
@@ -2738,153 +4075,208 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "ipa": "/rɪˈsɪprəkl/",
-    "example": "The reciprocal of 2/3 is 3/2."
+    "example": "The reciprocal of 2/3 is 3/2.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_266",
     "en": "Rectangle",
     "vi": "Hình chữ nhật",
     "category": "geometry",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_267",
     "en": "Rectangular",
     "vi": "Hình hộp chữ nhật",
     "category": "geometry",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_268",
     "en": "Recursion",
     "vi": "Đệ quy",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_269",
     "en": "Reduce",
     "vi": "Giảm",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_270",
     "en": "Region",
     "vi": "Miền",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_271",
     "en": "Regular polygon",
     "vi": "Đa giác đều",
     "category": "geometry",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_272",
     "en": "Relatively prime",
     "vi": "Nguyên tố cùng nhau",
     "category": "arithmetic",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_273",
     "en": "Remainder",
     "vi": "Số dư",
     "category": "arithmetic",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_274",
     "en": "Remaining numbers",
     "vi": "Các số còn lại",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_275",
     "en": "Remains uchanged",
     "vi": "Không đổi",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_278",
     "en": "Repeating decimal",
     "vi": "Phần thập phân tuần hoàn",
     "category": "arithmetic",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_276",
     "en": "Replace Thay",
     "vi": "thế, thay chỗ",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_277",
     "en": "Represent",
     "vi": "Đại diện",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_279",
     "en": "Respectively",
     "vi": "Tương ứng, theo thứ tự, lần lượt",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_280",
     "en": "Rhombus",
     "vi": "Hình thoi",
     "category": "geometry",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_281",
     "en": "Right angle",
     "vi": "Góc vuông",
     "category": "geometry",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_282",
     "en": "Right hand side",
     "vi": "Vế phải",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_284",
     "en": "Right triangle",
     "vi": "Tam giác vuông",
     "category": "geometry",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_283",
     "en": "Right-most digit",
     "vi": "Chữ số tận cùng bên phải",
     "category": "arithmetic",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_285",
     "en": "Rook",
     "vi": "Quân xe",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_286",
     "en": "Root",
     "vi": "Nghiệm",
     "category": "algebra",
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Rounding off",
+    "vi": "Làm tròn số",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈraʊndɪŋ ɒf/",
+    "example": "Rounding 4.67 to the nearest tenth gives 4.7.",
+    "id": "term_385",
     "letter": "R"
   },
   {
@@ -2892,76 +4284,109 @@ export const MATH_VOCABULARY = [
     "en": "Row",
     "vi": "Hàng, dãy",
     "category": "general",
-    "letter": "R"
+    "letter": "R",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_288",
     "en": "Satisfy",
     "vi": "Thỏa mãn",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_289",
     "en": "Scale factor",
     "vi": "Tỉ số đồng dạng",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_290",
     "en": "Scalene triangle",
     "vi": "Tam giác có ba cạnh có độ dài khác nhau",
     "category": "geometry",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_291",
     "en": "Schedule",
     "vi": "Lịch trình",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_292",
     "en": "Sector",
     "vi": "Hình quạt",
     "category": "geometry",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_293",
     "en": "Segment",
     "vi": "Đoạn thẳng",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_294",
     "en": "Select",
     "vi": "Lựa chọn",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_295",
     "en": "Semicircle",
     "vi": "Nửa đường tròn",
     "category": "geometry",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_296",
     "en": "Sequence",
     "vi": "Dãy số",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "grade11",
+    "grade": "Lớp 11"
   },
   {
     "id": "term_297",
     "en": "Set",
     "vi": "Tập hợp",
     "category": "general",
+    "letter": "S",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
+  },
+  {
+    "en": "Set and Subset",
+    "vi": "Tập hợp và Tập con",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/set ænd ˈsʌbset/",
+    "example": "A is a subset of B (A ⊆ B) if every element of A is also in B.",
+    "id": "term_411",
     "letter": "S"
   },
   {
@@ -2969,14 +4394,18 @@ export const MATH_VOCABULARY = [
     "en": "Side length",
     "vi": "Độ dài cạnh",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_299",
     "en": "Sign",
     "vi": "Dấu (của số), ký hiệu",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_300",
@@ -2985,14 +4414,29 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "ipa": "/ˈsɪmɪlə ˈfɪɡəz/",
-    "example": "Similar figures have congruent corresponding angles and proportional side lengths."
+    "example": "Similar figures have congruent corresponding angles and proportional side lengths.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Similar triangles",
+    "vi": "Hai tam giác đồng dạng",
+    "category": "geometry",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsɪmɪlə ˈtraɪæŋɡlz/",
+    "example": "Similar triangles have corresponding congruent angles and proportional sides.",
+    "id": "term_402",
+    "letter": "S"
   },
   {
     "id": "term_301",
     "en": "Similarly",
     "vi": "Tương tự",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_302",
@@ -3001,27 +4445,46 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "S",
     "ipa": "/ˌsɪmlˈteɪniəs ɪˈkweɪʒnz/",
-    "example": "Solve the simultaneous equations to find common intersection points."
+    "example": "Solve the simultaneous equations to find common intersection points.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_303",
     "en": "Simultaneously",
     "vi": "Đồng thời, cùng lúc",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_304",
     "en": "Situate",
     "vi": "Đặt ở vị trí",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_307",
     "en": "Sketch",
     "vi": "Phác thảo, hình vẽ",
     "category": "general",
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Skew lines",
+    "vi": "Hai đường thẳng chéo nhau trong không gian",
+    "category": "geometry",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/skjuː laɪnz/",
+    "example": "Lines that do not intersect and are not parallel because they lie in different planes.",
+    "id": "term_437",
     "letter": "S"
   },
   {
@@ -3029,20 +4492,37 @@ export const MATH_VOCABULARY = [
     "en": "Slant height",
     "vi": "Đường sinh (của hình nón)",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_306",
     "en": "Slipping",
     "vi": "Trượt",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_308",
     "en": "Slope",
     "vi": "Hệ số góc",
     "category": "geometry",
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Slope / Gradient",
+    "vi": "Hệ số góc của đường thẳng",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/sləʊp / ˈɡreɪdiənt/",
+    "example": "The slope m = (y2 - y1) / (x2 - x1) measures the steepness of a line.",
+    "id": "term_396",
     "letter": "S"
   },
   {
@@ -3050,27 +4530,46 @@ export const MATH_VOCABULARY = [
     "en": "Solid figures",
     "vi": "Các hình trong không gian",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "grade11",
+    "grade": "Lớp 11"
   },
   {
     "id": "term_309",
     "en": "Solid geometry",
     "vi": "Hình học không gian",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "grade11",
+    "grade": "Lớp 11"
   },
   {
     "id": "term_311",
     "en": "Solution",
     "vi": "Nghiệm, dung dịch",
     "category": "algebra",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_314",
     "en": "Speed",
     "vi": "Tốc độ",
     "category": "general",
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Speed, Distance, Time",
+    "vi": "Vận tốc, Quãng đường, Thời gian",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/spiːd, ˈdɪstəns, taɪm/",
+    "example": "Distance equals speed multiplied by time: s = v × t.",
+    "id": "term_387",
     "letter": "S"
   },
   {
@@ -3078,20 +4577,37 @@ export const MATH_VOCABULARY = [
     "en": "Sphere",
     "vi": "Hình cầu",
     "category": "geometry",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "grade12",
+    "grade": "Lớp 12"
   },
   {
     "id": "term_313",
     "en": "Spherical",
     "vi": "Dạng hình cầu",
     "category": "geometry",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_315",
     "en": "Square",
     "vi": "Hình vuông (hình h ọc), bình phương (s ố học, đại số)",
     "category": "general",
+    "letter": "S",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Square root",
+    "vi": "Căn bậc hai",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/skweə ruːt/",
+    "example": "The square root of 25 is 5, written as sqrt(25) = 5.",
+    "id": "term_391",
     "letter": "S"
   },
   {
@@ -3102,34 +4618,55 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈstændəd ˌdiːviˈeɪʃn/",
     "example": "Standard deviation measures the dispersion of a dataset relative to its mean.",
     "subterms": [],
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_316",
     "en": "Statement",
     "vi": "Mệnh đề",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
   },
   {
     "id": "term_317",
     "en": "Straight line",
     "vi": "Đường thẳng",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_318",
     "en": "Subset",
     "vi": "Tập con",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_319",
     "en": "Subtract (subtraction)",
     "vi": "Trừ (phép trừ)",
     "category": "general",
+    "letter": "S",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Subtraction",
+    "vi": "Phép trừ",
+    "category": "arithmetic",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/səbˈtrækʃn/",
+    "example": "Subtraction is taking one number away from another (e.g. 9 - 4 = 5).",
+    "id": "term_375",
     "letter": "S"
   },
   {
@@ -3137,21 +4674,27 @@ export const MATH_VOCABULARY = [
     "en": "Subtrahend",
     "vi": "Số bị trừ",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_321",
     "en": "Successive",
     "vi": "Liên tiếp",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_322",
     "en": "Suffice",
     "vi": "Chỉ cần",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_323",
@@ -3164,48 +4707,84 @@ export const MATH_VOCABULARY = [
         "en": "Sum of squares",
         "vi": "Tổng các bình phương"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_324",
     "en": "Supplementary angles",
     "vi": "Hai góc bù nhau (có tổng bằng 180 độ)",
     "category": "geometry",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_325",
     "en": "Suppose",
     "vi": "Giả sử",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_326",
     "en": "Surd form",
     "vi": "Dạng căn thức",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_327",
     "en": "Survey",
     "vi": "Khảo sát, thống kê, thăm dò",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "grade12",
+    "grade": "Lớp 12"
   },
   {
     "id": "term_328",
     "en": "Symmetry",
     "vi": "Đối xứng",
     "category": "general",
-    "letter": "S"
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_329",
     "en": "System of equations",
     "vi": "Hệ phương trình",
     "category": "algebra",
+    "letter": "S",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "System of linear equations",
+    "vi": "Hệ hai phương trình bậc nhất hai ẩn",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsɪstəm əv ˈlɪniə ɪˈkweɪʒnz/",
+    "example": "Solve the system using substitution or elimination method.",
+    "id": "term_394",
+    "letter": "S"
+  },
+  {
+    "en": "System of linear inequalities in two variables",
+    "vi": "Hệ bất phương trình bậc nhất hai ẩn",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˈsɪstəm əv ˈlɪniə ˌɪnɪˈkwɒlətiz/",
+    "example": "The feasible solution region is represented by the intersection of half-planes.",
+    "id": "term_414",
     "letter": "S"
   },
   {
@@ -3213,6 +4792,19 @@ export const MATH_VOCABULARY = [
     "en": "Tangent",
     "vi": "Tiếp xúc",
     "category": "geometry",
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Tangent line slope (f'(x0))",
+    "vi": "Hệ số góc của tiếp tuyến tại tiếp điểm",
+    "category": "calculus",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˈtændʒənt laɪn sləʊp/",
+    "example": "The slope of the tangent line to y = f(x) at x0 equals the derivative f'(x0).",
+    "id": "term_435",
     "letter": "T"
   },
   {
@@ -3220,13 +4812,28 @@ export const MATH_VOCABULARY = [
     "en": "Term",
     "vi": "Số hạng",
     "category": "general",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_332",
     "en": "Tesselation",
     "vi": "Lát mặt phẳng",
     "category": "geometry",
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Thales' theorem",
+    "vi": "Định lý Ta-lét (Thalès)",
+    "category": "geometry",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈθeɪliːz ˈθɪərəm/",
+    "example": "If a line parallel to one side of a triangle intersects the other two sides, it divides them proportionally.",
+    "id": "term_401",
     "letter": "T"
   },
   {
@@ -3234,42 +4841,54 @@ export const MATH_VOCABULARY = [
     "en": "Therefore",
     "vi": "Bởi vậy, cho nên",
     "category": "general",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_334",
     "en": "Times",
     "vi": "Dấu nhân",
     "category": "general",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_335",
     "en": "Total",
     "vi": "Tổng",
     "category": "general",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_336",
     "en": "Total surface area",
     "vi": "Diện tích toàn phần, diện tích bề mặt",
     "category": "general",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_337",
     "en": "Touch",
     "vi": "Tiếp xúc",
     "category": "geometry",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_338",
     "en": "Touching spheres",
     "vi": "Các hình cầu tiếp xúc nhau",
     "category": "geometry",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "grade12",
+    "grade": "Lớp 12"
   },
   {
     "id": "term_339",
@@ -3278,13 +4897,28 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "T",
     "ipa": "/trəˈpiːziəm/",
-    "example": "A trapezium is a quadrilateral with at least one pair of parallel sides."
+    "example": "A trapezium is a quadrilateral with at least one pair of parallel sides.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_340",
     "en": "Triangle",
     "vi": "Tam giác",
     "category": "geometry",
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Trigonometric circle / Unit circle",
+    "vi": "Đường tròn lượng giác",
+    "category": "geometry",
+    "gradeId": "grade11",
+    "grade": "Lớp 11",
+    "ipa": "/ˌtrɪɡənəˈmetrɪk ˈsɜːkl/",
+    "example": "A circle of radius 1 centered at the origin, with positive counterclockwise orientation.",
+    "id": "term_425",
     "letter": "T"
   },
   {
@@ -3308,21 +4942,27 @@ export const MATH_VOCABULARY = [
         "vi": "Công thức nhân đôi"
       }
     ],
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "grade11",
+    "grade": "Lớp 11"
   },
   {
     "id": "term_341",
     "en": "Triple",
     "vi": "Gấp ba (số lần), bộ ba",
     "category": "general",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_342",
     "en": "Trisect",
     "vi": "Chia ba (góc, cạnh)",
     "category": "geometry",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
   },
   {
     "id": "term_343",
@@ -3335,34 +4975,55 @@ export const MATH_VOCABULARY = [
         "en": "k-tuple",
         "vi": "Bộ có k số"
       }
-    ]
+    ],
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_344",
     "en": "Twice",
     "vi": "Hai lần",
     "category": "general",
-    "letter": "T"
+    "letter": "T",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_345",
     "en": "Union",
     "vi": "Hợp (của các tập hợp)",
     "category": "general",
-    "letter": "U"
+    "letter": "U",
+    "gradeId": "grade10",
+    "grade": "Lớp 10"
   },
   {
     "id": "term_346",
     "en": "Unit circle",
     "vi": "Đường tròn đơn vị",
     "category": "geometry",
-    "letter": "U"
+    "letter": "U",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_347",
     "en": "Unit square",
     "vi": "Hình vuông đơn vị",
     "category": "general",
+    "letter": "U",
+    "gradeId": "primary",
+    "grade": "Tiểu học (Lớp 1-5)"
+  },
+  {
+    "en": "Universal and Existential quantifiers (∀, ∃)",
+    "vi": "Ký hiệu với mọi (∀) và tồn tại (∃)",
+    "category": "algebra",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˌjuːnɪˈvɜːsl ænd ˌeɡzɪˈstenʃl ˈkwɒntɪfaɪəz/",
+    "example": "∀x ∈ R: x^2 >= 0 and ∃n ∈ N: n^2 = n.",
+    "id": "term_410",
     "letter": "U"
   },
   {
@@ -3370,21 +5031,27 @@ export const MATH_VOCABULARY = [
     "en": "Universal set",
     "vi": "Tập vạn năng",
     "category": "general",
-    "letter": "U"
+    "letter": "U",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_349",
     "en": "Value",
     "vi": "Giá trị",
     "category": "general",
-    "letter": "V"
+    "letter": "V",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_350",
     "en": "Variable",
     "vi": "Biến số",
     "category": "algebra",
-    "letter": "V"
+    "letter": "V",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_368",
@@ -3394,13 +5061,39 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈveəriəns/",
     "example": "Variance is the expectation of the squared deviation of a random variable from its mean.",
     "subterms": [],
-    "letter": "V"
+    "letter": "V",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_351",
     "en": "Vary",
     "vi": "Biến đổi, biến thiên",
     "category": "general",
+    "letter": "V",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Vector cross product",
+    "vi": "Tích có hướng của hai véc-tơ trong không gian ([u, v])",
+    "category": "geometry",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˈvektə krɒs ˈprɒdʌkt/",
+    "example": "Vector perpendicular to both u and v, used to find normal vectors and calculate areas/volumes.",
+    "id": "term_450",
+    "letter": "V"
+  },
+  {
+    "en": "Vector dot product",
+    "vi": "Tích vô hướng của hai véc-tơ (u . v = |u||v|cosθ)",
+    "category": "geometry",
+    "gradeId": "grade10",
+    "grade": "Lớp 10",
+    "ipa": "/ˈvektə dɒt ˈprɒdʌkt/",
+    "example": "If two non-zero vectors are perpendicular, their dot product equals 0.",
+    "id": "term_418",
     "letter": "V"
   },
   {
@@ -3408,27 +5101,46 @@ export const MATH_VOCABULARY = [
     "en": "Venn diagram",
     "vi": "Giản đồ Venn",
     "category": "general",
-    "letter": "V"
+    "letter": "V",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_353",
     "en": "Vertex",
     "vi": "Đỉnh (của đa giác, khối đa diện)",
     "category": "geometry",
-    "letter": "V"
+    "letter": "V",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_354",
     "en": "Vertical angles",
     "vi": "Các góc đối đỉnh",
     "category": "geometry",
-    "letter": "V"
+    "letter": "V",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_355",
     "en": "Vertices",
     "vi": "Các đỉnh",
     "category": "geometry",
+    "letter": "V",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Vieta's formulas",
+    "vi": "Hệ thức Vi-ét",
+    "category": "algebra",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/viˈeɪtəz ˈfɔːmjələz/",
+    "example": "For ax^2 + bx + c = 0: x1 + x2 = -b/a and x1 * x2 = c/a.",
+    "id": "term_399",
     "letter": "V"
   },
   {
@@ -3444,28 +5156,47 @@ export const MATH_VOCABULARY = [
       }
     ],
     "ipa": "/ˈvɒljuːm/",
-    "example": "The volume of a sphere with radius r is (4/3)*pi*r^3."
+    "example": "The volume of a sphere with radius r is (4/3)*pi*r^3.",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
+  },
+  {
+    "en": "Volume of solid of revolution",
+    "vi": "Thể tích khối tròn xoay (V = π ∫ f(x)^2 dx)",
+    "category": "calculus",
+    "gradeId": "grade12",
+    "grade": "Lớp 12",
+    "ipa": "/ˈvɒljuːm əv ˈsɒlɪd əv ˌrevəˈluːʃn/",
+    "example": "Calculates the volume generated by revolving a plane region around an axis.",
+    "id": "term_448",
+    "letter": "V"
   },
   {
     "id": "term_357",
     "en": "Wheel",
     "vi": "Bánh xe",
     "category": "general",
-    "letter": "W"
+    "letter": "W",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_358",
     "en": "Whence",
     "vi": "Từ đó, do đó",
     "category": "general",
-    "letter": "W"
+    "letter": "W",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   },
   {
     "id": "term_359",
     "en": "Whole numbers",
     "vi": "Tập số 0, 1, 2, 3, …",
     "category": "general",
-    "letter": "W"
+    "letter": "W",
+    "gradeId": "middle",
+    "grade": "THCS (Lớp 6-9)"
   }
 ];
 

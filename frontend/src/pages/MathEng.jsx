@@ -29,6 +29,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { 
+  GRADE_LEVELS,
   MATH_CATEGORIES, 
   CLASSROOM_PHRASE_CATEGORIES, 
   CLASSROOM_PHRASES, 
@@ -71,6 +72,7 @@ const MathEng = () => {
   // Vocabulary States
   const [searchQuery, setSearchQuery] = useState('');
   const [searchDirection, setSearchDirection] = useState('both'); // 'both' | 'en2vi' | 'vi2en'
+  const [selectedGrade, setSelectedGrade] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLetter, setSelectedLetter] = useState('all');
   const [showOnlySaved, setShowOnlySaved] = useState(false);
@@ -169,6 +171,9 @@ const MathEng = () => {
       // Saved filter
       if (showOnlySaved && !savedTerms.includes(term.id)) return false;
 
+      // Grade level filter
+      if (selectedGrade !== 'all' && term.gradeId !== selectedGrade) return false;
+
       // Category filter
       if (selectedCategory !== 'all' && term.category !== selectedCategory) return false;
 
@@ -179,6 +184,7 @@ const MathEng = () => {
       if (qNorm) {
         const enNorm = normalizeText(term.en);
         const viNorm = normalizeText(term.vi);
+        const gradeNorm = normalizeText(term.grade || '');
         const exampleNorm = normalizeText(term.example || '');
         const subtermsNorm = (term.subterms || [])
           .map((s) => `${normalizeText(s.en)} ${normalizeText(s.vi)}`)
@@ -187,11 +193,12 @@ const MathEng = () => {
         if (searchDirection === 'en2vi') {
           return enNorm.includes(qNorm) || subtermsNorm.includes(qNorm);
         } else if (searchDirection === 'vi2en') {
-          return viNorm.includes(qNorm) || subtermsNorm.includes(qNorm);
+          return viNorm.includes(qNorm) || subtermsNorm.includes(qNorm) || gradeNorm.includes(qNorm);
         } else {
           return (
             enNorm.includes(qNorm) ||
             viNorm.includes(qNorm) ||
+            gradeNorm.includes(qNorm) ||
             exampleNorm.includes(qNorm) ||
             subtermsNorm.includes(qNorm)
           );
@@ -200,7 +207,7 @@ const MathEng = () => {
 
       return true;
     });
-  }, [searchQuery, searchDirection, selectedCategory, selectedLetter, showOnlySaved, savedTerms]);
+  }, [searchQuery, searchDirection, selectedGrade, selectedCategory, selectedLetter, showOnlySaved, savedTerms]);
 
   // Filter Classroom Phrases
   const filteredPhrases = useMemo(() => {
@@ -385,6 +392,29 @@ const MathEng = () => {
             </div>
           </div>
 
+          {/* Grade Level Filter Bar */}
+          <div className="matheng-grade-bar">
+            {GRADE_LEVELS.map((gl) => {
+              const isActive = selectedGrade === gl.id;
+              const count = gl.id === 'all'
+                ? MATH_VOCABULARY.length
+                : MATH_VOCABULARY.filter((t) => t.gradeId === gl.id).length;
+
+              return (
+                <button
+                  key={gl.id}
+                  className={`matheng-grade-pill ${isActive ? 'active' : ''} grade-${gl.id}`}
+                  onClick={() => setSelectedGrade(gl.id)}
+                  title={gl.desc}
+                >
+                  <GraduationCap size={14} />
+                  <span>{gl.name}</span>
+                  <span className="matheng-grade-pill-count">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+
           {/* Category Filter Pills */}
           <div className="matheng-categories-bar">
             {MATH_CATEGORIES.map((cat) => {
@@ -436,15 +466,17 @@ const MathEng = () => {
           <div className="matheng-results-meta">
             <span>
               Tìm thấy <strong>{filteredVocabulary.length}</strong> thuật ngữ
+              {selectedGrade !== 'all' && ` • ${GRADE_LEVELS.find((g) => g.id === selectedGrade)?.name}`}
               {selectedCategory !== 'all' && ` • Lĩnh vực: ${MATH_CATEGORIES.find((c) => c.id === selectedCategory)?.name}`}
               {selectedLetter !== 'all' && ` • Bắt đầu bằng chữ "${selectedLetter}"`}
               {showOnlySaved && ' • Danh sách đã lưu'}
             </span>
-            {(searchQuery || selectedCategory !== 'all' || selectedLetter !== 'all' || showOnlySaved) && (
+            {(searchQuery || selectedGrade !== 'all' || selectedCategory !== 'all' || selectedLetter !== 'all' || showOnlySaved) && (
               <button
                 className="matheng-reset-filter-btn"
                 onClick={() => {
                   setSearchQuery('');
+                  setSelectedGrade('all');
                   setSelectedCategory('all');
                   setSelectedLetter('all');
                   setShowOnlySaved(false);
@@ -467,12 +499,19 @@ const MathEng = () => {
 
                 return (
                   <div key={term.id} className="matheng-term-card">
-                    {/* Card Header: Category Badge, Audio & Actions */}
+                    {/* Card Header: Category & Grade Badges, Audio & Actions */}
                     <div className="matheng-term-card-header">
-                      <span className={`matheng-term-cat-badge cat-${term.category}`}>
-                        <IconComp size={12} />
-                        {catMeta.name}
-                      </span>
+                      <div className="matheng-term-badges">
+                        <span className={`matheng-term-cat-badge cat-${term.category}`}>
+                          <IconComp size={12} />
+                          {catMeta.name}
+                        </span>
+                        {term.grade && (
+                          <span className={`matheng-term-grade-badge grade-${term.gradeId}`}>
+                            {term.grade}
+                          </span>
+                        )}
+                      </div>
                       <div className="matheng-term-actions">
                         <button
                           className={`matheng-icon-action-btn ${isSpeaking ? 'active' : ''}`}
