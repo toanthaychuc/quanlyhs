@@ -63,6 +63,40 @@ const InteractiveMaterials = () => {
   const dragStartXRef = useRef(0);
   const dragStartWidthRef = useRef(360);
 
+  // Dynamically calculate resizer bar position at the right edge of active lesson's sidebar
+  const updateResizerPosition = useCallback(() => {
+    if (window.innerWidth <= 768) {
+      setIsResizerVisible(false);
+      return;
+    }
+    const container = mainContentRef.current;
+    if (!container) return;
+
+    const sidebarEl = container.querySelector(
+      '.solid-sidebar, .riemann-sidebar, .func-invest-sidebar, .space-geom-sidebar, .space-angles-sidebar, .oxyz-sidebar, .cross-section-sidebar, .conic-sidebar, .trig-sidebar, .ineq-sidebar, .quad-sidebar, .derivative-sidebar, .set-ops-controls, [class*="-sidebar"]'
+    );
+
+    if (!sidebarEl) {
+      setIsResizerVisible(false);
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const sidebarRect = sidebarEl.getBoundingClientRect();
+
+    // The resizer sits right in the gap after the sidebar
+    const left = sidebarRect.right - containerRect.left + 8;
+    const top = sidebarRect.top - containerRect.top;
+    const height = sidebarRect.height;
+
+    setResizerPos({
+      left: `${left}px`,
+      top: `${top}px`,
+      height: `${height}px`
+    });
+    setIsResizerVisible(true);
+  }, []);
+
   // Toggle fullscreen specifically for the active interactive material container
   const toggleFullscreen = useCallback(async () => {
     const elem = mainContentRef.current;
@@ -174,40 +208,6 @@ const InteractiveMaterials = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [sidebarCollapsed]);
-
-  // Dynamically calculate resizer bar position at the right edge of active lesson's sidebar
-  const updateResizerPosition = useCallback(() => {
-    if (window.innerWidth <= 768) {
-      setIsResizerVisible(false);
-      return;
-    }
-    const container = mainContentRef.current;
-    if (!container) return;
-
-    const sidebarEl = container.querySelector(
-      '.solid-sidebar, .riemann-sidebar, .func-invest-sidebar, .space-geom-sidebar, .space-angles-sidebar, .oxyz-sidebar, .cross-section-sidebar, .conic-sidebar, .trig-sidebar, .ineq-sidebar, .quad-sidebar, .derivative-sidebar, .set-ops-controls, [class*="-sidebar"]'
-    );
-
-    if (!sidebarEl) {
-      setIsResizerVisible(false);
-      return;
-    }
-
-    const containerRect = container.getBoundingClientRect();
-    const sidebarRect = sidebarEl.getBoundingClientRect();
-
-    // The resizer sits right in the gap after the sidebar
-    const left = sidebarRect.right - containerRect.left + 8;
-    const top = sidebarRect.top - containerRect.top;
-    const height = sidebarRect.height;
-
-    setResizerPos({
-      left: `${left}px`,
-      top: `${top}px`,
-      height: `${height}px`
-    });
-    setIsResizerVisible(true);
-  }, []);
 
   // Update resizer position on material change, window resize or fullscreen change
   useEffect(() => {
