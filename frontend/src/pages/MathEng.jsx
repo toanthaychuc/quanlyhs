@@ -27,16 +27,34 @@ import {
   Shuffle, 
   GraduationCap, 
   ArrowRightLeft,
-  Lightbulb
+  Lightbulb,
+  Sigma
 } from 'lucide-react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import { 
   MATH_CATEGORIES, 
   CLASSROOM_PHRASE_CATEGORIES, 
   CLASSROOM_PHRASES, 
   MATH_VOCABULARY, 
-  MATH_FLASHCARDS 
+  MATH_FLASHCARDS,
+  MATH_SYMBOL_CATEGORIES,
+  MATH_SYMBOLS
 } from '../data/mathEnglishData';
 import './MathEng.css';
+
+// Render LaTeX formula safely via KaTeX
+const renderLatex = (latex) => {
+  if (!latex) return '';
+  try {
+    return katex.renderToString(latex, {
+      throwOnError: false,
+      displayMode: false,
+    });
+  } catch {
+    return latex;
+  }
+};
 
 // Vietnamese diacritic normalization for fast, accent-tolerant search
 const normalizeText = (str) => {
@@ -56,6 +74,10 @@ const CATEGORY_ICON_MAP = {
   statistics: BarChart3,
   arithmetic: Binary,
   general: Sparkles,
+  exponents: Sparkles,
+  relations: ArrowRightLeft,
+  sets_logic: BookOpen,
+  algebra_comb: Variable,
   group: Users,
   time: Clock,
   board: PenTool,
@@ -169,6 +191,10 @@ const MathEng = () => {
   const [phraseSearchQuery, setPhraseSearchQuery] = useState('');
   const [selectedPhraseCat, setSelectedPhraseCat] = useState('all');
   const [selectedRole, setSelectedRole] = useState('all'); // 'all' | 'Teacher' | 'Student'
+
+  // Math Symbols & Operations States
+  const [symbolSearchQuery, setSymbolSearchQuery] = useState('');
+  const [selectedSymbolCat, setSelectedSymbolCat] = useState('all');
 
   // Flashcards States
   const [cardIndex, setCardIndex] = useState(0);
@@ -393,6 +419,35 @@ const MathEng = () => {
     });
   }, [phraseSearchQuery, selectedPhraseCat, selectedRole]);
 
+  // Filter Math Symbols & Operations
+  const filteredSymbols = useMemo(() => {
+    const qNorm = normalizeText(symbolSearchQuery.trim());
+
+    return MATH_SYMBOLS.filter((item) => {
+      if (selectedSymbolCat !== 'all' && item.category !== selectedSymbolCat) return false;
+
+      if (qNorm) {
+        const symNorm = normalizeText(item.symbol);
+        const viNorm = normalizeText(item.vi);
+        const readingsNorm = (item.readings || [])
+          .map((r) => `${normalizeText(r.en)} ${normalizeText(r.note || '')}`)
+          .join(' ');
+        const exNorm = item.example
+          ? `${normalizeText(item.example.expr || '')} ${normalizeText(item.example.en || '')} ${normalizeText(item.example.vi || '')}`
+          : '';
+
+        return (
+          symNorm.includes(qNorm) ||
+          viNorm.includes(qNorm) ||
+          readingsNorm.includes(qNorm) ||
+          exNorm.includes(qNorm)
+        );
+      }
+
+      return true;
+    });
+  }, [symbolSearchQuery, selectedSymbolCat]);
+
   // Flashcards navigation
   const currentCard = cardList[cardIndex] || cardList[0];
   const isCurrentMastered = currentCard && masteredCards.includes(currentCard.id);
@@ -466,6 +521,14 @@ const MathEng = () => {
             <BookOpen size={17} />
             <span>Thuật ngữ Toán học</span>
             <span className="matheng-tab-count">{MATH_VOCABULARY.length}</span>
+          </button>
+          <button
+            className={`matheng-mode-tab ${activeTab === 'symbols' ? 'active' : ''}`}
+            onClick={() => setActiveTab('symbols')}
+          >
+            <Sigma size={17} />
+            <span>Kí hiệu toán học</span>
+            <span className="matheng-tab-count">{MATH_SYMBOLS.length}</span>
           </button>
           <button
             className={`matheng-mode-tab ${activeTab === 'classroom' ? 'active' : ''}`}
@@ -721,6 +784,227 @@ const MathEng = () => {
                 }}
               >
                 Xem lại toàn bộ danh mục từ vựng
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ======================= TAB 1.5: MATH SYMBOLS & OPERATIONS ======================= */}
+      {activeTab === 'symbols' && (
+        <div className="matheng-symbols-section">
+          {/* Intro Banner */}
+          <div className="matheng-classroom-intro-card matheng-symbols-intro">
+            <div className="matheng-intro-icon">
+              <Sigma size={28} />
+            </div>
+            <div>
+              <h3>Tổng hợp tất cả cách đọc Kí hiệu & Phép toán chương trình Phổ thông</h3>
+              <p>
+                Tra cứu đầy đủ các cách đọc phép tính số học (a + b, a × b, a ÷ b), lũy thừa (aᵇ), căn thức (ᵃ√b),
+                lôgarit (logₐ b), tập hợp, mệnh đề, đạo hàm, tích phân và hình học kèm phát âm chuẩn.
+              </p>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="matheng-search-box-card">
+            <div className="matheng-search-input-wrapper">
+              <Search size={18} className="matheng-search-icon" />
+              <input
+                type="text"
+                className="matheng-search-input"
+                placeholder="Tìm phép toán hoặc kí hiệu (VD: cộng, nhân, chia, lũy thừa, căn bậc a của b, logarit, tích phân, thuộc, với mọi...)"
+                value={symbolSearchQuery}
+                onChange={(e) => setSymbolSearchQuery(e.target.value)}
+              />
+              {symbolSearchQuery && (
+                <button
+                  className="matheng-clear-btn"
+                  onClick={() => setSymbolSearchQuery('')}
+                  title="Xóa tìm kiếm"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Symbol Categories Filter Bar */}
+          <div className="matheng-categories-bar">
+            {MATH_SYMBOL_CATEGORIES.map((cat) => {
+              const IconComp = CATEGORY_ICON_MAP[cat.id] || Layers;
+              const isActive = selectedSymbolCat === cat.id;
+              const count =
+                cat.id === 'all'
+                  ? MATH_SYMBOLS.length
+                  : MATH_SYMBOLS.filter((s) => s.category === cat.id).length;
+
+              return (
+                <button
+                  key={cat.id}
+                  className={`matheng-cat-pill ${isActive ? 'active' : ''}`}
+                  onClick={() => setSelectedSymbolCat(cat.id)}
+                  title={cat.desc}
+                >
+                  <IconComp size={15} />
+                  <span>{cat.name}</span>
+                  <span className="matheng-cat-pill-count">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Results Summary */}
+          <div className="matheng-results-meta">
+            <span>
+              Hiển thị <strong>{filteredSymbols.length}</strong> phép toán & kí hiệu
+              {selectedSymbolCat !== 'all' &&
+                ` • Nhóm: ${MATH_SYMBOL_CATEGORIES.find((c) => c.id === selectedSymbolCat)?.name}`}
+            </span>
+            {(symbolSearchQuery || selectedSymbolCat !== 'all') && (
+              <button
+                className="matheng-reset-filter-btn"
+                onClick={() => {
+                  setSymbolSearchQuery('');
+                  setSelectedSymbolCat('all');
+                }}
+              >
+                Đặt lại bộ lọc
+              </button>
+            )}
+          </div>
+
+          {/* Symbols Grid */}
+          {filteredSymbols.length > 0 ? (
+            <div className="matheng-symbols-grid">
+              {filteredSymbols.map((item) => {
+                const catMeta =
+                  MATH_SYMBOL_CATEGORIES.find((c) => c.id === item.category) ||
+                  MATH_SYMBOL_CATEGORIES[0];
+                const IconComp = CATEGORY_ICON_MAP[item.category] || Sigma;
+                const primaryReading = item.readings?.[0]?.en || item.symbol;
+                const isPrimarySpeaking = speakingId === `${item.id}_primary`;
+                const isCopied = copiedId === item.id;
+
+                const copyPayload = `${item.symbol} (${item.vi}): ${(item.readings || [])
+                  .map((r) => r.en)
+                  .join(' / ')}`;
+
+                return (
+                  <div key={item.id} className="matheng-symbol-card">
+                    {/* Header: Category Badge & Actions */}
+                    <div className="matheng-term-card-header">
+                      <span className={`matheng-term-cat-badge cat-${item.category}`}>
+                        <IconComp size={12} />
+                        {catMeta.name}
+                      </span>
+                      <div className="matheng-term-actions">
+                        <button
+                          type="button"
+                          className={`matheng-icon-action-btn ${isPrimarySpeaking ? 'active' : ''}`}
+                          onClick={() => speakText(primaryReading, `${item.id}_primary`)}
+                          title="Nghe cách đọc phổ biến nhất"
+                        >
+                          <Volume2 size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="matheng-icon-action-btn"
+                          onClick={() => handleCopy(copyPayload, item.id)}
+                          title="Sao chép kí hiệu và các cách đọc"
+                        >
+                          {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Formula Box + Vietnamese Reading */}
+                    <div className="matheng-symbol-hero">
+                      <div
+                        className="matheng-symbol-formula-badge"
+                        dangerouslySetInnerHTML={{ __html: renderLatex(item.latex || item.symbol) }}
+                      />
+                      <div className="matheng-symbol-vi-title">{item.vi}</div>
+                    </div>
+
+                    {/* All Ways to Read in English */}
+                    <div className="matheng-readings-box">
+                      <div className="matheng-readings-header">
+                        Các cách đọc chuẩn trong tiếng Anh ({item.readings?.length || 0} cách):
+                      </div>
+                      <ul className="matheng-readings-list">
+                        {(item.readings || []).map((r, rIdx) => {
+                          const rId = `${item.id}_read_${rIdx}`;
+                          const isRSpk = speakingId === rId;
+                          return (
+                            <li key={rIdx} className="matheng-reading-item">
+                              <div className="matheng-reading-main">
+                                <span className="matheng-reading-index">#{rIdx + 1}</span>
+                                <span className="matheng-reading-en">"{r.en}"</span>
+                                <button
+                                  type="button"
+                                  className={`matheng-reading-speak-btn ${isRSpk ? 'active' : ''}`}
+                                  onClick={() => speakText(r.en, rId)}
+                                  title="Nghe phát âm cách đọc này"
+                                >
+                                  <Volume2 size={14} />
+                                </button>
+                              </div>
+                              {r.note && <div className="matheng-reading-note">{r.note}</div>}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+
+                    {/* Concrete Example */}
+                    {item.example && (
+                      <div className="matheng-symbol-example-box">
+                        <div className="matheng-example-label">
+                          <Lightbulb size={13} />
+                          <span>Ví dụ áp dụng:</span>
+                          <span
+                            className="matheng-symbol-example-math"
+                            dangerouslySetInnerHTML={{
+                              __html: renderLatex(item.example.latex || item.example.expr),
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className="matheng-subterm-speak-btn matheng-example-speak-btn"
+                            onClick={() => speakText(item.example.en, `${item.id}_ex`)}
+                            title="Nghe đọc câu ví dụ"
+                          >
+                            <Volume2
+                              size={14}
+                              className={speakingId === `${item.id}_ex` ? 'speaking' : ''}
+                            />
+                          </button>
+                        </div>
+                        <div className="matheng-symbol-example-en">"{item.example.en}"</div>
+                        {item.example.vi && (
+                          <div className="matheng-symbol-example-vi">→ {item.example.vi}</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="matheng-empty-state">
+              <Sigma size={48} className="matheng-empty-icon" />
+              <h3>Không tìm thấy kí hiệu hoặc phép toán phù hợp</h3>
+              <p>Hãy thử tìm với từ khóa khác (VD: cộng, lũy thừa, căn bậc, logarit, tích phân...).</p>
+              <button
+                className="matheng-reset-filter-btn primary"
+                onClick={() => {
+                  setSymbolSearchQuery('');
+                  setSelectedSymbolCat('all');
+                }}
+              >
+                Xem tất cả kí hiệu toán học
               </button>
             </div>
           )}

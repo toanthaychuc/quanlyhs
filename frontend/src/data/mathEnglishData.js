@@ -9307,3 +9307,2400 @@ export const MATH_FLASHCARDS = [
     ]
   }
 ];
+
+export const MATH_SYMBOL_CATEGORIES = [
+  {
+    "id": "all",
+    "name": "Tất cả kí hiệu",
+    "enName": "All Symbols & Operations",
+    "icon": "Layers",
+    "desc": "Toàn bộ cách đọc phép toán, công thức và kí hiệu toán phổ thông"
+  },
+  {
+    "id": "arithmetic",
+    "name": "Phép tính & Phân số",
+    "enName": "Arithmetic & Fractions",
+    "icon": "Binary",
+    "desc": "Cộng, trừ, nhân, chia, phân số, hỗn số, chia hết, ƯCLN, BCNN, tỉ lệ, phần trăm, trị tuyệt đối"
+  },
+  {
+    "id": "exponents",
+    "name": "Lũy thừa, Căn & Lôgarit",
+    "enName": "Powers, Roots & Logs",
+    "icon": "Sparkles",
+    "desc": "Bình phương, lập phương, a lũy thừa b, căn bậc hai, căn bậc a của b, logarit cơ số a của b"
+  },
+  {
+    "id": "relations",
+    "name": "Dấu Bằng & Bất đẳng thức",
+    "enName": "Equality & Inequalities",
+    "icon": "ArrowRightLeft",
+    "desc": "Bằng, khác, xấp xỉ, lớn hơn, nhỏ hơn, lớn hơn hoặc bằng, bất đẳng thức kép, tỉ lệ"
+  },
+  {
+    "id": "sets_logic",
+    "name": "Tập hợp & Mệnh đề Logic",
+    "enName": "Sets & Logic",
+    "icon": "BookOpen",
+    "desc": "Thuộc, tập con, hợp, giao, hiệu, với mọi, tồn tại, suy ra, tương đương, vì, vậy nên"
+  },
+  {
+    "id": "algebra_comb",
+    "name": "Đại số, Hàm số & Tổ hợp",
+    "enName": "Algebra, Functions & Probability",
+    "icon": "Variable",
+    "desc": "Dấu ngoặc, hàm số f(x), cấp số, giai thừa, chỉnh hợp, tổ hợp, xác suất, thống kê, số phức"
+  },
+  {
+    "id": "calculus",
+    "name": "Giới hạn, Đạo hàm & Tích phân",
+    "enName": "Calculus & Limits",
+    "icon": "TrendingUp",
+    "desc": "Vô cực, giới hạn lim, đạo hàm bậc 1-2-n, nguyên hàm, tích phân xác định, tổng sigma"
+  },
+  {
+    "id": "geometry",
+    "name": "Hình học, Vectơ & Lượng giác",
+    "enName": "Geometry, Vectors & Trig",
+    "icon": "Triangle",
+    "desc": "Đoạn thẳng, góc, độ, song song, vuông góc, đồng dạng, tọa độ, vectơ, sin, cos, tan"
+  }
+];
+
+export const MATH_SYMBOLS = [
+  {
+    "id": "sym_add",
+    "symbol": "a + b",
+    "latex": "a + b",
+    "vi": "a cộng b (Phép cộng)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a plus b",
+        "note": "Cách đọc chuẩn và phổ biến nhất ở mọi cấp học"
+      },
+      {
+        "en": "a added to b",
+        "note": "a được cộng thêm vào b"
+      },
+      {
+        "en": "the sum of a and b",
+        "note": "Tổng của a và b (dùng khi nhấn mạnh cả biểu thức tổng)"
+      },
+      {
+        "en": "a increased by b",
+        "note": "a tăng thêm b đơn vị (thường gặp trong toán có lời văn)"
+      },
+      {
+        "en": "a and b",
+        "note": "Cách đọc thân mật ở Tiểu học (VD: two and three is five)"
+      }
+    ],
+    "example": {
+      "expr": "7 + 8 = 15",
+      "latex": "7 + 8 = 15",
+      "en": "Seven plus eight equals fifteen. Or: The sum of seven and eight is fifteen.",
+      "vi": "7 cộng 8 bằng 15 (Tổng của 7 và 8 bằng 15)."
+    }
+  },
+  {
+    "id": "sym_sub",
+    "symbol": "a − b",
+    "latex": "a - b",
+    "vi": "a trừ b (Phép trừ)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a minus b",
+        "note": "Cách đọc chuẩn và thông dụng nhất"
+      },
+      {
+        "en": "a subtract b",
+        "note": "Dùng phổ biến trong hướng dẫn giải toán trên lớp"
+      },
+      {
+        "en": "b subtracted from a",
+        "note": "Lấy a trừ đi b (lưu ý thứ tự b đứng trước trong tiếng Anh)"
+      },
+      {
+        "en": "the difference between a and b",
+        "note": "Hiệu của a và b"
+      },
+      {
+        "en": "a decreased by b",
+        "note": "a giảm đi b đơn vị (thường gặp trong toán đố)"
+      },
+      {
+        "en": "a take away b",
+        "note": "Cách đọc trực quan cho học sinh Tiểu học"
+      }
+    ],
+    "example": {
+      "expr": "12 − 5 = 7",
+      "latex": "12 - 5 = 7",
+      "en": "Twelve minus five equals seven. Or: Five subtracted from twelve is seven.",
+      "vi": "12 trừ 5 bằng 7."
+    }
+  },
+  {
+    "id": "sym_mul",
+    "symbol": "a × b  (a · b)",
+    "latex": "a \\times b \\quad (a \\cdot b)",
+    "vi": "a nhân b (Phép nhân)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a times b",
+        "note": "Cách đọc nhanh, tự nhiên và phổ biến nhất"
+      },
+      {
+        "en": "a multiplied by b",
+        "note": "Cách đọc chuẩn mực trong phát biểu định lý và SGK"
+      },
+      {
+        "en": "the product of a and b",
+        "note": "Tích của a và b"
+      },
+      {
+        "en": "a by b",
+        "note": "Dùng khi đọc kích thước hình học hoặc cấp ma trận (VD: 3 by 4)"
+      }
+    ],
+    "example": {
+      "expr": "6 × 9 = 54",
+      "latex": "6 \\times 9 = 54",
+      "en": "Six times nine equals fifty-four. Or: Six multiplied by nine is fifty-four.",
+      "vi": "6 nhân 9 bằng 54."
+    }
+  },
+  {
+    "id": "sym_div",
+    "symbol": "a ÷ b  (a : b)",
+    "latex": "a \\div b \\quad (a : b)",
+    "vi": "a chia b (Phép chia)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a divided by b",
+        "note": "Cách đọc chuẩn và phổ biến nhất"
+      },
+      {
+        "en": "a over b",
+        "note": "Rất thông dụng khi viết phép chia dưới dạng phân số a/b"
+      },
+      {
+        "en": "the quotient of a and b",
+        "note": "Thương của a và b"
+      },
+      {
+        "en": "b into a",
+        "note": "Dùng khi đặt tính chia (VD: three into twelve goes four)"
+      }
+    ],
+    "example": {
+      "expr": "24 ÷ 6 = 4",
+      "latex": "24 \\div 6 = 4",
+      "en": "Twenty-four divided by six equals four.",
+      "vi": "24 chia 6 bằng 4."
+    }
+  },
+  {
+    "id": "sym_neg",
+    "symbol": "−a",
+    "latex": "-a",
+    "vi": "Trừ a / Âm a (Số đối của a)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "negative a",
+        "note": "Chuẩn sư phạm quốc tế khi chỉ số âm hoặc dấu âm trước biến"
+      },
+      {
+        "en": "minus a",
+        "note": "Thông dụng trong giao tiếp và đọc biểu thức đại số"
+      },
+      {
+        "en": "the opposite of a",
+        "note": "Số đối của a"
+      }
+    ],
+    "example": {
+      "expr": "−(−5) = 5",
+      "latex": "-(-5) = 5",
+      "en": "The opposite of negative five equals five. Or: Minus negative five is five.",
+      "vi": "Số đối của âm 5 bằng 5."
+    }
+  },
+  {
+    "id": "sym_plus_minus",
+    "symbol": "a ± b  /  ±a",
+    "latex": "a \\pm b \\quad (\\pm a)",
+    "vi": "a cộng trừ b / Cộng hoặc trừ a",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a plus or minus b",
+        "note": "Cách đọc chuẩn trong công thức nghiệm và sai số"
+      },
+      {
+        "en": "plus or minus a",
+        "note": "Đọc khi dấu ± đứng trước một số hoặc căn thức"
+      }
+    ],
+    "example": {
+      "expr": "x = ±3",
+      "latex": "x = \\pm 3",
+      "en": "x equals plus or minus three.",
+      "vi": "x bằng cộng trừ 3."
+    }
+  },
+  {
+    "id": "sym_frac_general",
+    "symbol": "a / b",
+    "latex": "\\frac{a}{b}",
+    "vi": "Phân số a phần b (a trên b)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a over b",
+        "note": "Cách đọc ngắn gọn, phổ biến nhất cho mọi phân số và phân thức"
+      },
+      {
+        "en": "a divided by b",
+        "note": "Đọc theo nghĩa phép chia tử số cho mẫu số"
+      },
+      {
+        "en": "the fraction a over b",
+        "note": "Nhấn mạnh đây là một phân số"
+      }
+    ],
+    "example": {
+      "expr": "(x + 1) / (x − 2)",
+      "latex": "\\frac{x + 1}{x - 2}",
+      "en": "x plus one over x minus two.",
+      "vi": "x cộng 1 trên x trừ 2."
+    }
+  },
+  {
+    "id": "sym_frac_common",
+    "symbol": "1/2,  1/3,  2/3,  1/4,  3/4",
+    "latex": "\\frac{1}{2},\\; \\frac{1}{3},\\; \\frac{2}{3},\\; \\frac{1}{4},\\; \\frac{3}{4}",
+    "vi": "Các phân số thông dụng (Một phần hai, một phần ba, ba phần tư...)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "one half, a half",
+        "note": "1/2 (Một phần hai / một nửa)"
+      },
+      {
+        "en": "one third, two thirds",
+        "note": "1/3 và 2/3 (Tử số ≥ 2 thì mẫu số thêm 's')"
+      },
+      {
+        "en": "one quarter, three quarters",
+        "note": "1/4 và 3/4 (Chuẩn Anh-Anh, hoặc: one fourth, three fourths)"
+      },
+      {
+        "en": "two fifths, five sixths",
+        "note": "2/5 và 5/6 (Quy tắc chung: Tử đếm số đếm + Mẫu đếm số thứ tự)"
+      }
+    ],
+    "example": {
+      "expr": "1/2 + 1/4 = 3/4",
+      "latex": "\\frac{1}{2} + \\frac{1}{4} = \\frac{3}{4}",
+      "en": "One half plus one quarter equals three quarters.",
+      "vi": "Một phần hai cộng một phần tư bằng ba phần tư."
+    }
+  },
+  {
+    "id": "sym_mixed_num",
+    "symbol": "2 ¾",
+    "latex": "2\\frac{3}{4}",
+    "vi": "Hỗn số (Hai và ba phần tư)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "two and three quarters",
+        "note": "Đọc phần nguyên + 'and' + phần phân số"
+      },
+      {
+        "en": "two and three fourths",
+        "note": "Cách đọc tương đương theo chuẩn Mỹ"
+      }
+    ],
+    "example": {
+      "expr": "2 ¾ = 11/4",
+      "latex": "2\\frac{3}{4} = \\frac{11}{4}",
+      "en": "Two and three quarters equals eleven over four.",
+      "vi": "Hỗn số 2 và 3/4 bằng 11 phần 4."
+    }
+  },
+  {
+    "id": "sym_decimal",
+    "symbol": "3.14  &  0.(3) = 0.3̄",
+    "latex": "3.14 \\quad \\text{\\&} \\quad 0.(3) = 0.\\overline{3}",
+    "vi": "Số thập phân hữu hạn & Số thập phân vô hạn tuần hoàn",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "three point one four",
+        "note": "Sau dấu chấm thập phân (point), đọc từng chữ số riêng lẻ"
+      },
+      {
+        "en": "zero point three recurring",
+        "note": "Đọc số thập phân vô hạn tuần hoàn 0.(3) (Chuẩn Anh-Anh)"
+      },
+      {
+        "en": "zero point three repeating",
+        "note": "Đọc số thập phân vô hạn tuần hoàn 0.(3) (Chuẩn Anh-Mỹ)"
+      }
+    ],
+    "example": {
+      "expr": "1/3 = 0.(3)",
+      "latex": "\\frac{1}{3} = 0.\\overline{3}",
+      "en": "One third equals zero point three recurring.",
+      "vi": "Một phần ba bằng 0 phẩy 3 tuần hoàn."
+    }
+  },
+  {
+    "id": "sym_percent",
+    "symbol": "a%",
+    "latex": "a\\%",
+    "vi": "a phần trăm",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a percent",
+        "note": "Cách đọc chuẩn duy nhất trong tiếng Anh"
+      }
+    ],
+    "example": {
+      "expr": "25% = 1/4",
+      "latex": "25\\% = \\frac{1}{4}",
+      "en": "Twenty-five percent equals one quarter.",
+      "vi": "25 phần trăm bằng một phần tư."
+    }
+  },
+  {
+    "id": "sym_ratio",
+    "symbol": "a : b = c : d",
+    "latex": "a : b = c : d",
+    "vi": "Tỉ số a chia b / Tỉ lệ thức",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "the ratio of a to b",
+        "note": "Đọc tỉ số a : b"
+      },
+      {
+        "en": "a is to b as c is to d",
+        "note": "Cách đọc chuẩn cho tỉ lệ thức a : b = c : d"
+      },
+      {
+        "en": "a to b",
+        "note": "Cách đọc ngắn gọn (VD: a ratio of three to two)"
+      }
+    ],
+    "example": {
+      "expr": "2 : 3 = 4 : 6",
+      "latex": "2 : 3 = 4 : 6",
+      "en": "Two is to three as four is to six.",
+      "vi": "Tỉ số 2 chia 3 bằng 4 chia 6."
+    }
+  },
+  {
+    "id": "sym_abs",
+    "symbol": "|a|",
+    "latex": "|a|",
+    "vi": "Giá trị tuyệt đối của a (Trị tuyệt đối của a)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "the absolute value of a",
+        "note": "Cách đọc phổ biến nhất trong Đại số và Giải tích"
+      },
+      {
+        "en": "the modulus of a",
+        "note": "Rất thông dụng trong chương trình Anh-Anh (A-Level/IGCSE) và số phức"
+      },
+      {
+        "en": "mod a",
+        "note": "Cách đọc tắt nhanh của giáo viên khi giảng bài"
+      }
+    ],
+    "example": {
+      "expr": "|−7| = 7",
+      "latex": "|-7| = 7",
+      "en": "The absolute value of negative seven equals seven.",
+      "vi": "Giá trị tuyệt đối của âm 7 bằng 7."
+    }
+  },
+  {
+    "id": "sym_divisible_gcd",
+    "symbol": "a ⋮ b,  ƯCLN(a, b),  BCNN(a, b)",
+    "latex": "a \\vdots b \\;(b \\mid a),\\quad \\gcd(a, b),\\quad \\operatorname{lcm}(a, b)",
+    "vi": "a chia hết cho b, Ước chung lớn nhất (GCD) & Bội chung nhỏ nhất (LCM)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a is divisible by b",
+        "note": "a chia hết cho b (a ⋮ b)"
+      },
+      {
+        "en": "b divides a",
+        "note": "b là ước của a (kí hiệu quốc tế: b | a)"
+      },
+      {
+        "en": "the greatest common divisor of a and b",
+        "note": "ƯCLN(a, b) - viết tắt là gcd(a, b) hoặc HCF (highest common factor)"
+      },
+      {
+        "en": "the least common multiple of a and b",
+        "note": "BCNN(a, b) - viết tắt là lcm(a, b)"
+      }
+    ],
+    "example": {
+      "expr": "gcd(12, 18) = 6,  lcm(12, 18) = 36",
+      "latex": "\\gcd(12, 18) = 6,\\quad \\operatorname{lcm}(12, 18) = 36",
+      "en": "The greatest common divisor of twelve and eighteen is six, and their least common multiple is thirty-six.",
+      "vi": "ƯCLN của 12 và 18 là 6, BCNN của chúng là 36."
+    }
+  },
+  {
+    "id": "sym_modulo",
+    "symbol": "a ≡ b (mod n)",
+    "latex": "a \\equiv b \\pmod{n}",
+    "vi": "a đồng dư với b theo mô-đun n",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "a is congruent to b modulo n",
+        "note": "Cách đọc đầy đủ và chuẩn xác nhất"
+      },
+      {
+        "en": "a is congruent to b mod n",
+        "note": "Cách đọc gọn thường dùng trên lớp"
+      }
+    ],
+    "example": {
+      "expr": "17 ≡ 2 (mod 5)",
+      "latex": "17 \\equiv 2 \\pmod{5}",
+      "en": "Seventeen is congruent to two modulo five.",
+      "vi": "17 đồng dư với 2 theo mô-đun 5."
+    }
+  },
+  {
+    "id": "sym_floor_ceil",
+    "symbol": "[x]  /  ⌊x⌋  &  ⌈x⌉",
+    "latex": "[x] = \\lfloor x \\rfloor \\quad \\text{\\&} \\quad \\lceil x \\rceil",
+    "vi": "Phần nguyên của x (Floor) & Phần nguyên trên (Ceiling)",
+    "category": "arithmetic",
+    "readings": [
+      {
+        "en": "the integer part of x",
+        "note": "Phần nguyên của x (kí hiệu [x] trong SGK Việt Nam)"
+      },
+      {
+        "en": "the floor of x",
+        "note": "Số nguyên lớn nhất không vượt quá x (⌊x⌋)"
+      },
+      {
+        "en": "the greatest integer less than or equal to x",
+        "note": "Định nghĩa đầy đủ của hàm phần nguyên [x]"
+      },
+      {
+        "en": "the ceiling of x",
+        "note": "Số nguyên nhỏ nhất lớn hơn hoặc bằng x (⌈x⌉)"
+      }
+    ],
+    "example": {
+      "expr": "⌊3.7⌋ = 3,  ⌊−1.2⌋ = −2",
+      "latex": "\\lfloor 3.7 \\rfloor = 3,\\quad \\lfloor -1.2 \\rfloor = -2",
+      "en": "The floor of three point seven equals three, and the floor of negative one point two equals negative two.",
+      "vi": "Phần nguyên của 3,7 bằng 3; phần nguyên của -1,2 bằng -2."
+    }
+  },
+  {
+    "id": "sym_square",
+    "symbol": "a²",
+    "latex": "a^2",
+    "vi": "a bình phương (a mũ 2)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "a squared",
+        "note": "Cách đọc chuẩn và phổ biến nhất cho mũ 2"
+      },
+      {
+        "en": "the square of a",
+        "note": "Bình phương của a"
+      },
+      {
+        "en": "a to the power of two",
+        "note": "a mũ 2"
+      },
+      {
+        "en": "a to the second power",
+        "note": "a lũy thừa bậc hai"
+      }
+    ],
+    "example": {
+      "expr": "a² + b² = c²",
+      "latex": "a^2 + b^2 = c^2",
+      "en": "a squared plus b squared equals c squared.",
+      "vi": "a bình phương cộng b bình phương bằng c bình phương."
+    }
+  },
+  {
+    "id": "sym_cube",
+    "symbol": "a³",
+    "latex": "a^3",
+    "vi": "a lập phương (a mũ 3)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "a cubed",
+        "note": "Cách đọc chuẩn và phổ biến nhất cho mũ 3"
+      },
+      {
+        "en": "the cube of a",
+        "note": "Lập phương của a"
+      },
+      {
+        "en": "a to the power of three",
+        "note": "a mũ 3"
+      },
+      {
+        "en": "a to the third power",
+        "note": "a lũy thừa bậc ba"
+      }
+    ],
+    "example": {
+      "expr": "4³ = 64",
+      "latex": "4^3 = 64",
+      "en": "Four cubed equals sixty-four.",
+      "vi": "4 lập phương (4 mũ 3) bằng 64."
+    }
+  },
+  {
+    "id": "sym_power",
+    "symbol": "aᵇ  (aⁿ)",
+    "latex": "a^b \\quad (a^n)",
+    "vi": "a lũy thừa b (a mũ b)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "a to the power of b",
+        "note": "Cách đọc chuẩn mực và phổ biến nhất trong mọi trường hợp"
+      },
+      {
+        "en": "a to the b-th power",
+        "note": "Dùng số thứ tự cho số mũ (VD: a⁴ = a to the fourth power, aⁿ = a to the n-th power)"
+      },
+      {
+        "en": "a to the b",
+        "note": "Cách đọc ngắn gọn, tự nhiên khi đọc nhanh biểu thức dài"
+      },
+      {
+        "en": "a raised to the power of b",
+        "note": "Cách đọc trang trọng trong định nghĩa lũy thừa"
+      }
+    ],
+    "example": {
+      "expr": "2⁵ = 32",
+      "latex": "2^5 = 32",
+      "en": "Two to the power of five equals thirty-two. Or: Two to the fifth power is thirty-two.",
+      "vi": "2 lũy thừa 5 (2 mũ 5) bằng 32."
+    }
+  },
+  {
+    "id": "sym_neg_power",
+    "symbol": "a⁻ⁿ  /  a⁻¹",
+    "latex": "a^{-n} \\quad (a^{-1})",
+    "vi": "a mũ âm n / Nghịch đảo của a",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "a to the power of negative n",
+        "note": "Cách đọc chuẩn cho số mũ nguyên âm"
+      },
+      {
+        "en": "a to the minus n",
+        "note": "Cách đọc ngắn gọn trên lớp"
+      },
+      {
+        "en": "a inverse",
+        "note": "Dùng riêng cho a⁻¹ (nghịch đảo của a hoặc ma trận nghịch đảo)"
+      },
+      {
+        "en": "the reciprocal of a",
+        "note": "Số nghịch đảo 1/a"
+      }
+    ],
+    "example": {
+      "expr": "10⁻³ = 0.001",
+      "latex": "10^{-3} = 0.001",
+      "en": "Ten to the power of negative three equals zero point zero zero one.",
+      "vi": "10 mũ âm 3 bằng 0,001."
+    }
+  },
+  {
+    "id": "sym_frac_power",
+    "symbol": "a^(m/n)",
+    "latex": "a^{\\frac{m}{n}}",
+    "vi": "a lũy thừa m phần n (Lũy thừa với số mũ hữu tỉ)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "a to the power of m over n",
+        "note": "Cách đọc chuẩn và dễ nghe nhất"
+      },
+      {
+        "en": "a to the m over n-th power",
+        "note": "Cách đọc nhấn mạnh số mũ phân số"
+      }
+    ],
+    "example": {
+      "expr": "8^(2/3) = 4",
+      "latex": "8^{\\frac{2}{3}} = 4",
+      "en": "Eight to the power of two thirds equals four.",
+      "vi": "8 mũ 2 phần 3 bằng 4."
+    }
+  },
+  {
+    "id": "sym_sci_notation",
+    "symbol": "a × 10ⁿ",
+    "latex": "a \\times 10^n",
+    "vi": "Kí hiệu khoa học của một số (a nhân 10 mũ n)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "a times ten to the power of n",
+        "note": "Cách đọc đầy đủ chuẩn quốc tế"
+      },
+      {
+        "en": "a times ten to the n",
+        "note": "Cách đọc ngắn gọn thường dùng trong Toán và Vật lý"
+      }
+    ],
+    "example": {
+      "expr": "3 × 10⁸",
+      "latex": "3 \\times 10^8",
+      "en": "Three times ten to the power of eight.",
+      "vi": "3 nhân 10 mũ 8."
+    }
+  },
+  {
+    "id": "sym_sqrt",
+    "symbol": "√a",
+    "latex": "\\sqrt{a}",
+    "vi": "Căn bậc hai của a",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "the square root of a",
+        "note": "Cách đọc chuẩn mực nhất ở mọi cấp học"
+      },
+      {
+        "en": "root a",
+        "note": "Cách đọc rút gọn rất phổ biến khi đọc nhanh (VD: root two, root three)"
+      },
+      {
+        "en": "radical a",
+        "note": "Đọc theo tên kí hiệu dấu căn (thường dùng ở Mỹ)"
+      }
+    ],
+    "example": {
+      "expr": "√25 = 5",
+      "latex": "\\sqrt{25} = 5",
+      "en": "The square root of twenty-five equals five.",
+      "vi": "Căn bậc hai của 25 bằng 5."
+    }
+  },
+  {
+    "id": "sym_cbrt",
+    "symbol": "∛a",
+    "latex": "\\sqrt[3]{a}",
+    "vi": "Căn bậc ba của a",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "the cube root of a",
+        "note": "Cách đọc chuẩn và phổ biến nhất cho căn bậc ba"
+      },
+      {
+        "en": "the third root of a",
+        "note": "Ít dùng hơn, đôi khi dùng khi liệt kê theo thứ tự bậc căn"
+      }
+    ],
+    "example": {
+      "expr": "∛27 = 3",
+      "latex": "\\sqrt[3]{27} = 3",
+      "en": "The cube root of twenty-seven equals three.",
+      "vi": "Căn bậc ba của 27 bằng 3."
+    }
+  },
+  {
+    "id": "sym_nth_root",
+    "symbol": "ᵃ√b  (ⁿ√x)",
+    "latex": "\\sqrt[a]{b} \\quad (\\sqrt[n]{x})",
+    "vi": "Căn bậc a của b (Căn bậc n của x)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "the a-th root of b",
+        "note": "Cách đọc chuẩn: dùng số thứ tự cho bậc căn (VD: fourth root, fifth root, n-th root)"
+      },
+      {
+        "en": "the n-th root of x",
+        "note": "Căn bậc n của x"
+      },
+      {
+        "en": "the fourth root of b",
+        "note": "Ví dụ cụ thể với bậc 4: ∜b đọc là the fourth root of b"
+      }
+    ],
+    "example": {
+      "expr": "⁴√16 = 2",
+      "latex": "\\sqrt[4]{16} = 2",
+      "en": "The fourth root of sixteen equals two.",
+      "vi": "Căn bậc 4 của 16 bằng 2."
+    }
+  },
+  {
+    "id": "sym_log_base",
+    "symbol": "logₐ b  (logₐ(b))",
+    "latex": "\\log_a b",
+    "vi": "Lôgarit cơ số a của b",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "log base a of b",
+        "note": "Cách đọc ngắn gọn, phổ biến nhất trong lớp học quốc tế"
+      },
+      {
+        "en": "the logarithm base a of b",
+        "note": "Cách đọc đầy đủ, trang trọng"
+      },
+      {
+        "en": "the logarithm of b to the base a",
+        "note": "Cách đọc chuẩn theo văn phong học thuật Anh-Anh"
+      }
+    ],
+    "example": {
+      "expr": "log₂ 8 = 3",
+      "latex": "\\log_2 8 = 3",
+      "en": "Log base two of eight equals three. Or: The logarithm of eight to the base two is three.",
+      "vi": "Lôgarit cơ số 2 của 8 bằng 3."
+    }
+  },
+  {
+    "id": "sym_ln",
+    "symbol": "ln x",
+    "latex": "\\ln x",
+    "vi": "Lôgarit tự nhiên của x (Loga cơ số e của x)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "natural log of x",
+        "note": "Cách đọc chuẩn và phổ biến nhất"
+      },
+      {
+        "en": "the natural logarithm of x",
+        "note": "Cách đọc đầy đủ"
+      },
+      {
+        "en": "l n of x",
+        "note": "Đọc đánh vần hai chữ cái l-n"
+      },
+      {
+        "en": "lon x",
+        "note": "Cách đọc tắt thành 1 âm tiết của nhiều giáo viên Anh/Canada"
+      }
+    ],
+    "example": {
+      "expr": "ln(e²) = 2",
+      "latex": "\\ln(e^2) = 2",
+      "en": "The natural log of e squared equals two.",
+      "vi": "Lôgarit tự nhiên của e bình phương bằng 2."
+    }
+  },
+  {
+    "id": "sym_log10",
+    "symbol": "log x  (lg x)",
+    "latex": "\\log x \\quad (\\lg x)",
+    "vi": "Lôgarit thập phân của x (Lôgarit cơ số 10)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "log of x",
+        "note": "Cách đọc thông dụng nhất khi không ghi cơ số"
+      },
+      {
+        "en": "common log of x",
+        "note": "Lôgarit thập phân của x (nhấn mạnh cơ số 10)"
+      },
+      {
+        "en": "log base ten of x",
+        "note": "Lôgarit cơ số 10 của x"
+      }
+    ],
+    "example": {
+      "expr": "log 100 = 2",
+      "latex": "\\log 100 = 2",
+      "en": "Log base ten of one hundred equals two.",
+      "vi": "Lôgarit thập phân của 100 bằng 2."
+    }
+  },
+  {
+    "id": "sym_exp_e",
+    "symbol": "eˣ",
+    "latex": "e^x",
+    "vi": "e mũ x (Hàm số mũ tự nhiên)",
+    "category": "exponents",
+    "readings": [
+      {
+        "en": "e to the power of x",
+        "note": "Cách đọc đầy đủ"
+      },
+      {
+        "en": "e to the x",
+        "note": "Cách đọc tự nhiên và phổ biến nhất trong Giải tích"
+      },
+      {
+        "en": "the exponential function of x",
+        "note": "Hàm mũ của x (exp(x))"
+      }
+    ],
+    "example": {
+      "expr": "(eˣ)' = eˣ",
+      "latex": "(e^x)' = e^x",
+      "en": "The derivative of e to the x is e to the x.",
+      "vi": "Đạo hàm của e mũ x bằng chính e mũ x."
+    }
+  },
+  {
+    "id": "sym_eq",
+    "symbol": "a = b",
+    "latex": "a = b",
+    "vi": "a bằng b",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "a equals b",
+        "note": "Cách đọc chuẩn và ngắn gọn nhất"
+      },
+      {
+        "en": "a is equal to b",
+        "note": "Cách đọc đầy đủ, trang trọng"
+      },
+      {
+        "en": "a is b",
+        "note": "Cách đọc thân mật (VD: two plus two is four)"
+      }
+    ],
+    "example": {
+      "expr": "2x = 10",
+      "latex": "2x = 10",
+      "en": "Two x equals ten. Or: Two x is equal to ten.",
+      "vi": "2x bằng 10."
+    }
+  },
+  {
+    "id": "sym_neq",
+    "symbol": "a ≠ b",
+    "latex": "a \\neq b",
+    "vi": "a khác b (a không bằng b)",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "a is not equal to b",
+        "note": "Cách đọc chuẩn và phổ biến nhất"
+      },
+      {
+        "en": "a does not equal b",
+        "note": "Dùng rất tự nhiên khi giải điều kiện xác định"
+      }
+    ],
+    "example": {
+      "expr": "x − 1 ≠ 0 ⇔ x ≠ 1",
+      "latex": "x - 1 \\neq 0 \\iff x \\neq 1",
+      "en": "x minus one is not equal to zero if and only if x is not equal to one.",
+      "vi": "x trừ 1 khác 0 khi và chỉ khi x khác 1."
+    }
+  },
+  {
+    "id": "sym_approx",
+    "symbol": "a ≈ b",
+    "latex": "a \\approx b",
+    "vi": "a xấp xỉ bằng b (a gần bằng b)",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "a is approximately equal to b",
+        "note": "Cách đọc đầy đủ và chuẩn mực nhất"
+      },
+      {
+        "en": "a is approximately b",
+        "note": "Cách đọc ngắn gọn khi làm tròn kết quả"
+      }
+    ],
+    "example": {
+      "expr": "√2 ≈ 1.414",
+      "latex": "\\sqrt{2} \\approx 1.414",
+      "en": "The square root of two is approximately equal to one point four one four.",
+      "vi": "Căn bậc hai của 2 xấp xỉ bằng 1,414."
+    }
+  },
+  {
+    "id": "sym_lt",
+    "symbol": "a < b",
+    "latex": "a < b",
+    "vi": "a nhỏ hơn b (a bé hơn b)",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "a is less than b",
+        "note": "Cách đọc chuẩn duy nhất trong toán học"
+      },
+      {
+        "en": "a is strictly less than b",
+        "note": "Nhấn mạnh bất đẳng thức ngặt (không lấy dấu bằng)"
+      }
+    ],
+    "example": {
+      "expr": "x < 5",
+      "latex": "x < 5",
+      "en": "x is less than five.",
+      "vi": "x nhỏ hơn 5."
+    }
+  },
+  {
+    "id": "sym_gt",
+    "symbol": "a > b",
+    "latex": "a > b",
+    "vi": "a lớn hơn b",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "a is greater than b",
+        "note": "Cách đọc chuẩn trong toán học (không dùng 'bigger than' trong văn phong chuẩn)"
+      },
+      {
+        "en": "a is strictly greater than b",
+        "note": "Nhấn mạnh lớn hơn hẳn (không có dấu bằng)"
+      }
+    ],
+    "example": {
+      "expr": "Δ > 0",
+      "latex": "\\Delta > 0",
+      "en": "Delta is greater than zero.",
+      "vi": "Biệt thức Delta lớn hơn 0."
+    }
+  },
+  {
+    "id": "sym_le",
+    "symbol": "a ≤ b",
+    "latex": "a \\le b",
+    "vi": "a nhỏ hơn hoặc bằng b (a không vượt quá b)",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "a is less than or equal to b",
+        "note": "Cách đọc chuẩn và phổ biến nhất"
+      },
+      {
+        "en": "a is at most b",
+        "note": "a tối đa bằng b (dùng nhiều trong bài toán thực tế & xác suất)"
+      },
+      {
+        "en": "a does not exceed b",
+        "note": "a không vượt quá b"
+      }
+    ],
+    "example": {
+      "expr": "x ≤ 10",
+      "latex": "x \\le 10",
+      "en": "x is less than or equal to ten.",
+      "vi": "x nhỏ hơn hoặc bằng 10."
+    }
+  },
+  {
+    "id": "sym_ge",
+    "symbol": "a ≥ b",
+    "latex": "a \\ge b",
+    "vi": "a lớn hơn hoặc bằng b (a không nhỏ hơn b)",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "a is greater than or equal to b",
+        "note": "Cách đọc chuẩn và phổ biến nhất"
+      },
+      {
+        "en": "a is at least b",
+        "note": "a ít nhất bằng b (tối thiểu bằng b)"
+      },
+      {
+        "en": "a is no less than b",
+        "note": "a không nhỏ hơn b"
+      }
+    ],
+    "example": {
+      "expr": "x² ≥ 0",
+      "latex": "x^2 \\ge 0",
+      "en": "x squared is greater than or equal to zero for all real x.",
+      "vi": "x bình phương luôn lớn hơn hoặc bằng 0 với mọi x thực."
+    }
+  },
+  {
+    "id": "sym_compound_ineq",
+    "symbol": "a < x < b  &  a ≤ x ≤ b",
+    "latex": "a < x < b \\quad \\text{\\&} \\quad a \\le x \\le b",
+    "vi": "Bất đẳng thức kép (x nằm giữa a và b)",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "a is less than x, which is less than b",
+        "note": "Đọc lần lượt từ trái sang phải cho a < x < b"
+      },
+      {
+        "en": "x is strictly between a and b",
+        "note": "x nằm giữa a và b (không lấy hai đầu mút)"
+      },
+      {
+        "en": "x is greater than or equal to a and less than or equal to b",
+        "note": "Cách đọc rõ nghĩa nhất cho a ≤ x ≤ b"
+      },
+      {
+        "en": "x is between a and b, inclusive",
+        "note": "x nằm từ a đến b, tính cả hai đầu mút a và b"
+      }
+    ],
+    "example": {
+      "expr": "−1 ≤ cos x ≤ 1",
+      "latex": "-1 \\le \\cos x \\le 1",
+      "en": "Cosine of x is between negative one and one, inclusive.",
+      "vi": "Cos x nằm trong đoạn từ -1 đến 1."
+    }
+  },
+  {
+    "id": "sym_prop",
+    "symbol": "y ∝ x  (y = kx,  y = k/x)",
+    "latex": "y \\propto x \\quad \\left(y = kx,\\; y = \\frac{k}{x}\\right)",
+    "vi": "Đại lượng tỉ lệ thuận & Đại lượng tỉ lệ nghịch",
+    "category": "relations",
+    "readings": [
+      {
+        "en": "y is directly proportional to x",
+        "note": "y tỉ lệ thuận với x (y = kx)"
+      },
+      {
+        "en": "y is inversely proportional to x",
+        "note": "y tỉ lệ nghịch với x (y = k/x)"
+      },
+      {
+        "en": "y varies directly as x",
+        "note": "y biến thiên tỉ lệ thuận theo x"
+      }
+    ],
+    "example": {
+      "expr": "y = k/x",
+      "latex": "y = \\frac{k}{x}",
+      "en": "y is inversely proportional to x with constant of proportionality k.",
+      "vi": "y tỉ lệ nghịch với x theo hệ số tỉ lệ k."
+    }
+  },
+  {
+    "id": "sym_in",
+    "symbol": "x ∈ A",
+    "latex": "x \\in A",
+    "vi": "x thuộc tập hợp A (x là phần tử của A)",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "x belongs to A",
+        "note": "Cách đọc tự nhiên và sát nghĩa tiếng Việt 'thuộc' nhất"
+      },
+      {
+        "en": "x is in A",
+        "note": "Cách đọc ngắn gọn, rất phổ biến khi đọc điều kiện (VD: for x in R)"
+      },
+      {
+        "en": "x is an element of A",
+        "note": "x là một phần tử của tập hợp A (chuẩn SGK)"
+      },
+      {
+        "en": "x is a member of A",
+        "note": "x là thành viên của tập A"
+      }
+    ],
+    "example": {
+      "expr": "x ∈ ℝ",
+      "latex": "x \\in \\mathbb{R}",
+      "en": "x belongs to the set of real numbers. Or: x is in R.",
+      "vi": "x thuộc tập hợp các số thực R."
+    }
+  },
+  {
+    "id": "sym_notin",
+    "symbol": "x ∉ A",
+    "latex": "x \\notin A",
+    "vi": "x không thuộc tập hợp A",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "x does not belong to A",
+        "note": "x không thuộc A"
+      },
+      {
+        "en": "x is not in A",
+        "note": "Cách đọc ngắn gọn thông dụng"
+      },
+      {
+        "en": "x is not an element of A",
+        "note": "x không phải là phần tử của A"
+      }
+    ],
+    "example": {
+      "expr": "−2 ∉ ℕ",
+      "latex": "-2 \\notin \\mathbb{N}",
+      "en": "Negative two does not belong to the set of natural numbers.",
+      "vi": "Âm 2 không thuộc tập hợp số tự nhiên."
+    }
+  },
+  {
+    "id": "sym_subset",
+    "symbol": "A ⊂ B  /  A ⊆ B",
+    "latex": "A \\subset B \\quad (A \\subseteq B)",
+    "vi": "A là tập con của B",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "A is a subset of B",
+        "note": "Cách đọc chuẩn cho A ⊆ B (hoặc A ⊂ B theo kí hiệu SGK Việt Nam)"
+      },
+      {
+        "en": "A is a proper subset of B",
+        "note": "A là tập con thực sự của B (A ⊂ B và A ≠ B)"
+      },
+      {
+        "en": "A is contained in B",
+        "note": "A được chứa trong B"
+      }
+    ],
+    "example": {
+      "expr": "ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ",
+      "latex": "\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}",
+      "en": "The set of natural numbers is a subset of the integers, which is a subset of the rational numbers, which is a subset of the real numbers.",
+      "vi": "Tập số tự nhiên là tập con của số nguyên, số hữu tỉ và số thực."
+    }
+  },
+  {
+    "id": "sym_union",
+    "symbol": "A ∪ B",
+    "latex": "A \\cup B",
+    "vi": "A hợp B (Hợp của hai tập hợp A và B)",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "A union B",
+        "note": "Cách đọc ngắn gọn và phổ biến nhất"
+      },
+      {
+        "en": "the union of A and B",
+        "note": "Hợp của hai tập hợp A và B"
+      },
+      {
+        "en": "A cup B",
+        "note": "Đọc theo hình dáng kí hiệu ∪ (đôi khi dùng khi đọc nhanh công thức)"
+      }
+    ],
+    "example": {
+      "expr": "(−∞; 1) ∪ (3; +∞)",
+      "latex": "(-\\infty; 1) \\cup (3; +\\infty)",
+      "en": "The open interval from negative infinity to one union the open interval from three to positive infinity.",
+      "vi": "Khoảng từ âm vô cực đến 1 hợp với khoảng từ 3 đến dương vô cực."
+    }
+  },
+  {
+    "id": "sym_intersect",
+    "symbol": "A ∩ B",
+    "latex": "A \\cap B",
+    "vi": "A giao B (Giao của hai tập hợp A và B)",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "A intersect B",
+        "note": "Cách đọc ngắn gọn và thông dụng nhất"
+      },
+      {
+        "en": "the intersection of A and B",
+        "note": "Giao của hai tập hợp A và B"
+      },
+      {
+        "en": "A cap B",
+        "note": "Đọc theo hình dáng kí hiệu ∩"
+      }
+    ],
+    "example": {
+      "expr": "A ∩ B = ∅",
+      "latex": "A \\cap B = \\emptyset",
+      "en": "The intersection of A and B is the empty set.",
+      "vi": "Giao của A và B là tập rỗng (A và B rời nhau)."
+    }
+  },
+  {
+    "id": "sym_set_diff",
+    "symbol": "A \\ B  /  C_E A",
+    "latex": "A \\setminus B \\quad (C_E A,\\; \\overline{A})",
+    "vi": "Hiệu của A và B / Phần bù của A trong E",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "A minus B",
+        "note": "Hiệu của tập A và B (A \\ B)"
+      },
+      {
+        "en": "the difference of sets A and B",
+        "note": "Hiệu của hai tập hợp A và B"
+      },
+      {
+        "en": "A setminus B",
+        "note": "Đọc theo tên kí hiệu toán học"
+      },
+      {
+        "en": "the complement of A in E",
+        "note": "Phần bù của A trong E (C_E A hoặc Ā)"
+      }
+    ],
+    "example": {
+      "expr": "ℝ \\ {0}",
+      "latex": "\\mathbb{R} \\setminus \\{0\\}",
+      "en": "The set of real numbers minus zero.",
+      "vi": "Tập số thực hiệu đi phần tử 0 (R bỏ 0)."
+    }
+  },
+  {
+    "id": "sym_set_builder",
+    "symbol": "A = {x ∈ ℝ | x > 0}  &  n(A)",
+    "latex": "A = \\{x \\in \\mathbb{R} \\mid x > 0\\},\\quad n(A) = |A|",
+    "vi": "Tập hợp viết theo tính chất đặc trưng & Số phần tử của tập hợp",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "the set of all x in R such that x is greater than zero",
+        "note": "Dấu gạch đứng '|' hoặc dấu hai chấm ':' trong tập hợp đọc là 'such that' (sao cho)"
+      },
+      {
+        "en": "the number of elements in set A",
+        "note": "Đọc kí hiệu n(A) hoặc |A|"
+      },
+      {
+        "en": "the cardinality of set A",
+        "note": "Lực lượng (số phần tử) của tập hợp A"
+      }
+    ],
+    "example": {
+      "expr": "n(A ∪ B) = n(A) + n(B) − n(A ∩ B)",
+      "latex": "n(A \\cup B) = n(A) + n(B) - n(A \\cap B)",
+      "en": "The number of elements in A union B equals the number of elements in A plus the number of elements in B minus the number of elements in A intersect B.",
+      "vi": "Công thức cộng số phần tử của hai tập hợp hữu hạn."
+    }
+  },
+  {
+    "id": "sym_emptyset",
+    "symbol": "∅",
+    "latex": "\\emptyset",
+    "vi": "Tập hợp rỗng",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "the empty set",
+        "note": "Cách đọc chuẩn và phổ biến nhất"
+      },
+      {
+        "en": "the null set",
+        "note": "Cũng được dùng trong lý thuyết tập hợp và xác suất"
+      }
+    ],
+    "example": {
+      "expr": "S = ∅",
+      "latex": "S = \\emptyset",
+      "en": "The solution set S is the empty set.",
+      "vi": "Tập nghiệm S là tập rỗng (Phương trình vô nghiệm)."
+    }
+  },
+  {
+    "id": "sym_forall",
+    "symbol": "∀x",
+    "latex": "\\forall x",
+    "vi": "Với mọi x (Kí hiệu phổ biến)",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "for all x",
+        "note": "Cách đọc chuẩn và thông dụng nhất"
+      },
+      {
+        "en": "for every x",
+        "note": "Với mỗi / với mọi x"
+      },
+      {
+        "en": "for any x",
+        "note": "Với bất kỳ x nào"
+      }
+    ],
+    "example": {
+      "expr": "∀x ∈ ℝ, x² ≥ 0",
+      "latex": "\\forall x \\in \\mathbb{R},\\; x^2 \\ge 0",
+      "en": "For all x in the real numbers, x squared is greater than or equal to zero.",
+      "vi": "Với mọi x thuộc R, x bình phương lớn hơn hoặc bằng 0."
+    }
+  },
+  {
+    "id": "sym_exists",
+    "symbol": "∃x  /  ∃!x",
+    "latex": "\\exists x \\quad (\\exists! x)",
+    "vi": "Tồn tại x / Tồn tại duy nhất x",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "there exists an x",
+        "note": "Tồn tại x (thường đi kèm 'such that' = sao cho)"
+      },
+      {
+        "en": "for some x",
+        "note": "Với một giá trị x nào đó"
+      },
+      {
+        "en": "there exists a unique x",
+        "note": "Đọc kí hiệu ∃!x (tồn tại duy nhất một x)"
+      }
+    ],
+    "example": {
+      "expr": "∃x ∈ ℕ : x + 3 = 5",
+      "latex": "\\exists x \\in \\mathbb{N} : x + 3 = 5",
+      "en": "There exists a natural number x such that x plus three equals five.",
+      "vi": "Tồn tại số tự nhiên x sao cho x + 3 = 5."
+    }
+  },
+  {
+    "id": "sym_implies",
+    "symbol": "P ⇒ Q",
+    "latex": "P \\Rightarrow Q",
+    "vi": "P suy ra Q (Nếu P thì Q - Mệnh đề kéo theo)",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "P implies Q",
+        "note": "Cách đọc chuẩn và ngắn gọn nhất"
+      },
+      {
+        "en": "if P then Q",
+        "note": "Nếu P thì Q (khi phát biểu mệnh đề kéo theo)"
+      },
+      {
+        "en": "from P it follows that Q",
+        "note": "Từ P suy ra Q (dùng khi trình bày lời giải tự luận)"
+      }
+    ],
+    "example": {
+      "expr": "x = 2 ⇒ x² = 4",
+      "latex": "x = 2 \\Rightarrow x^2 = 4",
+      "en": "x equals two implies x squared equals four.",
+      "vi": "x bằng 2 suy ra x bình phương bằng 4."
+    }
+  },
+  {
+    "id": "sym_iff",
+    "symbol": "P ⇔ Q",
+    "latex": "P \\Leftrightarrow Q",
+    "vi": "P tương đương Q (P khi và chỉ khi Q)",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "P if and only if Q",
+        "note": "P khi và chỉ khi Q (viết tắt trong toán tiếng Anh là: iff)"
+      },
+      {
+        "en": "P is equivalent to Q",
+        "note": "P tương đương với Q"
+      }
+    ],
+    "example": {
+      "expr": "ab = 0 ⇔ a = 0 ∨ b = 0",
+      "latex": "ab = 0 \\Leftrightarrow a = 0 \\text{ or } b = 0",
+      "en": "a times b equals zero if and only if a equals zero or b equals zero.",
+      "vi": "Tích ab = 0 tương đương với a = 0 hoặc b = 0."
+    }
+  },
+  {
+    "id": "sym_logic_ops",
+    "symbol": "¬P,  P ∧ Q,  P ∨ Q,  ∴,  ∵",
+    "latex": "\\neg P,\\quad P \\land Q,\\quad P \\lor Q,\\quad \\therefore,\\quad \\because",
+    "vi": "Phủ định (Không P), P và Q, P hoặc Q, Vậy nên (∴), Vì (∵)",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "not P, the negation of P",
+        "note": "Đọc kí hiệu ¬P hoặc P̄ (Mệnh đề phủ định)"
+      },
+      {
+        "en": "P and Q",
+        "note": "Đọc kí hiệu P ∧ Q (Mệnh đề hội)"
+      },
+      {
+        "en": "P or Q",
+        "note": "Đọc kí hiệu P ∨ Q (Mệnh đề tuyển)"
+      },
+      {
+        "en": "therefore",
+        "note": "Đọc kí hiệu ba chấm xuôi ∴ (Vậy / Do đó)"
+      },
+      {
+        "en": "because, since",
+        "note": "Đọc kí hiệu ba chấm ngược ∵ (Vì / Bởi vì)"
+      }
+    ],
+    "example": {
+      "expr": "∵ a = b and b = c, ∴ a = c",
+      "latex": "\\because a = b \\text{ and } b = c,\\; \\therefore a = c",
+      "en": "Since a equals b and b equals c, therefore a equals c.",
+      "vi": "Vì a = b và b = c, nên suy ra a = c."
+    }
+  },
+  {
+    "id": "sym_number_sets",
+    "symbol": "ℕ, ℕ*, ℤ, ℚ, ℝ, ℂ",
+    "latex": "\\mathbb{N},\\; \\mathbb{N}^*,\\; \\mathbb{Z},\\; \\mathbb{Q},\\; \\mathbb{R},\\; \\mathbb{C}",
+    "vi": "Các tập hợp số chuẩn trong chương trình phổ thông",
+    "category": "sets_logic",
+    "readings": [
+      {
+        "en": "the set of natural numbers",
+        "note": "ℕ (Tập hợp các số tự nhiên)"
+      },
+      {
+        "en": "the set of positive integers",
+        "note": "ℕ* hoặc ℤ⁺ (Tập hợp các số nguyên dương)"
+      },
+      {
+        "en": "the set of integers",
+        "note": "ℤ (Tập hợp các số nguyên)"
+      },
+      {
+        "en": "the set of rational numbers",
+        "note": "ℚ (Tập hợp các số hữu tỉ)"
+      },
+      {
+        "en": "the set of real numbers",
+        "note": "ℝ (Tập hợp các số thực)"
+      },
+      {
+        "en": "the set of complex numbers",
+        "note": "ℂ (Tập hợp các số phức)"
+      }
+    ],
+    "example": {
+      "expr": "∀n ∈ ℕ*",
+      "latex": "\\forall n \\in \\mathbb{N}^*",
+      "en": "For all positive integers n.",
+      "vi": "Với mọi số nguyên dương n."
+    }
+  },
+  {
+    "id": "sym_parentheses",
+    "symbol": "(a + b)²  &  a(b + c)",
+    "latex": "(a + b)^2 \\quad \\text{\\&} \\quad a(b + c)",
+    "vi": "Cách đọc biểu thức trong ngoặc: Tất cả bình phương / Nhân với ngoặc",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "the quantity a plus b, squared",
+        "note": "Dùng 'the quantity ...' để báo hiệu toàn bộ biểu thức nằm trong ngoặc (rất phổ biến)"
+      },
+      {
+        "en": "a plus b, all squared",
+        "note": "'a cộng b, tất cả bình phương' (cực kỳ tự nhiên và dễ hiểu trên lớp)"
+      },
+      {
+        "en": "open bracket a plus b close bracket squared",
+        "note": "Đọc rõ dấu mở ngoặc và đóng ngoặc (Anh-Mỹ dùng: open parenthesis ... close parenthesis)"
+      },
+      {
+        "en": "a times the quantity b plus c",
+        "note": "Đọc a(b + c): a nhân với tổng (b + c)"
+      }
+    ],
+    "example": {
+      "expr": "(a + b)² = a² + 2ab + b²",
+      "latex": "(a + b)^2 = a^2 + 2ab + b^2",
+      "en": "a plus b, all squared, equals a squared plus two a b plus b squared.",
+      "vi": "Hằng đẳng thức: a cộng b tất cả bình phương bằng a² + 2ab + b²."
+    }
+  },
+  {
+    "id": "sym_func",
+    "symbol": "y = f(x)",
+    "latex": "y = f(x)",
+    "vi": "Hàm số y bằng f của x",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "y equals f of x",
+        "note": "Cách đọc chuẩn mực nhất (lưu ý đọc là 'f of x', KHÔNG đọc là 'f x')"
+      },
+      {
+        "en": "f is a function of x",
+        "note": "f là một hàm số theo biến x"
+      }
+    ],
+    "example": {
+      "expr": "f(x) = 2x + 1 ⇒ f(3) = 7",
+      "latex": "f(x) = 2x + 1 \\Rightarrow f(3) = 7",
+      "en": "f of x equals two x plus one implies f of three equals seven.",
+      "vi": "f(x) = 2x + 1 suy ra f(3) = 7."
+    }
+  },
+  {
+    "id": "sym_func_map",
+    "symbol": "f : A → B,  x ↦ f(x)",
+    "latex": "f : A \\to B,\\quad x \\mapsto f(x)",
+    "vi": "Ánh xạ / Hàm số f đi từ tập A vào tập B",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "f maps A to B",
+        "note": "Hàm f ánh xạ từ tập A sang tập B"
+      },
+      {
+        "en": "f is a function from A to B",
+        "note": "f là một hàm số từ tập A đến tập B"
+      },
+      {
+        "en": "x maps to f of x",
+        "note": "Đọc kí hiệu mũi tên có vạch chân x ↦ f(x)"
+      }
+    ],
+    "example": {
+      "expr": "f : ℝ → ℝ",
+      "latex": "f : \\mathbb{R} \\to \\mathbb{R}",
+      "en": "f is a function from the real numbers to the real numbers.",
+      "vi": "Hàm số f xác định từ R vào R."
+    }
+  },
+  {
+    "id": "sym_inv_comp_func",
+    "symbol": "f⁻¹(x)  &  (f ∘ g)(x)",
+    "latex": "f^{-1}(x) \\quad \\text{\\&} \\quad (f \\circ g)(x)",
+    "vi": "Hàm số ngược f⁻¹(x) và Hàm hợp (f ∘ g)(x)",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "f inverse of x",
+        "note": "Đọc hàm ngược f⁻¹(x) (tránh nhầm với (f(x))⁻¹ = 1/f(x))"
+      },
+      {
+        "en": "the inverse function of f of x",
+        "note": "Cách đọc đầy đủ cho hàm ngược"
+      },
+      {
+        "en": "f composed with g of x",
+        "note": "Đọc hàm hợp (f ∘ g)(x) = f(g(x))"
+      },
+      {
+        "en": "f of g of x",
+        "note": "Đọc trực tiếp f(g(x))"
+      }
+    ],
+    "example": {
+      "expr": "(f ∘ g)(x) = f(g(x))",
+      "latex": "(f \\circ g)(x) = f(g(x))",
+      "en": "f composed with g of x equals f of g of x.",
+      "vi": "Hàm hợp f hợp g tại x bằng f của g(x)."
+    }
+  },
+  {
+    "id": "sym_intervals",
+    "symbol": "(a; b),  [a; b],  [a; b)",
+    "latex": "(a; b),\\quad [a; b],\\quad [a; b)",
+    "vi": "Khoảng (a; b), Đoạn [a; b], Nửa khoảng [a; b)",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "the open interval from a to b",
+        "note": "Khoảng mở (a; b)"
+      },
+      {
+        "en": "the closed interval from a to b",
+        "note": "Đoạn đóng [a; b]"
+      },
+      {
+        "en": "the half-open interval from a to b",
+        "note": "Nửa khoảng [a; b) hoặc (a; b] (còn đọc: closed at a, open at b)"
+      }
+    ],
+    "example": {
+      "expr": "x ∈ [0; 2π]",
+      "latex": "x \\in [0; 2\\pi]",
+      "en": "x belongs to the closed interval from zero to two pi.",
+      "vi": "x thuộc đoạn từ 0 đến 2 pi."
+    }
+  },
+  {
+    "id": "sym_sequence",
+    "symbol": "(uₙ),  u₁,  uₙ₋₁,  uₙ₊₁",
+    "latex": "(u_n),\\quad u_1,\\quad u_{n-1},\\quad u_{n+1}",
+    "vi": "Dãy số (uₙ), số hạng thứ n (Chỉ số dưới)",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "u sub n",
+        "note": "Cách đọc chỉ số dưới (subscript) chuẩn và rõ ràng nhất"
+      },
+      {
+        "en": "u n",
+        "note": "Cách đọc nhanh khi ngữ cảnh đã rõ (VD: u one, u two, u n)"
+      },
+      {
+        "en": "the n-th term of the sequence",
+        "note": "Số hạng tổng quát thứ n của dãy số"
+      },
+      {
+        "en": "u sub n plus one",
+        "note": "Đọc uₙ₊₁ (số hạng thứ n + 1)"
+      }
+    ],
+    "example": {
+      "expr": "uₙ = u₁ + (n − 1)d",
+      "latex": "u_n = u_1 + (n - 1)d",
+      "en": "u sub n equals u sub one plus n minus one times d.",
+      "vi": "Số hạng thứ n của cấp số cộng bằng u₁ cộng (n - 1) nhân công sai d."
+    }
+  },
+  {
+    "id": "sym_discriminant",
+    "symbol": "Δ = b² − 4ac",
+    "latex": "\\Delta = b^2 - 4ac",
+    "vi": "Biệt thức Delta của phương trình bậc hai",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "the discriminant Delta equals b squared minus four a c",
+        "note": "Trong tiếng Anh, biệt thức Δ được gọi là 'the discriminant'"
+      },
+      {
+        "en": "Delta equals b squared minus four a c",
+        "note": "Đọc trực tiếp theo kí hiệu chữ cái Hy Lạp Delta"
+      }
+    ],
+    "example": {
+      "expr": "x = (−b ± √Δ) / (2a)",
+      "latex": "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
+      "en": "x equals negative b plus or minus the square root of b squared minus four a c, all over two a.",
+      "vi": "Công thức nghiệm phương trình bậc hai: x bằng trừ b cộng trừ căn Delta chia 2a."
+    }
+  },
+  {
+    "id": "sym_factorial",
+    "symbol": "n!",
+    "latex": "n!",
+    "vi": "n giai thừa",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "n factorial",
+        "note": "Cách đọc chuẩn duy nhất trong tiếng Anh"
+      }
+    ],
+    "example": {
+      "expr": "5! = 5 × 4 × 3 × 2 × 1 = 120",
+      "latex": "5! = 5 \\times 4 \\times 3 \\times 2 \\times 1 = 120",
+      "en": "Five factorial equals one hundred and twenty.",
+      "vi": "5 giai thừa bằng 120."
+    }
+  },
+  {
+    "id": "sym_permutation",
+    "symbol": "Pₙ  &  Aₙᵏ  (ⁿPₖ)",
+    "latex": "P_n = n! \\quad \\text{\\&} \\quad A_n^k = \\frac{n!}{(n-k)!}",
+    "vi": "Hoán vị của n phần tử (Pₙ) & Chỉnh hợp chập k của n (Aₙᵏ)",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "the number of permutations of n elements",
+        "note": "Hoán vị của n phần tử (Pₙ = n!)"
+      },
+      {
+        "en": "n permute k",
+        "note": "Cách đọc ngắn gọn và phổ biến nhất cho chỉnh hợp Aₙᵏ (quốc tế kí hiệu là ⁿPₖ hoặc P(n, k))"
+      },
+      {
+        "en": "the number of k-permutations of n",
+        "note": "Số chỉnh hợp chập k của n phần tử"
+      }
+    ],
+    "example": {
+      "expr": "A₅³ = 60",
+      "latex": "A_5^3 = 5 \\times 4 \\times 3 = 60",
+      "en": "Five permute three equals sixty.",
+      "vi": "Chỉnh hợp chập 3 của 5 bằng 60."
+    }
+  },
+  {
+    "id": "sym_combination",
+    "symbol": "Cₙᵏ  /  (n k)",
+    "latex": "C_n^k = \\binom{n}{k} = \\frac{n!}{k!(n-k)!}",
+    "vi": "Tổ hợp chập k của n phần tử (Hệ số nhị thức)",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "n choose k",
+        "note": "Cách đọc chuẩn quốc tế phổ biến nhất cho cả Cₙᵏ và (n k)"
+      },
+      {
+        "en": "the number of combinations of n items taken k at a time",
+        "note": "Định nghĩa đầy đủ của tổ hợp chập k của n"
+      },
+      {
+        "en": "the binomial coefficient n choose k",
+        "note": "Hệ số nhị thức Newton Cₙᵏ"
+      }
+    ],
+    "example": {
+      "expr": "C₆² = 15",
+      "latex": "C_6^2 = \\binom{6}{2} = 15",
+      "en": "Six choose two equals fifteen.",
+      "vi": "Tổ hợp chập 2 của 6 bằng 15."
+    }
+  },
+  {
+    "id": "sym_probability",
+    "symbol": "P(A)  &  P(A | B)",
+    "latex": "P(A) \\quad \\text{\\&} \\quad P(A \\mid B)",
+    "vi": "Xác suất của biến cố A & Xác suất có điều kiện P(A | B)",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "the probability of A",
+        "note": "Đọc P(A) - Xác suất của biến cố A"
+      },
+      {
+        "en": "P of A",
+        "note": "Cách đọc ngắn gọn của P(A)"
+      },
+      {
+        "en": "the probability of A given B",
+        "note": "Cách đọc chuẩn cho xác suất có điều kiện P(A | B) (Lớp 12)"
+      },
+      {
+        "en": "the conditional probability of A given B",
+        "note": "Xác suất có điều kiện của A khi biết B đã xảy ra"
+      }
+    ],
+    "example": {
+      "expr": "P(A | B) = P(A ∩ B) / P(B)",
+      "latex": "P(A \\mid B) = \\frac{P(A \\cap B)}{P(B)}",
+      "en": "The probability of A given B equals the probability of A intersect B over the probability of B.",
+      "vi": "Xác suất của A với điều kiện B bằng xác suất của A giao B chia cho xác suất của B."
+    }
+  },
+  {
+    "id": "sym_stats",
+    "symbol": "x̄,  σ²,  σ",
+    "latex": "\\bar{x},\\quad \\sigma^2,\\quad \\sigma",
+    "vi": "Số trung bình cộng (x ngang), Phương sai (σ²) & Độ lệch chuẩn (σ)",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "x bar, the sample mean",
+        "note": "Đọc kí hiệu x̄ (x ngang - số trung bình của mẫu số liệu)"
+      },
+      {
+        "en": "sigma squared, the variance",
+        "note": "Đọc kí hiệu σ² (phương sai)"
+      },
+      {
+        "en": "sigma, the standard deviation",
+        "note": "Đọc kí hiệu σ (độ lệch chuẩn)"
+      }
+    ],
+    "example": {
+      "expr": "σ = √(σ²)",
+      "latex": "\\sigma = \\sqrt{\\sigma^2}",
+      "en": "Sigma, the standard deviation, equals the square root of the variance sigma squared.",
+      "vi": "Độ lệch chuẩn sigma bằng căn bậc hai của phương sai."
+    }
+  },
+  {
+    "id": "sym_complex",
+    "symbol": "z = a + bi,  z̄,  |z|",
+    "latex": "z = a + bi,\\quad \\bar{z} = a - bi,\\quad |z|",
+    "vi": "Số phức z = a + bi, Số phức liên hợp z̄ & Mô-đun |z|",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "z equals a plus b i",
+        "note": "Đọc số phức z = a + bi (với i là đơn vị ảo - imaginary unit)"
+      },
+      {
+        "en": "z bar, the complex conjugate of z",
+        "note": "Đọc kí hiệu số phức liên hợp z̄ = a - bi"
+      },
+      {
+        "en": "the modulus of z",
+        "note": "Mô-đun của số phức |z| = √(a² + b²)"
+      }
+    ],
+    "example": {
+      "expr": "i² = −1",
+      "latex": "i^2 = -1",
+      "en": "i squared equals negative one.",
+      "vi": "Bình phương của đơn vị ảo i bằng -1."
+    }
+  },
+  {
+    "id": "sym_system_eq",
+    "symbol": "{ ax + by = c ;  a'x + b'y = c' }",
+    "latex": "\\begin{cases} ax + by = c \\\\ a'x + b'y = c' \\end{cases}",
+    "vi": "Hệ phương trình bậc nhất hai ẩn",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "the system of equations a x plus b y equals c, and a prime x plus b prime y equals c prime",
+        "note": "Cách đọc chuẩn cho hệ phương trình"
+      },
+      {
+        "en": "simultaneous equations in x and y",
+        "note": "Hệ phương trình theo hai ẩn x và y (thuật ngữ rất phổ biến trong chương trình Anh/Úc/Singapore)"
+      }
+    ],
+    "example": {
+      "expr": "{ x + y = 5 ;  x − y = 1 }",
+      "latex": "\\begin{cases} x + y = 5 \\\\ x - y = 1 \\end{cases}",
+      "en": "Solve the simultaneous equations x plus y equals five and x minus y equals one.",
+      "vi": "Giải hệ phương trình x + y = 5 và x - y = 1."
+    }
+  },
+  {
+    "id": "sym_piecewise",
+    "symbol": "f(x) = { g(x) if x ≥ 0 ;  h(x) if x < 0 }",
+    "latex": "f(x) = \\begin{cases} g(x) & \\text{if } x \\ge 0 \\\\ h(x) & \\text{if } x < 0 \\end{cases}",
+    "vi": "Hàm số cho bởi nhiều công thức (Hàm phân nhánh)",
+    "category": "algebra_comb",
+    "readings": [
+      {
+        "en": "f of x equals g of x if x is greater than or equal to zero, and h of x if x is less than zero",
+        "note": "Cách đọc chuẩn từng nhánh của hàm số"
+      },
+      {
+        "en": "a piecewise-defined function f of x",
+        "note": "Hàm số cho bởi nhiều công thức trên từng miền"
+      }
+    ],
+    "example": {
+      "expr": "|x| = { x if x ≥ 0 ; −x if x < 0 }",
+      "latex": "|x| = \\begin{cases} x & \\text{if } x \\ge 0 \\\\ -x & \\text{if } x < 0 \\end{cases}",
+      "en": "The absolute value of x equals x if x is greater than or equal to zero, and negative x if x is less than zero.",
+      "vi": "Trị tuyệt đối của x bằng x nếu x ≥ 0, và bằng -x nếu x < 0."
+    }
+  },
+  {
+    "id": "sym_infinity",
+    "symbol": "∞,  +∞,  −∞",
+    "latex": "\\infty,\\quad +\\infty,\\quad -\\infty",
+    "vi": "Vô cực (Vô cùng), Dương vô cực, Âm vô cực",
+    "category": "calculus",
+    "readings": [
+      {
+        "en": "infinity",
+        "note": "∞ (Vô cực / vô cùng)"
+      },
+      {
+        "en": "positive infinity, plus infinity",
+        "note": "+∞ (Dương vô cực)"
+      },
+      {
+        "en": "negative infinity, minus infinity",
+        "note": "−∞ (Âm vô cực)"
+      }
+    ],
+    "example": {
+      "expr": "x → +∞",
+      "latex": "x \\to +\\infty",
+      "en": "x approaches positive infinity. Or: x tends to plus infinity.",
+      "vi": "x tiến tới dương vô cực."
+    }
+  },
+  {
+    "id": "sym_approaches",
+    "symbol": "x → x₀,  x → x₀⁺,  x → x₀⁻",
+    "latex": "x \\to x_0,\\quad x \\to x_0^+,\\quad x \\to x_0^-",
+    "vi": "x tiến tới x₀, tiến tới x₀ bên phải (x₀⁺), bên trái (x₀⁻)",
+    "category": "calculus",
+    "readings": [
+      {
+        "en": "x approaches x naught",
+        "note": "x₀ thường đọc là 'x naught' (Anh-Anh) hoặc 'x sub zero' (Anh-Mỹ)"
+      },
+      {
+        "en": "x tends to x sub zero",
+        "note": "'tends to' và 'approaches' đều chuẩn khi đọc giới hạn"
+      },
+      {
+        "en": "x approaches x naught from the right",
+        "note": "Đọc kí hiệu giới hạn một bên x → x₀⁺ (hoặc: from above)"
+      },
+      {
+        "en": "x approaches x naught from the left",
+        "note": "Đọc kí hiệu giới hạn một bên x → x₀⁻ (hoặc: from below)"
+      }
+    ],
+    "example": {
+      "expr": "lim (x → 0⁺) (1/x) = +∞",
+      "latex": "\\lim_{x \\to 0^+} \\frac{1}{x} = +\\infty",
+      "en": "The limit of one over x as x approaches zero from the right equals positive infinity.",
+      "vi": "Giới hạn của 1/x khi x tiến tới 0 cộng bằng dương vô cực."
+    }
+  },
+  {
+    "id": "sym_limit",
+    "symbol": "lim (x → x₀) f(x) = L",
+    "latex": "\\lim_{x \\to x_0} f(x) = L",
+    "vi": "Giới hạn của hàm số f(x) khi x tiến tới x₀ bằng L",
+    "category": "calculus",
+    "readings": [
+      {
+        "en": "the limit of f of x as x approaches x naught equals L",
+        "note": "Cách đọc chuẩn mực nhất trong Giải tích"
+      },
+      {
+        "en": "the limit as x tends to x sub zero of f of x is L",
+        "note": "Đọc cụm điều kiện 'as x tends to x₀' trước 'of f(x)'"
+      }
+    ],
+    "example": {
+      "expr": "lim (x → 0) (sin x / x) = 1",
+      "latex": "\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1",
+      "en": "The limit of sine x over x as x approaches zero equals one.",
+      "vi": "Giới hạn của sin x trên x khi x tiến tới 0 bằng 1."
+    }
+  },
+  {
+    "id": "sym_derivative_prime",
+    "symbol": "f'(x),  f''(x),  f⁽ⁿ⁾(x)",
+    "latex": "f'(x),\\quad f''(x),\\quad f^{(n)}(x)",
+    "vi": "Đạo hàm cấp một f'(x), Đạo hàm cấp hai f''(x), Đạo hàm cấp n",
+    "category": "calculus",
+    "readings": [
+      {
+        "en": "f prime of x",
+        "note": "Cách đọc ngắn gọn và phổ biến nhất cho đạo hàm cấp 1 f'(x) (Anh-Anh cũng đọc: f dash of x)"
+      },
+      {
+        "en": "the first derivative of f with respect to x",
+        "note": "Đạo hàm bậc nhất của f theo biến x"
+      },
+      {
+        "en": "f double prime of x",
+        "note": "Đọc đạo hàm cấp 2 f''(x) (hoặc: the second derivative of f of x)"
+      },
+      {
+        "en": "the n-th derivative of f of x",
+        "note": "Đọc đạo hàm cấp n: f⁽ⁿ⁾(x)"
+      }
+    ],
+    "example": {
+      "expr": "f(x) = x³ ⇒ f'(x) = 3x²",
+      "latex": "f(x) = x^3 \\Rightarrow f'(x) = 3x^2",
+      "en": "f of x equals x cubed implies f prime of x equals three x squared.",
+      "vi": "f(x) = x³ suy ra đạo hàm f'(x) = 3x²."
+    }
+  },
+  {
+    "id": "sym_derivative_leibniz",
+    "symbol": "dy / dx  &  d/dx [f(x)]",
+    "latex": "\\frac{dy}{dx} \\quad \\text{\\&} \\quad \\frac{d}{dx}\\bigl[f(x)\\bigr]",
+    "vi": "Đạo hàm của y theo biến x (Kí hiệu Leibniz)",
+    "category": "calculus",
+    "readings": [
+      {
+        "en": "d y by d x",
+        "note": "Cách đọc chuẩn Anh-Anh (rất phổ biến trong đề Cambridge/IB)"
+      },
+      {
+        "en": "d y over d x",
+        "note": "Cách đọc phổ biến tại Mỹ (lưu ý: không đọc là 'd y divided by d x')"
+      },
+      {
+        "en": "the derivative of y with respect to x",
+        "note": "Đạo hàm của y theo biến x"
+      },
+      {
+        "en": "d by d x of f of x",
+        "note": "Đọc toán tử lấy đạo hàm d/dx [f(x)]"
+      }
+    ],
+    "example": {
+      "expr": "d/dx (sin x) = cos x",
+      "latex": "\\frac{d}{dx}(\\sin x) = \\cos x",
+      "en": "The derivative with respect to x of sine x equals cosine x.",
+      "vi": "Đạo hàm theo biến x của sin x bằng cos x."
+    }
+  },
+  {
+    "id": "sym_indef_integral",
+    "symbol": "∫ f(x) dx = F(x) + C",
+    "latex": "\\int f(x)\\,dx = F(x) + C",
+    "vi": "Nguyên hàm của f(x) dx (Tích phân bất định)",
+    "category": "calculus",
+    "readings": [
+      {
+        "en": "the indefinite integral of f of x d x",
+        "note": "Cách đọc chuẩn và phổ biến nhất"
+      },
+      {
+        "en": "the antiderivative of f of x with respect to x",
+        "note": "Nguyên hàm của hàm số f(x) theo biến x"
+      },
+      {
+        "en": "integral of f of x d x equals capital F of x plus C",
+        "note": "Đọc toàn bộ công thức nguyên hàm"
+      }
+    ],
+    "example": {
+      "expr": "∫ 2x dx = x² + C",
+      "latex": "\\int 2x\\,dx = x^2 + C",
+      "en": "The indefinite integral of two x d x equals x squared plus C.",
+      "vi": "Nguyên hàm của 2x dx bằng x bình phương cộng hằng số C."
+    }
+  },
+  {
+    "id": "sym_def_integral",
+    "symbol": "∫ₐᵇ f(x) dx",
+    "latex": "\\int_a^b f(x)\\,dx = F(x)\\Big|_a^b = F(b) - F(a)",
+    "vi": "Tích phân xác định từ a đến b của f(x) dx",
+    "category": "calculus",
+    "readings": [
+      {
+        "en": "the integral from a to b of f of x d x",
+        "note": "Cách đọc chuẩn, tự nhiên và phổ biến nhất"
+      },
+      {
+        "en": "the definite integral of f of x with respect to x from a to b",
+        "note": "Cách đọc đầy đủ, trang trọng"
+      },
+      {
+        "en": "capital F of x evaluated from a to b",
+        "note": "Đọc kí hiệu thế cận F(x)|ₐᵇ"
+      }
+    ],
+    "example": {
+      "expr": "∫₀¹ x² dx = 1/3",
+      "latex": "\\int_0^1 x^2\\,dx = \\frac{1}{3}",
+      "en": "The integral from zero to one of x squared d x equals one third.",
+      "vi": "Tích phân từ 0 đến 1 của x² dx bằng 1/3."
+    }
+  },
+  {
+    "id": "sym_sigma_sum",
+    "symbol": "∑ (i=1 → n) aᵢ  &  ∏ (i=1 → n) aᵢ",
+    "latex": "\\sum_{i=1}^{n} a_i \\quad \\text{\\&} \\quad \\prod_{i=1}^{n} a_i",
+    "vi": "Tổng Sigma (∑) và Tích Pi (∏) với i chạy từ 1 đến n",
+    "category": "calculus",
+    "readings": [
+      {
+        "en": "the sum from i equals one to n of a sub i",
+        "note": "Cách đọc chuẩn và phổ biến nhất cho tổng Sigma"
+      },
+      {
+        "en": "the summation of a sub i as i goes from one to n",
+        "note": "Cách đọc đầy đủ nhấn mạnh biến chạy i"
+      },
+      {
+        "en": "the product from i equals one to n of a sub i",
+        "note": "Đọc kí hiệu tích ∏ (i=1 → n) aᵢ"
+      }
+    ],
+    "example": {
+      "expr": "∑ (k=1 → n) k = n(n + 1)/2",
+      "latex": "\\sum_{k=1}^{n} k = \\frac{n(n+1)}{2}",
+      "en": "The sum from k equals one to n of k equals n times n plus one over two.",
+      "vi": "Tổng của k chạy từ 1 đến n bằng n(n + 1) chia 2."
+    }
+  },
+  {
+    "id": "sym_line_segment",
+    "symbol": "AB,  |AB|,  ⁀AB,  (O; R)",
+    "latex": "AB,\\quad |AB|,\\quad \\overset{\\frown}{AB},\\quad (O; R)",
+    "vi": "Đoạn thẳng AB, Tia AB, Cung AB & Đường tròn tâm O bán kính R",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "line segment A B, the length of segment A B",
+        "note": "Đoạn thẳng AB và độ dài đoạn thẳng AB"
+      },
+      {
+        "en": "line A B, ray A B",
+        "note": "Đường thẳng AB và Tia AB (gốc A)"
+      },
+      {
+        "en": "arc A B",
+        "note": "Cung tròn AB (⁀AB)"
+      },
+      {
+        "en": "the circle with center O and radius R",
+        "note": "Đọc kí hiệu đường tròn (O; R)"
+      }
+    ],
+    "example": {
+      "expr": "M ∈ AB,  MA = MB",
+      "latex": "M \\in AB,\\quad MA = MB",
+      "en": "Point M lies on line segment A B such that M A equals M B.",
+      "vi": "Điểm M thuộc đoạn thẳng AB sao cho MA = MB (M là trung điểm AB)."
+    }
+  },
+  {
+    "id": "sym_angle",
+    "symbol": "∠ABC  /  ÂBC  /  90°",
+    "latex": "\\angle ABC \\quad (\\widehat{ABC} = 90^\\circ)",
+    "vi": "Góc ABC / Số đo độ (°) và Radian (rad)",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "angle A B C",
+        "note": "Cách đọc chuẩn cho kí hiệu ∠ABC hoặc ÂBC"
+      },
+      {
+        "en": "the measure of angle A B C",
+        "note": "Số đo của góc ABC"
+      },
+      {
+        "en": "ninety degrees",
+        "note": "Đọc đơn vị độ (°)"
+      },
+      {
+        "en": "pi over two radians",
+        "note": "Đọc đơn vị radian (π/2 rad)"
+      }
+    ],
+    "example": {
+      "expr": "∠ABC = 60° = π/3 rad",
+      "latex": "\\widehat{ABC} = 60^\\circ = \\frac{\\pi}{3}\\text{ rad}",
+      "en": "Angle A B C equals sixty degrees, which is pi over three radians.",
+      "vi": "Góc ABC bằng 60 độ, tức bằng pi phần 3 radian."
+    }
+  },
+  {
+    "id": "sym_para_perp",
+    "symbol": "AB ∥ CD  &  AB ⊥ CD",
+    "latex": "AB \\parallel CD \\quad \\text{\\&} \\quad AB \\perp CD",
+    "vi": "AB song song với CD & AB vuông góc với CD",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "A B is parallel to C D",
+        "note": "Đọc kí hiệu song song AB ∥ CD"
+      },
+      {
+        "en": "line A B is perpendicular to line C D",
+        "note": "Đọc kí hiệu vuông góc AB ⊥ CD"
+      }
+    ],
+    "example": {
+      "expr": "d₁ ⊥ d₂ ⇒ k₁ · k₂ = −1",
+      "latex": "d_1 \\perp d_2 \\Rightarrow k_1 \\cdot k_2 = -1",
+      "en": "Line d one is perpendicular to line d two implies the product of their slopes equals negative one.",
+      "vi": "Đường thẳng d₁ vuông góc với d₂ suy ra tích hai hệ số góc bằng -1."
+    }
+  },
+  {
+    "id": "sym_congruent_similar",
+    "symbol": "△ABC ≅ △DEF  &  △ABC ~ △DEF",
+    "latex": "\\triangle ABC \\cong \\triangle DEF \\quad \\text{\\&} \\quad \\triangle ABC \\sim \\triangle DEF",
+    "vi": "Tam giác ABC bằng (đồng dư) tam giác DEF & Đồng dạng (~)",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "triangle A B C is congruent to triangle D E F",
+        "note": "Đọc hai tam giác bằng nhau: △ABC = △DEF (quốc tế dùng kí hiệu ≅)"
+      },
+      {
+        "en": "triangle A B C is similar to triangle D E F",
+        "note": "Đọc hai tam giác đồng dạng: △ABC ~ △DEF (hoặc ∽)"
+      }
+    ],
+    "example": {
+      "expr": "△ABC ~ △A'B'C'",
+      "latex": "\\triangle ABC \\sim \\triangle A'B'C'",
+      "en": "Triangle A B C is similar to triangle A prime B prime C prime.",
+      "vi": "Tam giác ABC đồng dạng với tam giác A'B'C' (A phẩy B phẩy C phẩy)."
+    }
+  },
+  {
+    "id": "sym_coordinates",
+    "symbol": "A(x₀; y₀)  &  M(x; y; z)",
+    "latex": "A(x_0; y_0) \\quad \\text{\\&} \\quad M(x; y; z)",
+    "vi": "Tọa độ điểm trong mặt phẳng Oxy và không gian Oxyz",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "point A with coordinates x naught comma y naught",
+        "note": "Đọc tọa độ điểm A(x₀; y₀) (trong tiếng Anh ngăn cách tọa độ bằng dấu phẩy)"
+      },
+      {
+        "en": "point M with coordinates x, y, z",
+        "note": "Điểm M có tọa độ (x; y; z) trong không gian Oxyz"
+      },
+      {
+        "en": "the x-coordinate, the y-coordinate, the z-coordinate",
+        "note": "Hoành độ (abscissa), tung độ (ordinate), cao độ (applicate)"
+      }
+    ],
+    "example": {
+      "expr": "O(0; 0; 0)",
+      "latex": "O(0; 0; 0)",
+      "en": "The origin O has coordinates zero, zero, zero.",
+      "vi": "Gốc tọa độ O có tọa độ (0; 0; 0)."
+    }
+  },
+  {
+    "id": "sym_vector",
+    "symbol": "→AB,  →u,  |→u|",
+    "latex": "\\overrightarrow{AB},\\quad \\vec{u},\\quad |\\vec{u}|",
+    "vi": "Vectơ AB, Vectơ u & Độ dài (Mô-đun) của vectơ u",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "vector A B",
+        "note": "Đọc kí hiệu vectơ có điểm đầu A, điểm cuối B"
+      },
+      {
+        "en": "vector u",
+        "note": "Đọc kí hiệu vectơ u"
+      },
+      {
+        "en": "the magnitude of vector u",
+        "note": "Độ dài của vectơ |u⃗| (cũng đọc là: the length / norm of vector u)"
+      }
+    ],
+    "example": {
+      "expr": "→AB + →BC = →AC",
+      "latex": "\\overrightarrow{AB} + \\overrightarrow{BC} = \\overrightarrow{AC}",
+      "en": "Vector A B plus vector B C equals vector A C.",
+      "vi": "Quy tắc ba điểm: Vectơ AB cộng vectơ BC bằng vectơ AC."
+    }
+  },
+  {
+    "id": "sym_dot_cross_product",
+    "symbol": "→u · →v  &  [→u, →v] (→u × →v)",
+    "latex": "\\vec{u} \\cdot \\vec{v} \\quad \\text{\\&} \\quad [\\vec{u}, \\vec{v}] = \\vec{u} \\times \\vec{v}",
+    "vi": "Tích vô hướng của hai vectơ & Tích có hướng của hai vectơ",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "u dot v",
+        "note": "Cách đọc ngắn gọn và phổ biến nhất cho tích vô hướng u⃗ · v⃗"
+      },
+      {
+        "en": "the dot product of vector u and vector v",
+        "note": "Tích vô hướng (hoặc: the scalar product of u and v)"
+      },
+      {
+        "en": "u cross v",
+        "note": "Cách đọc ngắn gọn cho tích có hướng [u⃗, v⃗] = u⃗ × v⃗ (Hình học Oxyz lớp 12)"
+      },
+      {
+        "en": "the cross product of vector u and vector v",
+        "note": "Tích có hướng (hoặc: the vector product of u and v)"
+      }
+    ],
+    "example": {
+      "expr": "→u ⊥ →v ⇔ →u · →v = 0",
+      "latex": "\\vec{u} \\perp \\vec{v} \\Leftrightarrow \\vec{u} \\cdot \\vec{v} = 0",
+      "en": "Vector u is perpendicular to vector v if and only if u dot v equals zero.",
+      "vi": "Vectơ u vuông góc với vectơ v khi và chỉ khi tích vô hướng u · v bằng 0."
+    }
+  },
+  {
+    "id": "sym_trig",
+    "symbol": "sin α,  cos α,  tan α,  cot α",
+    "latex": "\\sin \\alpha,\\quad \\cos \\alpha,\\quad \\tan \\alpha,\\quad \\cot \\alpha",
+    "vi": "Các tỉ số lượng giác: Sin, Cô-sin, Tang, Cô-tang",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "sine of alpha, sine alpha",
+        "note": "Đọc sin α (phát âm như từ 'sign' /saɪn/, KHÔNG đọc là 'sin' /sɪn/)"
+      },
+      {
+        "en": "cosine of alpha, cos alpha",
+        "note": "Đọc cos α (/ˈkəʊsaɪn/ hoặc đọc tắt là /kɒz/)"
+      },
+      {
+        "en": "tangent of alpha, tan alpha",
+        "note": "Đọc tan α (/ˈtændʒənt/ hoặc đọc tắt là /tæn/)"
+      },
+      {
+        "en": "cotangent of alpha, cot alpha",
+        "note": "Đọc cot α (/kəʊˈtændʒənt/)"
+      }
+    ],
+    "example": {
+      "expr": "sin²x + cos²x = 1",
+      "latex": "\\sin^2 x + \\cos^2 x = 1",
+      "en": "Sine squared x plus cosine squared x equals one.",
+      "vi": "Sin bình phương x cộng cos bình phương x bằng 1."
+    }
+  },
+  {
+    "id": "sym_inv_trig",
+    "symbol": "arcsin x,  arccos x,  arctan x",
+    "latex": "\\arcsin x \\;(\\sin^{-1} x),\\quad \\arccos x,\\quad \\arctan x",
+    "vi": "Hàm lượng giác ngược (Arcsin, Arccos, Arctan)",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "arcsine of x, inverse sine of x",
+        "note": "Đọc arcsin x hoặc sin⁻¹ x"
+      },
+      {
+        "en": "arccosine of x, inverse cosine of x",
+        "note": "Đọc arccos x hoặc cos⁻¹ x"
+      },
+      {
+        "en": "arctangent of x, inverse tangent of x",
+        "note": "Đọc arctan x hoặc tan⁻¹ x"
+      }
+    ],
+    "example": {
+      "expr": "arcsin(1/2) = π/6",
+      "latex": "\\arcsin\\left(\\frac{1}{2}\\right) = \\frac{\\pi}{6}",
+      "en": "Arcsine of one half equals pi over six.",
+      "vi": "Arcsin của 1/2 bằng pi phần 6."
+    }
+  },
+  {
+    "id": "sym_unit_vectors",
+    "symbol": "→u = x→i + y→j + z→k",
+    "latex": "\\vec{u} = x\\vec{i} + y\\vec{j} + z\\vec{k}",
+    "vi": "Biểu diễn vectơ theo các vectơ đơn vị i, j, k trong Oxyz",
+    "category": "geometry",
+    "readings": [
+      {
+        "en": "vector u equals x i plus y j plus z k",
+        "note": "Cách đọc phổ biến trên lớp học"
+      },
+      {
+        "en": "vector u equals x i-hat plus y j-hat plus z k-hat",
+        "note": "Khi vectơ đơn vị được kí hiệu bằng dấu mũ î, ĵ, k̂"
+      }
+    ],
+    "example": {
+      "expr": "→u = 2→i − 3→j + 4→k",
+      "latex": "\\vec{u} = 2\\vec{i} - 3\\vec{j} + 4\\vec{k}",
+      "en": "Vector u equals two i minus three j plus four k.",
+      "vi": "Vectơ u bằng 2i trừ 3j cộng 4k, suy ra tọa độ u = (2; -3; 4)."
+    }
+  }
+];
