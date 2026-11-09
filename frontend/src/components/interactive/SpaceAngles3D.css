@@ -312,7 +312,7 @@
 .canvas-toolbar {
   position: absolute;
   top: 14px;
-  right: 14px;
+  right: 155px;
   z-index: 10;
   display: flex;
   align-items: center;

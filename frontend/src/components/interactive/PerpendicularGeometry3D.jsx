@@ -5760,7 +5760,7 @@ const handleAddIntersection = () => {
             onClick={resetView}
             title="Quay về góc nhìn ban đầu"
             style={{
-              position: 'absolute', top: '12px', right: '12px', zIndex: 20,
+              position: 'absolute', top: '12px', right: '160px', zIndex: 20,
               display: 'flex', alignItems: 'center', gap: '6px',
               padding: '8px 14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
               color: '#334155', background: 'rgba(255,255,255,0.95)',

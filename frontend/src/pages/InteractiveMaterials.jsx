@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MonitorPlay } from 'lucide-react';
+import { MonitorPlay, Maximize2, Minimize2 } from 'lucide-react';
 import './InteractiveMaterials.css';
 import SetOperations from '../components/interactive/SetOperations';
 import LinearInequalities from '../components/interactive/LinearInequalities';
@@ -58,9 +58,110 @@ const InteractiveMaterials = () => {
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
   const [resizerPos, setResizerPos] = useState({ left: '380px', top: '1.5rem', height: 'calc(100% - 3rem)' });
   const [isResizerVisible, setIsResizerVisible] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const mainContentRef = useRef(null);
   const dragStartXRef = useRef(0);
   const dragStartWidthRef = useRef(360);
+
+  // Toggle fullscreen specifically for the active interactive material container
+  const toggleFullscreen = useCallback(async () => {
+    const elem = mainContentRef.current;
+    if (!elem) return;
+
+    const isCurrentlyFs = !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      isFullscreen
+    );
+
+    if (!isCurrentlyFs) {
+      try {
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          await elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          await elem.msRequestFullscreen();
+        }
+        setIsFullscreen(true);
+      } catch (err) {
+        console.warn('Native fullscreen request blocked, falling back to CSS fullscreen:', err);
+        setIsFullscreen(true);
+      }
+    } else {
+      try {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            await document.webkitExitFullscreen();
+          }
+        }
+      } catch (err) {
+        console.warn('Exit fullscreen failed, toggling state:', err);
+      }
+      setIsFullscreen(false);
+    }
+
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+      updateResizerPosition();
+    }, 100);
+  }, [isFullscreen, updateResizerPosition]);
+
+  // Sync state with browser fullscreenchange events (e.g. user pressed Esc)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const activeFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      setIsFullscreen(activeFs);
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        updateResizerPosition();
+      }, 80);
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        updateResizerPosition();
+      }, 250);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, [updateResizerPosition]);
+
+  // Keyboard shortcut listener: 'f' or 'F' to toggle, 'Escape' to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const target = e.target;
+      const isInput = target && (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.isContentEditable ||
+        target.tagName === 'MATH-FIELD'
+      );
+
+      if (e.key === 'Escape' && isFullscreen) {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          document.exitFullscreen?.().catch(() => {});
+        }
+        setIsFullscreen(false);
+        setTimeout(() => {
+          window.dispatchEvent(new Event('resize'));
+          updateResizerPosition();
+        }, 100);
+      } else if ((e.key === 'f' || e.key === 'F') && !isInput && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen, toggleFullscreen, updateResizerPosition]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -108,7 +209,7 @@ const InteractiveMaterials = () => {
     setIsResizerVisible(true);
   }, []);
 
-  // Update resizer position on material change or window resize
+  // Update resizer position on material change, window resize or fullscreen change
   useEffect(() => {
     const timer = setTimeout(updateResizerPosition, 80);
     window.addEventListener('resize', updateResizerPosition);
@@ -116,7 +217,7 @@ const InteractiveMaterials = () => {
       clearTimeout(timer);
       window.removeEventListener('resize', updateResizerPosition);
     };
-  }, [activeMaterialId, materialSidebarWidth, updateResizerPosition]);
+  }, [activeMaterialId, materialSidebarWidth, isFullscreen, updateResizerPosition]);
 
   // Dragging event handlers for the resizer bar
   const handleResizerMouseDown = (e) => {
@@ -298,10 +399,10 @@ const InteractiveMaterials = () => {
         {/* Main Content Area */}
         <div 
           ref={mainContentRef}
-          className="formulas-main glass" 
+          className={`formulas-main glass ${isFullscreen ? 'interactive-fullscreen-mode' : ''}`} 
           style={{ 
             height: '100%', 
-            padding: '1.5rem', 
+            padding: isFullscreen ? '1rem' : '1.5rem', 
             overflow: 'hidden', 
             display: 'flex', 
             flexDirection: 'column', 
@@ -309,7 +410,7 @@ const InteractiveMaterials = () => {
             '--interactive-sidebar-width': `${materialSidebarWidth}px`
           }}
         >
-          {sidebarCollapsed && (
+          {sidebarCollapsed && !isFullscreen && (
             <button
               type="button"
               onClick={() => setSidebarCollapsed(false)}
@@ -326,6 +427,18 @@ const InteractiveMaterials = () => {
               <MonitorPlay size={16} /> Danh mục
             </button>
           )}
+
+          {/* Dedicated Fullscreen Toggle Button for Active Interactive Material */}
+          <button
+            type="button"
+            className={`interactive-fullscreen-btn ${isFullscreen ? 'is-active' : ''}`}
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Thoát toàn màn hình (Phím tắt: Esc)' : 'Toàn màn hình học liệu (Phím tắt: F)'}
+            aria-label={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình học liệu'}
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            <span className="btn-text">{isFullscreen ? 'Thu nhỏ' : 'Toàn màn hình'}</span>
+          </button>
 
           {renderMaterial()}
 
