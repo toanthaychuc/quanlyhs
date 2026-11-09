@@ -62,8 +62,6 @@ const CATEGORY_ICON_MAP = {
   student: MessageCircle
 };
 
-const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
 const MathEng = () => {
   // Navigation Tabs: 'vocab' | 'classroom' | 'flashcard'
   const [activeTab, setActiveTab] = useState('vocab');
@@ -72,7 +70,6 @@ const MathEng = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchDirection, setSearchDirection] = useState('both'); // 'both' | 'en2vi' | 'vi2en'
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedLetter, setSelectedLetter] = useState('all');
   const [showOnlySaved, setShowOnlySaved] = useState(false);
   const [savedTerms, setSavedTerms] = useState(() => {
     try {
@@ -172,9 +169,6 @@ const MathEng = () => {
       // Category filter
       if (selectedCategory !== 'all' && term.category !== selectedCategory) return false;
 
-      // Letter filter
-      if (selectedLetter !== 'all' && term.letter !== selectedLetter) return false;
-
       // Search query
       if (qNorm) {
         const enNorm = normalizeText(term.en);
@@ -200,7 +194,7 @@ const MathEng = () => {
 
       return true;
     });
-  }, [searchQuery, searchDirection, selectedCategory, selectedLetter, showOnlySaved, savedTerms]);
+  }, [searchQuery, searchDirection, selectedCategory, showOnlySaved, savedTerms]);
 
   // Filter Classroom Phrases
   const filteredPhrases = useMemo(() => {
@@ -409,44 +403,19 @@ const MathEng = () => {
             })}
           </div>
 
-          {/* Alphabet Quick Filter Bar */}
-          <div className="matheng-alphabet-bar">
-            <button
-              className={`matheng-alpha-btn ${selectedLetter === 'all' ? 'active' : ''}`}
-              onClick={() => setSelectedLetter('all')}
-            >
-              Tất cả
-            </button>
-            {ALPHABET.map((char) => {
-              const hasTerms = MATH_VOCABULARY.some((t) => t.letter === char);
-              return (
-                <button
-                  key={char}
-                  disabled={!hasTerms}
-                  className={`matheng-alpha-btn ${selectedLetter === char ? 'active' : ''} ${!hasTerms ? 'disabled' : ''}`}
-                  onClick={() => setSelectedLetter(char)}
-                >
-                  {char}
-                </button>
-              );
-            })}
-          </div>
-
           {/* Results Summary Bar */}
           <div className="matheng-results-meta">
             <span>
               Tìm thấy <strong>{filteredVocabulary.length}</strong> thuật ngữ
               {selectedCategory !== 'all' && ` • Lĩnh vực: ${MATH_CATEGORIES.find((c) => c.id === selectedCategory)?.name}`}
-              {selectedLetter !== 'all' && ` • Bắt đầu bằng chữ "${selectedLetter}"`}
               {showOnlySaved && ' • Danh sách đã lưu'}
             </span>
-            {(searchQuery || selectedCategory !== 'all' || selectedLetter !== 'all' || showOnlySaved) && (
+            {(searchQuery || selectedCategory !== 'all' || showOnlySaved) && (
               <button
                 className="matheng-reset-filter-btn"
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory('all');
-                  setSelectedLetter('all');
                   setShowOnlySaved(false);
                 }}
               >
@@ -562,7 +531,6 @@ const MathEng = () => {
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory('all');
-                  setSelectedLetter('all');
                   setShowOnlySaved(false);
                 }}
               >
