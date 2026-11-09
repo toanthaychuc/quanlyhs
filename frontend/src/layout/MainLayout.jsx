@@ -44,7 +44,8 @@ import {
   GraduationCap as I_GraduationCap, UserCheck as I_UserCheck,
   Menu as I_Menu, X as I_X,
   SquareSigma as I_SquareSigma, SquareCheck as I_SquareCheck,
-  MonitorPlay as I_MonitorPlay, PlayCircle as I_PlayCircle
+  MonitorPlay as I_MonitorPlay, PlayCircle as I_PlayCircle,
+  Languages as I_Languages, SpellCheck as I_SpellCheck
 } from 'lucide';
 import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import WelcomeLandingModal from '../components/WelcomeLandingModal';
@@ -60,7 +61,7 @@ import { getSetting } from '../services/settingService';
 import { calculateRank } from '../utils/rankUtils';
 import './MainLayout.css';
 
-export const DEFAULT_GUEST_ALLOWED_PATHS = ['/exams', '/documents', '/forum'];
+export const DEFAULT_GUEST_ALLOWED_PATHS = ['/exams', '/documents', '/forum', '/math-eng'];
 
 export const getGuestAllowedPaths = () => {
   try {
@@ -377,6 +378,7 @@ const MainLayout = () => {
     { path: '/documents', iconDefault: I_Folder, iconHover: I_FolderCheck, label: 'Tài liệu' },
     { path: '/interactive', iconDefault: I_MonitorPlay, iconHover: I_PlayCircle, label: 'Học liệu tương tác' },
     { path: '/formulas', iconDefault: I_SquareSigma, iconHover: I_SquareCheck, label: 'Tra công thức' },
+    { path: '/math-eng', iconDefault: I_Languages, iconHover: I_SpellCheck, label: 'Toán - Eng' },
     { path: '/forms', iconDefault: I_ClipboardList, iconHover: I_ClipboardCheck, label: 'Biểu mẫu' },
     { path: '/forum', iconDefault: I_MessageSquare, iconHover: I_MessageSquareCheck, label: 'Hỏi đáp' },
     { path: '/leaderboard', iconDefault: I_Star, iconHover: I_StarCheck, label: 'Xếp hạng' },

@@ -1,0 +1,1112 @@
+/* ==========================================================================
+   MathEng - English for Mathematics Stylesheet
+   ========================================================================== */
+
+.matheng-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.25rem 0.5rem 2rem 0.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ==================== Top Header ==================== */
+.matheng-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);
+}
+
+.matheng-header-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.matheng-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.35);
+  flex-shrink: 0;
+}
+
+.matheng-main-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.matheng-title-tag {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  border-radius: 9999px;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.matheng-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary, #64748b);
+  margin: 0.25rem 0 0 0;
+}
+
+/* Mode Switcher Tabs */
+.matheng-mode-tabs {
+  display: flex;
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.04));
+  padding: 0.35rem;
+  border-radius: 12px;
+  gap: 0.35rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.matheng-mode-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.matheng-mode-tab:hover {
+  color: var(--text-primary, #0f172a);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.matheng-mode-tab.active {
+  background: var(--card-bg, #ffffff);
+  color: #4f46e5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.matheng-tab-count {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.12);
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+/* ==================== Search & Filter Bar ==================== */
+.matheng-search-box-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: var(--card-bg, #ffffff);
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.matheng-search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.matheng-search-icon {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-secondary, #94a3b8);
+  pointer-events: none;
+}
+
+.matheng-search-input {
+  width: 100%;
+  padding: 0.75rem 2.75rem 0.75rem 2.75rem;
+  font-size: 0.95rem;
+  border: 1.5px solid var(--border-color, #cbd5e1);
+  border-radius: 12px;
+  background: var(--bg-primary, #f8fafc);
+  color: var(--text-primary, #0f172a);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.matheng-search-input:focus {
+  border-color: #4f46e5;
+  background: var(--card-bg, #ffffff);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.matheng-clear-btn {
+  position: absolute;
+  right: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.matheng-clear-btn:hover {
+  background: rgba(0, 0, 0, 0.16);
+  color: var(--text-primary, #0f172a);
+}
+
+/* Direction and Bookmark Toggles */
+.matheng-direction-toggle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.matheng-dir-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: 8px;
+  background: var(--bg-secondary, #f1f5f9);
+  color: var(--text-secondary, #475569);
+  border: 1px solid var(--border-color, #e2e8f0);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.matheng-dir-btn:hover {
+  background: rgba(79, 70, 229, 0.08);
+  color: #4f46e5;
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+.matheng-dir-btn.active {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+  font-weight: 600;
+}
+
+.matheng-bookmark-toggle-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.matheng-bookmark-toggle-btn:hover,
+.matheng-bookmark-toggle-btn.active {
+  background: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+}
+
+/* Category Filter Pills */
+.matheng-categories-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: thin;
+}
+
+.matheng-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary, #475569);
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.matheng-cat-pill:hover {
+  border-color: #4f46e5;
+  color: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.matheng-cat-pill.active {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: #ffffff;
+  border-color: #4f46e5;
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25);
+}
+
+.matheng-cat-pill-count {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+.matheng-cat-pill.active .matheng-cat-pill-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Alphabet Filter Bar */
+.matheng-alphabet-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0.35rem 0;
+  scrollbar-width: thin;
+}
+
+.matheng-alpha-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.matheng-alpha-btn:hover:not(.disabled) {
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+.matheng-alpha-btn.active {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+}
+
+.matheng-alpha-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Results Meta */
+.matheng-results-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #64748b);
+  padding: 0 0.25rem;
+}
+
+.matheng-reset-filter-btn {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4f46e5;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.matheng-reset-filter-btn.primary {
+  margin-top: 1rem;
+  padding: 0.6rem 1.25rem;
+  background: #4f46e5;
+  color: #ffffff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ==================== Vocabulary Grid & Cards ==================== */
+.matheng-vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.15rem;
+}
+
+.matheng-term-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius-lg, 14px);
+  padding: 1.15rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.matheng-term-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+  border-color: rgba(79, 70, 229, 0.35);
+}
+
+.matheng-term-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.matheng-term-cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary, #475569);
+}
+
+.matheng-term-cat-badge.cat-geometry {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0284c7;
+}
+
+.matheng-term-cat-badge.cat-algebra {
+  background: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+}
+
+.matheng-term-cat-badge.cat-calculus {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.matheng-term-cat-badge.cat-statistics {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.matheng-term-cat-badge.cat-arithmetic {
+  background: rgba(236, 72, 153, 0.12);
+  color: #db2777;
+}
+
+.matheng-term-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.matheng-icon-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.matheng-icon-action-btn:hover {
+  background: rgba(79, 70, 229, 0.08);
+  color: #4f46e5;
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+.matheng-icon-action-btn.active {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+  animation: pulse-ring 1s infinite;
+}
+
+.matheng-icon-action-btn.saved {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.matheng-term-body {
+  margin-bottom: 0.75rem;
+}
+
+.matheng-term-en-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.matheng-term-en {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  line-height: 1.3;
+}
+
+.matheng-term-ipa {
+  font-size: 0.8rem;
+  font-family: 'Consolas', monospace;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.matheng-term-vi {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #0d9488;
+  line-height: 1.4;
+}
+
+/* Subterms list */
+.matheng-subterms-box {
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 8px;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1px dashed var(--border-color, #e2e8f0);
+}
+
+.matheng-subterms-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 0.45rem;
+  letter-spacing: 0.5px;
+}
+
+.matheng-subterms-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.matheng-subterm-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.matheng-subterm-en {
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
+}
+
+.matheng-subterm-vi {
+  color: var(--text-secondary, #64748b);
+  margin-right: auto;
+}
+
+.matheng-subterm-speak-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.matheng-subterm-speak-btn:hover {
+  color: #4f46e5;
+}
+
+.matheng-subterm-speak-btn .speaking {
+  color: #4f46e5;
+  animation: pulse-ring 0.8s infinite;
+}
+
+/* Example Box */
+.matheng-example-box {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(245, 158, 11, 0.05);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0 8px 8px 0;
+}
+
+.matheng-example-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #b45309;
+  margin-bottom: 0.2rem;
+}
+
+.matheng-example-text {
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--text-secondary, #475569);
+  line-height: 1.4;
+}
+
+/* ==================== Classroom English Section ==================== */
+.matheng-classroom-intro-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(124, 58, 237, 0.04) 100%);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: var(--radius-lg, 16px);
+}
+
+.matheng-intro-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #4f46e5;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.matheng-classroom-intro-card h3 {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.matheng-classroom-intro-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary, #475569);
+  line-height: 1.5;
+}
+
+.matheng-phrases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 1.25rem;
+}
+
+.matheng-phrase-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius-lg, 14px);
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.matheng-phrase-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+.matheng-phrase-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.matheng-phrase-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.matheng-role-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.matheng-role-badge.teacher {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+
+.matheng-role-badge.student {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.matheng-phrase-cat-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  background: var(--bg-secondary, #f1f5f9);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.matheng-phrase-body {
+  margin-bottom: 0.85rem;
+}
+
+.matheng-phrase-en {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  line-height: 1.4;
+  margin-bottom: 0.45rem;
+}
+
+.matheng-phrase-vi {
+  font-size: 0.92rem;
+  color: #4338ca;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.matheng-phrase-footer {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-color, #e2e8f0);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.matheng-phrase-context {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.matheng-phrase-context strong {
+  color: var(--text-primary, #334155);
+}
+
+.matheng-phrase-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.08);
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  line-height: 1.35;
+}
+
+/* ==================== Flashcard Practice Mode ==================== */
+.matheng-flashcards-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+  gap: 1.5rem;
+}
+
+.matheng-flashcard-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.matheng-flashcard-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #64748b);
+  min-width: 160px;
+}
+
+.matheng-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--border-color, #e2e8f0);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.matheng-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.matheng-flashcard-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.matheng-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-secondary, #475569);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.matheng-tool-btn:hover {
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+.matheng-tool-btn.mastered {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+/* 3D Flip Card Container */
+.matheng-flashcard-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 340px;
+  perspective: 1200px;
+  cursor: pointer;
+}
+
+.matheng-flashcard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: var(--card-bg, #ffffff);
+  border: 2px solid var(--border-color, #cbd5e1);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  box-sizing: border-box;
+  backface-visibility: hidden;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.matheng-card-front {
+  transform: rotateY(0deg);
+}
+
+.matheng-card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, var(--card-bg, #ffffff) 0%, rgba(79, 70, 229, 0.03) 100%);
+  border-color: rgba(79, 70, 229, 0.4);
+}
+
+.matheng-flashcard-wrapper.flipped .matheng-card-front {
+  transform: rotateY(-180deg);
+}
+
+.matheng-flashcard-wrapper.flipped .matheng-card-back {
+  transform: rotateY(0deg);
+}
+
+.matheng-flashcard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.matheng-flashcard-cat-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  border-radius: 999px;
+}
+
+.matheng-flashcard-hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.matheng-flashcard-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.matheng-card-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
+  margin: 0 0 0.5rem 0;
+}
+
+.matheng-card-title.vi {
+  color: #0d9488;
+}
+
+.matheng-card-ipa {
+  font-family: 'Consolas', monospace;
+  font-size: 1rem;
+  color: #6366f1;
+  margin-bottom: 1rem;
+}
+
+.matheng-card-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary, #64748b);
+  margin-top: 0.5rem;
+}
+
+.matheng-card-en-echo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin-bottom: 0.75rem;
+}
+
+.matheng-card-vi-echo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0d9488;
+  margin-bottom: 1rem;
+}
+
+.matheng-card-example {
+  max-width: 520px;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-secondary, #64748b);
+  background: rgba(0, 0, 0, 0.03);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  line-height: 1.45;
+}
+
+.matheng-card-speak-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  border: 1px solid rgba(79, 70, 229, 0.25);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.matheng-card-speak-btn:hover {
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+.matheng-flashcard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #94a3b8);
+  border-top: 1px dashed var(--border-color, #e2e8f0);
+  padding-top: 0.75rem;
+}
+
+/* Flashcard Nav Arrows */
+.matheng-flashcard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.matheng-nav-arrow-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-primary, #0f172a);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.matheng-nav-arrow-btn:hover {
+  border-color: #4f46e5;
+  color: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.matheng-nav-flip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: 12px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+  transition: all 0.2s ease;
+}
+
+.matheng-nav-flip-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+}
+
+/* ==================== Empty State ==================== */
+.matheng-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  background: var(--card-bg, #ffffff);
+  border: 1px dashed var(--border-color, #cbd5e1);
+  border-radius: var(--radius-lg, 16px);
+  color: var(--text-secondary, #64748b);
+}
+
+.matheng-empty-icon {
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.matheng-empty-state h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin: 0 0 0.5rem 0;
+}
+
+.matheng-empty-state p {
+  margin: 0;
+  max-width: 440px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* ==================== Mobile Responsiveness ==================== */
+@media (max-width: 768px) {
+  .matheng-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .matheng-mode-tabs {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .matheng-vocab-grid,
+  .matheng-phrases-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .matheng-flashcard-wrapper {
+    min-height: 380px;
+  }
+
+  .matheng-card-title {
+    font-size: 1.5rem;
+  }
+
+  .matheng-flashcard-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .matheng-nav-arrow-btn,
+  .matheng-nav-flip-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
