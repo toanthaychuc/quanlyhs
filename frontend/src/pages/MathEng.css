@@ -242,88 +242,6 @@
   border-color: #d97706;
 }
 
-/* Grade Level Filter Bar */
-.matheng-grade-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-  scrollbar-width: thin;
-}
-
-.matheng-grade-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.45rem 0.85rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-secondary, #475569);
-  background: var(--card-bg, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 9999px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.matheng-grade-pill:hover {
-  transform: translateY(-1px);
-  border-color: #4f46e5;
-  color: #4f46e5;
-}
-
-.matheng-grade-pill.active {
-  background: #4f46e5;
-  color: #ffffff;
-  border-color: #4f46e5;
-  box-shadow: 0 3px 10px rgba(79, 70, 229, 0.25);
-}
-
-.matheng-grade-pill.active.grade-primary {
-  background: #10b981;
-  border-color: #10b981;
-  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
-}
-
-.matheng-grade-pill.active.grade-middle {
-  background: #0ea5e9;
-  border-color: #0ea5e9;
-  box-shadow: 0 3px 10px rgba(14, 165, 233, 0.25);
-}
-
-.matheng-grade-pill.active.grade-grade10 {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
-  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.25);
-}
-
-.matheng-grade-pill.active.grade-grade11 {
-  background: #f59e0b;
-  border-color: #f59e0b;
-  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.25);
-}
-
-.matheng-grade-pill.active.grade-grade12 {
-  background: #ef4444;
-  border-color: #ef4444;
-  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
-}
-
-.matheng-grade-pill-count {
-  font-size: 0.72rem;
-  padding: 0.1rem 0.4rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.08);
-  font-weight: 700;
-}
-
-.matheng-grade-pill.active .matheng-grade-pill-count {
-  background: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-}
-
 /* Category Filter Pills */
 .matheng-categories-bar {
   display: flex;
@@ -515,49 +433,6 @@
 .matheng-term-cat-badge.cat-arithmetic {
   background: rgba(236, 72, 153, 0.12);
   color: #db2777;
-}
-
-.matheng-term-badges {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.matheng-term-grade-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text-secondary, #475569);
-}
-
-.matheng-term-grade-badge.grade-primary {
-  background: rgba(16, 185, 129, 0.12);
-  color: #059669;
-}
-
-.matheng-term-grade-badge.grade-middle {
-  background: rgba(14, 165, 233, 0.12);
-  color: #0284c7;
-}
-
-.matheng-term-grade-badge.grade-grade10 {
-  background: rgba(139, 92, 246, 0.12);
-  color: #7c3aed;
-}
-
-.matheng-term-grade-badge.grade-grade11 {
-  background: rgba(245, 158, 11, 0.12);
-  color: #d97706;
-}
-
-.matheng-term-grade-badge.grade-grade12 {
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
 }
 
 .matheng-term-actions {
