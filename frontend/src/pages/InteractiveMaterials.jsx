@@ -436,8 +436,7 @@ const InteractiveMaterials = () => {
             title={isFullscreen ? 'Thoát toàn màn hình (Phím tắt: Esc)' : 'Toàn màn hình học liệu (Phím tắt: F)'}
             aria-label={isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình học liệu'}
           >
-            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-            <span className="btn-text">{isFullscreen ? 'Thu nhỏ' : 'Toàn màn hình'}</span>
+            {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
 
           {renderMaterial()}
