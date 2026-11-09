@@ -64,6 +64,89 @@ const CATEGORY_ICON_MAP = {
   student: MessageCircle
 };
 
+// Abbreviations & symbol tokens inside parentheses that should not be read aloud after the main term
+const SILENT_PAREN_TOKENS = new Set([
+  'add', 'sub', 'mul', 'div', 'cos', 'sin', 'tan', 'cot', 'sec', 'csc', 'cosec',
+  'arccos', 'arcsin', 'arctan', 'arccot', 'ap', 'gp', 'gcd', 'lcm', 'iqr', 'lhs',
+  'rhs', 'iff', 'us', 'uk', 'oxy', 'oxyz', 'ox', 'oy', 'oz', 'n', 'k', 'm', 'p',
+  'q', 'r', 's', 't', 'x', 'y', 'z', 'i', 'e', 'c', 'd', 'l', 'v', 'a', 'b'
+]);
+
+// Clean mathematical term or sentence so Google Translate TTS reads naturally
+const prepareTextForSpeech = (rawText) => {
+  if (!rawText) return '';
+
+  // 1. Handle parentheticals (...)
+  let processed = rawText.replace(/\(([^()]*)\)/g, (_, inner) => {
+    const trimmed = inner.trim();
+    if (!trimmed) return '';
+    const lower = trimmed.toLowerCase();
+
+    if (SILENT_PAREN_TOKENS.has(lower)) return '';
+
+    // Strip parentheticals containing math formulas, symbols, digits, or subscripts
+    if (/[^a-zA-Z\s,.'-:]/.test(trimmed)) {
+      if (lower.includes('median')) return ', Median';
+      return '';
+    }
+
+    const tokens = lower.split(/[\s,/]+/).filter(Boolean);
+    if (tokens.every((t) => SILENT_PAREN_TOKENS.has(t) || t.length <= 2)) {
+      return '';
+    }
+
+    return `, ${trimmed}`;
+  });
+
+  // 2. Remove remaining brackets and replace slashes between words with commas
+  processed = processed
+    .replace(/[()[\]{}]/g, ' ')
+    .replace(/\s*\/\s*/g, ', ')
+    .replace(/[*#_~`"]/g, '')
+    .replace(/\s*,\s*,+/g, ',')
+    .replace(/\s+/g, ' ')
+    .replace(/^,\s*|\s*,$/g, '')
+    .trim();
+
+  return processed || rawText;
+};
+
+// Pick the most natural English neural voice when falling back to Web Speech API
+const selectBestBrowserVoice = (voices, preferredLang = 'en-US') => {
+  if (!voices || voices.length === 0) return null;
+  const isGB = preferredLang === 'en-GB';
+
+  const priorityMatchers = isGB
+    ? [
+        (v) => v.name === 'Google UK English Female',
+        (v) => v.name === 'Google UK English Male',
+        (v) => v.name.includes('Sonia Online (Natural)'),
+        (v) => v.name.includes('Ryan Online (Natural)'),
+        (v) => v.name.includes('Natural') && v.lang.startsWith('en-GB'),
+        (v) => v.name.includes('Google') && v.lang.startsWith('en'),
+        (v) => v.name.includes('Natural') && v.lang.startsWith('en'),
+        (v) => v.lang.startsWith('en-GB'),
+      ]
+    : [
+        (v) => v.name === 'Google US English',
+        (v) => v.name.includes('Aria Online (Natural)'),
+        (v) => v.name.includes('Jenny Online (Natural)'),
+        (v) => v.name.includes('Guy Online (Natural)'),
+        (v) => v.name.includes('Natural') && v.lang.startsWith('en-US'),
+        (v) => v.name === 'Google UK English Female',
+        (v) => v.name.includes('Google') && v.lang.startsWith('en'),
+        (v) => v.name.includes('Samantha') || v.name.includes('Ava'),
+        (v) => v.lang.startsWith('en-US') && !v.name.includes('David'),
+      ];
+
+  for (const matcher of priorityMatchers) {
+    const found = voices.find(matcher);
+    if (found) return found;
+  }
+
+  return voices.find((v) => v.lang && v.lang.startsWith('en')) || null;
+};
+
 const MathEng = () => {
   // Navigation Tabs: 'vocab' | 'classroom' | 'flashcard'
   const [activeTab, setActiveTab] = useState('vocab');
@@ -101,10 +184,45 @@ const MathEng = () => {
     }
   });
 
-  // UI Feedback States
+  // UI Feedback & Voice States
   const [copiedId, setCopiedId] = useState(null);
   const [speakingId, setSpeakingId] = useState(null);
+  const [voiceAccent, setVoiceAccent] = useState(() => {
+    return localStorage.getItem('matheng_voice_accent') || 'en-US';
+  }); // 'en-US' | 'en-GB'
+  const [voiceSpeed, setVoiceSpeed] = useState(() => {
+    return localStorage.getItem('matheng_voice_speed') || 'normal';
+  }); // 'normal' | 'slow'
+
   const searchInputRef = useRef(null);
+  const audioRef = useRef(null);
+  const audioCacheRef = useRef(new Map());
+  const browserVoicesRef = useRef([]);
+
+  // Preload Web Speech API voices for offline fallback
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) return;
+    const updateVoices = () => {
+      browserVoicesRef.current = window.speechSynthesis.getVoices();
+    };
+    updateVoices();
+    window.speechSynthesis.onvoiceschanged = updateVoices;
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
+
+  // Persist Voice Preferences
+  useEffect(() => {
+    try {
+      localStorage.setItem('matheng_voice_accent', voiceAccent);
+      localStorage.setItem('matheng_voice_speed', voiceSpeed);
+    } catch {
+      // Ignore storage errors
+    }
+  }, [voiceAccent, voiceSpeed]);
 
   // Persist Saved Terms
   useEffect(() => {
@@ -124,26 +242,92 @@ const MathEng = () => {
     }
   }, [masteredCards]);
 
-  // Audio Pronunciation via Web Speech API
-  const speakText = useCallback((text, id) => {
-    if (!('speechSynthesis' in window)) {
-      alert('Trình duyệt của bạn chưa hỗ trợ phát âm tự động.');
-      return;
-    }
+  // Natural Audio Pronunciation via Google Translate TTS (with Neural Web Speech fallback)
+  const speakText = useCallback(
+    async (text, id) => {
+      const cleanText = prepareTextForSpeech(text);
+      if (!cleanText) return;
 
-    window.speechSynthesis.cancel();
-    setSpeakingId(id);
+      // Stop any ongoing playback
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
 
-    const cleanText = text.replace(/[\][(){*#_~]/g, ' ').trim();
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.9; // Clear, pedagogical pace
+      // Clicking the same active speaker button stops playback
+      if (speakingId === id) {
+        setSpeakingId(null);
+        return;
+      }
 
-    utterance.onend = () => setSpeakingId(null);
-    utterance.onerror = () => setSpeakingId(null);
+      setSpeakingId(id);
 
-    window.speechSynthesis.speak(utterance);
-  }, []);
+      const fallbackToNeuralBrowserVoice = () => {
+        if (!('speechSynthesis' in window)) {
+          setSpeakingId(null);
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = voiceAccent;
+        utterance.rate = voiceSpeed === 'slow' ? 0.78 : 0.92;
+        utterance.pitch = 1.0;
+
+        const voices =
+          browserVoicesRef.current.length > 0
+            ? browserVoicesRef.current
+            : window.speechSynthesis.getVoices();
+        const bestVoice = selectBestBrowserVoice(voices, voiceAccent);
+        if (bestVoice) {
+          utterance.voice = bestVoice;
+          utterance.lang = bestVoice.lang;
+        }
+
+        utterance.onend = () => setSpeakingId(null);
+        utterance.onerror = () => setSpeakingId(null);
+        window.speechSynthesis.speak(utterance);
+      };
+
+      try {
+        const ttsSpeedParam = voiceSpeed === 'slow' ? '0.24' : '1';
+        const cacheKey = `${voiceAccent}|${ttsSpeedParam}|${cleanText}`;
+        let blobUrl = audioCacheRef.current.get(cacheKey);
+
+        if (!blobUrl) {
+          const ttsUrl = `/api/tts?tl=${encodeURIComponent(voiceAccent)}&ttsspeed=${ttsSpeedParam}&q=${encodeURIComponent(cleanText.slice(0, 195))}`;
+          const response = await fetch(ttsUrl);
+          if (!response.ok) {
+            throw new Error(`TTS HTTP ${response.status}`);
+          }
+          const blob = await response.blob();
+          if (!blob || blob.size < 100) {
+            throw new Error('Empty TTS audio');
+          }
+          blobUrl = URL.createObjectURL(blob);
+          audioCacheRef.current.set(cacheKey, blobUrl);
+        }
+
+        const audio = new Audio(blobUrl);
+        audio.playbackRate = voiceSpeed === 'slow' ? 0.88 : 1.0;
+        audioRef.current = audio;
+
+        audio.onended = () => {
+          setSpeakingId((prev) => (prev === id ? null : prev));
+        };
+        audio.onerror = () => {
+          fallbackToNeuralBrowserVoice();
+        };
+
+        await audio.play();
+      } catch {
+        fallbackToNeuralBrowserVoice();
+      }
+    },
+    [voiceAccent, voiceSpeed, speakingId]
+  );
 
   // Copy to Clipboard
   const handleCopy = (text, id) => {
@@ -287,32 +471,69 @@ const MathEng = () => {
           </div>
         </div>
 
-        {/* Mode Switcher Tabs */}
-        <div className="matheng-mode-tabs">
-          <button
-            className={`matheng-mode-tab ${activeTab === 'vocab' ? 'active' : ''}`}
-            onClick={() => setActiveTab('vocab')}
-          >
-            <BookOpen size={17} />
-            <span>Thuật ngữ Toán học</span>
-            <span className="matheng-tab-count">{MATH_VOCABULARY.length}</span>
-          </button>
-          <button
-            className={`matheng-mode-tab ${activeTab === 'classroom' ? 'active' : ''}`}
-            onClick={() => setActiveTab('classroom')}
-          >
-            <Users size={17} />
-            <span>Giao tiếp lớp học</span>
-            <span className="matheng-tab-count">{CLASSROOM_PHRASES.length}</span>
-          </button>
-          <button
-            className={`matheng-mode-tab ${activeTab === 'flashcard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('flashcard')}
-          >
-            <Sparkles size={17} />
-            <span>Thẻ ghi nhớ</span>
-            <span className="matheng-tab-count">{MATH_FLASHCARDS.length}</span>
-          </button>
+        <div className="matheng-header-actions">
+          {/* Google Translate Voice & Speed Selector */}
+          <div className="matheng-voice-controls" title="Tuỳ chỉnh giọng đọc chuẩn Google Dịch">
+            <div className="matheng-voice-pill-group">
+              <button
+                type="button"
+                className={`matheng-voice-btn ${voiceAccent === 'en-US' ? 'active' : ''}`}
+                onClick={() => setVoiceAccent('en-US')}
+                title="Giọng đọc Google Dịch chuẩn Anh - Mỹ (US)"
+              >
+                <span>🇺🇸 Anh-Mỹ</span>
+              </button>
+              <button
+                type="button"
+                className={`matheng-voice-btn ${voiceAccent === 'en-GB' ? 'active' : ''}`}
+                onClick={() => setVoiceAccent('en-GB')}
+                title="Giọng đọc Google Dịch chuẩn Anh - Anh (UK)"
+              >
+                <span>🇬🇧 Anh-Anh</span>
+              </button>
+            </div>
+            <button
+              type="button"
+              className={`matheng-speed-btn ${voiceSpeed === 'slow' ? 'active' : ''}`}
+              onClick={() => setVoiceSpeed((prev) => (prev === 'normal' ? 'slow' : 'normal'))}
+              title={
+                voiceSpeed === 'slow'
+                  ? 'Đang bật chế độ đọc chậm rõ từng âm như Google Dịch (0.8x)'
+                  : 'Bấm để chuyển sang chế độ đọc chậm rõ (0.8x)'
+              }
+            >
+              <Volume2 size={14} />
+              <span>{voiceSpeed === 'slow' ? 'Đọc chậm (0.8x)' : 'Tốc độ 1.0x'}</span>
+            </button>
+          </div>
+
+          {/* Mode Switcher Tabs */}
+          <div className="matheng-mode-tabs">
+            <button
+              className={`matheng-mode-tab ${activeTab === 'vocab' ? 'active' : ''}`}
+              onClick={() => setActiveTab('vocab')}
+            >
+              <BookOpen size={17} />
+              <span>Thuật ngữ Toán học</span>
+              <span className="matheng-tab-count">{MATH_VOCABULARY.length}</span>
+            </button>
+            <button
+              className={`matheng-mode-tab ${activeTab === 'classroom' ? 'active' : ''}`}
+              onClick={() => setActiveTab('classroom')}
+            >
+              <Users size={17} />
+              <span>Giao tiếp lớp học</span>
+              <span className="matheng-tab-count">{CLASSROOM_PHRASES.length}</span>
+            </button>
+            <button
+              className={`matheng-mode-tab ${activeTab === 'flashcard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('flashcard')}
+            >
+              <Sparkles size={17} />
+              <span>Thẻ ghi nhớ</span>
+              <span className="matheng-tab-count">{MATH_FLASHCARDS.length}</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -475,6 +696,17 @@ const MathEng = () => {
                           <div className="matheng-example-label">
                             <Lightbulb size={13} />
                             <span>Ví dụ trong ngữ cảnh toán học:</span>
+                            <button
+                              type="button"
+                              className="matheng-subterm-speak-btn matheng-example-speak-btn"
+                              onClick={() => speakText(term.example, `${term.id}_example`)}
+                              title="Nghe đọc câu ví dụ bằng giọng Google Dịch"
+                            >
+                              <Volume2
+                                size={13}
+                                className={speakingId === `${term.id}_example` ? 'speaking' : ''}
+                              />
+                            </button>
                           </div>
                           <div className="matheng-example-text">"{term.example}"</div>
                         </div>
