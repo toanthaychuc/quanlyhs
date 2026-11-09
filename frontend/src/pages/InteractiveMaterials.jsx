@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MonitorPlay, Maximize2, Minimize2, PanelLeftOpen } from 'lucide-react';
+import { MonitorPlay, Maximize2, Minimize2, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import './InteractiveMaterials.css';
 import SetOperations from '../components/interactive/SetOperations';
 import LinearInequalities from '../components/interactive/LinearInequalities';
@@ -421,19 +421,19 @@ const InteractiveMaterials = () => {
             {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
 
-          {/* Category Sidebar Toggle Button (Docked below the toolbar of active material) */}
-          {sidebarCollapsed && !isFullscreen && (
+          {/* Category Sidebar Toggle Button (Immediately to the left of active material title) */}
+          {!isFullscreen && (
             <button
               type="button"
-              className="interactive-category-bottom-btn"
+              className={`interactive-category-title-btn ${sidebarCollapsed ? 'is-collapsed' : ''}`}
               onClick={() => {
-                setSidebarCollapsed(false);
+                setSidebarCollapsed(prev => !prev);
                 setTimeout(updateResizerPosition, 150);
               }}
-              title="Mở danh mục học liệu (Lớp 10, 11, 12)"
-              aria-label="Mở danh mục học liệu"
+              title={sidebarCollapsed ? "Mở danh mục học liệu (Lớp 10, 11, 12)" : "Thu gọn danh mục học liệu"}
+              aria-label={sidebarCollapsed ? "Mở danh mục học liệu" : "Thu gọn danh mục học liệu"}
             >
-              <PanelLeftOpen size={18} />
+              {sidebarCollapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
             </button>
           )}
 

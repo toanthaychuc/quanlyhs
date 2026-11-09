@@ -113,7 +113,28 @@
     max-width: min(80vw, 850px) !important;
     flex-shrink: 0 !important;
     box-sizing: border-box !important;
-    padding-bottom: 56px !important;
+  }
+
+  /* Sidebar Main Title spacing to accommodate Category Toggle Button on its left */
+  .trig-sidebar > h3:first-of-type,
+  .set-ops-controls > h3:first-of-type,
+  .space-geom-sidebar > h3:first-of-type,
+  .quad-sidebar > h3:first-of-type,
+  .ineq-sidebar > h3:first-of-type,
+  .derivative-sidebar > h3:first-of-type,
+  .func-invest-sidebar > h3:first-of-type,
+  .riemann-sidebar > h3:first-of-type,
+  .solid-sidebar .solid-title,
+  .oxyz-sidebar > h3:first-of-type,
+  .conic-sidebar .card-header h3,
+  .space-angles-sidebar > h3:first-of-type,
+  .cross-section-sidebar > h3:first-of-type,
+  [class*="-sidebar"] > h3:first-of-type,
+  [class*="-controls"] > h3:first-of-type {
+    padding-left: 42px !important;
+    min-height: 32px;
+    display: flex !important;
+    align-items: center !important;
   }
 
   /* ConicSections: Ensure visualizer flexes while sidebar respects custom width */
@@ -233,16 +254,16 @@
 }
 
 /* =========================================================================
-   Interactive Material Category Sidebar Toggle Button (Docked Below Toolbar)
+   Interactive Material Category Sidebar Toggle Button (Immediately to left of Title)
    ========================================================================= */
 
-.interactive-category-bottom-btn {
+.interactive-category-title-btn {
   position: absolute;
-  bottom: 16px;
-  left: 16px;
+  top: 22px;
+  left: 24px;
   z-index: 30;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -253,26 +274,36 @@
   backdrop-filter: blur(8px);
   color: var(--text-primary, #1e293b);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
 }
 
-[data-theme="dark"] .interactive-category-bottom-btn {
+[data-theme="dark"] .interactive-category-title-btn {
   background: var(--bg-secondary, rgba(30, 41, 59, 0.9));
   border-color: rgba(255, 255, 255, 0.15);
   color: var(--text-primary, #f1f5f9);
 }
 
-.interactive-category-bottom-btn:hover {
+.interactive-category-title-btn:hover {
   transform: translateY(-1px);
   border-color: var(--primary-color, #4f46e5);
   color: var(--primary-color, #4f46e5);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.15);
 }
 
-.interactive-category-bottom-btn:active {
+.interactive-category-title-btn:active {
   transform: translateY(0);
+}
+
+.interactive-category-title-btn.is-collapsed {
+  border-color: var(--primary-color, #4f46e5);
+  color: var(--primary-color, #4f46e5);
+  background: var(--surface-color, #ffffff);
+}
+
+[data-theme="dark"] .interactive-category-title-btn.is-collapsed {
+  background: rgba(79, 70, 229, 0.15);
 }
 
 /* =========================================================================
