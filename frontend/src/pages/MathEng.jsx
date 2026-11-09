@@ -498,17 +498,18 @@ const MathEng = () => {
                       </div>
                     </div>
 
-                    {/* Main Term */}
+                    {/* Main Term: English & Vietnamese side-by-side */}
                     <div className="matheng-term-body">
                       <div className="matheng-term-en-line">
                         <span className="matheng-term-en">{term.en}</span>
+                        <span className="matheng-term-divider">:</span>
+                        <span className="matheng-term-vi">{term.vi}</span>
                       </div>
                       {term.ipa && (
                         <div className="matheng-term-ipa-wrapper">
                           <span className="matheng-term-ipa">{term.ipa}</span>
                         </div>
                       )}
-                      <div className="matheng-term-vi">{term.vi}</div>
                     </div>
 
                     {/* Example Sentence */}
