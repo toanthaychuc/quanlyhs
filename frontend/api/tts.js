@@ -36,3 +36,4 @@ export default function handler(req, res) {
       res.status(502).send('Failed to reach Google TTS');
     });
 }
+
