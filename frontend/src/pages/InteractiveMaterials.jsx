@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MonitorPlay, Maximize2, Minimize2, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
+import { MonitorPlay, Maximize2, Minimize2, PanelLeftOpen } from 'lucide-react';
 import './InteractiveMaterials.css';
 import SetOperations from '../components/interactive/SetOperations';
 import LinearInequalities from '../components/interactive/LinearInequalities';
@@ -334,21 +334,7 @@ const InteractiveMaterials = () => {
   return (
     <div className="formulas-page interactive-page-container">
       <div className="formulas-header">
-        <div className="formulas-title-area" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-          {!isFullscreen && (
-            <button
-              type="button"
-              className={`interactive-sidebar-toggle-btn ${sidebarCollapsed ? 'is-collapsed' : ''}`}
-              onClick={() => {
-                setSidebarCollapsed(prev => !prev);
-                setTimeout(updateResizerPosition, 150);
-              }}
-              title={sidebarCollapsed ? "Mở danh mục học liệu" : "Thu gọn danh mục học liệu"}
-              aria-label={sidebarCollapsed ? "Mở danh mục học liệu" : "Thu gọn danh mục học liệu"}
-            >
-              {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-            </button>
-          )}
+        <div className="formulas-title-area" style={{ flexShrink: 0 }}>
           <h1>
             <MonitorPlay className="text-primary" size={28} style={{ marginRight: '8px' }} />
             HỌC LIỆU TƯƠNG TÁC
@@ -434,6 +420,22 @@ const InteractiveMaterials = () => {
           >
             {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
+
+          {/* Category Sidebar Toggle Button (Docked below the toolbar of active material) */}
+          {sidebarCollapsed && !isFullscreen && (
+            <button
+              type="button"
+              className="interactive-category-bottom-btn"
+              onClick={() => {
+                setSidebarCollapsed(false);
+                setTimeout(updateResizerPosition, 150);
+              }}
+              title="Mở danh mục học liệu (Lớp 10, 11, 12)"
+              aria-label="Mở danh mục học liệu"
+            >
+              <PanelLeftOpen size={18} />
+            </button>
+          )}
 
           {renderMaterial()}
 

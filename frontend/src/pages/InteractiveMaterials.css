@@ -113,6 +113,7 @@
     max-width: min(80vw, 850px) !important;
     flex-shrink: 0 !important;
     box-sizing: border-box !important;
+    padding-bottom: 56px !important;
   }
 
   /* ConicSections: Ensure visualizer flexes while sidebar respects custom width */
@@ -232,10 +233,14 @@
 }
 
 /* =========================================================================
-   Interactive Material Header Category Sidebar Toggle Button
+   Interactive Material Category Sidebar Toggle Button (Docked Below Toolbar)
    ========================================================================= */
 
-.interactive-sidebar-toggle-btn {
+.interactive-category-bottom-btn {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 30;
   width: 36px;
   height: 36px;
   padding: 0;
@@ -248,37 +253,26 @@
   backdrop-filter: blur(8px);
   color: var(--text-primary, #1e293b);
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
   user-select: none;
 }
 
-[data-theme="dark"] .interactive-sidebar-toggle-btn {
+[data-theme="dark"] .interactive-category-bottom-btn {
   background: var(--bg-secondary, rgba(30, 41, 59, 0.9));
   border-color: rgba(255, 255, 255, 0.15);
   color: var(--text-primary, #f1f5f9);
 }
 
-.interactive-sidebar-toggle-btn:hover {
+.interactive-category-bottom-btn:hover {
   transform: translateY(-1px);
   border-color: var(--primary-color, #4f46e5);
   color: var(--primary-color, #4f46e5);
-  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
 }
 
-.interactive-sidebar-toggle-btn:active {
+.interactive-category-bottom-btn:active {
   transform: translateY(0);
-}
-
-.interactive-sidebar-toggle-btn.is-collapsed {
-  border-color: var(--primary-color, #4f46e5);
-  color: var(--primary-color, #4f46e5);
-  background: var(--surface-color, #ffffff);
-}
-
-[data-theme="dark"] .interactive-sidebar-toggle-btn.is-collapsed {
-  background: rgba(79, 70, 229, 0.15);
 }
 
 /* =========================================================================
