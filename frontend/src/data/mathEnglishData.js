@@ -1,11 +1,6 @@
 /**
  * Dữ liệu chuẩn Thuật ngữ Toán tiếng Anh & Câu lệnh giao tiếp lớp học song ngữ
  * 100% Thuật ngữ có đầy đủ: Từ tiếng Anh, Phiên âm quốc tế (IPA), Nghĩa tiếng Việt, Ví dụ toán học & Thuật ngữ liên quan.
- * Nguồn tham khảo chính:
- * 1. Chương trình GDPT 2018 môn Toán từ Lớp 1 đến Lớp 12 (Bộ GD&ĐT)
- * 2. "Building Academic Vocabulary: Mathematics" - Washington Educational Service Districts (K-12)
- * 3. "Một số từ vựng Toán tiếng Anh thông dụng trong các kỳ thi Toán Quốc tế" - Võ Quốc Bá Cẩn
- * 4. "The Concise Oxford Dictionary of Mathematics" - Oxford University Press
  */
 
 export const GRADE_LEVELS = [
@@ -792,10 +787,23 @@ export const MATH_VOCABULARY = [
     "gradeId": "grade11",
     "grade": "Lớp 11",
     "ipa": "/əˈrɪθmətɪk prəˈɡreʃn/",
-    "example": "A sequence where consecutive terms differ by a constant common difference d.",
+    "example": "For the arithmetic progression 3, 7, 11, 15, ..., the first term is u1 = 3 and the common difference is d = 4.",
     "id": "term_428",
     "letter": "A",
-    "subterms": []
+    "subterms": [
+      {
+        "en": "Arithmetic sequence",
+        "vi": "Dãy số cấp số cộng"
+      },
+      {
+        "en": "Common difference (d)",
+        "vi": "Công sai (d)"
+      },
+      {
+        "en": "Sum of first n terms",
+        "vi": "Tổng n số hạng đầu của cấp số cộng"
+      }
+    ]
   },
   {
     "id": "term_16",
@@ -2764,10 +2772,23 @@ export const MATH_VOCABULARY = [
     "gradeId": "grade11",
     "grade": "Lớp 11",
     "ipa": "/ˌdʒiːəˈmetrɪk prəˈɡreʃn/",
-    "example": "A sequence where each term after the first is found by multiplying by ratio q.",
+    "example": "For the geometric progression 2, 6, 18, 54, ..., the first term is u1 = 2 and the common ratio is q = 3.",
     "id": "term_429",
     "letter": "G",
-    "subterms": []
+    "subterms": [
+      {
+        "en": "Geometric sequence",
+        "vi": "Dãy số cấp số nhân"
+      },
+      {
+        "en": "Common ratio (q)",
+        "vi": "Công bội (q)"
+      },
+      {
+        "en": "Sum of first n terms",
+        "vi": "Tổng n số hạng đầu của cấp số nhân"
+      }
+    ]
   },
   {
     "en": "Global maximum and minimum",
@@ -5249,7 +5270,7 @@ export const MATH_VOCABULARY = [
     "gradeId": "grade11",
     "grade": "Lớp 11",
     "ipa": "/ˈsiːkwəns/",
-    "example": "An infinite sequence is a function whose domain is the set of positive integers.",
+    "example": "The sequence of prime numbers begins with 2, 3, 5, 7, 11, ...",
     "subterms": []
   },
   {
