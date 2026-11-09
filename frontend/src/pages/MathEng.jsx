@@ -502,10 +502,25 @@ const MathEng = () => {
                     <div className="matheng-term-body">
                       <div className="matheng-term-en-line">
                         <span className="matheng-term-en">{term.en}</span>
-                        {term.ipa && <span className="matheng-term-ipa">{term.ipa}</span>}
                       </div>
+                      {term.ipa && (
+                        <div className="matheng-term-ipa-wrapper">
+                          <span className="matheng-term-ipa">{term.ipa}</span>
+                        </div>
+                      )}
                       <div className="matheng-term-vi">{term.vi}</div>
                     </div>
+
+                    {/* Example Sentence */}
+                    {term.example && (
+                      <div className="matheng-example-box">
+                        <div className="matheng-example-label">
+                          <Lightbulb size={13} />
+                          <span>Ví dụ trong ngữ cảnh toán học:</span>
+                        </div>
+                        <div className="matheng-example-text">"{term.example}"</div>
+                      </div>
+                    )}
 
                     {/* Subterms / Collocations (if any) */}
                     {term.subterms && term.subterms.length > 0 && (
@@ -530,17 +545,6 @@ const MathEng = () => {
                             );
                           })}
                         </ul>
-                      </div>
-                    )}
-
-                    {/* Example Sentence (if any) */}
-                    {term.example && (
-                      <div className="matheng-example-box">
-                        <div className="matheng-example-label">
-                          <Lightbulb size={13} />
-                          <span>Ví dụ trong ngữ cảnh toán học:</span>
-                        </div>
-                        <div className="matheng-example-text">"{term.example}"</div>
                       </div>
                     )}
                   </div>

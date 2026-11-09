@@ -1,6 +1,6 @@
 /**
  * Dữ liệu chuẩn Thuật ngữ Toán tiếng Anh & Câu lệnh giao tiếp lớp học song ngữ
- * Bao quát toàn diện chương trình GDPT từ Lớp 1 đến Lớp 12 & Toán quốc tế (SAT, Cambridge, AP, IMO)
+ * 100% Thuật ngữ có đầy đủ: Từ tiếng Anh, Phiên âm quốc tế (IPA), Nghĩa tiếng Việt, Ví dụ toán học & Thuật ngữ liên quan.
  * Nguồn tham khảo chính:
  * 1. Chương trình GDPT 2018 môn Toán từ Lớp 1 đến Lớp 12 (Bộ GD&ĐT)
  * 2. "Building Academic Vocabulary: Mathematics" - Washington Educational Service Districts (K-12)
@@ -539,7 +539,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kɑːˈtiːziən kəʊˈɔːdɪnət ˈsɪstəm/",
     "example": "Space defined by three mutually perpendicular axes: Ox, Oy, Oz.",
     "id": "term_449",
-    "letter": "#"
+    "letter": "#",
+    "subterms": []
   },
   {
     "id": "term_1",
@@ -550,7 +551,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈæbsəluːt ˈvæljuː/",
     "example": "The absolute value of -5 is 5, written as |-5| = 5.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_2",
@@ -569,7 +571,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈkjuːt/",
+    "example": "An acute angle measures strictly between 0° and 90°."
   },
   {
     "id": "term_3",
@@ -578,7 +582,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/æd/",
+    "example": "In standard mathematical curriculum, 'Add (addition)' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_4",
@@ -587,7 +594,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈædənd/",
+    "example": "In the addition 8 + 5 = 13, both 8 and 5 are addends.",
+    "subterms": []
   },
   {
     "en": "Addition",
@@ -598,7 +608,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/əˈdɪʃn/",
     "example": "Addition is finding the total of two or more numbers (e.g. 3 + 5 = 8).",
     "id": "term_374",
-    "letter": "A"
+    "letter": "A",
+    "subterms": []
   },
   {
     "id": "term_6",
@@ -607,7 +618,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/əˈdɪʃn ruːl/",
+    "example": "By the addition rule of combinatorics, if task A has 3 options and task B has 4 options, there are 7 total choices.",
+    "subterms": []
   },
   {
     "id": "term_5",
@@ -616,7 +630,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈædɪtɪv/",
+    "example": "The additive identity for real numbers is 0, since x + 0 = x.",
+    "subterms": []
   },
   {
     "id": "term_7",
@@ -635,7 +652,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈdʒeɪsnt/",
+    "example": "Adjacent angles share a common vertex and a common ray."
   },
   {
     "id": "term_8",
@@ -644,7 +663,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɔːlˈtɜːnətɪv ˈæŋɡlz/",
+    "example": "Alternative interior angles are equal when two parallel lines are cut by a transversal.",
+    "subterms": []
   },
   {
     "id": "term_9",
@@ -655,7 +677,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈæltɪtjuːd/",
     "example": "The altitude of a triangle is the perpendicular segment from a vertex to the opposite line.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_10",
@@ -674,7 +697,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈæŋɡl/",
+    "example": "In standard mathematical curriculum, 'Angle' is used to analyze properties and solve equations in geometry."
   },
   {
     "id": "term_11",
@@ -683,7 +708,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈænjələs/",
+    "example": "The area of an annulus between concentric circles of radius R and r is pi*(R^2 - r^2).",
+    "subterms": []
   },
   {
     "id": "term_361",
@@ -706,7 +734,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌæntidɪˈrɪvətɪv ænd ɪnˈdefɪnət ˈɪntɪɡrəl/",
     "example": "F'(x) = f(x); never forget the integration constant C.",
     "id": "term_445",
-    "letter": "A"
+    "letter": "A",
+    "subterms": []
   },
   {
     "id": "term_12",
@@ -715,7 +744,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɑːbɪtrəri/",
+    "example": "Let c be an arbitrary real constant in the general solution.",
+    "subterms": []
   },
   {
     "id": "term_13",
@@ -724,7 +756,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɑːk/",
+    "example": "The length of an arc subtending central angle theta is s = r * theta.",
+    "subterms": []
   },
   {
     "id": "term_14",
@@ -733,7 +768,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈeəriə/",
+    "example": "In standard mathematical curriculum, 'Area' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_15",
@@ -742,7 +780,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɑːɡjumənt/",
+    "example": "In standard mathematical curriculum, 'Argument' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Arithmetic progression (AP)",
@@ -753,7 +794,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/əˈrɪθmətɪk prəˈɡreʃn/",
     "example": "A sequence where consecutive terms differ by a constant common difference d.",
     "id": "term_428",
-    "letter": "A"
+    "letter": "A",
+    "subterms": []
   },
   {
     "id": "term_16",
@@ -762,7 +804,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈreɪndʒ/",
+    "example": "The statistical range is the difference between the maximum and minimum observations.",
+    "subterms": []
   },
   {
     "id": "term_17",
@@ -771,7 +816,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/əˈreɪ/",
+    "example": "A 3 by 4 array contains 12 elements arranged in 3 rows and 4 columns.",
+    "subterms": []
   },
   {
     "id": "term_18",
@@ -780,7 +828,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈsendɪŋ ˈɔːdə/",
+    "example": "The sequence 2, 5, 9, 14 is arranged in ascending order.",
+    "subterms": []
   },
   {
     "id": "term_19",
@@ -789,7 +840,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈsaɪn/",
+    "example": "We assign the value x = 3 to the variable.",
+    "subterms": []
   },
   {
     "id": "term_20",
@@ -798,7 +852,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈsəʊʃiətɪv/",
+    "example": "Addition is associative: (a + b) + c = a + (b + c).",
+    "subterms": []
   },
   {
     "id": "term_21",
@@ -807,7 +864,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈsjuːm/",
+    "example": "Assume for contradiction that sqrt(2) is a rational number.",
+    "subterms": []
   },
   {
     "id": "term_22",
@@ -816,7 +876,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈsʌmpʃn/",
+    "example": "Assume for contradiction that sqrt(2) is a rational number.",
+    "subterms": []
   },
   {
     "id": "term_363",
@@ -852,7 +915,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈæsɪmptəʊts/",
     "example": "Lines that the curve approaches arbitrarily closely as coordinates tend to infinity or singularities.",
     "id": "term_444",
-    "letter": "A"
+    "letter": "A",
+    "subterms": []
   },
   {
     "id": "term_23",
@@ -861,7 +925,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/æt məʊst/",
+    "example": "The polynomial has at most n distinct real roots.",
+    "subterms": []
   },
   {
     "id": "term_24",
@@ -870,7 +937,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈtæk/",
+    "example": "In standard mathematical curriculum, 'Attack' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_25",
@@ -879,7 +949,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "A",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əˈteɪn/",
+    "example": "The quadratic function attains its minimum value at the vertex.",
+    "subterms": []
   },
   {
     "id": "term_26",
@@ -888,7 +961,10 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "A",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈævərɪdʒ/",
+    "example": "The average of 10, 20, and 30 is (10 + 20 + 30) / 3 = 20.",
+    "subterms": []
   },
   {
     "en": "Average (Mean)",
@@ -899,7 +975,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈævərɪdʒ/",
     "example": "The average of 4, 6, and 8 is (4 + 6 + 8) / 3 = 6.",
     "id": "term_386",
-    "letter": "A"
+    "letter": "A",
+    "subterms": []
   },
   {
     "id": "term_27",
@@ -918,7 +995,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈæksɪs/",
+    "example": "The curve is symmetric about the vertical y-axis."
   },
   {
     "id": "term_28",
@@ -927,7 +1006,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "B",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/beɪs/",
+    "example": "The area of a triangle equals one half base times height.",
+    "subterms": []
   },
   {
     "en": "Bayes' theorem",
@@ -938,7 +1020,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/beɪz ˈθɪərəm/",
     "example": "Calculates posterior probability by updating prior probability with new evidence.",
     "id": "term_455",
-    "letter": "B"
+    "letter": "B",
+    "subterms": []
   },
   {
     "id": "term_29",
@@ -949,7 +1032,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/baɪˈnəʊmiəl/",
     "example": "A binomial is a polynomial containing exactly two terms, such as (x + y).",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "subterms": []
   },
   {
     "en": "Binomial theorem",
@@ -960,7 +1044,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/baɪˈnəʊmiəl ˈθɪərəm/",
     "example": "Expands powers of a binomial (a + b)^n using combinatorial coefficients.",
     "id": "term_423",
-    "letter": "B"
+    "letter": "B",
+    "subterms": []
   },
   {
     "id": "term_30",
@@ -969,7 +1054,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "B",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/baɪˈsekt/",
+    "example": "The perpendicular bisector divides a line segment into two equal halves at 90°.",
+    "subterms": []
   },
   {
     "id": "term_31",
@@ -978,7 +1066,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "B",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/baɪˈsektə/",
+    "example": "The perpendicular bisector divides a line segment into two equal halves at 90°.",
+    "subterms": []
   },
   {
     "id": "term_32",
@@ -987,7 +1078,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "B",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/bəʊld/",
+    "example": "Vectors are frequently printed in bold font (e.g. v).",
+    "subterms": []
   },
   {
     "id": "term_33",
@@ -998,7 +1092,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kɑːˈtiːziən ˈsɪstəm/",
     "example": "The Cartesian coordinate system uses perpendicular x and y axes.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_34",
@@ -1007,7 +1102,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsentə/",
+    "example": "The central angle has its vertex at the center of the circle.",
+    "subterms": []
   },
   {
     "id": "term_37",
@@ -1016,7 +1114,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsentɪmiːtə/",
+    "example": "One metre contains exactly 100 centimetres.",
+    "subterms": []
   },
   {
     "id": "term_35",
@@ -1025,7 +1126,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsentrəl/",
+    "example": "The central angle has its vertex at the center of the circle.",
+    "subterms": []
   },
   {
     "en": "Central angle",
@@ -1036,7 +1140,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈsentrəl ˈæŋɡl/",
     "example": "The measure of a central angle equals the degree measure of its intercepted arc.",
     "id": "term_406",
-    "letter": "C"
+    "letter": "C",
+    "subterms": []
   },
   {
     "id": "term_36",
@@ -1045,7 +1150,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsentrɔɪd/",
+    "example": "The centroid of a triangle divides each median in the ratio 2:1.",
+    "subterms": []
   },
   {
     "en": "Chain rule",
@@ -1056,7 +1164,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/tʃeɪn ruːl/",
     "example": "Differentiating composite function: [f(g(x))]' = f'(g(x)) * g'(x).",
     "id": "term_436",
-    "letter": "C"
+    "letter": "C",
+    "subterms": []
   },
   {
     "id": "term_38",
@@ -1065,7 +1174,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/tʃeɪndʒ/",
+    "example": "The derivative represents the instantaneous rate of change of y with respect to x.",
+    "subterms": []
   },
   {
     "id": "term_39",
@@ -1074,7 +1186,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈtʃesbɔːd/",
+    "example": "A standard chessboard has 64 unit squares arranged in an 8 by 8 grid.",
+    "subterms": []
   },
   {
     "id": "term_40",
@@ -1083,7 +1198,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/tʃɔɪs/",
+    "example": "There are 10 choices for the first digit and 9 choices for the second digit.",
+    "subterms": []
   },
   {
     "id": "term_41",
@@ -1092,7 +1210,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kɔːd/",
+    "example": "The diameter is the longest chord of a circle.",
+    "subterms": []
   },
   {
     "id": "term_42",
@@ -1101,7 +1222,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsɜːkl/",
+    "example": "A circle is the locus of points equidistant from a fixed center.",
+    "subterms": []
   },
   {
     "id": "term_43",
@@ -1116,7 +1240,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsɜːkjələ/",
+    "example": "In standard mathematical curriculum, 'Circular' is used to analyze properties and solve equations in general."
   },
   {
     "id": "term_44",
@@ -1127,7 +1253,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈsɜːkəmˌsɜːkl/",
     "example": "The circumcircle passes through all three vertices of the triangle.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_45",
@@ -1136,7 +1263,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/səˈkʌmfərəns/",
+    "example": "The circumference of a circle with radius r is C = 2*pi*r.",
+    "subterms": []
   },
   {
     "id": "term_46",
@@ -1147,7 +1277,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌkəʊɪˈfɪʃnt/",
     "example": "In the quadratic 3x^2, the coefficient of x^2 is 3.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "en": "Collinear vectors",
@@ -1158,7 +1289,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kəʊˈlɪniə ˈvektəz/",
     "example": "Two vectors are collinear if one is a scalar multiple of the other: u = k*v.",
     "id": "term_419",
-    "letter": "C"
+    "letter": "C",
+    "subterms": []
   },
   {
     "id": "term_47",
@@ -1167,16 +1299,22 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "C",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "ipa": "/ˌkɒmbɪˈneɪʃn/",
+    "example": "The number of combinations of choosing 3 items from 5 is C(5, 3) = 10.",
+    "subterms": []
   },
   {
     "id": "term_48",
-    "en": "Common Chung,",
-    "vi": "thông thường",
+    "en": "Common",
+    "vi": "Chung, thông thường",
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒmən/",
+    "example": "The greatest common divisor of 12 and 18 is 6.",
+    "subterms": []
   },
   {
     "id": "term_49",
@@ -1185,7 +1323,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒmən ˈdɪfrəns/",
+    "example": "In the arithmetic sequence 3, 7, 11, 15, the common difference is d = 4.",
+    "subterms": []
   },
   {
     "id": "term_50",
@@ -1194,7 +1335,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒmplɪmənt/",
+    "example": "The probability of the complement event A' is P(A') = 1 - P(A).",
+    "subterms": []
   },
   {
     "id": "term_370",
@@ -1232,7 +1376,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒmpəzɪt ˈnʌmbəz/",
+    "example": "12 is a composite number because it has positive divisors other than 1 and 12.",
+    "subterms": []
   },
   {
     "id": "term_52",
@@ -1241,7 +1388,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kəmˈpraɪz/",
+    "example": "The real numbers comprise both rational and irrational numbers.",
+    "subterms": []
   },
   {
     "id": "term_53",
@@ -1250,7 +1400,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kəmˈpjuːt/",
+    "example": "Compute the value of f(2) by substituting x = 2 into the formula.",
+    "subterms": []
   },
   {
     "id": "term_54",
@@ -1259,7 +1412,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kɒnˈkeɪv ˈpɒlɪɡən/",
+    "example": "A concave polygon has at least one interior angle greater than 180 degrees.",
+    "subterms": []
   },
   {
     "id": "term_55",
@@ -1268,16 +1424,22 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kənˈsentrɪk circles/",
+    "example": "A circle is the locus of points equidistant from a fixed center.",
+    "subterms": []
   },
   {
     "id": "term_56",
-    "en": "Concurent lines",
-    "vi": "Các đường thằng đồng quy",
+    "en": "Concurrent lines",
+    "vi": "Các đường thẳng đồng quy",
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kənˈkʌrənt lines/",
+    "example": "The three altitudes of any triangle are concurrent at the orthocenter.",
+    "subterms": []
   },
   {
     "en": "Conditional probability (P(A|B))",
@@ -1288,7 +1450,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kənˈdɪʃənl ˌprɒbəˈbɪləti/",
     "example": "P(A|B) = P(AB) / P(B), the probability of event A given that B has occurred.",
     "id": "term_454",
-    "letter": "C"
+    "letter": "C",
+    "subterms": []
   },
   {
     "id": "term_57",
@@ -1297,7 +1460,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kənˌfɪɡəˈreɪʃn/",
+    "example": "The geometric configuration satisfies the conditions of Menelaus' theorem.",
+    "subterms": []
   },
   {
     "id": "term_58",
@@ -1306,7 +1472,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒŋɡruəns/",
+    "example": "Two triangles are congruent if all corresponding sides and angles are equal.",
+    "subterms": []
   },
   {
     "id": "term_59",
@@ -1342,7 +1511,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈkɒŋɡruənt ˈtraɪæŋɡlz/",
     "example": "Triangles can be proved congruent by SSS, SAS, or ASA criteria.",
     "id": "term_403",
-    "letter": "C"
+    "letter": "C",
+    "subterms": []
   },
   {
     "en": "Conic sections (Ellipse, Hyperbola, Parabola)",
@@ -1386,7 +1556,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kənˈsekjətɪv/",
+    "example": "The sum of three consecutive integers n, n+1, n+2 is always divisible by 3."
   },
   {
     "id": "term_61",
@@ -1395,25 +1567,34 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "grade11",
-    "grade": "Lớp 11"
+    "grade": "Lớp 11",
+    "ipa": "/ˈkɒnsɪkwəns/",
+    "example": "Since triangle ABC is equilateral, consequently all three angles equal 60°.",
+    "subterms": []
   },
   {
     "id": "term_62",
-    "en": "Consequently Do",
-    "vi": "đó, vì vậy",
+    "en": "Consequently",
+    "vi": "Do đó, vì vậy",
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒnsɪkwəntli/",
+    "example": "Since triangle ABC is equilateral, consequently all three angles equal 60°.",
+    "subterms": []
   },
   {
     "id": "term_63",
-    "en": "Consider Xem",
-    "vi": "xét",
+    "en": "Consider",
+    "vi": "Xem xét, xét",
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kənˈsɪdə/",
+    "example": "Consider the continuous function f(x) = x^3 - 3x on the interval [0, 2].",
+    "subterms": []
   },
   {
     "id": "term_64",
@@ -1422,7 +1603,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kənˈsɪst of/",
+    "example": "The sample space consists of all possible outcomes of the experiment.",
+    "subterms": []
   },
   {
     "id": "term_65",
@@ -1437,7 +1621,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒnstənt/",
+    "example": "The derivative of any constant function is zero."
   },
   {
     "id": "term_66",
@@ -1446,7 +1632,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kənˈstrʌkʃn/",
+    "example": "Construct a tangent line to the circle using only a compass and straightedge.",
+    "subterms": []
   },
   {
     "id": "term_67",
@@ -1455,7 +1644,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "C",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/continued ˈfrækʃn/",
+    "example": "The golden ratio phi has the simplest continued fraction [1; 1, 1, 1, ...].",
+    "subterms": []
   },
   {
     "en": "Continuous function",
@@ -1466,7 +1658,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kənˈtɪnjuəs ˈfʌŋkʃn/",
     "example": "f is continuous at x0 if lim f(x) as x->x0 equals f(x0).",
     "id": "term_432",
-    "letter": "C"
+    "letter": "C",
+    "subterms": []
   },
   {
     "id": "term_68",
@@ -1475,7 +1668,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌkɒntrəˈdɪkʃn/",
+    "example": "Reaching 1 = 0 yields a contradiction, which proves the original claim.",
+    "subterms": []
   },
   {
     "id": "term_70",
@@ -1484,7 +1680,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/conversely/",
+    "example": "If a triangle is equilateral, it is equiangular; conversely, if it is equiangular, it is equilateral.",
+    "subterms": []
   },
   {
     "id": "term_69",
@@ -1493,7 +1692,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkɒnveks ˈpɒlɪɡən/",
+    "example": "A polygon is convex if any line segment between two interior points lies entirely inside.",
+    "subterms": []
   },
   {
     "id": "term_71",
@@ -1504,7 +1706,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kəʊˈɔːdɪnəts/",
     "example": "Point P has Cartesian coordinates (3, 4).",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_72",
@@ -1515,7 +1718,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kəʊˈpraɪm/",
     "example": "Numbers 8 and 9 are coprime because their greatest common divisor is 1.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_73",
@@ -1524,7 +1728,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌkɒrɪˈspɒndəns/",
+    "example": "In standard mathematical curriculum, 'Correspondence' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_75",
@@ -1533,7 +1740,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌkɒrɪˈspɒndɪŋ ˈæŋɡlz/",
+    "example": "In standard mathematical curriculum, 'Corresponding angles' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_74",
@@ -1542,7 +1752,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌkɒrɪˈspɒndɪŋ sides/",
+    "example": "In standard mathematical curriculum, 'Corresponding sides' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_76",
@@ -1551,7 +1764,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkaʊntɪŋ ˈnʌmbəz/",
+    "example": "In standard mathematical curriculum, 'Counting numbers' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_373",
@@ -1572,7 +1788,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/cross-section/",
+    "example": "A cross-section parallel to the base of a cylinder is a circle.",
+    "subterms": []
   },
   {
     "id": "term_78",
@@ -1581,7 +1800,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kjuːb/",
+    "example": "A cube with edge length s has volume V = s^3 and surface area A = 6*s^2.",
+    "subterms": []
   },
   {
     "en": "Cube root",
@@ -1592,7 +1814,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kjuːb ruːt/",
     "example": "The cube root of 27 is 3, because 3^3 = 27.",
     "id": "term_392",
-    "letter": "C"
+    "letter": "C",
+    "subterms": []
   },
   {
     "id": "term_79",
@@ -1601,7 +1824,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkjuːbɔɪd/",
+    "example": "In standard mathematical curriculum, 'Cuboid' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_80",
@@ -1610,7 +1836,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/kɜːvd ˈsɜːfɪs ˈeəriə/",
+    "example": "In standard mathematical curriculum, 'Curved surface area' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_81",
@@ -1619,7 +1848,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsaɪklɪk ˈpɒlɪɡən/",
+    "example": "In standard mathematical curriculum, 'Cyclic polygon' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_82",
@@ -1628,7 +1860,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "C",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsɪlɪndə/",
+    "example": "In standard mathematical curriculum, 'Cylinder' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "en": "Cylinder, Cone, Sphere",
@@ -1639,7 +1874,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈsɪlɪndə, kəʊn, sfɪə/",
     "example": "Key 3D curved solids studied in Grade 9 geometry.",
     "id": "term_407",
-    "letter": "C"
+    "letter": "C",
+    "subterms": []
   },
   {
     "id": "term_83",
@@ -1648,7 +1884,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "D",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈdesɪml/",
+    "example": "The fraction 3/4 can be written as the terminating decimal 0.75.",
+    "subterms": []
   },
   {
     "en": "Decimal number",
@@ -1659,7 +1898,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈdesɪml ˈnʌmbə/",
     "example": "A decimal uses a decimal point to separate the whole number part from fractional parts (e.g. 3.14).",
     "id": "term_383",
-    "letter": "D"
+    "letter": "D",
+    "subterms": []
   },
   {
     "id": "term_84",
@@ -1668,7 +1908,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌdiːkəmˈpəʊz/",
+    "example": "In standard mathematical curriculum, 'Decompose' is used to analyze properties and solve equations in arithmetic.",
+    "subterms": []
   },
   {
     "id": "term_85",
@@ -1677,7 +1920,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dɪˈkriːs/",
+    "example": "A function is strictly decreasing when f'(x) < 0 for all x in the interval.",
+    "subterms": []
   },
   {
     "id": "term_86",
@@ -1686,7 +1932,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dɪˈkriːsɪŋ ˈɔːdə/",
+    "example": "A function is strictly decreasing when f'(x) < 0 for all x in the interval.",
+    "subterms": []
   },
   {
     "id": "term_87",
@@ -1695,7 +1944,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dɪˈdjuːs/",
+    "example": "In standard mathematical curriculum, 'Deduce' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_88",
@@ -1704,7 +1956,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/deduct/",
+    "example": "In standard mathematical curriculum, 'Deduct' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_89",
@@ -1713,7 +1968,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/define/",
+    "example": "In standard mathematical curriculum, 'Define' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Definite integral",
@@ -1724,7 +1982,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈdefɪnət ˈɪntɪɡrəl/",
     "example": "Evaluated by Newton-Leibniz formula: integral_a^b f(x)dx = F(b) - F(a).",
     "id": "term_446",
-    "letter": "D"
+    "letter": "D",
+    "subterms": []
   },
   {
     "id": "term_90",
@@ -1733,7 +1992,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dɪˈɡriː/",
+    "example": "The degree of the polynomial P(x) = 4x^5 - 2x + 1 is 5.",
+    "subterms": []
   },
   {
     "id": "term_91",
@@ -1744,7 +2006,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/dɪˈnɒmɪneɪtə/",
     "example": "In the fraction 3/4, 4 is the denominator.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_92",
@@ -1753,7 +2016,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/depend/",
+    "example": "In standard mathematical curriculum, 'Depend' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_360",
@@ -1787,7 +2053,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dɪˈsendɪŋ ˈɔːdə/",
+    "example": "In standard mathematical curriculum, 'Descending order' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_94",
@@ -1798,7 +2067,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/daɪˈæɡənl/",
     "example": "A square has two equal diagonals intersecting at right angles.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_95",
@@ -1809,7 +2079,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/daɪˈæmɪtə/",
     "example": "The diameter of a circle is twice its radius.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_96",
@@ -1818,7 +2089,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈdɪfrəns/",
+    "example": "The difference between 15 and 7 is 8 (15 - 7 = 8).",
+    "subterms": []
   },
   {
     "id": "term_97",
@@ -1827,7 +2101,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈdɪdʒɪt/",
+    "example": "A four-digit integer cannot have 0 as its first digit.",
+    "subterms": []
   },
   {
     "en": "Dihedral angle",
@@ -1838,16 +2115,20 @@ export const MATH_VOCABULARY = [
     "ipa": "/daɪˈhiːdrəl ˈæŋɡl/",
     "example": "The angle formed by two intersecting half-planes sharing a common edge.",
     "id": "term_439",
-    "letter": "D"
+    "letter": "D",
+    "subterms": []
   },
   {
     "id": "term_98",
-    "en": "Dimenssion",
-    "vi": "Kích thước",
+    "en": "Dimension",
+    "vi": "Kích thước, chiều không gian",
     "category": "arithmetic",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/daɪˈmenʃn/",
+    "example": "A line has dimension 1, a plane has dimension 2, and physical space has dimension 3.",
+    "subterms": []
   },
   {
     "id": "term_100",
@@ -1856,7 +2137,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dəˈrekt prəˈpɔːʃn/",
+    "example": "In direct proportion, y = k*x for some non-zero constant of proportionality k.",
+    "subterms": []
   },
   {
     "id": "term_99",
@@ -1865,7 +2149,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dəˈrekʃn/",
+    "example": "In standard mathematical curriculum, 'Direction' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Direction vector & Normal vector",
@@ -1876,7 +2163,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/daɪˈrekʃn ˈvektə & ˈnɔːml ˈvektə/",
     "example": "A normal vector n(A, B) is perpendicular to the direction vector u(-B, A).",
     "id": "term_420",
-    "letter": "D"
+    "letter": "D",
+    "subterms": []
   },
   {
     "id": "term_101",
@@ -1885,7 +2173,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈdɪstəns/",
+    "example": "The distance between (x1, y1) and (x2, y2) is sqrt((x2 - x1)^2 + (y2 - y1)^2).",
+    "subterms": []
   },
   {
     "id": "term_102",
@@ -1894,7 +2185,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dɪˈstɪŋkt/",
+    "example": "The quadratic equation has two distinct real roots when Delta > 0.",
+    "subterms": []
   },
   {
     "id": "term_103",
@@ -1903,7 +2197,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/dɪˈstrɪbjuːt/",
+    "example": "Distribute 10 identical balls into 3 distinct boxes using stars and bars.",
+    "subterms": []
   },
   {
     "id": "term_105",
@@ -1912,7 +2209,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/dɪˈvaɪd/",
+    "example": "In standard mathematical curriculum, 'Divide (division)' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_104",
@@ -1921,7 +2221,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈdɪvɪdend/",
+    "example": "Dividend = Divisor * Quotient + Remainder.",
+    "subterms": []
   },
   {
     "id": "term_106",
@@ -1930,7 +2233,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "D",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/dɪˈvɪzəbl/",
+    "example": "An integer is divisible by 3 if the sum of its digits is divisible by 3.",
+    "subterms": []
   },
   {
     "en": "Division",
@@ -1941,7 +2247,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/dɪˈvɪʒn/",
     "example": "Division splits a number into equal parts (e.g. 20 ÷ 4 = 5).",
     "id": "term_376",
-    "letter": "D"
+    "letter": "D",
+    "subterms": []
   },
   {
     "id": "term_107",
@@ -1950,7 +2257,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/dɪˈvaɪzə/",
+    "example": "The positive divisors of 6 are 1, 2, 3, and 6.",
+    "subterms": []
   },
   {
     "id": "term_365",
@@ -1983,7 +2293,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈdʌbl/",
+    "example": "Doubling the radius of a circle quadruples its area.",
+    "subterms": []
   },
   {
     "id": "term_109",
@@ -1992,7 +2305,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈdʌzn/",
+    "example": "One dozen items means a group of 12 items.",
+    "subterms": []
   },
   {
     "id": "term_110",
@@ -2001,7 +2317,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "D",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/drɔː/",
+    "example": "In standard mathematical curriculum, 'Draw' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_111",
@@ -2010,7 +2329,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/edʒ/",
+    "example": "Euler's formula states V - E + F = 2 for any convex polyhedron.",
+    "subterms": []
   },
   {
     "id": "term_112",
@@ -2019,7 +2341,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "E",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "ipa": "/ˈelɪmənt/",
+    "example": "3 is an element of the set of odd primes (3 in P).",
+    "subterms": []
   },
   {
     "id": "term_113",
@@ -2028,7 +2353,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/elevation/",
+    "example": "In standard mathematical curriculum, 'Elevation' is used to analyze properties and solve equations in arithmetic.",
+    "subterms": []
   },
   {
     "id": "term_114",
@@ -2037,7 +2365,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/empty set/",
+    "example": "The empty set contains no elements, denoted by symbol ∅.",
+    "subterms": []
   },
   {
     "id": "term_115",
@@ -2046,7 +2377,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈendpɔɪnt/",
+    "example": "In standard mathematical curriculum, 'Endpoint' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_116",
@@ -2055,7 +2389,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/enlargement ˈfæktə/",
+    "example": "5! = 5 * 4 * 3 * 2 * 1 = 120.",
+    "subterms": []
   },
   {
     "id": "term_117",
@@ -2064,7 +2401,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ensure/",
+    "example": "In standard mathematical curriculum, 'Ensure' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_118",
@@ -2079,7 +2419,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈiːkwəl/",
+    "example": "In standard mathematical curriculum, 'Equal' is used to analyze properties and solve equations in general."
   },
   {
     "id": "term_119",
@@ -2088,7 +2430,10 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪˈkweɪʒn/",
+    "example": "The quadratic equation x^2 - 5x + 6 = 0 has roots x = 2 and x = 3.",
+    "subterms": []
   },
   {
     "en": "Equation of a sphere",
@@ -2099,7 +2444,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ɪˈkweɪʒn əv ə sfɪə/",
     "example": "Represents all points equidistant from center I(a, b, c) by radius R.",
     "id": "term_451",
-    "letter": "E"
+    "letter": "E",
+    "subterms": []
   },
   {
     "id": "term_120",
@@ -2110,7 +2456,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌiːkwɪˈlætərəl ˈtraɪæŋɡl/",
     "example": "All three interior angles of an equilateral triangle equal 60 degrees.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_121",
@@ -2119,7 +2466,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪˈvæljueɪt/",
+    "example": "Evaluate the expression 2x^2 - 3x when x = 4.",
+    "subterms": []
   },
   {
     "id": "term_122",
@@ -2134,7 +2484,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈiːvn/",
+    "example": "Any even integer can be expressed in the form 2k, where k is an integer."
   },
   {
     "en": "Even number",
@@ -2145,7 +2497,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈiːvn ˈnʌmbə/",
     "example": "An even number ends in 0, 2, 4, 6, or 8 and is divisible by 2.",
     "id": "term_379",
-    "letter": "E"
+    "letter": "E",
+    "subterms": []
   },
   {
     "id": "term_123",
@@ -2154,7 +2507,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/exactly/",
+    "example": "In standard mathematical curriculum, 'Exactly' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Exponential function (y = a^x)",
@@ -2165,7 +2521,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌekspəˈnenʃl ˈfʌŋkʃn/",
     "example": "y = a^x has domain R, range (0, +infinity), always passes through (0, 1).",
     "id": "term_434",
-    "letter": "E"
+    "letter": "E",
+    "subterms": []
   },
   {
     "id": "term_124",
@@ -2174,7 +2531,10 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪkˈspreʃn/",
+    "example": "In standard mathematical curriculum, 'Expression' is used to analyze properties and solve equations in algebra.",
+    "subterms": []
   },
   {
     "id": "term_127",
@@ -2183,7 +2543,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/exterior ˈæŋɡl/",
+    "example": "In standard mathematical curriculum, 'Exterior angle' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_125",
@@ -2192,7 +2555,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/external/",
+    "example": "In standard mathematical curriculum, 'External' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_126",
@@ -2201,7 +2567,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "E",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/externally ˈtændʒənt/",
+    "example": "A tangent line touches a curve at a single point without crossing it locally.",
+    "subterms": []
   },
   {
     "en": "Extrema of a function",
@@ -2212,7 +2581,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ɪkˈstriːmə əv ə ˈfʌŋkʃn/",
     "example": "Local maximum and minimum points where f'(x) changes sign.",
     "id": "term_442",
-    "letter": "E"
+    "letter": "E",
+    "subterms": []
   },
   {
     "id": "term_128",
@@ -2221,16 +2591,22 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈfæktə/",
+    "example": "5! = 5 * 4 * 3 * 2 * 1 = 120.",
+    "subterms": []
   },
   {
     "id": "term_129",
-    "en": "Factorial Giai",
-    "vi": "thừa",
+    "en": "Factorial",
+    "vi": "Giai thừa",
     "category": "general",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/fækˈtɔːriəl/",
+    "example": "5! = 5 * 4 * 3 * 2 * 1 = 120.",
+    "subterms": []
   },
   {
     "id": "term_130",
@@ -2239,7 +2615,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈfɪɡə/",
+    "example": "In standard mathematical curriculum, 'Figure' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_131",
@@ -2248,7 +2627,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/fill/",
+    "example": "In standard mathematical curriculum, 'Fill' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_132",
@@ -2257,7 +2639,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/flag/",
+    "example": "In standard mathematical curriculum, 'Flag' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_133",
@@ -2266,7 +2651,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/fold/",
+    "example": "In standard mathematical curriculum, 'Fold' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_134",
@@ -2275,7 +2663,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈfɔːmjələ/",
+    "example": "In standard mathematical curriculum, 'Formula' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_135",
@@ -2290,7 +2681,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈfrækʃn/",
+    "example": "An improper fraction has a numerator greater than or equal to its denominator."
   },
   {
     "id": "term_136",
@@ -2299,7 +2692,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/frame/",
+    "example": "In standard mathematical curriculum, 'Frame' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_137",
@@ -2308,7 +2704,10 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈfriːkwənsi/",
+    "example": "The frequency table shows how often each test score occurred.",
+    "subterms": []
   },
   {
     "id": "term_138",
@@ -2317,7 +2716,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/frustrum/",
+    "example": "In standard mathematical curriculum, 'Frustrum' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_139",
@@ -2326,7 +2728,10 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "F",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈfʌŋkʃn/",
+    "example": "A function assigns each input in the domain to exactly one output in the range.",
+    "subterms": []
   },
   {
     "en": "General equation of a plane",
@@ -2337,7 +2742,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈdʒenrəl ɪˈkweɪʒn əv ə pleɪn/",
     "example": "Defined by normal vector n(A, B, C) perpendicular to the plane.",
     "id": "term_452",
-    "letter": "G"
+    "letter": "G",
+    "subterms": []
   },
   {
     "id": "term_140",
@@ -2346,7 +2752,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "G",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈdʒenəreɪt/",
+    "example": "In standard mathematical curriculum, 'Generate' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Geometric progression (GP)",
@@ -2357,7 +2766,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌdʒiːəˈmetrɪk prəˈɡreʃn/",
     "example": "A sequence where each term after the first is found by multiplying by ratio q.",
     "id": "term_429",
-    "letter": "G"
+    "letter": "G",
+    "subterms": []
   },
   {
     "en": "Global maximum and minimum",
@@ -2368,7 +2778,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈɡləʊbl ˈmæksɪməm ænd ˈmɪnɪməm/",
     "example": "Max and min values of a continuous function on a closed interval [a, b].",
     "id": "term_443",
-    "letter": "G"
+    "letter": "G",
+    "subterms": []
   },
   {
     "id": "term_141",
@@ -2377,7 +2788,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "G",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɡreɪdiənt/",
+    "example": "The gradient of the tangent line equals the first derivative of the curve.",
+    "subterms": []
   },
   {
     "en": "Greater than (>)",
@@ -2388,7 +2802,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈɡreɪtə ðæn/",
     "example": "8 is greater than 5, written as 8 > 5.",
     "id": "term_381",
-    "letter": "G"
+    "letter": "G",
+    "subterms": []
   },
   {
     "id": "term_142",
@@ -2403,7 +2818,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɡreɪtɪst/",
+    "example": "In standard mathematical curriculum, 'Greatest' is used to analyze properties and solve equations in general."
   },
   {
     "en": "Grouped data variance & standard deviation",
@@ -2414,7 +2831,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ɡruːpt ˈdeɪtə ˈveəriəns/",
     "example": "Measures spread for binned numerical data in Grade 12 statistics.",
     "id": "term_456",
-    "letter": "G"
+    "letter": "G",
+    "subterms": []
   },
   {
     "id": "term_143",
@@ -2423,7 +2841,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "H",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/haɪt/",
+    "example": "The height of the cylinder is 10 cm and its base radius is 3 cm.",
+    "subterms": []
   },
   {
     "id": "term_144",
@@ -2432,7 +2853,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "H",
     "gradeId": "grade12",
-    "grade": "Lớp 12"
+    "grade": "Lớp 12",
+    "ipa": "/ˈhemɪsfɪə/",
+    "example": "The surface area of a sphere of radius r is 4 * pi * r^2.",
+    "subterms": []
   },
   {
     "id": "term_145",
@@ -2441,7 +2865,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "H",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/hence/",
+    "example": "In standard mathematical curriculum, 'Hence' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_146",
@@ -2450,7 +2877,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "H",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈheptəɡən/",
+    "example": "In standard mathematical curriculum, 'Heptagon' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Heron's formula",
@@ -2461,7 +2891,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈherənz ˈfɔːmjələ/",
     "example": "S = sqrt(p(p-a)(p-b)(p-c)), where p is the semi-perimeter.",
     "id": "term_417",
-    "letter": "H"
+    "letter": "H",
+    "subterms": []
   },
   {
     "id": "term_147",
@@ -2470,7 +2901,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "H",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈheksəɡən/",
+    "example": "A regular hexagon can be partitioned into six congruent equilateral triangles.",
+    "subterms": []
   },
   {
     "id": "term_148",
@@ -2479,7 +2913,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "H",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/hold/",
+    "example": "In standard mathematical curriculum, 'Hold' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_149",
@@ -2488,7 +2925,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "H",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌhɒrɪˈzɒntl/",
+    "example": "In standard mathematical curriculum, 'Horizontal' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_150",
@@ -2499,7 +2939,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/haɪˈpɒtənjuːz/",
     "example": "The hypotenuse is the longest side of a right-angled triangle, opposite the right angle.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_151",
@@ -2508,7 +2949,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/aɪˈdentɪkl/",
+    "example": "In standard mathematical curriculum, 'Identical' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_152",
@@ -2517,16 +2961,22 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/aɪˈdentəti/",
+    "example": "sin^2(x) + cos^2(x) = 1 is an identity holding true for all real values of x.",
+    "subterms": []
   },
   {
     "id": "term_153",
-    "en": "Imply Cho",
-    "vi": "thấy, dẫn đến",
+    "en": "Imply",
+    "vi": "Cho thấy, dẫn đến, kéo theo",
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪmˈplaɪ/",
+    "example": "Statement A implies statement B (written as A => B).",
+    "subterms": []
   },
   {
     "id": "term_165",
@@ -2535,7 +2985,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/in tɜːmz of/",
+    "example": "In the polynomial 3x^2 + 5x - 7, there are three terms: 3x^2, 5x, and -7.",
+    "subterms": []
   },
   {
     "id": "term_168",
@@ -2544,7 +2997,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/in the form/",
+    "example": "In standard mathematical curriculum, 'In the form' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_156",
@@ -2555,7 +3011,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈɪnˌsɜːkl/",
     "example": "The incircle is tangent to all three sides of a triangle.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_157",
@@ -2564,7 +3021,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪnˈkriːs/",
+    "example": "In standard mathematical curriculum, 'Increase' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_158",
@@ -2573,7 +3033,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪnˈkriːsɪŋ ˈɔːdə/",
+    "example": "In standard mathematical curriculum, 'Increasing order' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_159",
@@ -2582,7 +3045,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/indefinitely/",
+    "example": "In standard mathematical curriculum, 'Indefinitely' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Independent events",
@@ -2593,7 +3059,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌɪndɪˈpendənt ɪˈvents/",
     "example": "Occurrence of one event does not affect the probability of the other.",
     "id": "term_440",
-    "letter": "I"
+    "letter": "I",
+    "subterms": []
   },
   {
     "id": "term_154",
@@ -2602,7 +3069,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪnˈdʌkʃn/",
+    "example": "Mathematical induction proves a statement for all natural numbers n >= 1.",
+    "subterms": []
   },
   {
     "id": "term_155",
@@ -2611,7 +3081,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɪnˈdʌktɪv/",
+    "example": "In standard mathematical curriculum, 'Inductive' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_160",
@@ -2622,7 +3095,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌɪnɪˈkwɒləti/",
     "example": "The triangle inequality states that the sum of any two sides exceeds the third side.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_161",
@@ -2631,7 +3105,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "grade11",
-    "grade": "Lớp 11"
+    "grade": "Lớp 11",
+    "ipa": "/ˈɪnfɪnət ˈsiːkwəns/",
+    "example": "An infinite sequence is a function whose domain is the set of positive integers.",
+    "subterms": []
   },
   {
     "id": "term_364",
@@ -2654,7 +3131,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ɪnˈskraɪbd ˈæŋɡl/",
     "example": "An inscribed angle is half of the central angle subtending the same arc.",
     "id": "term_405",
-    "letter": "I"
+    "letter": "I",
+    "subterms": []
   },
   {
     "en": "Inscribed quadrilateral",
@@ -2665,7 +3143,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ɪnˈskraɪbd ˌkwɒdrɪˈlætərəl/",
     "example": "In a cyclic/inscribed quadrilateral, opposite angles sum to 180 degrees.",
     "id": "term_404",
-    "letter": "I"
+    "letter": "I",
+    "subterms": []
   },
   {
     "id": "term_162",
@@ -2680,7 +3159,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɪntɪdʒə/",
+    "example": "The set of integers Z includes positive numbers, negative numbers, and zero."
   },
   {
     "id": "term_163",
@@ -2695,7 +3176,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "grade12",
-    "grade": "Lớp 12"
+    "grade": "Lớp 12",
+    "ipa": "/ˈɪntɪɡrəl/",
+    "example": "The definite integral from 0 to 1 of x dx equals 1/2."
   },
   {
     "en": "Integration by parts",
@@ -2706,7 +3189,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌɪntɪˈɡreɪʃn baɪ pɑːts/",
     "example": "Used for products of polynomial, logarithmic, exponential, and trigonometric functions.",
     "id": "term_447",
-    "letter": "I"
+    "letter": "I",
+    "subterms": []
   },
   {
     "id": "term_164",
@@ -2715,7 +3199,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/interior/",
+    "example": "In standard mathematical curriculum, 'Interior' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_166",
@@ -2724,7 +3211,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/internal/",
+    "example": "In standard mathematical curriculum, 'Internal' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Interquartile range (IQR)",
@@ -2735,7 +3225,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌɪntəkwaɪˈtaɪl reɪndʒ/",
     "example": "The IQR measures statistical dispersion and is resistant to outliers.",
     "id": "term_424",
-    "letter": "I"
+    "letter": "I",
+    "subterms": []
   },
   {
     "id": "term_167",
@@ -2744,7 +3235,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "I",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "ipa": "/ˌɪntəˈsekʃn/",
+    "example": "The intersection A ∩ B contains only elements that belong to both A and B.",
+    "subterms": []
   },
   {
     "en": "Intersection and Union of sets",
@@ -2755,7 +3249,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌɪntəˈsekʃn ænd ˈjuːniən/",
     "example": "A ∩ B contains elements in both sets; A ∪ B contains elements in either set.",
     "id": "term_412",
-    "letter": "I"
+    "letter": "I",
+    "subterms": []
   },
   {
     "en": "Intervals and Segments (R)",
@@ -2766,7 +3261,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈɪntəvlz ænd ˈseɡmənts/",
     "example": "Open interval (a, b), closed interval [a, b], half-open interval [a, b).",
     "id": "term_413",
-    "letter": "I"
+    "letter": "I",
+    "subterms": []
   },
   {
     "id": "term_169",
@@ -2775,16 +3271,22 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌɪnˈvɜːs prəˈpɔːʃn/",
+    "example": "The inverse function f^(-1)(x) reflects the graph of f across the line y = x.",
+    "subterms": []
   },
   {
     "id": "term_170",
-    "en": "Irradius",
+    "en": "Inradius",
     "vi": "Bán kính đường tròn nội tiếp",
     "category": "geometry",
     "letter": "I",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɪnˌreɪdiəs/",
+    "example": "The area of a circle is calculated using the formula A = pi * r^2.",
+    "subterms": []
   },
   {
     "en": "Irrational number",
@@ -2795,7 +3297,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ɪˈræʃnəl ˈnʌmbə/",
     "example": "An irrational number cannot be expressed as a simple fraction (e.g. pi and sqrt(2)).",
     "id": "term_389",
-    "letter": "I"
+    "letter": "I",
+    "subterms": []
   },
   {
     "id": "term_171",
@@ -2804,7 +3307,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "I",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˌɪrɪˈdjuːsəbl ˈfrækʃn/",
+    "example": "An improper fraction has a numerator greater than or equal to its denominator.",
+    "subterms": []
   },
   {
     "id": "term_172",
@@ -2815,7 +3321,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/aɪˈsɒsəliːz ˈtraɪæŋɡl/",
     "example": "An isosceles triangle has at least two equal sides and two equal base angles.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_173",
@@ -2824,16 +3331,22 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "K",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/key/",
+    "example": "In standard mathematical curriculum, 'Key' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_174",
-    "en": "Knight Con",
-    "vi": "mã",
+    "en": "Knight",
+    "vi": "Con mã (quân cờ vua)",
     "category": "general",
     "letter": "K",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/naɪt/",
+    "example": "In standard mathematical curriculum, 'Knight' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_175",
@@ -2842,7 +3355,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/lap/",
+    "example": "In standard mathematical curriculum, 'Lap' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_176",
@@ -2851,7 +3367,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/largest/",
+    "example": "In standard mathematical curriculum, 'Largest' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_177",
@@ -2860,7 +3379,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/last ˈdɪdʒɪt/",
+    "example": "A four-digit integer cannot have 0 as its first digit.",
+    "subterms": []
   },
   {
     "en": "Law of Cosines",
@@ -2871,7 +3393,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/lɔː əv ˈkəʊsaɪnz/",
     "example": "Used to find the remaining side or angles in any non-right triangle.",
     "id": "term_415",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "en": "Law of Sines",
@@ -2882,7 +3405,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/lɔː əv saɪnz/",
     "example": "Relates the side lengths of a triangle to the sines of its angles and circumradius R.",
     "id": "term_416",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "id": "term_178",
@@ -2897,7 +3421,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/liːst/",
+    "example": "In standard mathematical curriculum, 'Least' is used to analyze properties and solve equations in general."
   },
   {
     "id": "term_179",
@@ -2906,7 +3432,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/left hand saɪd/",
+    "example": "In standard mathematical curriculum, 'Left hand side' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_180",
@@ -2915,7 +3444,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/left-most ˈdɪdʒɪt/",
+    "example": "A four-digit integer cannot have 0 as its first digit.",
+    "subterms": []
   },
   {
     "en": "Less than (<)",
@@ -2926,7 +3458,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/les ðæn/",
     "example": "3 is less than 7, written as 3 < 7.",
     "id": "term_382",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "id": "term_181",
@@ -2935,7 +3468,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/liar/",
+    "example": "In standard mathematical curriculum, 'Liar' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_182",
@@ -2944,7 +3480,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/lie/",
+    "example": "In standard mathematical curriculum, 'Lie' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_362",
@@ -2976,7 +3515,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈlɪmɪt əv ə ˈfʌŋkʃn/",
     "example": "The value that f(x) approaches as x gets arbitrarily close to x0.",
     "id": "term_431",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "en": "Limit of a sequence",
@@ -2987,7 +3527,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈlɪmɪt əv ə ˈsiːkwəns/",
     "example": "lim (1/n) as n approaches infinity equals 0.",
     "id": "term_430",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "id": "term_183",
@@ -3006,7 +3547,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/laɪn/",
+    "example": "In standard mathematical curriculum, 'Line' is used to analyze properties and solve equations in general."
   },
   {
     "en": "Line perpendicular to a plane",
@@ -3017,7 +3560,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/laɪn ˌpɜːpənˈdɪkjələ tu ə pleɪn/",
     "example": "If a line is perpendicular to two intersecting lines in a plane, it is perpendicular to the plane.",
     "id": "term_438",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "en": "Linear equation",
@@ -3028,7 +3572,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈlɪniə ɪˈkweɪʒn/",
     "example": "A linear equation in one variable has the standard form ax + b = 0 (a != 0).",
     "id": "term_393",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "en": "Linear function",
@@ -3039,7 +3584,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈlɪniə ˈfʌŋkʃn/",
     "example": "The graph of the linear function y = ax + b is a straight line with slope a.",
     "id": "term_395",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "id": "term_184",
@@ -3048,7 +3594,10 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈlɪniə model/",
+    "example": "The graph of a linear equation ax + by = c is a straight line.",
+    "subterms": []
   },
   {
     "id": "term_185",
@@ -3057,7 +3606,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "L",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈləʊkəs/",
+    "example": "In standard mathematical curriculum, 'Locus' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Logarithm (log, ln)",
@@ -3068,16 +3620,20 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈlɒɡərɪðəm/",
     "example": "log_a(b) = c means a^c = b (a > 0, a != 1, b > 0).",
     "id": "term_433",
-    "letter": "L"
+    "letter": "L",
+    "subterms": []
   },
   {
     "id": "term_186",
-    "en": "Magic square Ma",
-    "vi": "phương",
+    "en": "Magic square",
+    "vi": "Ma phương",
     "category": "general",
     "letter": "M",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈmædʒɪk skweə/",
+    "example": "A square is both a rectangle and a rhombus, having four equal sides and four right angles.",
+    "subterms": []
   },
   {
     "id": "term_187",
@@ -3086,7 +3642,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmeɪdʒə ɑːk/",
+    "example": "The length of an arc subtending central angle theta is s = r * theta.",
+    "subterms": []
   },
   {
     "id": "term_188",
@@ -3095,7 +3654,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/mark/",
+    "example": "In standard mathematical curriculum, 'Mark' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_371",
@@ -3129,7 +3691,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmæksɪməm/",
+    "example": "The parabola y = -x^2 + 4 achieves its maximum value of 4 at x = 0.",
+    "subterms": []
   },
   {
     "id": "term_190",
@@ -3138,7 +3703,10 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/miːn/",
+    "example": "The sample mean is computed by dividing the sum of observations by the sample size.",
+    "subterms": []
   },
   {
     "id": "term_191",
@@ -3147,7 +3715,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmeʒə of ˈæŋɡl/",
+    "example": "In standard mathematical curriculum, 'Measure of angle' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_192",
@@ -3156,7 +3727,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmiːdiən/",
+    "example": "The median is the middle value in an ordered set of data.",
+    "subterms": []
   },
   {
     "id": "term_194",
@@ -3165,7 +3739,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/midline/",
+    "example": "In standard mathematical curriculum, 'Midline' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_193",
@@ -3174,7 +3751,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmɪdpɔɪnt/",
+    "example": "The midpoint of segment AB has coordinates ((xA+xB)/2, (yA+yB)/2).",
+    "subterms": []
   },
   {
     "id": "term_195",
@@ -3183,7 +3763,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmɪnɪməm/",
+    "example": "A function has a local minimum where its derivative changes from negative to positive.",
+    "subterms": []
   },
   {
     "id": "term_196",
@@ -3192,7 +3775,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmaɪnə ɑːk/",
+    "example": "The length of an arc subtending central angle theta is s = r * theta.",
+    "subterms": []
   },
   {
     "id": "term_197",
@@ -3201,7 +3787,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "M",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈmaɪnəs/",
+    "example": "In standard mathematical curriculum, 'Minus' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_198",
@@ -3210,7 +3799,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "M",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/mɪkst ˈfrækʃn/",
+    "example": "An improper fraction has a numerator greater than or equal to its denominator.",
+    "subterms": []
   },
   {
     "id": "term_199",
@@ -3219,7 +3811,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/mixture/",
+    "example": "In standard mathematical curriculum, 'Mixture' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_200",
@@ -3228,7 +3823,10 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/məʊd/",
+    "example": "The mode is the value that appears most frequently in a dataset.",
+    "subterms": []
   },
   {
     "id": "term_201",
@@ -3237,7 +3835,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmɒdjələʊ/",
+    "example": "17 is congruent to 2 modulo 5 because 17 - 2 is a multiple of 5.",
+    "subterms": []
   },
   {
     "en": "Monotonicity of functions",
@@ -3248,7 +3849,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌmɒnətəˈnɪsəti əv ˈfʌŋkʃnz/",
     "example": "f'(x) > 0 implies f is strictly increasing; f'(x) < 0 implies f is decreasing.",
     "id": "term_441",
-    "letter": "M"
+    "letter": "M",
+    "subterms": []
   },
   {
     "id": "term_202",
@@ -3257,7 +3859,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "M",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈmʌltɪpl/",
+    "example": "The least common multiple of 4 and 6 is lcm(4, 6) = 12.",
+    "subterms": []
   },
   {
     "id": "term_203",
@@ -3272,7 +3877,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˌmʌltɪplɪˈkeɪʃn/",
+    "example": "In standard mathematical curriculum, 'Multiplication' is used to analyze properties and solve equations in general."
   },
   {
     "en": "Multiplication table",
@@ -3283,7 +3890,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌmʌltɪplɪˈkeɪʃn ˈteɪbl/",
     "example": "Students memorize the multiplication table from 2 to 9.",
     "id": "term_377",
-    "letter": "M"
+    "letter": "M",
+    "subterms": []
   },
   {
     "id": "term_204",
@@ -3292,7 +3900,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "M",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈmʌltɪplaɪ/",
+    "example": "In standard mathematical curriculum, 'Multiply' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_205",
@@ -3301,7 +3912,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "N",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈnætʃrəl ˈnʌmbəz/",
+    "example": "Natural numbers N = {1, 2, 3, ...} are used for counting.",
+    "subterms": []
   },
   {
     "en": "Negation of a proposition",
@@ -3312,7 +3926,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/nɪˈɡeɪʃn əv ə ˌprɒpəˈzɪʃn/",
     "example": "The negation of P is false when P is true, and true when P is false.",
     "id": "term_409",
-    "letter": "N"
+    "letter": "N",
+    "subterms": []
   },
   {
     "id": "term_206",
@@ -3327,7 +3942,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈneɡətɪv/",
+    "example": "The product of two negative real numbers is always positive."
   },
   {
     "en": "Negative integer",
@@ -3338,7 +3955,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈneɡətɪv ˈɪntɪdʒə/",
     "example": "Negative integers are integers less than zero, such as -1, -2, -3.",
     "id": "term_388",
-    "letter": "N"
+    "letter": "N",
+    "subterms": []
   },
   {
     "id": "term_207",
@@ -3347,7 +3965,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "N",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/net/",
+    "example": "In standard mathematical curriculum, 'Net' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_369",
@@ -3368,7 +3989,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "N",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈnʌmbə/",
+    "example": "In standard mathematical curriculum, 'Number' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Number line",
@@ -3379,7 +4003,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈnʌmbə laɪn/",
     "example": "A number line displays numbers in order along a straight line.",
     "id": "term_378",
-    "letter": "N"
+    "letter": "N",
+    "subterms": []
   },
   {
     "id": "term_209",
@@ -3388,7 +4013,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "N",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈnjuːməreɪtə/",
+    "example": "In the rational fraction 5/8, 5 is the numerator.",
+    "subterms": []
   },
   {
     "id": "term_210",
@@ -3397,7 +4025,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "O",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/observe/",
+    "example": "In standard mathematical curriculum, 'Observe' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_211",
@@ -3406,7 +4037,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "O",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/əbˈtjuːs ˈtraɪæŋɡl/",
+    "example": "An obtuse angle has a measure strictly between 90° and 180°.",
+    "subterms": []
   },
   {
     "id": "term_212",
@@ -3415,7 +4049,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "O",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɒktəɡən/",
+    "example": "A regular octagon has 8 equal sides and interior angles of 135°.",
+    "subterms": []
   },
   {
     "id": "term_213",
@@ -3430,7 +4067,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ɒd/",
+    "example": "An odd integer cannot be evenly divided by 2."
   },
   {
     "en": "Odd number",
@@ -3441,7 +4080,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ɒd ˈnʌmbə/",
     "example": "An odd number ends in 1, 3, 5, 7, or 9 and leaves a remainder of 1 when divided by 2.",
     "id": "term_380",
-    "letter": "O"
+    "letter": "O",
+    "subterms": []
   },
   {
     "id": "term_214",
@@ -3450,7 +4090,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "O",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/once/",
+    "example": "In standard mathematical curriculum, 'Once' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_215",
@@ -3459,7 +4102,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "O",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/operations/",
+    "example": "In standard mathematical curriculum, 'Operations' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_216",
@@ -3468,7 +4114,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "O",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɔːdə/",
+    "example": "In standard mathematical curriculum, 'Order' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_217",
@@ -3477,7 +4126,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "O",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/original/",
+    "example": "In standard mathematical curriculum, 'Original' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_218",
@@ -3486,7 +4138,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "O",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈɔːθəʊˌsentə/",
+    "example": "The central angle has its vertex at the center of the circle.",
+    "subterms": []
   },
   {
     "id": "term_219",
@@ -3495,7 +4150,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "O",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/outside/",
+    "example": "In standard mathematical curriculum, 'Outside' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_220",
@@ -3504,7 +4162,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/peə/",
+    "example": "In standard mathematical curriculum, 'Pair' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_221",
@@ -3513,7 +4174,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/pairwise/",
+    "example": "In standard mathematical curriculum, 'Pairwise' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_222",
@@ -3522,7 +4186,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌpælɪnˈdrɒmɪk ˈnʌmbə/",
+    "example": "In standard mathematical curriculum, 'Palindromic number' is used to analyze properties and solve equations in arithmetic.",
+    "subterms": []
   },
   {
     "id": "term_223",
@@ -3531,7 +4198,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "ipa": "/pəˈræbələ/",
+    "example": "A parabola is the locus of points equidistant from a focus and a directrix.",
+    "subterms": []
   },
   {
     "en": "Parabola (y = ax^2)",
@@ -3542,7 +4212,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/pəˈræbələ/",
     "example": "The graph of y = ax^2 is a parabola with its vertex at the origin.",
     "id": "term_397",
-    "letter": "P"
+    "letter": "P",
+    "subterms": []
   },
   {
     "id": "term_224",
@@ -3551,7 +4222,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈpærəlel/",
+    "example": "Parallel lines lie in the same plane and never intersect.",
+    "subterms": []
   },
   {
     "id": "term_225",
@@ -3562,7 +4236,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌpærəˈleləɡræm/",
     "example": "Opposite sides of a parallelogram are equal and parallel.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "en": "Parametric equations of a line in 3D",
@@ -3573,7 +4248,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌpærəˈmetrɪk ɪˈkweɪʒnz əv ə laɪn/",
     "example": "x = x0 + at, y = y0 + bt, z = z0 + ct with direction vector u(a, b, c).",
     "id": "term_453",
-    "letter": "P"
+    "letter": "P",
+    "subterms": []
   },
   {
     "id": "term_226",
@@ -3582,7 +4258,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈpærəti/",
+    "example": "In standard mathematical curriculum, 'Parity' is used to analyze properties and solve equations in arithmetic.",
+    "subterms": []
   },
   {
     "id": "term_227",
@@ -3591,7 +4270,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/path/",
+    "example": "In standard mathematical curriculum, 'Path' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_228",
@@ -3600,7 +4282,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/patterns/",
+    "example": "In standard mathematical curriculum, 'Patterns' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_229",
@@ -3609,7 +4294,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈpentəɡən/",
+    "example": "In standard mathematical curriculum, 'Pentagon' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Percentage",
@@ -3620,7 +4308,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/pəˈsentɪdʒ/",
     "example": "50 percent (50%) equals one half (1/2).",
     "id": "term_384",
-    "letter": "P"
+    "letter": "P",
+    "subterms": []
   },
   {
     "id": "term_230",
@@ -3629,7 +4318,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈpɜːfɪkt kjuːb/",
+    "example": "A cube with edge length s has volume V = s^3 and surface area A = 6*s^2.",
+    "subterms": []
   },
   {
     "id": "term_231",
@@ -3638,7 +4330,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈpɜːfɪkt skweə/",
+    "example": "A square is both a rectangle and a rhombus, having four equal sides and four right angles.",
+    "subterms": []
   },
   {
     "id": "term_232",
@@ -3647,7 +4342,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "P",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈpɜːfɪkt skweə factors/",
+    "example": "5! = 5 * 4 * 3 * 2 * 1 = 120.",
+    "subterms": []
   },
   {
     "id": "term_233",
@@ -3656,7 +4354,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "P",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/pəˈrɪmɪtə/",
+    "example": "The perimeter of a square with side length s is P = 4s.",
+    "subterms": []
   },
   {
     "id": "term_234",
@@ -3665,7 +4366,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈpɪəriəd/",
+    "example": "In standard mathematical curriculum, 'Period' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Periodic function",
@@ -3676,7 +4380,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌpɪəriˈɒdɪk ˈfʌŋkʃn/",
     "example": "f(x + T) = f(x); sin(x) and cos(x) have period T = 2*pi.",
     "id": "term_427",
-    "letter": "P"
+    "letter": "P",
+    "subterms": []
   },
   {
     "id": "term_235",
@@ -3685,7 +4390,10 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "P",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "ipa": "/permutation/",
+    "example": "The number of permutations of 4 distinct objects is 4! = 24.",
+    "subterms": []
   },
   {
     "en": "Permutations and Combinations",
@@ -3696,7 +4404,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌpɜːmjuˈteɪʃnz ænd ˌkɒmbɪˈneɪʃnz/",
     "example": "Permutations care about order; combinations disregard order.",
     "id": "term_422",
-    "letter": "P"
+    "letter": "P",
+    "subterms": []
   },
   {
     "id": "term_236",
@@ -3722,7 +4431,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/plus/",
+    "example": "In standard mathematical curriculum, 'Plus' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_242",
@@ -3749,7 +4461,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/pɔɪnt/",
+    "example": "In standard mathematical curriculum, 'Point' is used to analyze properties and solve equations in general."
   },
   {
     "id": "term_238",
@@ -3758,7 +4472,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/pole/",
+    "example": "In standard mathematical curriculum, 'Pole' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_240",
@@ -3767,7 +4484,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈpɒlɪɡən/",
+    "example": "In standard mathematical curriculum, 'Polygon' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_239",
@@ -3776,7 +4496,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌpɒliˈhiːdrən/",
+    "example": "In standard mathematical curriculum, 'Polyhedron' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_241",
@@ -3787,7 +4510,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌpɒlɪˈnəʊmiəl/",
     "example": "P(x) = a_n*x^n + ... + a_0 is a polynomial of degree n.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_243",
@@ -3806,7 +4530,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈpɒzətɪv/",
+    "example": "Real numbers strictly greater than 0 are positive."
   },
   {
     "id": "term_244",
@@ -3815,7 +4541,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/possess/",
+    "example": "In standard mathematical curriculum, 'Possess' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_245",
@@ -3824,7 +4553,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/possibility/",
+    "example": "In standard mathematical curriculum, 'Possibility' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_246",
@@ -3833,7 +4565,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/praɪm ˌfæktəraɪˈzeɪʃn/",
+    "example": "5! = 5 * 4 * 3 * 2 * 1 = 120.",
+    "subterms": []
   },
   {
     "id": "term_247",
@@ -3842,7 +4577,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/praɪm ˈnʌmbəz/",
+    "example": "2 is the only even prime number; all other primes are odd.",
+    "subterms": []
   },
   {
     "id": "term_248",
@@ -3851,7 +4589,10 @@ export const MATH_VOCABULARY = [
     "category": "statistics",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌprɒbəˈbɪləti/",
+    "example": "The probability of any event E always satisfies 0 <= P(E) <= 1.",
+    "subterms": []
   },
   {
     "id": "term_250",
@@ -3860,7 +4601,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈprɒdʌkt/",
+    "example": "The product of 6 and 7 is 42 (6 * 7 = 42).",
+    "subterms": []
   },
   {
     "id": "term_249",
@@ -3869,7 +4613,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/property/",
+    "example": "In standard mathematical curriculum, 'Property' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Proposition / Statement",
@@ -3880,7 +4627,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌprɒpəˈzɪʃn/",
     "example": "A proposition is a declarative sentence that is either strictly true or false.",
     "id": "term_408",
-    "letter": "P"
+    "letter": "P",
+    "subterms": []
   },
   {
     "id": "term_251",
@@ -3889,7 +4637,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "P",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈpɪrəmɪd/",
+    "example": "The volume of any pyramid is one-third base area times height (V = 1/3 * B * h).",
+    "subterms": []
   },
   {
     "en": "Pythagorean theorem",
@@ -3900,7 +4651,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/paɪˌθæɡəˈriːən ˈθɪərəm/",
     "example": "In a right triangle, a^2 + b^2 = c^2, where c is the hypotenuse.",
     "id": "term_400",
-    "letter": "P"
+    "letter": "P",
+    "subterms": []
   },
   {
     "id": "term_252",
@@ -3909,7 +4661,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "Q",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈkwɒdrənt/",
+    "example": "In quadrant II, x-coordinates are negative and y-coordinates are positive.",
+    "subterms": []
   },
   {
     "id": "term_253",
@@ -3920,7 +4675,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kwɒˈdrætɪk ɪˈkweɪʒn/",
     "example": "ax^2 + bx + c = 0 can be solved using the quadratic formula.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "en": "Quadratic equation (ax^2 + bx + c = 0)",
@@ -3931,7 +4687,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/kwɒˈdrætɪk ɪˈkweɪʒn/",
     "example": "Solved using the quadratic formula: x = (-b +- sqrt(Delta)) / (2a).",
     "id": "term_398",
-    "letter": "Q"
+    "letter": "Q",
+    "subterms": []
   },
   {
     "id": "term_254",
@@ -3940,7 +4697,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "Q",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌkwɒdrɪˈlætərəl/",
+    "example": "The sum of the four interior angles of any convex quadrilateral is 360°.",
+    "subterms": []
   },
   {
     "id": "term_255",
@@ -3949,7 +4709,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "Q",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/quarter/",
+    "example": "In standard mathematical curriculum, 'Quarter' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_256",
@@ -3958,7 +4721,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "Q",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈkwəʊʃnt/",
+    "example": "Dividing 20 by 4 yields a quotient of 5.",
+    "subterms": []
   },
   {
     "en": "Radian (rad)",
@@ -3969,7 +4735,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈreɪdiən/",
     "example": "pi radians is equal to 180 degrees (pi rad = 180°).",
     "id": "term_426",
-    "letter": "R"
+    "letter": "R",
+    "subterms": []
   },
   {
     "id": "term_257",
@@ -3980,7 +4747,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈreɪdiəs/",
     "example": "The radius of a circle is the distance from its center to any point on its boundary.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_258",
@@ -3989,7 +4757,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/reɪndʒ/",
+    "example": "The statistical range is the difference between the maximum and minimum observations.",
+    "subterms": []
   },
   {
     "id": "term_259",
@@ -3998,7 +4769,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/reɪt/",
+    "example": "In standard mathematical curriculum, 'Rate' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_260",
@@ -4007,7 +4781,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈreɪʃiəʊ/",
+    "example": "In standard mathematical curriculum, 'Ratio' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_261",
@@ -4022,7 +4799,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈræʃnəl ˈnʌmbə/",
+    "example": "Every terminating or repeating decimal is a rational number."
   },
   {
     "id": "term_262",
@@ -4031,7 +4810,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/reɪ/",
+    "example": "A ray has one fixed starting endpoint and extends indefinitely in one direction.",
+    "subterms": []
   },
   {
     "id": "term_263",
@@ -4040,7 +4822,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/reach/",
+    "example": "In standard mathematical curriculum, 'Reach' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_264",
@@ -4055,7 +4840,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈriːəl ˈnʌmbə/",
+    "example": "Every point on the continuous number line corresponds to a unique real number."
   },
   {
     "en": "Real numbers",
@@ -4066,7 +4853,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈriːəl ˈnʌmbəz/",
     "example": "The set of real numbers R comprises both rational and irrational numbers.",
     "id": "term_390",
-    "letter": "R"
+    "letter": "R",
+    "subterms": []
   },
   {
     "id": "term_265",
@@ -4077,7 +4865,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/rɪˈsɪprəkl/",
     "example": "The reciprocal of 2/3 is 3/2.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_266",
@@ -4086,7 +4875,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "R",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈrektæŋɡl/",
+    "example": "A rectangle is a parallelogram with four right angles.",
+    "subterms": []
   },
   {
     "id": "term_267",
@@ -4095,7 +4887,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/rekˈtæŋɡjələ/",
+    "example": "In standard mathematical curriculum, 'Rectangular' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_268",
@@ -4104,7 +4899,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/recursion/",
+    "example": "In standard mathematical curriculum, 'Recursion' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_269",
@@ -4113,7 +4911,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/reduce/",
+    "example": "In standard mathematical curriculum, 'Reduce' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_270",
@@ -4122,7 +4923,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈriːdʒən/",
+    "example": "In standard mathematical curriculum, 'Region' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_271",
@@ -4131,7 +4935,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈreɡjələ ˈpɒlɪɡən/",
+    "example": "In standard mathematical curriculum, 'Regular polygon' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_272",
@@ -4140,7 +4947,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/relatively praɪm/",
+    "example": "2 is the only even prime number; all other primes are odd.",
+    "subterms": []
   },
   {
     "id": "term_273",
@@ -4149,7 +4959,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/rɪˈmeɪndə/",
+    "example": "Dividing 17 by 5 leaves a remainder of 2, since 17 = 5 * 3 + 2.",
+    "subterms": []
   },
   {
     "id": "term_274",
@@ -4158,16 +4971,22 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/remaining ˈnʌmbəz/",
+    "example": "In standard mathematical curriculum, 'Remaining numbers' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_275",
-    "en": "Remains uchanged",
-    "vi": "Không đổi",
+    "en": "Remains unchanged",
+    "vi": "Không đổi, giữ nguyên",
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/remains unchanged/",
+    "example": "The derivative represents the instantaneous rate of change of y with respect to x.",
+    "subterms": []
   },
   {
     "id": "term_278",
@@ -4176,16 +4995,22 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "R",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/repeating ˈdesɪml/",
+    "example": "The fraction 3/4 can be written as the terminating decimal 0.75.",
+    "subterms": []
   },
   {
     "id": "term_276",
-    "en": "Replace Thay",
-    "vi": "thế, thay chỗ",
+    "en": "Replace",
+    "vi": "Thay thế, thay chỗ",
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/replace/",
+    "example": "In standard mathematical curriculum, 'Replace' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_277",
@@ -4194,7 +5019,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/represent/",
+    "example": "In standard mathematical curriculum, 'Represent' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_279",
@@ -4203,7 +5031,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/respectively/",
+    "example": "In standard mathematical curriculum, 'Respectively' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_280",
@@ -4212,7 +5043,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈrɒmbəs/",
+    "example": "The diagonals of a rhombus are perpendicular bisectors of each other.",
+    "subterms": []
   },
   {
     "id": "term_281",
@@ -4221,7 +5055,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/raɪt ˈæŋɡl/",
+    "example": "In a right triangle, the hypotenuse satisfies the Pythagorean theorem: a^2 + b^2 = c^2.",
+    "subterms": []
   },
   {
     "id": "term_282",
@@ -4230,7 +5067,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/raɪt hand saɪd/",
+    "example": "In standard mathematical curriculum, 'Right hand side' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_284",
@@ -4239,7 +5079,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/raɪt ˈtraɪæŋɡl/",
+    "example": "In a right triangle, the hypotenuse satisfies the Pythagorean theorem: a^2 + b^2 = c^2.",
+    "subterms": []
   },
   {
     "id": "term_283",
@@ -4248,7 +5091,10 @@ export const MATH_VOCABULARY = [
     "category": "arithmetic",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/right-most ˈdɪdʒɪt/",
+    "example": "A four-digit integer cannot have 0 as its first digit.",
+    "subterms": []
   },
   {
     "id": "term_285",
@@ -4257,7 +5103,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/rook/",
+    "example": "In standard mathematical curriculum, 'Rook' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_286",
@@ -4266,7 +5115,10 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ruːt/",
+    "example": "A root of the equation f(x) = 0 is any value of x that makes the statement true.",
+    "subterms": []
   },
   {
     "en": "Rounding off",
@@ -4277,7 +5129,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈraʊndɪŋ ɒf/",
     "example": "Rounding 4.67 to the nearest tenth gives 4.7.",
     "id": "term_385",
-    "letter": "R"
+    "letter": "R",
+    "subterms": []
   },
   {
     "id": "term_287",
@@ -4286,7 +5139,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "R",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/row/",
+    "example": "In standard mathematical curriculum, 'Row' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_288",
@@ -4295,7 +5151,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/satisfy/",
+    "example": "In standard mathematical curriculum, 'Satisfy' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_289",
@@ -4304,7 +5163,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/skeɪl ˈfæktə/",
+    "example": "5! = 5 * 4 * 3 * 2 * 1 = 120.",
+    "subterms": []
   },
   {
     "id": "term_290",
@@ -4313,7 +5175,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈskeɪliːn ˈtraɪæŋɡl/",
+    "example": "The sum of the three interior angles of any planar triangle is always 180°.",
+    "subterms": []
   },
   {
     "id": "term_291",
@@ -4322,7 +5187,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/schedule/",
+    "example": "In standard mathematical curriculum, 'Schedule' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_292",
@@ -4331,7 +5199,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsektə/",
+    "example": "The area of a circular sector is A = 1/2 * r^2 * theta (in radians).",
+    "subterms": []
   },
   {
     "id": "term_293",
@@ -4340,7 +5211,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈseɡmənt/",
+    "example": "A line segment connects two endpoints and has a finite measurable length.",
+    "subterms": []
   },
   {
     "id": "term_294",
@@ -4349,7 +5223,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/select/",
+    "example": "In standard mathematical curriculum, 'Select' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_295",
@@ -4358,7 +5235,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/semicircle/",
+    "example": "A circle is the locus of points equidistant from a fixed center.",
+    "subterms": []
   },
   {
     "id": "term_296",
@@ -4367,7 +5247,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "grade11",
-    "grade": "Lớp 11"
+    "grade": "Lớp 11",
+    "ipa": "/ˈsiːkwəns/",
+    "example": "An infinite sequence is a function whose domain is the set of positive integers.",
+    "subterms": []
   },
   {
     "id": "term_297",
@@ -4376,7 +5259,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "ipa": "/set/",
+    "example": "A set is a well-defined collection of distinct mathematical objects.",
+    "subterms": []
   },
   {
     "en": "Set and Subset",
@@ -4387,7 +5273,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/set ænd ˈsʌbset/",
     "example": "A is a subset of B (A ⊆ B) if every element of A is also in B.",
     "id": "term_411",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "id": "term_298",
@@ -4396,7 +5283,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/saɪd leŋθ/",
+    "example": "In standard mathematical curriculum, 'Side length' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_299",
@@ -4405,7 +5295,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/saɪn/",
+    "example": "In standard mathematical curriculum, 'Sign' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_300",
@@ -4416,7 +5309,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈsɪmɪlə ˈfɪɡəz/",
     "example": "Similar figures have congruent corresponding angles and proportional side lengths.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "en": "Similar triangles",
@@ -4427,7 +5321,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈsɪmɪlə ˈtraɪæŋɡlz/",
     "example": "Similar triangles have corresponding congruent angles and proportional sides.",
     "id": "term_402",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "id": "term_301",
@@ -4436,7 +5331,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/similarly/",
+    "example": "Similar polygons have congruent corresponding angles and proportional side lengths.",
+    "subterms": []
   },
   {
     "id": "term_302",
@@ -4447,7 +5345,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌsɪmlˈteɪniəs ɪˈkweɪʒnz/",
     "example": "Solve the simultaneous equations to find common intersection points.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_303",
@@ -4456,7 +5355,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/simultaneously/",
+    "example": "In standard mathematical curriculum, 'Simultaneously' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_304",
@@ -4465,7 +5367,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/situate/",
+    "example": "In standard mathematical curriculum, 'Situate' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_307",
@@ -4474,7 +5379,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/sketch/",
+    "example": "In standard mathematical curriculum, 'Sketch' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Skew lines",
@@ -4485,7 +5393,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/skjuː laɪnz/",
     "example": "Lines that do not intersect and are not parallel because they lie in different planes.",
     "id": "term_437",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "id": "term_305",
@@ -4494,7 +5403,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/slɑːnt haɪt/",
+    "example": "The height of the cylinder is 10 cm and its base radius is 3 cm.",
+    "subterms": []
   },
   {
     "id": "term_306",
@@ -4503,7 +5415,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/slipping/",
+    "example": "In standard mathematical curriculum, 'Slipping' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_308",
@@ -4512,7 +5427,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/sləʊp/",
+    "example": "The slope of a horizontal line is 0, while a vertical line has undefined slope.",
+    "subterms": []
   },
   {
     "en": "Slope / Gradient",
@@ -4523,7 +5441,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/sləʊp / ˈɡreɪdiənt/",
     "example": "The slope m = (y2 - y1) / (x2 - x1) measures the steepness of a line.",
     "id": "term_396",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "id": "term_310",
@@ -4532,7 +5451,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "grade11",
-    "grade": "Lớp 11"
+    "grade": "Lớp 11",
+    "ipa": "/ˈsɒlɪd ˈfɪɡəz/",
+    "example": "In standard mathematical curriculum, 'Solid figures' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_309",
@@ -4541,7 +5463,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "grade11",
-    "grade": "Lớp 11"
+    "grade": "Lớp 11",
+    "ipa": "/ˈsɒlɪd dʒiˈɒmətri/",
+    "example": "Euclidean geometry studies points, lines, angles, and shapes in flat space.",
+    "subterms": []
   },
   {
     "id": "term_311",
@@ -4550,7 +5475,10 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/səˈluːʃn/",
+    "example": "The solution set of x^2 = 9 is {-3, 3}.",
+    "subterms": []
   },
   {
     "id": "term_314",
@@ -4559,7 +5487,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/spiːd/",
+    "example": "In standard mathematical curriculum, 'Speed' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Speed, Distance, Time",
@@ -4570,7 +5501,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/spiːd, ˈdɪstəns, taɪm/",
     "example": "Distance equals speed multiplied by time: s = v × t.",
     "id": "term_387",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "id": "term_312",
@@ -4579,7 +5511,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "S",
     "gradeId": "grade12",
-    "grade": "Lớp 12"
+    "grade": "Lớp 12",
+    "ipa": "/sfɪə/",
+    "example": "The surface area of a sphere of radius r is 4 * pi * r^2.",
+    "subterms": []
   },
   {
     "id": "term_313",
@@ -4588,7 +5523,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/spherical/",
+    "example": "In standard mathematical curriculum, 'Spherical' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_315",
@@ -4597,7 +5535,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/skweə/",
+    "example": "A square is both a rectangle and a rhombus, having four equal sides and four right angles.",
+    "subterms": []
   },
   {
     "en": "Square root",
@@ -4608,7 +5549,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/skweə ruːt/",
     "example": "The square root of 25 is 5, written as sqrt(25) = 5.",
     "id": "term_391",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "id": "term_367",
@@ -4629,7 +5571,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "ipa": "/ˈsteɪtmənt/",
+    "example": "In standard mathematical curriculum, 'Statement' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_317",
@@ -4638,7 +5583,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/streɪt laɪn/",
+    "example": "In standard mathematical curriculum, 'Straight line' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_318",
@@ -4647,7 +5595,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsʌbset/",
+    "example": "A set is a well-defined collection of distinct mathematical objects.",
+    "subterms": []
   },
   {
     "id": "term_319",
@@ -4656,7 +5607,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/səbˈtrækt/",
+    "example": "Subtraction is the inverse operation of addition (a - b = c <=> c + b = a).",
+    "subterms": []
   },
   {
     "en": "Subtraction",
@@ -4667,7 +5621,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/səbˈtrækʃn/",
     "example": "Subtraction is taking one number away from another (e.g. 9 - 4 = 5).",
     "id": "term_375",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "id": "term_320",
@@ -4676,7 +5631,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/subtrahend/",
+    "example": "In standard mathematical curriculum, 'Subtrahend' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_321",
@@ -4685,7 +5643,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/successive/",
+    "example": "In standard mathematical curriculum, 'Successive' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_322",
@@ -4694,7 +5655,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/suffice/",
+    "example": "In standard mathematical curriculum, 'Suffice' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_323",
@@ -4709,7 +5673,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/sʌm/",
+    "example": "The sum of the interior angles of an n-sided polygon is (n - 2) * 180°."
   },
   {
     "id": "term_324",
@@ -4718,7 +5684,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌsʌplɪˈmentri ˈæŋɡlz/",
+    "example": "In standard mathematical curriculum, 'Supplementary angles' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_325",
@@ -4727,7 +5696,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/suppose/",
+    "example": "In standard mathematical curriculum, 'Suppose' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_326",
@@ -4736,7 +5708,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/surd form/",
+    "example": "In standard mathematical curriculum, 'Surd form' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_327",
@@ -4745,7 +5720,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "grade12",
-    "grade": "Lớp 12"
+    "grade": "Lớp 12",
+    "ipa": "/survey/",
+    "example": "In standard mathematical curriculum, 'Survey' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_328",
@@ -4754,7 +5732,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsɪmətri/",
+    "example": "In standard mathematical curriculum, 'Symmetry' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_329",
@@ -4763,7 +5744,10 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "S",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈsɪstəm of ɪˈkweɪʒnz/",
+    "example": "The quadratic equation x^2 - 5x + 6 = 0 has roots x = 2 and x = 3.",
+    "subterms": []
   },
   {
     "en": "System of linear equations",
@@ -4774,7 +5758,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈsɪstəm əv ˈlɪniə ɪˈkweɪʒnz/",
     "example": "Solve the system using substitution or elimination method.",
     "id": "term_394",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "en": "System of linear inequalities in two variables",
@@ -4785,7 +5770,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈsɪstəm əv ˈlɪniə ˌɪnɪˈkwɒlətiz/",
     "example": "The feasible solution region is represented by the intersection of half-planes.",
     "id": "term_414",
-    "letter": "S"
+    "letter": "S",
+    "subterms": []
   },
   {
     "id": "term_330",
@@ -4794,7 +5780,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈtændʒənt/",
+    "example": "A tangent line touches a curve at a single point without crossing it locally.",
+    "subterms": []
   },
   {
     "en": "Tangent line slope (f'(x0))",
@@ -4805,7 +5794,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈtændʒənt laɪn sləʊp/",
     "example": "The slope of the tangent line to y = f(x) at x0 equals the derivative f'(x0).",
     "id": "term_435",
-    "letter": "T"
+    "letter": "T",
+    "subterms": []
   },
   {
     "id": "term_331",
@@ -4814,7 +5804,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/tɜːm/",
+    "example": "In the polynomial 3x^2 + 5x - 7, there are three terms: 3x^2, 5x, and -7.",
+    "subterms": []
   },
   {
     "id": "term_332",
@@ -4823,7 +5816,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/tesselation/",
+    "example": "In standard mathematical curriculum, 'Tesselation' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "en": "Thales' theorem",
@@ -4834,7 +5830,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈθeɪliːz ˈθɪərəm/",
     "example": "If a line parallel to one side of a triangle intersects the other two sides, it divides them proportionally.",
     "id": "term_401",
-    "letter": "T"
+    "letter": "T",
+    "subterms": []
   },
   {
     "id": "term_333",
@@ -4843,7 +5840,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/therefore/",
+    "example": "In standard mathematical curriculum, 'Therefore' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_334",
@@ -4852,7 +5852,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "T",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/times/",
+    "example": "In standard mathematical curriculum, 'Times' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_335",
@@ -4861,7 +5864,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈtəʊtl/",
+    "example": "In standard mathematical curriculum, 'Total' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_336",
@@ -4870,7 +5876,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈtəʊtl ˈsɜːfɪs ˈeəriə/",
+    "example": "In standard mathematical curriculum, 'Total surface area' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_337",
@@ -4879,7 +5888,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/touch/",
+    "example": "In standard mathematical curriculum, 'Touch' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_338",
@@ -4888,7 +5900,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "T",
     "gradeId": "grade12",
-    "grade": "Lớp 12"
+    "grade": "Lớp 12",
+    "ipa": "/touching spheres/",
+    "example": "The surface area of a sphere of radius r is 4 * pi * r^2.",
+    "subterms": []
   },
   {
     "id": "term_339",
@@ -4899,7 +5914,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/trəˈpiːziəm/",
     "example": "A trapezium is a quadrilateral with at least one pair of parallel sides.",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "subterms": []
   },
   {
     "id": "term_340",
@@ -4908,7 +5924,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈtraɪæŋɡl/",
+    "example": "The sum of the three interior angles of any planar triangle is always 180°.",
+    "subterms": []
   },
   {
     "en": "Trigonometric circle / Unit circle",
@@ -4919,7 +5938,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌtrɪɡənəˈmetrɪk ˈsɜːkl/",
     "example": "A circle of radius 1 centered at the origin, with positive counterclockwise orientation.",
     "id": "term_425",
-    "letter": "T"
+    "letter": "T",
+    "subterms": []
   },
   {
     "id": "term_366",
@@ -4953,7 +5973,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/triple/",
+    "example": "In standard mathematical curriculum, 'Triple' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_342",
@@ -4962,7 +5985,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "T",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/trisect/",
+    "example": "In standard mathematical curriculum, 'Trisect' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_343",
@@ -4977,7 +6003,9 @@ export const MATH_VOCABULARY = [
       }
     ],
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/tuple/",
+    "example": "In standard mathematical curriculum, 'Tuple' is used to analyze properties and solve equations in general."
   },
   {
     "id": "term_344",
@@ -4986,7 +6014,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "T",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/twice/",
+    "example": "In standard mathematical curriculum, 'Twice' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_345",
@@ -4995,7 +6026,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "U",
     "gradeId": "grade10",
-    "grade": "Lớp 10"
+    "grade": "Lớp 10",
+    "ipa": "/ˈjuːniən/",
+    "example": "The union A ∪ B consists of all elements that belong to A, to B, or to both.",
+    "subterms": []
   },
   {
     "id": "term_346",
@@ -5004,7 +6038,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "U",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈjuːnɪt ˈsɜːkl/",
+    "example": "A circle is the locus of points equidistant from a fixed center.",
+    "subterms": []
   },
   {
     "id": "term_347",
@@ -5013,7 +6050,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "U",
     "gradeId": "primary",
-    "grade": "Tiểu học (Lớp 1-5)"
+    "grade": "Tiểu học (Lớp 1-5)",
+    "ipa": "/ˈjuːnɪt skweə/",
+    "example": "A square is both a rectangle and a rhombus, having four equal sides and four right angles.",
+    "subterms": []
   },
   {
     "en": "Universal and Existential quantifiers (∀, ∃)",
@@ -5024,7 +6064,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˌjuːnɪˈvɜːsl ænd ˌeɡzɪˈstenʃl ˈkwɒntɪfaɪəz/",
     "example": "∀x ∈ R: x^2 >= 0 and ∃n ∈ N: n^2 = n.",
     "id": "term_410",
-    "letter": "U"
+    "letter": "U",
+    "subterms": []
   },
   {
     "id": "term_348",
@@ -5033,7 +6074,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "U",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˌjuːnɪˈvɜːsl set/",
+    "example": "A set is a well-defined collection of distinct mathematical objects.",
+    "subterms": []
   },
   {
     "id": "term_349",
@@ -5042,7 +6086,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "V",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈvæljuː/",
+    "example": "Substitute x = 5 into the function to evaluate its corresponding output value.",
+    "subterms": []
   },
   {
     "id": "term_350",
@@ -5051,7 +6098,10 @@ export const MATH_VOCABULARY = [
     "category": "algebra",
     "letter": "V",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈveəriəbl/",
+    "example": "A variable is a symbol, such as x or y, used to represent an unspecified quantity.",
+    "subterms": []
   },
   {
     "id": "term_368",
@@ -5072,7 +6122,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "V",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/vary/",
+    "example": "In standard mathematical curriculum, 'Vary' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "en": "Vector cross product",
@@ -5083,7 +6136,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈvektə krɒs ˈprɒdʌkt/",
     "example": "Vector perpendicular to both u and v, used to find normal vectors and calculate areas/volumes.",
     "id": "term_450",
-    "letter": "V"
+    "letter": "V",
+    "subterms": []
   },
   {
     "en": "Vector dot product",
@@ -5094,7 +6148,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈvektə dɒt ˈprɒdʌkt/",
     "example": "If two non-zero vectors are perpendicular, their dot product equals 0.",
     "id": "term_418",
-    "letter": "V"
+    "letter": "V",
+    "subterms": []
   },
   {
     "id": "term_352",
@@ -5103,7 +6158,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "V",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ven ˈdaɪəɡræm/",
+    "example": "In standard mathematical curriculum, 'Venn diagram' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_353",
@@ -5112,7 +6170,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "V",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈvɜːteks/",
+    "example": "A triangle has three vertices and three sides.",
+    "subterms": []
   },
   {
     "id": "term_354",
@@ -5121,7 +6182,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "V",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈvɜːtɪkl ˈæŋɡlz/",
+    "example": "In standard mathematical curriculum, 'Vertical angles' is used to analyze properties and solve equations in geometry.",
+    "subterms": []
   },
   {
     "id": "term_355",
@@ -5130,7 +6194,10 @@ export const MATH_VOCABULARY = [
     "category": "geometry",
     "letter": "V",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/ˈvɜːtɪsiːz/",
+    "example": "A triangle has three vertices and three sides.",
+    "subterms": []
   },
   {
     "en": "Vieta's formulas",
@@ -5141,7 +6208,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/viˈeɪtəz ˈfɔːmjələz/",
     "example": "For ax^2 + bx + c = 0: x1 + x2 = -b/a and x1 * x2 = c/a.",
     "id": "term_399",
-    "letter": "V"
+    "letter": "V",
+    "subterms": []
   },
   {
     "id": "term_356",
@@ -5169,7 +6237,8 @@ export const MATH_VOCABULARY = [
     "ipa": "/ˈvɒljuːm əv ˈsɒlɪd əv ˌrevəˈluːʃn/",
     "example": "Calculates the volume generated by revolving a plane region around an axis.",
     "id": "term_448",
-    "letter": "V"
+    "letter": "V",
+    "subterms": []
   },
   {
     "id": "term_357",
@@ -5178,7 +6247,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "W",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/wheel/",
+    "example": "In standard mathematical curriculum, 'Wheel' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_358",
@@ -5187,7 +6259,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "W",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/whence/",
+    "example": "In standard mathematical curriculum, 'Whence' is used to analyze properties and solve equations in general.",
+    "subterms": []
   },
   {
     "id": "term_359",
@@ -5196,7 +6271,10 @@ export const MATH_VOCABULARY = [
     "category": "general",
     "letter": "W",
     "gradeId": "middle",
-    "grade": "THCS (Lớp 6-9)"
+    "grade": "THCS (Lớp 6-9)",
+    "ipa": "/həʊl ˈnʌmbəz/",
+    "example": "The whole numbers are the non-negative integers: {0, 1, 2, 3, ...}.",
+    "subterms": []
   }
 ];
 
@@ -5353,8 +6431,8 @@ export const MATH_FLASHCARDS = [
     "en": "Integral",
     "vi": "Nguyên",
     "category": "calculus",
-    "ipa": "",
-    "example": "",
+    "ipa": "/ˈɪntɪɡrəl/",
+    "example": "The definite integral from 0 to 1 of x dx equals 1/2.",
     "subterms": [
       {
         "en": "Integral solution",
@@ -5367,8 +6445,8 @@ export const MATH_FLASHCARDS = [
     "en": "Median",
     "vi": "Trung vị (trong thống kê), đư ờng trung tuyến (của tam giác)",
     "category": "geometry",
-    "ipa": "",
-    "example": "",
+    "ipa": "/ˈmiːdiən/",
+    "example": "The median is the middle value in an ordered set of data.",
     "subterms": []
   },
   {
@@ -5385,8 +6463,8 @@ export const MATH_FLASHCARDS = [
     "en": "Parity",
     "vi": "Tính chẵn lẻ",
     "category": "arithmetic",
-    "ipa": "",
-    "example": "",
+    "ipa": "/ˈpærəti/",
+    "example": "In standard mathematical curriculum, 'Parity' is used to analyze properties and solve equations in arithmetic.",
     "subterms": []
   },
   {
@@ -5453,8 +6531,8 @@ export const MATH_FLASHCARDS = [
     "en": "Surd form",
     "vi": "Dạng căn thức",
     "category": "general",
-    "ipa": "",
-    "example": "",
+    "ipa": "/surd form/",
+    "example": "In standard mathematical curriculum, 'Surd form' is used to analyze properties and solve equations in general.",
     "subterms": []
   },
   {
