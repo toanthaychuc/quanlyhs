@@ -24,8 +24,8 @@ import {
   ChevronLeft, 
   ChevronRight, 
   ChevronDown,
+  ChevronUp,
   Shuffle, 
-  GraduationCap, 
   ArrowRightLeft,
   Lightbulb,
   Sigma
@@ -170,11 +170,14 @@ const selectBestBrowserVoice = (voices, preferredLang = 'en-US') => {
 };
 
 const MathEng = () => {
-  // Navigation Tabs: 'vocab' | 'classroom' | 'flashcard'
+  // Navigation Tabs: 'vocab' | 'symbols' | 'classroom' | 'flashcard'
   const [activeTab, setActiveTab] = useState('vocab');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Unified Search State across all tabs
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Vocabulary States
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showOnlySaved, setShowOnlySaved] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(60);
@@ -188,12 +191,10 @@ const MathEng = () => {
   });
 
   // Classroom English States
-  const [phraseSearchQuery, setPhraseSearchQuery] = useState('');
   const [selectedPhraseCat, setSelectedPhraseCat] = useState('all');
   const [selectedRole, setSelectedRole] = useState('all'); // 'all' | 'Teacher' | 'Student'
 
   // Math Symbols & Operations States
-  const [symbolSearchQuery, setSymbolSearchQuery] = useState('');
   const [selectedSymbolCat, setSelectedSymbolCat] = useState('all');
 
   // Flashcards States
@@ -201,6 +202,7 @@ const MathEng = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [cardList, setCardList] = useState(MATH_FLASHCARDS);
   const [cardDirection, setCardDirection] = useState('en-first'); // 'en-first' | 'vi-first'
+  const [selectedFlashcardCat, setSelectedFlashcardCat] = useState('all');
   const [masteredCards, setMasteredCards] = useState(() => {
     try {
       const stored = localStorage.getItem('matheng_mastered_cards');
@@ -395,7 +397,7 @@ const MathEng = () => {
 
   // Filter Classroom Phrases
   const filteredPhrases = useMemo(() => {
-    const qNorm = normalizeText(phraseSearchQuery.trim());
+    const qNorm = normalizeText(searchQuery.trim());
 
     return CLASSROOM_PHRASES.filter((phrase) => {
       if (selectedPhraseCat !== 'all' && phrase.category !== selectedPhraseCat) return false;
@@ -417,11 +419,11 @@ const MathEng = () => {
 
       return true;
     });
-  }, [phraseSearchQuery, selectedPhraseCat, selectedRole]);
+  }, [searchQuery, selectedPhraseCat, selectedRole]);
 
   // Filter Math Symbols & Operations
   const filteredSymbols = useMemo(() => {
-    const qNorm = normalizeText(symbolSearchQuery.trim());
+    const qNorm = normalizeText(searchQuery.trim());
 
     return MATH_SYMBOLS.filter((item) => {
       if (selectedSymbolCat !== 'all' && item.category !== selectedSymbolCat) return false;
@@ -446,21 +448,27 @@ const MathEng = () => {
 
       return true;
     });
-  }, [symbolSearchQuery, selectedSymbolCat]);
+  }, [searchQuery, selectedSymbolCat]);
+
+  // Flashcards filtered list
+  const activeFlashcardList = useMemo(() => {
+    if (selectedFlashcardCat === 'all') return cardList;
+    return cardList.filter((c) => c.category === selectedFlashcardCat);
+  }, [cardList, selectedFlashcardCat]);
 
   // Flashcards navigation
-  const currentCard = cardList[cardIndex] || cardList[0];
+  const currentCard = activeFlashcardList[cardIndex] || activeFlashcardList[0] || cardList[0];
   const isCurrentMastered = currentCard && masteredCards.includes(currentCard.id);
 
   const nextCard = useCallback(() => {
     setIsFlipped(false);
-    setCardIndex((prev) => (prev + 1) % cardList.length);
-  }, [cardList.length]);
+    setCardIndex((prev) => (prev + 1) % (activeFlashcardList.length || 1));
+  }, [activeFlashcardList.length]);
 
   const prevCard = useCallback(() => {
     setIsFlipped(false);
-    setCardIndex((prev) => (prev - 1 + cardList.length) % cardList.length);
-  }, [cardList.length]);
+    setCardIndex((prev) => (prev - 1 + (activeFlashcardList.length || 1)) % (activeFlashcardList.length || 1));
+  }, [activeFlashcardList.length]);
 
   const shuffleCards = () => {
     setIsFlipped(false);
@@ -495,850 +503,931 @@ const MathEng = () => {
   }, [activeTab, nextCard, prevCard]);
 
   return (
-    <div className="matheng-container">
-      {/* Top Banner Header */}
-      <header className="matheng-header">
-        <div className="matheng-header-title-wrapper">
-          <div className="matheng-icon-badge">
-            <Languages size={28} />
-          </div>
-          <div>
-            <h1 className="matheng-main-title">
-              Toán - Eng <span className="matheng-title-tag">English for Mathematics</span>
-            </h1>
-            <p className="matheng-subtitle">
-              Tra cứu thuật ngữ Toán học chuẩn quốc tế & Các câu lệnh giao tiếp lớp học song ngữ Anh - Việt
-            </p>
-          </div>
+    <div className="formulas-page matheng-page">
+      {/* Top Header matching Tra Công Thức / Quản Lý Lớp Học */}
+      <div className="formulas-header matheng-header">
+        <div className="formulas-title-area" style={{ flexShrink: 0 }}>
+          <h1>
+            <Languages className="text-primary" size={28} />
+            TOÁN - ENG
+          </h1>
         </div>
 
-        {/* Mode Switcher Tabs */}
-        <div className="matheng-mode-tabs">
-          <button
-            className={`matheng-mode-tab ${activeTab === 'vocab' ? 'active' : ''}`}
-            onClick={() => setActiveTab('vocab')}
-          >
-            <BookOpen size={17} />
-            <span>Thuật ngữ Toán học</span>
-            <span className="matheng-tab-count">{MATH_VOCABULARY.length}</span>
-          </button>
-          <button
-            className={`matheng-mode-tab ${activeTab === 'symbols' ? 'active' : ''}`}
-            onClick={() => setActiveTab('symbols')}
-          >
-            <Sigma size={17} />
-            <span>Kí hiệu toán học</span>
-            <span className="matheng-tab-count">{MATH_SYMBOLS.length}</span>
-          </button>
-          <button
-            className={`matheng-mode-tab ${activeTab === 'classroom' ? 'active' : ''}`}
-            onClick={() => setActiveTab('classroom')}
-          >
-            <Users size={17} />
-            <span>Giao tiếp lớp học</span>
-            <span className="matheng-tab-count">{CLASSROOM_PHRASES.length}</span>
-          </button>
-          <button
-            className={`matheng-mode-tab ${activeTab === 'flashcard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('flashcard')}
-          >
-            <Sparkles size={17} />
-            <span>Thẻ ghi nhớ</span>
-            <span className="matheng-tab-count">{MATH_FLASHCARDS.length}</span>
-          </button>
-        </div>
-      </header>
-
-      {/* ======================= TAB 1: MATH VOCABULARY ======================= */}
-      {activeTab === 'vocab' && (
-        <div className="matheng-vocab-section">
-          {/* Controls Bar: Search & Direction & Bookmarks */}
-          <div className="matheng-search-box-card">
-            <div className="matheng-search-input-wrapper">
-              <Search size={18} className="matheng-search-icon" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                className="matheng-search-input"
-                placeholder="Tra cứu từ vựng toán (VD: hypotenuse, đạo hàm, tam giác, asymptote, prime...)"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setDisplayLimit(60);
-                }}
-              />
-              {searchQuery && (
-                <button
-                  className="matheng-clear-btn"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setDisplayLimit(60);
-                    searchInputRef.current?.focus();
-                  }}
-                  title="Xóa tìm kiếm"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-
-            <button
-              className={`matheng-bookmark-toggle-btn ${showOnlySaved ? 'active' : ''}`}
-              onClick={() => {
-                setShowOnlySaved(!showOnlySaved);
+        {/* Global Search Bar in Header */}
+        <div className="formulas-global-search">
+          <div className="search-input-wrapper">
+            <Search size={18} className="search-icon" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder={
+                activeTab === 'vocab'
+                  ? 'Tra cứu từ vựng toán (VD: hypotenuse, đạo hàm, tam giác, prime...)'
+                  : activeTab === 'symbols'
+                  ? 'Tìm kí hiệu & phép toán (VD: cộng, lũy thừa, căn bậc a của b, logarit...)'
+                  : activeTab === 'classroom'
+                  ? 'Tìm câu lệnh lớp học (VD: chia nhóm, lên bảng, rút gọn...)'
+                  : 'Tìm kiếm trong thẻ ghi nhớ...'
+              }
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
                 setDisplayLimit(60);
               }}
-              title="Chỉ hiển thị các từ vựng đã đánh dấu yêu thích"
-            >
-              <BookmarkCheck size={16} />
-              <span>Đã lưu ({savedTerms.length})</span>
-            </button>
-          </div>
-
-          {/* Category Filter Pills */}
-          <div className="matheng-categories-bar">
-            {MATH_CATEGORIES.map((cat) => {
-              const IconComp = CATEGORY_ICON_MAP[cat.id] || Layers;
-              const isActive = selectedCategory === cat.id;
-              const count = cat.id === 'all' 
-                ? MATH_VOCABULARY.length 
-                : MATH_VOCABULARY.filter((t) => t.category === cat.id).length;
-
-              return (
-                <button
-                  key={cat.id}
-                  className={`matheng-cat-pill ${isActive ? 'active' : ''}`}
-                  onClick={() => {
-                    setSelectedCategory(cat.id);
-                    setDisplayLimit(60);
-                  }}
-                  title={cat.desc}
-                >
-                  <IconComp size={15} />
-                  <span>{cat.name}</span>
-                  <span className="matheng-cat-pill-count">{count}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Results Summary Bar */}
-          <div className="matheng-results-meta">
-            <span>
-              Tìm thấy <strong>{filteredVocabulary.length}</strong> thuật ngữ
-              {selectedCategory !== 'all' && ` • Lĩnh vực: ${MATH_CATEGORIES.find((c) => c.id === selectedCategory)?.name}`}
-              {showOnlySaved && ' • Danh sách đã lưu'}
-            </span>
-            {(searchQuery || selectedCategory !== 'all' || showOnlySaved) && (
+            />
+            {searchQuery && (
               <button
-                className="matheng-reset-filter-btn"
+                type="button"
+                className="clear-search-btn"
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedCategory('all');
-                  setShowOnlySaved(false);
                   setDisplayLimit(60);
+                  searchInputRef.current?.focus();
                 }}
+                title="Xóa tìm kiếm"
               >
-                Đặt lại bộ lọc
+                <X size={16} />
               </button>
             )}
           </div>
+        </div>
 
-          {/* Vocabulary Cards Grid */}
-          {filteredVocabulary.length > 0 ? (
-            <>
-              <div className="matheng-vocab-grid">
-                {visibleVocabulary.map((term) => {
-                  const isSaved = savedTerms.includes(term.id);
-                  const isSpeaking = speakingId === term.id;
-                  const isCopied = copiedId === term.id;
-                  const catMeta = MATH_CATEGORIES.find((c) => c.id === term.category) || MATH_CATEGORIES[0];
-                  const IconComp = CATEGORY_ICON_MAP[term.category] || Layers;
+        {/* Mode Switcher Tabs (Styled identically to school-tabs in Lớp Học) */}
+        <div className="school-tabs matheng-header-tabs">
+          <button
+            type="button"
+            className={`school-tab-btn ${activeTab === 'vocab' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('vocab');
+              setDisplayLimit(60);
+            }}
+          >
+            <BookOpen size={16} />
+            <span>Thuật ngữ</span>
+            <span className="matheng-tab-badge">{MATH_VOCABULARY.length}</span>
+          </button>
+          <button
+            type="button"
+            className={`school-tab-btn ${activeTab === 'symbols' ? 'active' : ''}`}
+            onClick={() => setActiveTab('symbols')}
+          >
+            <Sigma size={16} />
+            <span>Kí hiệu</span>
+            <span className="matheng-tab-badge">{MATH_SYMBOLS.length}</span>
+          </button>
+          <button
+            type="button"
+            className={`school-tab-btn ${activeTab === 'classroom' ? 'active' : ''}`}
+            onClick={() => setActiveTab('classroom')}
+          >
+            <Users size={16} />
+            <span>Giao tiếp</span>
+            <span className="matheng-tab-badge">{CLASSROOM_PHRASES.length}</span>
+          </button>
+          <button
+            type="button"
+            className={`school-tab-btn ${activeTab === 'flashcard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('flashcard')}
+          >
+            <Sparkles size={16} />
+            <span>Thẻ nhớ</span>
+            <span className="matheng-tab-badge">{MATH_FLASHCARDS.length}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Synchronized 2-Column Layout */}
+      <div className="formulas-layout matheng-layout">
+        {/* Left Sidebar: Danh mục */}
+        <div 
+          className="formulas-sidebar glass matheng-sidebar" 
+          style={{ alignSelf: isSidebarOpen ? 'stretch' : 'flex-start' }}
+        >
+          <div 
+            className="sidebar-title-container" 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            <h3 className="sidebar-title">Danh mục</h3>
+            {isSidebarOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </div>
+
+          <div className={`sidebar-content-wrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
+            {/* Sidebar content for: THUẬT NGỮ TOÁN HỌC */}
+            {activeTab === 'vocab' && (
+              <ul className="formulas-list">
+                {MATH_CATEGORIES.map((cat) => {
+                  const IconComp = CATEGORY_ICON_MAP[cat.id] || Layers;
+                  const isActive = selectedCategory === cat.id && !showOnlySaved;
+                  const count =
+                    cat.id === 'all'
+                      ? MATH_VOCABULARY.length
+                      : MATH_VOCABULARY.filter((t) => t.category === cat.id).length;
 
                   return (
-                    <div key={term.id} className="matheng-term-card">
-                      {/* Card Header: Category Badge, Audio & Actions */}
-                      <div className="matheng-term-card-header">
-                        <span className={`matheng-term-cat-badge cat-${term.category}`}>
-                          <IconComp size={12} />
-                          {catMeta.name}
-                        </span>
-                        <div className="matheng-term-actions">
-                          <button
-                            className={`matheng-icon-action-btn ${isSpeaking ? 'active' : ''}`}
-                            onClick={() => speakText(term.en, term.id)}
-                            title="Phát âm tiếng Anh chuẩn"
-                          >
-                            <Volume2 size={16} />
-                          </button>
-                          <button
-                            className="matheng-icon-action-btn"
-                            onClick={() => handleCopy(`${term.en}: ${term.vi}`, term.id)}
-                            title="Sao chép thuật ngữ"
-                          >
-                            {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
-                          </button>
-                          <button
-                            className={`matheng-icon-action-btn ${isSaved ? 'saved' : ''}`}
-                            onClick={() => toggleSaveTerm(term.id)}
-                            title={isSaved ? 'Bỏ lưu' : 'Lưu vào từ vựng cần ôn'}
-                          >
-                            {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-                          </button>
-                        </div>
+                    <li
+                      key={cat.id}
+                      className={`formula-item ${isActive ? 'active' : ''}`}
+                      onClick={() => {
+                        setSelectedCategory(cat.id);
+                        setShowOnlySaved(false);
+                        setDisplayLimit(60);
+                      }}
+                      title={cat.desc}
+                    >
+                      <div className="formula-item-content">
+                        <IconComp size={16} className="item-icon" />
+                        <span className="item-title">{cat.name}</span>
                       </div>
+                      <span className="matheng-cat-count-badge">{count}</span>
+                    </li>
+                  );
+                })}
 
-                      {/* Main Term: English & Vietnamese side-by-side */}
-                      <div className="matheng-term-body">
-                        <div className="matheng-term-en-line">
-                          <span className="matheng-term-en">{term.en}</span>
-                          <span className="matheng-term-divider">:</span>
-                          <span className="matheng-term-vi">{term.vi}</span>
+                {/* Bookmarked / Saved Terms */}
+                <li
+                  className={`formula-item ${showOnlySaved ? 'active' : ''}`}
+                  onClick={() => {
+                    setShowOnlySaved(!showOnlySaved);
+                    setDisplayLimit(60);
+                  }}
+                  title="Chỉ hiển thị các từ vựng đã đánh dấu yêu thích"
+                >
+                  <div className="formula-item-content">
+                    <BookmarkCheck size={16} className="item-icon" style={{ color: '#d97706' }} />
+                    <span className="item-title">Từ vựng đã lưu</span>
+                  </div>
+                  <span className="matheng-cat-count-badge saved">{savedTerms.length}</span>
+                </li>
+              </ul>
+            )}
+
+            {/* Sidebar content for: KÍ HIỆU TOÁN HỌC */}
+            {activeTab === 'symbols' && (
+              <ul className="formulas-list">
+                {MATH_SYMBOL_CATEGORIES.map((cat) => {
+                  const IconComp = CATEGORY_ICON_MAP[cat.id] || Sigma;
+                  const isActive = selectedSymbolCat === cat.id;
+                  const count =
+                    cat.id === 'all'
+                      ? MATH_SYMBOLS.length
+                      : MATH_SYMBOLS.filter((s) => s.category === cat.id).length;
+
+                  return (
+                    <li
+                      key={cat.id}
+                      className={`formula-item ${isActive ? 'active' : ''}`}
+                      onClick={() => setSelectedSymbolCat(cat.id)}
+                      title={cat.desc}
+                    >
+                      <div className="formula-item-content">
+                        <IconComp size={16} className="item-icon" />
+                        <span className="item-title">{cat.name}</span>
+                      </div>
+                      <span className="matheng-cat-count-badge">{count}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            {/* Sidebar content for: GIAO TIẾP LỚP HỌC */}
+            {activeTab === 'classroom' && (
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+                {/* Role Switcher */}
+                <div className="matheng-sidebar-subfilter">
+                  <div className="school-tabs mini">
+                    <button
+                      type="button"
+                      className={`school-tab-btn ${selectedRole === 'all' ? 'active' : ''}`}
+                      onClick={() => setSelectedRole('all')}
+                    >
+                      Tất cả
+                    </button>
+                    <button
+                      type="button"
+                      className={`school-tab-btn ${selectedRole === 'Teacher' ? 'active' : ''}`}
+                      onClick={() => setSelectedRole('Teacher')}
+                    >
+                      Giáo viên
+                    </button>
+                    <button
+                      type="button"
+                      className={`school-tab-btn ${selectedRole === 'Student' ? 'active' : ''}`}
+                      onClick={() => setSelectedRole('Student')}
+                    >
+                      Học sinh
+                    </button>
+                  </div>
+                </div>
+
+                <ul className="formulas-list">
+                  <li
+                    className={`formula-item ${selectedPhraseCat === 'all' ? 'active' : ''}`}
+                    onClick={() => setSelectedPhraseCat('all')}
+                  >
+                    <div className="formula-item-content">
+                      <Layers size={16} className="item-icon" />
+                      <span className="item-title">Tất cả tình huống</span>
+                    </div>
+                    <span className="matheng-cat-count-badge">{CLASSROOM_PHRASES.length}</span>
+                  </li>
+
+                  {CLASSROOM_PHRASE_CATEGORIES.map((cat) => {
+                    const IconComp = CATEGORY_ICON_MAP[cat.id] || MessageCircle;
+                    const isActive = selectedPhraseCat === cat.id;
+                    const count = CLASSROOM_PHRASES.filter((p) => p.category === cat.id).length;
+
+                    return (
+                      <li
+                        key={cat.id}
+                        className={`formula-item ${isActive ? 'active' : ''}`}
+                        onClick={() => setSelectedPhraseCat(cat.id)}
+                        title={cat.desc}
+                      >
+                        <div className="formula-item-content">
+                          <IconComp size={16} className="item-icon" />
+                          <span className="item-title">{cat.name}</span>
                         </div>
-                        {term.ipa && (
-                          <div className="matheng-term-ipa-wrapper">
-                            <span className="matheng-term-ipa">{term.ipa}</span>
+                        <span className="matheng-cat-count-badge">{count}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
+            {/* Sidebar content for: THẺ GHI NHỚ */}
+            {activeTab === 'flashcard' && (
+              <div className="matheng-flashcard-sidebar-panel">
+                <div className="matheng-flashcard-stat-card">
+                  <div className="matheng-stat-label">Tiến độ ôn tập</div>
+                  <div className="matheng-stat-value">
+                    {masteredCards.length} / {cardList.length} <span className="stat-unit">đã thuộc</span>
+                  </div>
+                  <div className="matheng-progress-track">
+                    <div
+                      className="matheng-progress-fill"
+                      style={{ width: `${(masteredCards.length / (cardList.length || 1)) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="matheng-sidebar-actions-list">
+                  <button
+                    type="button"
+                    className="matheng-sidebar-action-btn"
+                    onClick={() => setCardDirection(cardDirection === 'en-first' ? 'vi-first' : 'en-first')}
+                    title="Đổi mặt thẻ bắt đầu"
+                  >
+                    <ArrowRightLeft size={15} />
+                    <span>Mặt trước: {cardDirection === 'en-first' ? 'Tiếng Anh' : 'Tiếng Việt'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="matheng-sidebar-action-btn"
+                    onClick={shuffleCards}
+                    title="Xáo trộn ngẫu nhiên"
+                  >
+                    <Shuffle size={15} />
+                    <span>Xáo trộn ngẫu nhiên</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="matheng-sidebar-action-btn"
+                    onClick={() => {
+                      if (window.confirm('Đặt lại toàn bộ tiến độ đã thuộc của bộ thẻ?')) {
+                        setMasteredCards([]);
+                      }
+                    }}
+                    title="Đặt lại tiến độ học"
+                  >
+                    <RotateCcw size={15} />
+                    <span>Đặt lại thẻ đã thuộc</span>
+                  </button>
+                </div>
+
+                <div className="matheng-flashcard-cat-filter-title">Lọc theo chuyên đề:</div>
+                <ul className="formulas-list" style={{ maxHeight: '220px' }}>
+                  <li
+                    className={`formula-item ${selectedFlashcardCat === 'all' ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedFlashcardCat('all');
+                      setCardIndex(0);
+                    }}
+                  >
+                    <div className="formula-item-content">
+                      <Layers size={15} className="item-icon" />
+                      <span className="item-title">Tất cả chuyên đề</span>
+                    </div>
+                    <span className="matheng-cat-count-badge">{cardList.length}</span>
+                  </li>
+                  {MATH_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => {
+                    const IconComp = CATEGORY_ICON_MAP[cat.id] || Layers;
+                    const isActive = selectedFlashcardCat === cat.id;
+                    const count = cardList.filter((c) => c.category === cat.id).length;
+                    return (
+                      <li
+                        key={cat.id}
+                        className={`formula-item ${isActive ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedFlashcardCat(cat.id);
+                          setCardIndex(0);
+                        }}
+                      >
+                        <div className="formula-item-content">
+                          <IconComp size={15} className="item-icon" />
+                          <span className="item-title">{cat.name}</span>
+                        </div>
+                        <span className="matheng-cat-count-badge">{count}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Main Content Panel */}
+        <div className="formulas-main glass matheng-main-content">
+          {/* Main Meta Header Bar */}
+          <div className="matheng-main-meta-bar">
+            {activeTab === 'vocab' && (
+              <>
+                <span>
+                  Tìm thấy <strong>{filteredVocabulary.length}</strong> thuật ngữ
+                  {selectedCategory !== 'all' &&
+                    ` • Lĩnh vực: ${MATH_CATEGORIES.find((c) => c.id === selectedCategory)?.name}`}
+                  {showOnlySaved && ' • Danh sách đã lưu'}
+                </span>
+                {(searchQuery || selectedCategory !== 'all' || showOnlySaved) && (
+                  <button
+                    type="button"
+                    className="matheng-reset-filter-btn"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCategory('all');
+                      setShowOnlySaved(false);
+                      setDisplayLimit(60);
+                    }}
+                  >
+                    Đặt lại bộ lọc
+                  </button>
+                )}
+              </>
+            )}
+
+            {activeTab === 'symbols' && (
+              <>
+                <span>
+                  Hiển thị <strong>{filteredSymbols.length}</strong> phép toán & kí hiệu
+                  {selectedSymbolCat !== 'all' &&
+                    ` • Nhóm: ${MATH_SYMBOL_CATEGORIES.find((c) => c.id === selectedSymbolCat)?.name}`}
+                </span>
+                {(searchQuery || selectedSymbolCat !== 'all') && (
+                  <button
+                    type="button"
+                    className="matheng-reset-filter-btn"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedSymbolCat('all');
+                    }}
+                  >
+                    Đặt lại bộ lọc
+                  </button>
+                )}
+              </>
+            )}
+
+            {activeTab === 'classroom' && (
+              <>
+                <span>
+                  Hiển thị <strong>{filteredPhrases.length}</strong> câu khẩu lệnh
+                  {selectedPhraseCat !== 'all' &&
+                    ` • Tình huống: ${CLASSROOM_PHRASE_CATEGORIES.find((c) => c.id === selectedPhraseCat)?.name}`}
+                  {selectedRole !== 'all' &&
+                    ` • Đối tượng: ${selectedRole === 'Teacher' ? 'Giáo viên' : 'Học sinh'}`}
+                </span>
+                {(searchQuery || selectedPhraseCat !== 'all' || selectedRole !== 'all') && (
+                  <button
+                    type="button"
+                    className="matheng-reset-filter-btn"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedPhraseCat('all');
+                      setSelectedRole('all');
+                    }}
+                  >
+                    Đặt lại bộ lọc
+                  </button>
+                )}
+              </>
+            )}
+
+            {activeTab === 'flashcard' && (
+              <span>
+                Thẻ số <strong>{cardIndex + 1}</strong> / {activeFlashcardList.length} • Nhấn phím cách [Space] hoặc bấm vào thẻ để lật
+              </span>
+            )}
+          </div>
+
+          {/* Main Scrollable View Area */}
+          <div className="matheng-content-scroll-wrap">
+            {/* ======================= TAB 1: VOCABULARY ======================= */}
+            {activeTab === 'vocab' && (
+              filteredVocabulary.length > 0 ? (
+                <>
+                  <div className="matheng-vocab-grid">
+                    {visibleVocabulary.map((term) => {
+                      const isSaved = savedTerms.includes(term.id);
+                      const isSpeaking = speakingId === term.id;
+                      const isCopied = copiedId === term.id;
+                      const catMeta =
+                        MATH_CATEGORIES.find((c) => c.id === term.category) || MATH_CATEGORIES[0];
+                      const IconComp = CATEGORY_ICON_MAP[term.category] || Layers;
+
+                      return (
+                        <div key={term.id} className="matheng-term-card">
+                          <div className="matheng-term-card-header">
+                            <span className={`matheng-term-cat-badge cat-${term.category}`}>
+                              <IconComp size={12} />
+                              {catMeta.name}
+                            </span>
+                            <div className="matheng-term-actions">
+                              <button
+                                type="button"
+                                className={`matheng-icon-action-btn ${isSpeaking ? 'active' : ''}`}
+                                onClick={() => speakText(term.en, term.id)}
+                                title="Phát âm tiếng Anh chuẩn"
+                              >
+                                <Volume2 size={16} />
+                              </button>
+                              <button
+                                type="button"
+                                className="matheng-icon-action-btn"
+                                onClick={() => handleCopy(`${term.en}: ${term.vi}`, term.id)}
+                                title="Sao chép thuật ngữ"
+                              >
+                                {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
+                              </button>
+                              <button
+                                type="button"
+                                className={`matheng-icon-action-btn ${isSaved ? 'saved' : ''}`}
+                                onClick={() => toggleSaveTerm(term.id)}
+                                title={isSaved ? 'Bỏ lưu' : 'Lưu vào từ vựng cần ôn'}
+                              >
+                                {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+                              </button>
+                            </div>
                           </div>
-                        )}
-                      </div>
 
-                      {/* Example Sentence */}
-                      {term.example && (
-                        <div className="matheng-example-box">
-                          <div className="matheng-example-label">
-                            <Lightbulb size={13} />
-                            <span>Ví dụ trong ngữ cảnh toán học:</span>
+                          <div className="matheng-term-body">
+                            <div className="matheng-term-en-line">
+                              <span className="matheng-term-en">{term.en}</span>
+                              <span className="matheng-term-divider">:</span>
+                              <span className="matheng-term-vi">{term.vi}</span>
+                            </div>
+                            {term.ipa && (
+                              <div className="matheng-term-ipa-wrapper">
+                                <span className="matheng-term-ipa">{term.ipa}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {term.example && (
+                            <div className="matheng-example-box">
+                              <div className="matheng-example-label">
+                                <Lightbulb size={13} />
+                                <span>Ví dụ trong ngữ cảnh toán học:</span>
+                                <button
+                                  type="button"
+                                  className="matheng-subterm-speak-btn matheng-example-speak-btn"
+                                  onClick={() => speakText(term.example, `${term.id}_example`)}
+                                  title="Nghe đọc câu ví dụ bằng giọng Google Dịch"
+                                >
+                                  <Volume2
+                                    size={13}
+                                    className={speakingId === `${term.id}_example` ? 'speaking' : ''}
+                                  />
+                                </button>
+                              </div>
+                              <div className="matheng-example-text">"{term.example}"</div>
+                            </div>
+                          )}
+
+                          {term.subterms && term.subterms.length > 0 && (
+                            <div className="matheng-subterms-box">
+                              <div className="matheng-subterms-title">Thuật ngữ liên quan:</div>
+                              <ul className="matheng-subterms-list">
+                                {term.subterms.map((sub, sIdx) => {
+                                  const subId = `${term.id}_sub_${sIdx}`;
+                                  const isSubSpeaking = speakingId === subId;
+                                  return (
+                                    <li key={sIdx} className="matheng-subterm-item">
+                                      <span className="matheng-subterm-en">{sub.en}</span>
+                                      <span className="matheng-subterm-vi">{sub.vi}</span>
+                                      <button
+                                        type="button"
+                                        className="matheng-subterm-speak-btn"
+                                        onClick={() => speakText(sub.en, subId)}
+                                        title="Nghe phát âm"
+                                      >
+                                        <Volume2 size={13} className={isSubSpeaking ? 'speaking' : ''} />
+                                      </button>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {displayLimit < filteredVocabulary.length && (
+                    <div className="matheng-load-more-wrapper">
+                      <button
+                        type="button"
+                        className="matheng-load-more-btn"
+                        onClick={() => setDisplayLimit((prev) => prev + 60)}
+                      >
+                        <ChevronDown size={18} />
+                        <span>
+                          Xem thêm 60 thuật ngữ (Đang hiển thị {visibleVocabulary.length}/{filteredVocabulary.length})
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="matheng-empty-state">
+                  <Languages size={48} className="matheng-empty-icon" />
+                  <h3>Không tìm thấy thuật ngữ phù hợp</h3>
+                  <p>Hãy thử kiểm tra lại từ khóa hoặc chọn xem lại tất cả danh mục.</p>
+                  <button
+                    type="button"
+                    className="matheng-reset-filter-btn primary"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCategory('all');
+                      setShowOnlySaved(false);
+                      setDisplayLimit(60);
+                    }}
+                  >
+                    Xem lại toàn bộ danh mục từ vựng
+                  </button>
+                </div>
+              )
+            )}
+
+            {/* ======================= TAB 2: SYMBOLS & OPERATIONS ======================= */}
+            {activeTab === 'symbols' && (
+              filteredSymbols.length > 0 ? (
+                <div className="matheng-symbols-grid">
+                  {filteredSymbols.map((item) => {
+                    const catMeta =
+                      MATH_SYMBOL_CATEGORIES.find((c) => c.id === item.category) ||
+                      MATH_SYMBOL_CATEGORIES[0];
+                    const IconComp = CATEGORY_ICON_MAP[item.category] || Sigma;
+                    const primaryReading = item.readings?.[0]?.en || item.symbol;
+                    const isPrimarySpeaking = speakingId === `${item.id}_primary`;
+                    const isCopied = copiedId === item.id;
+
+                    const copyPayload = `${item.symbol} (${item.vi}): ${(item.readings || [])
+                      .map((r) => r.en)
+                      .join(' / ')}`;
+
+                    return (
+                      <div key={item.id} className="matheng-symbol-card">
+                        <div className="matheng-term-card-header">
+                          <span className={`matheng-term-cat-badge cat-${item.category}`}>
+                            <IconComp size={12} />
+                            {catMeta.name}
+                          </span>
+                          <div className="matheng-term-actions">
                             <button
                               type="button"
-                              className="matheng-subterm-speak-btn matheng-example-speak-btn"
-                              onClick={() => speakText(term.example, `${term.id}_example`)}
-                              title="Nghe đọc câu ví dụ bằng giọng Google Dịch"
+                              className={`matheng-icon-action-btn ${isPrimarySpeaking ? 'active' : ''}`}
+                              onClick={() => speakText(primaryReading, `${item.id}_primary`)}
+                              title="Nghe cách đọc phổ biến nhất"
                             >
-                              <Volume2
-                                size={13}
-                                className={speakingId === `${term.id}_example` ? 'speaking' : ''}
-                              />
+                              <Volume2 size={16} />
+                            </button>
+                            <button
+                              type="button"
+                              className="matheng-icon-action-btn"
+                              onClick={() => handleCopy(copyPayload, item.id)}
+                              title="Sao chép kí hiệu và các cách đọc"
+                            >
+                              {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
                             </button>
                           </div>
-                          <div className="matheng-example-text">"{term.example}"</div>
                         </div>
-                      )}
 
-                      {/* Subterms / Collocations (if any) */}
-                      {term.subterms && term.subterms.length > 0 && (
-                        <div className="matheng-subterms-box">
-                          <div className="matheng-subterms-title">Thuật ngữ liên quan:</div>
-                          <ul className="matheng-subterms-list">
-                            {term.subterms.map((sub, sIdx) => {
-                              const subId = `${term.id}_sub_${sIdx}`;
-                              const isSubSpeaking = speakingId === subId;
+                        <div className="matheng-symbol-hero">
+                          <div
+                            className="matheng-symbol-formula-badge"
+                            dangerouslySetInnerHTML={{ __html: renderLatex(item.latex || item.symbol) }}
+                          />
+                          <div className="matheng-symbol-vi-title">{item.vi}</div>
+                        </div>
+
+                        <div className="matheng-readings-box">
+                          <div className="matheng-readings-header">
+                            Các cách đọc chuẩn trong tiếng Anh ({item.readings?.length || 0} cách):
+                          </div>
+                          <ul className="matheng-readings-list">
+                            {(item.readings || []).map((r, rIdx) => {
+                              const rId = `${item.id}_read_${rIdx}`;
+                              const isRSpk = speakingId === rId;
                               return (
-                                <li key={sIdx} className="matheng-subterm-item">
-                                  <span className="matheng-subterm-en">{sub.en}</span>
-                                  <span className="matheng-subterm-vi">{sub.vi}</span>
-                                  <button
-                                    className="matheng-subterm-speak-btn"
-                                    onClick={() => speakText(sub.en, subId)}
-                                    title="Nghe phát âm"
-                                  >
-                                    <Volume2 size={13} className={isSubSpeaking ? 'speaking' : ''} />
-                                  </button>
+                                <li key={rIdx} className="matheng-reading-item">
+                                  <div className="matheng-reading-main">
+                                    <span className="matheng-reading-index">#{rIdx + 1}</span>
+                                    <span className="matheng-reading-en">"{r.en}"</span>
+                                    <button
+                                      type="button"
+                                      className={`matheng-reading-speak-btn ${isRSpk ? 'active' : ''}`}
+                                      onClick={() => speakText(r.en, rId)}
+                                      title="Nghe phát âm cách đọc này"
+                                    >
+                                      <Volume2 size={14} />
+                                    </button>
+                                  </div>
+                                  {r.note && <div className="matheng-reading-note">{r.note}</div>}
                                 </li>
                               );
                             })}
                           </ul>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
 
-              {displayLimit < filteredVocabulary.length && (
-                <div className="matheng-load-more-wrapper">
+                        {item.example && (
+                          <div className="matheng-symbol-example-box">
+                            <div className="matheng-example-label">
+                              <Lightbulb size={13} />
+                              <span>Ví dụ áp dụng:</span>
+                              <span
+                                className="matheng-symbol-example-math"
+                                dangerouslySetInnerHTML={{
+                                  __html: renderLatex(item.example.latex || item.example.expr),
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="matheng-subterm-speak-btn matheng-example-speak-btn"
+                                onClick={() => speakText(item.example.en, `${item.id}_ex`)}
+                                title="Nghe đọc câu ví dụ"
+                              >
+                                <Volume2
+                                  size={14}
+                                  className={speakingId === `${item.id}_ex` ? 'speaking' : ''}
+                                />
+                              </button>
+                            </div>
+                            <div className="matheng-symbol-example-en">"{item.example.en}"</div>
+                            {item.example.vi && (
+                              <div className="matheng-symbol-example-vi">→ {item.example.vi}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="matheng-empty-state">
+                  <Sigma size={48} className="matheng-empty-icon" />
+                  <h3>Không tìm thấy kí hiệu hoặc phép toán phù hợp</h3>
+                  <p>Hãy thử tìm với từ khóa khác (VD: cộng, lũy thừa, căn bậc, logarit, tích phân...).</p>
                   <button
                     type="button"
-                    className="matheng-load-more-btn"
-                    onClick={() => setDisplayLimit((prev) => prev + 60)}
+                    className="matheng-reset-filter-btn primary"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedSymbolCat('all');
+                    }}
                   >
-                    <ChevronDown size={18} />
-                    <span>
-                      Xem thêm 60 thuật ngữ (Đang hiển thị {visibleVocabulary.length}/{filteredVocabulary.length})
-                    </span>
+                    Xem tất cả kí hiệu toán học
                   </button>
                 </div>
-              )}
-            </>
-          ) : (
-            <div className="matheng-empty-state">
-              <Languages size={48} className="matheng-empty-icon" />
-              <h3>Không tìm thấy thuật ngữ phù hợp</h3>
-              <p>Hãy thử kiểm tra lại từ khóa hoặc chọn xem lại tất cả danh mục.</p>
-              <button
-                className="matheng-reset-filter-btn primary"
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCategory('all');
-                  setShowOnlySaved(false);
-                  setDisplayLimit(60);
-                }}
-              >
-                Xem lại toàn bộ danh mục từ vựng
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ======================= TAB 1.5: MATH SYMBOLS & OPERATIONS ======================= */}
-      {activeTab === 'symbols' && (
-        <div className="matheng-symbols-section">
-          {/* Intro Banner */}
-          <div className="matheng-classroom-intro-card matheng-symbols-intro">
-            <div className="matheng-intro-icon">
-              <Sigma size={28} />
-            </div>
-            <div>
-              <h3>Tổng hợp tất cả cách đọc Kí hiệu & Phép toán chương trình Phổ thông</h3>
-              <p>
-                Tra cứu đầy đủ các cách đọc phép tính số học (a + b, a × b, a ÷ b), lũy thừa (aᵇ), căn thức (ᵃ√b),
-                lôgarit (logₐ b), tập hợp, mệnh đề, đạo hàm, tích phân và hình học kèm phát âm chuẩn.
-              </p>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="matheng-search-box-card">
-            <div className="matheng-search-input-wrapper">
-              <Search size={18} className="matheng-search-icon" />
-              <input
-                type="text"
-                className="matheng-search-input"
-                placeholder="Tìm phép toán hoặc kí hiệu (VD: cộng, nhân, chia, lũy thừa, căn bậc a của b, logarit, tích phân, thuộc, với mọi...)"
-                value={symbolSearchQuery}
-                onChange={(e) => setSymbolSearchQuery(e.target.value)}
-              />
-              {symbolSearchQuery && (
-                <button
-                  className="matheng-clear-btn"
-                  onClick={() => setSymbolSearchQuery('')}
-                  title="Xóa tìm kiếm"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Symbol Categories Filter Bar */}
-          <div className="matheng-categories-bar">
-            {MATH_SYMBOL_CATEGORIES.map((cat) => {
-              const IconComp = CATEGORY_ICON_MAP[cat.id] || Layers;
-              const isActive = selectedSymbolCat === cat.id;
-              const count =
-                cat.id === 'all'
-                  ? MATH_SYMBOLS.length
-                  : MATH_SYMBOLS.filter((s) => s.category === cat.id).length;
-
-              return (
-                <button
-                  key={cat.id}
-                  className={`matheng-cat-pill ${isActive ? 'active' : ''}`}
-                  onClick={() => setSelectedSymbolCat(cat.id)}
-                  title={cat.desc}
-                >
-                  <IconComp size={15} />
-                  <span>{cat.name}</span>
-                  <span className="matheng-cat-pill-count">{count}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Results Summary */}
-          <div className="matheng-results-meta">
-            <span>
-              Hiển thị <strong>{filteredSymbols.length}</strong> phép toán & kí hiệu
-              {selectedSymbolCat !== 'all' &&
-                ` • Nhóm: ${MATH_SYMBOL_CATEGORIES.find((c) => c.id === selectedSymbolCat)?.name}`}
-            </span>
-            {(symbolSearchQuery || selectedSymbolCat !== 'all') && (
-              <button
-                className="matheng-reset-filter-btn"
-                onClick={() => {
-                  setSymbolSearchQuery('');
-                  setSelectedSymbolCat('all');
-                }}
-              >
-                Đặt lại bộ lọc
-              </button>
+              )
             )}
-          </div>
 
-          {/* Symbols Grid */}
-          {filteredSymbols.length > 0 ? (
-            <div className="matheng-symbols-grid">
-              {filteredSymbols.map((item) => {
-                const catMeta =
-                  MATH_SYMBOL_CATEGORIES.find((c) => c.id === item.category) ||
-                  MATH_SYMBOL_CATEGORIES[0];
-                const IconComp = CATEGORY_ICON_MAP[item.category] || Sigma;
-                const primaryReading = item.readings?.[0]?.en || item.symbol;
-                const isPrimarySpeaking = speakingId === `${item.id}_primary`;
-                const isCopied = copiedId === item.id;
+            {/* ======================= TAB 3: CLASSROOM ENGLISH ======================= */}
+            {activeTab === 'classroom' && (
+              filteredPhrases.length > 0 ? (
+                <div className="matheng-phrases-grid">
+                  {filteredPhrases.map((phrase) => {
+                    const isSpeaking = speakingId === phrase.id;
+                    const isCopied = copiedId === phrase.id;
+                    const catMeta = CLASSROOM_PHRASE_CATEGORIES.find((c) => c.id === phrase.category);
+                    const isTeacher = phrase.role === 'Teacher';
 
-                const copyPayload = `${item.symbol} (${item.vi}): ${(item.readings || [])
-                  .map((r) => r.en)
-                  .join(' / ')}`;
+                    return (
+                      <div key={phrase.id} className="matheng-phrase-card">
+                        <div className="matheng-phrase-card-header">
+                          <div className="matheng-phrase-badges">
+                            <span className={`matheng-role-badge ${isTeacher ? 'teacher' : 'student'}`}>
+                              {isTeacher ? '👨‍🏫 Giáo viên' : '🎒 Học sinh'}
+                            </span>
+                            {catMeta && (
+                              <span className="matheng-phrase-cat-badge">
+                                {catMeta.name}
+                              </span>
+                            )}
+                          </div>
+                          <div className="matheng-term-actions">
+                            <button
+                              type="button"
+                              className={`matheng-icon-action-btn ${isSpeaking ? 'active' : ''}`}
+                              onClick={() => speakText(phrase.en, phrase.id)}
+                              title="Phát âm câu khẩu lệnh"
+                            >
+                              <Volume2 size={16} />
+                            </button>
+                            <button
+                              type="button"
+                              className="matheng-icon-action-btn"
+                              onClick={() => handleCopy(`${phrase.en} (${phrase.vi})`, phrase.id)}
+                              title="Sao chép câu"
+                            >
+                              {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
+                            </button>
+                          </div>
+                        </div>
 
-                return (
-                  <div key={item.id} className="matheng-symbol-card">
-                    {/* Header: Category Badge & Actions */}
-                    <div className="matheng-term-card-header">
-                      <span className={`matheng-term-cat-badge cat-${item.category}`}>
-                        <IconComp size={12} />
-                        {catMeta.name}
-                      </span>
-                      <div className="matheng-term-actions">
-                        <button
-                          type="button"
-                          className={`matheng-icon-action-btn ${isPrimarySpeaking ? 'active' : ''}`}
-                          onClick={() => speakText(primaryReading, `${item.id}_primary`)}
-                          title="Nghe cách đọc phổ biến nhất"
-                        >
-                          <Volume2 size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          className="matheng-icon-action-btn"
-                          onClick={() => handleCopy(copyPayload, item.id)}
-                          title="Sao chép kí hiệu và các cách đọc"
-                        >
-                          {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
-                        </button>
-                      </div>
-                    </div>
+                        <div className="matheng-phrase-body">
+                          <div className="matheng-phrase-en">{phrase.en}</div>
+                          <div className="matheng-phrase-vi">{phrase.vi}</div>
+                        </div>
 
-                    {/* Formula Box + Vietnamese Reading */}
-                    <div className="matheng-symbol-hero">
-                      <div
-                        className="matheng-symbol-formula-badge"
-                        dangerouslySetInnerHTML={{ __html: renderLatex(item.latex || item.symbol) }}
-                      />
-                      <div className="matheng-symbol-vi-title">{item.vi}</div>
-                    </div>
-
-                    {/* All Ways to Read in English */}
-                    <div className="matheng-readings-box">
-                      <div className="matheng-readings-header">
-                        Các cách đọc chuẩn trong tiếng Anh ({item.readings?.length || 0} cách):
-                      </div>
-                      <ul className="matheng-readings-list">
-                        {(item.readings || []).map((r, rIdx) => {
-                          const rId = `${item.id}_read_${rIdx}`;
-                          const isRSpk = speakingId === rId;
-                          return (
-                            <li key={rIdx} className="matheng-reading-item">
-                              <div className="matheng-reading-main">
-                                <span className="matheng-reading-index">#{rIdx + 1}</span>
-                                <span className="matheng-reading-en">"{r.en}"</span>
-                                <button
-                                  type="button"
-                                  className={`matheng-reading-speak-btn ${isRSpk ? 'active' : ''}`}
-                                  onClick={() => speakText(r.en, rId)}
-                                  title="Nghe phát âm cách đọc này"
-                                >
-                                  <Volume2 size={14} />
-                                </button>
+                        {(phrase.context || phrase.tip) && (
+                          <div className="matheng-phrase-footer">
+                            {phrase.context && (
+                              <div className="matheng-phrase-context">
+                                <strong>Ngữ cảnh:</strong> {phrase.context}
                               </div>
-                              {r.note && <div className="matheng-reading-note">{r.note}</div>}
-                            </li>
-                          );
-                        })}
-                      </ul>
+                            )}
+                            {phrase.tip && (
+                              <div className="matheng-phrase-tip">
+                                <Lightbulb size={13} />
+                                <span>{phrase.tip}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="matheng-empty-state">
+                  <MessageCircle size={48} className="matheng-empty-icon" />
+                  <h3>Không tìm thấy câu khẩu lệnh phù hợp</h3>
+                  <p>Hãy thử tìm bằng từ khóa khác hoặc chuyển sang danh mục tất cả.</p>
+                  <button
+                    type="button"
+                    className="matheng-reset-filter-btn primary"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedPhraseCat('all');
+                      setSelectedRole('all');
+                    }}
+                  >
+                    Xem lại toàn bộ câu khẩu lệnh
+                  </button>
+                </div>
+              )
+            )}
+
+            {/* ======================= TAB 4: FLASHCARDS ======================= */}
+            {activeTab === 'flashcard' && currentCard && (
+              <div className="matheng-flashcards-section">
+                <div 
+                  className={`matheng-flashcard-wrapper ${isFlipped ? 'flipped' : ''}`}
+                  onClick={() => setIsFlipped(!isFlipped)}
+                >
+                  {/* Front Side */}
+                  <div className="matheng-flashcard matheng-card-front">
+                    <div className="matheng-flashcard-header">
+                      <span className="matheng-flashcard-cat-badge">
+                        {MATH_CATEGORIES.find((c) => c.id === currentCard.category)?.name || 'Toán học'}
+                      </span>
+                      <span className="matheng-flashcard-hint">Chạm để lật mặt sau ↻</span>
                     </div>
 
-                    {/* Concrete Example */}
-                    {item.example && (
-                      <div className="matheng-symbol-example-box">
-                        <div className="matheng-example-label">
-                          <Lightbulb size={13} />
-                          <span>Ví dụ áp dụng:</span>
-                          <span
-                            className="matheng-symbol-example-math"
-                            dangerouslySetInnerHTML={{
-                              __html: renderLatex(item.example.latex || item.example.expr),
-                            }}
-                          />
+                    <div className="matheng-flashcard-main">
+                      {cardDirection === 'en-first' ? (
+                        <>
+                          <h2 className="matheng-card-title">{currentCard.en}</h2>
+                          {currentCard.ipa && <div className="matheng-card-ipa">{currentCard.ipa}</div>}
                           <button
                             type="button"
-                            className="matheng-subterm-speak-btn matheng-example-speak-btn"
-                            onClick={() => speakText(item.example.en, `${item.id}_ex`)}
-                            title="Nghe đọc câu ví dụ"
+                            className="matheng-card-speak-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              speakText(currentCard.en, currentCard.id);
+                            }}
+                            title="Nghe phát âm"
                           >
-                            <Volume2
-                              size={14}
-                              className={speakingId === `${item.id}_ex` ? 'speaking' : ''}
-                            />
+                            <Volume2 size={20} />
+                            <span>Nghe phát âm</span>
                           </button>
-                        </div>
-                        <div className="matheng-symbol-example-en">"{item.example.en}"</div>
-                        {item.example.vi && (
-                          <div className="matheng-symbol-example-vi">→ {item.example.vi}</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="matheng-empty-state">
-              <Sigma size={48} className="matheng-empty-icon" />
-              <h3>Không tìm thấy kí hiệu hoặc phép toán phù hợp</h3>
-              <p>Hãy thử tìm với từ khóa khác (VD: cộng, lũy thừa, căn bậc, logarit, tích phân...).</p>
-              <button
-                className="matheng-reset-filter-btn primary"
-                onClick={() => {
-                  setSymbolSearchQuery('');
-                  setSelectedSymbolCat('all');
-                }}
-              >
-                Xem tất cả kí hiệu toán học
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ======================= TAB 2: CLASSROOM ENGLISH ======================= */}
-      {activeTab === 'classroom' && (
-        <div className="matheng-classroom-section">
-          {/* Header intro card */}
-          <div className="matheng-classroom-intro-card">
-            <div className="matheng-intro-icon">
-              <GraduationCap size={28} />
-            </div>
-            <div>
-              <h3>Câu lệnh & Giao tiếp trong lớp học Toán song ngữ</h3>
-              <p>
-                Tuyển tập các mẫu câu chuẩn xác mà giáo viên và học sinh bản ngữ sử dụng thường nhật: 
-                từ chia nhóm, quy định giờ làm bài, hiệu lệnh lên bảng đến các lời nhắc nhở kỹ năng giải toán.
-              </p>
-            </div>
-          </div>
-
-          {/* Search & Role Filter Bar */}
-          <div className="matheng-search-box-card">
-            <div className="matheng-search-input-wrapper">
-              <Search size={18} className="matheng-search-icon" />
-              <input
-                type="text"
-                className="matheng-search-input"
-                placeholder="Tìm câu lệnh lớp học (VD: nhóm đôi, hết giờ, lên bảng, rút gọn, dấu trừ...)"
-                value={phraseSearchQuery}
-                onChange={(e) => setPhraseSearchQuery(e.target.value)}
-              />
-              {phraseSearchQuery && (
-                <button
-                  className="matheng-clear-btn"
-                  onClick={() => setPhraseSearchQuery('')}
-                  title="Xóa tìm kiếm"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-
-            {/* Role Filter */}
-            <div className="matheng-direction-toggle">
-              <button
-                className={`matheng-dir-btn ${selectedRole === 'all' ? 'active' : ''}`}
-                onClick={() => setSelectedRole('all')}
-              >
-                Tất cả đối tượng
-              </button>
-              <button
-                className={`matheng-dir-btn ${selectedRole === 'Teacher' ? 'active' : ''}`}
-                onClick={() => setSelectedRole('Teacher')}
-              >
-                👨‍🏫 Giáo viên dùng ({CLASSROOM_PHRASES.filter((p) => p.role === 'Teacher').length})
-              </button>
-              <button
-                className={`matheng-dir-btn ${selectedRole === 'Student' ? 'active' : ''}`}
-                onClick={() => setSelectedRole('Student')}
-              >
-                🎒 Học sinh dùng ({CLASSROOM_PHRASES.filter((p) => p.role === 'Student').length})
-              </button>
-            </div>
-          </div>
-
-          {/* Scenario Tabs */}
-          <div className="matheng-categories-bar">
-            <button
-              className={`matheng-cat-pill ${selectedPhraseCat === 'all' ? 'active' : ''}`}
-              onClick={() => setSelectedPhraseCat('all')}
-            >
-              <Layers size={15} />
-              <span>Tất cả tình huống</span>
-              <span className="matheng-cat-pill-count">{CLASSROOM_PHRASES.length}</span>
-            </button>
-            {CLASSROOM_PHRASE_CATEGORIES.map((cat) => {
-              const IconComp = CATEGORY_ICON_MAP[cat.id] || MessageCircle;
-              const isActive = selectedPhraseCat === cat.id;
-              const count = CLASSROOM_PHRASES.filter((p) => p.category === cat.id).length;
-
-              return (
-                <button
-                  key={cat.id}
-                  className={`matheng-cat-pill ${isActive ? 'active' : ''}`}
-                  onClick={() => setSelectedPhraseCat(cat.id)}
-                  title={cat.desc}
-                >
-                  <IconComp size={15} />
-                  <span>{cat.name}</span>
-                  <span className="matheng-cat-pill-count">{count}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Phrases Grid */}
-          {filteredPhrases.length > 0 ? (
-            <div className="matheng-phrases-grid">
-              {filteredPhrases.map((phrase) => {
-                const isSpeaking = speakingId === phrase.id;
-                const isCopied = copiedId === phrase.id;
-                const catMeta = CLASSROOM_PHRASE_CATEGORIES.find((c) => c.id === phrase.category);
-                const isTeacher = phrase.role === 'Teacher';
-
-                return (
-                  <div key={phrase.id} className="matheng-phrase-card">
-                    <div className="matheng-phrase-card-header">
-                      <div className="matheng-phrase-badges">
-                        <span className={`matheng-role-badge ${isTeacher ? 'teacher' : 'student'}`}>
-                          {isTeacher ? '👨‍🏫 Giáo viên' : '🎒 Học sinh'}
-                        </span>
-                        {catMeta && (
-                          <span className="matheng-phrase-cat-badge">
-                            {catMeta.name}
-                          </span>
-                        )}
-                      </div>
-                      <div className="matheng-term-actions">
-                        <button
-                          className={`matheng-icon-action-btn ${isSpeaking ? 'active' : ''}`}
-                          onClick={() => speakText(phrase.en, phrase.id)}
-                          title="Phát âm câu khẩu lệnh"
-                        >
-                          <Volume2 size={16} />
-                        </button>
-                        <button
-                          className="matheng-icon-action-btn"
-                          onClick={() => handleCopy(`${phrase.en} (${phrase.vi})`, phrase.id)}
-                          title="Sao chép câu"
-                        >
-                          {isCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
-                        </button>
-                      </div>
+                        </>
+                      ) : (
+                        <>
+                          <h2 className="matheng-card-title vi">{currentCard.vi}</h2>
+                          <div className="matheng-card-subtitle">Hãy nhớ thuật ngữ tiếng Anh tương ứng!</div>
+                        </>
+                      )}
                     </div>
 
-                    <div className="matheng-phrase-body">
-                      <div className="matheng-phrase-en">{phrase.en}</div>
-                      <div className="matheng-phrase-vi">{phrase.vi}</div>
+                    <div className="matheng-flashcard-footer">
+                      <span>Nhấn phím [Space] hoặc bấm vào thẻ để lật</span>
+                    </div>
+                  </div>
+
+                  {/* Back Side */}
+                  <div className="matheng-flashcard matheng-card-back">
+                    <div className="matheng-flashcard-header">
+                      <span className="matheng-flashcard-cat-badge">Đáp án chi tiết</span>
+                      <span className="matheng-flashcard-hint">Chạm để lật lại ↻</span>
                     </div>
 
-                    {/* Context & Pedagogical Tip */}
-                    {(phrase.context || phrase.tip) && (
-                      <div className="matheng-phrase-footer">
-                        {phrase.context && (
-                          <div className="matheng-phrase-context">
-                            <strong>Ngữ cảnh:</strong> {phrase.context}
-                          </div>
-                        )}
-                        {phrase.tip && (
-                          <div className="matheng-phrase-tip">
-                            <Lightbulb size={13} />
-                            <span>{phrase.tip}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <div className="matheng-flashcard-main">
+                      {cardDirection === 'en-first' ? (
+                        <>
+                          <h2 className="matheng-card-title vi">{currentCard.vi}</h2>
+                          <div className="matheng-card-en-echo">{currentCard.en}</div>
+                          {currentCard.example && (
+                            <div className="matheng-card-example">
+                              "{currentCard.example}"
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <h2 className="matheng-card-title">{currentCard.en}</h2>
+                          {currentCard.ipa && <div className="matheng-card-ipa">{currentCard.ipa}</div>}
+                          <div className="matheng-card-vi-echo">{currentCard.vi}</div>
+                          <button
+                            type="button"
+                            className="matheng-card-speak-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              speakText(currentCard.en, currentCard.id);
+                            }}
+                            title="Nghe phát âm"
+                          >
+                            <Volume2 size={20} />
+                            <span>Nghe phát âm</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="matheng-flashcard-footer">
+                      <span>Đã thành thạo {masteredCards.length} / {cardList.length} thuật ngữ</span>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="matheng-empty-state">
-              <MessageCircle size={48} className="matheng-empty-icon" />
-              <h3>Không tìm thấy câu khẩu lệnh phù hợp</h3>
-              <p>Hãy thử tìm bằng từ khóa khác hoặc chuyển sang danh mục tất cả.</p>
-              <button
-                className="matheng-reset-filter-btn primary"
-                onClick={() => {
-                  setPhraseSearchQuery('');
-                  setSelectedPhraseCat('all');
-                  setSelectedRole('all');
-                }}
-              >
-                Xem lại toàn bộ câu khẩu lệnh
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+                </div>
 
-      {/* ======================= TAB 3: FLASHCARDS ======================= */}
-      {activeTab === 'flashcard' && currentCard && (
-        <div className="matheng-flashcards-section">
-          {/* Controls Bar */}
-          <div className="matheng-flashcard-controls-bar">
-            <div className="matheng-flashcard-progress">
-              <span>Thẻ <strong>{cardIndex + 1}</strong> / {cardList.length}</span>
-              <div className="matheng-progress-track">
-                <div 
-                  className="matheng-progress-fill" 
-                  style={{ width: `${((cardIndex + 1) / cardList.length) * 100}%` }}
-                />
+                {/* Navigation Controls */}
+                <div className="matheng-flashcard-nav">
+                  <button type="button" className="matheng-nav-arrow-btn" onClick={prevCard} title="Thẻ trước [Phím ←]">
+                    <ChevronLeft size={20} />
+                    <span>Thẻ trước</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="matheng-nav-flip-btn"
+                    onClick={() => setIsFlipped(!isFlipped)}
+                  >
+                    <RotateCcw size={16} />
+                    <span>Lật thẻ (Space)</span>
+                  </button>
+                  <button type="button" className="matheng-nav-arrow-btn" onClick={nextCard} title="Thẻ tiếp theo [Phím →]">
+                    <span>Thẻ kế tiếp</span>
+                    <ChevronRight size={20} />
+                  </button>
+                  <button
+                    type="button"
+                    className={`matheng-tool-btn ${isCurrentMastered ? 'mastered' : ''}`}
+                    onClick={() => toggleMastered(currentCard.id)}
+                    title="Đánh dấu đã thuộc từ này"
+                  >
+                    <Check size={14} />
+                    <span>{isCurrentMastered ? 'Đã thuộc ✓' : 'Đánh dấu đã thuộc'}</span>
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <div className="matheng-flashcard-toolbar">
-              <button
-                className="matheng-tool-btn"
-                onClick={() => setCardDirection(cardDirection === 'en-first' ? 'vi-first' : 'en-first')}
-                title="Đổi mặt thẻ bắt đầu"
-              >
-                <ArrowRightLeft size={14} />
-                <span>Mặt trước: {cardDirection === 'en-first' ? 'Tiếng Anh' : 'Tiếng Việt'}</span>
-              </button>
-              <button
-                className="matheng-tool-btn"
-                onClick={shuffleCards}
-                title="Xáo trộn ngẫu nhiên bộ thẻ"
-              >
-                <Shuffle size={14} />
-                <span>Xáo thẻ</span>
-              </button>
-              <button
-                className={`matheng-tool-btn ${isCurrentMastered ? 'mastered' : ''}`}
-                onClick={() => toggleMastered(currentCard.id)}
-                title="Đánh dấu đã thuộc từ này"
-              >
-                <Check size={14} />
-                <span>{isCurrentMastered ? 'Đã thuộc ✓' : 'Đánh dấu đã thuộc'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Interactive Flip Card Container */}
-          <div 
-            className={`matheng-flashcard-wrapper ${isFlipped ? 'flipped' : ''}`}
-            onClick={() => setIsFlipped(!isFlipped)}
-          >
-            {/* Front Side */}
-            <div className="matheng-flashcard matheng-card-front">
-              <div className="matheng-flashcard-header">
-                <span className="matheng-flashcard-cat-badge">
-                  {MATH_CATEGORIES.find((c) => c.id === currentCard.category)?.name || 'Toán học'}
-                </span>
-                <span className="matheng-flashcard-hint">Chạm để lật mặt sau ↻</span>
-              </div>
-
-              <div className="matheng-flashcard-main">
-                {cardDirection === 'en-first' ? (
-                  <>
-                    <h2 className="matheng-card-title">{currentCard.en}</h2>
-                    {currentCard.ipa && <div className="matheng-card-ipa">{currentCard.ipa}</div>}
-                    <button
-                      className="matheng-card-speak-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        speakText(currentCard.en, currentCard.id);
-                      }}
-                      title="Nghe phát âm"
-                    >
-                      <Volume2 size={20} />
-                      <span>Nghe phát âm</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <h2 className="matheng-card-title vi">{currentCard.vi}</h2>
-                    <div className="matheng-card-subtitle">Hãy nhớ thuật ngữ tiếng Anh tương ứng!</div>
-                  </>
-                )}
-              </div>
-
-              <div className="matheng-flashcard-footer">
-                <span>Nhấn phím [Space] hoặc bấm vào thẻ để lật</span>
-              </div>
-            </div>
-
-            {/* Back Side */}
-            <div className="matheng-flashcard matheng-card-back">
-              <div className="matheng-flashcard-header">
-                <span className="matheng-flashcard-cat-badge">Đáp án chi tiết</span>
-                <span className="matheng-flashcard-hint">Chạm để lật lại ↻</span>
-              </div>
-
-              <div className="matheng-flashcard-main">
-                {cardDirection === 'en-first' ? (
-                  <>
-                    <h2 className="matheng-card-title vi">{currentCard.vi}</h2>
-                    <div className="matheng-card-en-echo">{currentCard.en}</div>
-                    {currentCard.example && (
-                      <div className="matheng-card-example">
-                        "{currentCard.example}"
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <h2 className="matheng-card-title">{currentCard.en}</h2>
-                    {currentCard.ipa && <div className="matheng-card-ipa">{currentCard.ipa}</div>}
-                    <div className="matheng-card-vi-echo">{currentCard.vi}</div>
-                    <button
-                      className="matheng-card-speak-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        speakText(currentCard.en, currentCard.id);
-                      }}
-                      title="Nghe phát âm"
-                    >
-                      <Volume2 size={20} />
-                      <span>Nghe phát âm</span>
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <div className="matheng-flashcard-footer">
-                <span>Đã thành thạo {masteredCards.length} / {cardList.length} thuật ngữ</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation Controls */}
-          <div className="matheng-flashcard-nav">
-            <button className="matheng-nav-arrow-btn" onClick={prevCard} title="Thẻ trước [Phím ←]">
-              <ChevronLeft size={20} />
-              <span>Thẻ trước</span>
-            </button>
-            <button
-              className="matheng-nav-flip-btn"
-              onClick={() => setIsFlipped(!isFlipped)}
-            >
-              <RotateCcw size={16} />
-              <span>Lật thẻ (Space)</span>
-            </button>
-            <button className="matheng-nav-arrow-btn" onClick={nextCard} title="Thẻ tiếp theo [Phím →]">
-              <span>Thẻ kế tiếp</span>
-              <ChevronRight size={20} />
-            </button>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
