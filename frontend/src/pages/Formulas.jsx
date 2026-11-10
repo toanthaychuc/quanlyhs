@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, Sigma, Search, ChevronDown, ChevronUp, SquareSigma, BookOpen, Download } from 'lucide-react';
+import { Plus, X, Edit, Trash2, Upload, FileText, ChevronRight, Save, Sigma, Search, SquareSigma, BookOpen, Download, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { getFormulas, getLocalFormulas, getFormulaCachedSvgs, addFormula, updateFormula, deleteFormula, updateFormulaOrders } from '../services/formulaService';
 import MathView from '../components/MathView';
@@ -624,63 +624,77 @@ const Formulas = () => {
       </div>
 
       <div className="formulas-layout">
-        <div className="formulas-sidebar glass" style={{ alignSelf: isSidebarOpen ? 'stretch' : 'flex-start' }}>
-          <div 
-            className="sidebar-title-container" 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          >
-            <h3 className="sidebar-title" style={{ border: 'none', background: 'transparent' }}>Danh mục</h3>
-            {isSidebarOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-          </div>
-          <div className={`sidebar-content-wrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
-            {isLoading ? (
-              <div className="loading-state" style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-muted)' }}>Đang tải...</div>
-            ) : formulas.length > 0 ? (
-            <ul className="formulas-list">
-              {formulas.map(formula => (
-                <li 
-                  key={formula.id} 
-                  className={`formula-item ${activeFormulaId === formula.id ? 'active' : ''} ${dragOverId === formula.id ? 'drag-over' : ''} ${draggedId === formula.id ? 'dragging-item' : ''}`}
-                  onClick={() => setActiveFormulaId(formula.id)}
-                  draggable={isTeacher}
-                  onDragStart={(e) => handleListDragStart(e, formula)}
-                  onDragOver={(e) => handleListDragOver(e, formula)}
-                  onDragLeave={handleListDragLeave}
-                  onDrop={(e) => handleListDrop(e, formula)}
-                  onDragEnd={handleListDragEnd}
-                >
-                  <div className="formula-item-content">
-                    {formula.class_level && <span className="badge" style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'var(--primary-color)', color: 'white', borderRadius: '4px', marginRight: '8px' }}>{formula.class_level.replace(/^[lL]ớp\s*/, '')}</span>}
-                    <span className="item-title">{formula.title}</span>
-                  </div>
-                  
-                  {isTeacher && (
-                    <div className="formula-item-actions">
-                      <button className="icon-btn edit-btn" onClick={(e) => openEditModal(e, formula)} title="Sửa">
-                        <Edit size={14} />
-                      </button>
-                      <button className="icon-btn download-btn" onClick={(e) => handleDownload(e, formula)} title="Tải về file TeX" style={{ color: 'var(--text-muted)' }}>
-                        <Download size={14} />
-                      </button>
-                      <button className="icon-btn delete-btn" onClick={(e) => handleDelete(e, formula.id)} title="Xóa">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  )}
-                  {activeFormulaId === formula.id && !isTeacher && <ChevronRight size={16} className="active-indicator" />}
-                </li>
-              ))}
+        <div className={`formulas-sidebar glass ${!isSidebarOpen ? 'collapsed' : ''}`}>
+          <div style={{ width: '300px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div 
+              className="sidebar-title-container" 
+              onClick={() => setIsSidebarOpen(false)}
+              title="Thu gọn danh mục"
+            >
+              <h3 className="sidebar-title" style={{ border: 'none', background: 'transparent' }}>Danh mục</h3>
+              <span className="sidebar-collapse-chevron" style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>«</span>
+            </div>
+            <div className="sidebar-content-wrapper open">
+              {isLoading ? (
+                <div className="loading-state" style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-muted)' }}>Đang tải...</div>
+              ) : formulas.length > 0 ? (
+                <ul className="formulas-list">
+                  {formulas.map(formula => (
+                    <li 
+                      key={formula.id} 
+                      className={`formula-item ${activeFormulaId === formula.id ? 'active' : ''} ${dragOverId === formula.id ? 'drag-over' : ''} ${draggedId === formula.id ? 'dragging-item' : ''}`}
+                      onClick={() => setActiveFormulaId(formula.id)}
+                      draggable={isTeacher}
+                      onDragStart={(e) => handleListDragStart(e, formula)}
+                      onDragOver={(e) => handleListDragOver(e, formula)}
+                      onDragLeave={handleListDragLeave}
+                      onDrop={(e) => handleListDrop(e, formula)}
+                      onDragEnd={handleListDragEnd}
+                    >
+                      <div className="formula-item-content">
+                        {formula.class_level && <span className="badge" style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'var(--primary-color)', color: 'white', borderRadius: '4px', marginRight: '8px' }}>{formula.class_level.replace(/^[lL]ớp\s*/, '')}</span>}
+                        <span className="item-title">{formula.title}</span>
+                      </div>
+                      
+                      {isTeacher && (
+                        <div className="formula-item-actions">
+                          <button className="icon-btn edit-btn" onClick={(e) => openEditModal(e, formula)} title="Sửa">
+                            <Edit size={14} />
+                          </button>
+                          <button className="icon-btn download-btn" onClick={(e) => handleDownload(e, formula)} title="Tải về file TeX" style={{ color: 'var(--text-muted)' }}>
+                            <Download size={14} />
+                          </button>
+                          <button className="icon-btn delete-btn" onClick={(e) => handleDelete(e, formula.id)} title="Xóa">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )}
+                      {activeFormulaId === formula.id && !isTeacher && <ChevronRight size={16} className="active-indicator" />}
+                    </li>
+                  ))}
                 </ul>
               ) : (
                 <div className="empty-state">Chưa có công thức nào.</div>
               )}
+            </div>
           </div>
         </div>
 
         <div className="formulas-main glass">
           {activeFormula ? (
             <div className="formula-content-container">
-              <h2 className="formula-main-title">{activeFormula.title}</h2>
+              <div className="formula-main-header">
+                <button
+                  type="button"
+                  className={`category-toggle-btn ${!isSidebarOpen ? 'is-collapsed' : ''}`}
+                  onClick={() => setIsSidebarOpen(prev => !prev)}
+                  title={isSidebarOpen ? "Thu gọn danh mục" : "Mở danh mục"}
+                  aria-label={isSidebarOpen ? "Thu gọn danh mục" : "Mở danh mục"}
+                >
+                  {isSidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />}
+                </button>
+                <h2 className="formula-main-title">{activeFormula.title}</h2>
+              </div>
               <div className="formula-viewer">
                 {activeFormula.content ? (
                   <MathView text={activeFormula.content} cachedSvgs={activeFormula.cached_svgs} />
@@ -690,9 +704,23 @@ const Formulas = () => {
               </div>
             </div>
           ) : (
-            <div className="empty-main">
-              <Sigma size={48} className="empty-icon" />
-              <p>Vui lòng chọn một mục để xem công thức</p>
+            <div className="formula-content-container">
+              <div className="formula-main-header">
+                <button
+                  type="button"
+                  className={`category-toggle-btn ${!isSidebarOpen ? 'is-collapsed' : ''}`}
+                  onClick={() => setIsSidebarOpen(prev => !prev)}
+                  title={isSidebarOpen ? "Thu gọn danh mục" : "Mở danh mục"}
+                  aria-label={isSidebarOpen ? "Thu gọn danh mục" : "Mở danh mục"}
+                >
+                  {isSidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />}
+                </button>
+                <span style={{ color: 'var(--text-muted)', fontSize: '1.15rem', fontWeight: 600 }}>Công thức</span>
+              </div>
+              <div className="empty-main">
+                <Sigma size={48} className="empty-icon" />
+                <p>Vui lòng chọn một mục để xem công thức</p>
+              </div>
             </div>
           )}
         </div>

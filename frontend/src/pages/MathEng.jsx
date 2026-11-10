@@ -24,11 +24,12 @@ import {
   ChevronLeft, 
   ChevronRight, 
   ChevronDown,
-  ChevronUp,
   Shuffle, 
   ArrowRightLeft,
   Lightbulb,
-  Sigma
+  Sigma,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -600,18 +601,19 @@ const MathEng = () => {
       <div className="formulas-layout matheng-layout">
         {/* Left Sidebar: Danh mục */}
         <div 
-          className="formulas-sidebar glass matheng-sidebar" 
-          style={{ alignSelf: isSidebarOpen ? 'stretch' : 'flex-start' }}
+          className={`formulas-sidebar glass matheng-sidebar ${!isSidebarOpen ? 'collapsed' : ''}`}
         >
-          <div 
-            className="sidebar-title-container" 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          >
-            <h3 className="sidebar-title">Danh mục</h3>
-            {isSidebarOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-          </div>
+          <div style={{ width: '300px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div 
+              className="sidebar-title-container" 
+              onClick={() => setIsSidebarOpen(false)}
+              title="Thu gọn danh mục"
+            >
+              <h3 className="sidebar-title">Danh mục</h3>
+              <span className="sidebar-collapse-chevron" style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>«</span>
+            </div>
 
-          <div className={`sidebar-content-wrapper ${isSidebarOpen ? 'open' : 'closed'}`}>
+            <div className="sidebar-content-wrapper open">
             {/* Sidebar content for: THUẬT NGỮ TOÁN HỌC */}
             {activeTab === 'vocab' && (
               <ul className="formulas-list">
@@ -848,61 +850,42 @@ const MathEng = () => {
               </div>
             )}
           </div>
+          </div>
         </div>
 
         {/* Right Main Content Panel */}
         <div className="formulas-main glass matheng-main-content">
           {/* Main Meta Header Bar */}
           <div className="matheng-main-meta-bar">
-            {activeTab === 'vocab' && (
-              <>
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                className={`category-toggle-btn ${!isSidebarOpen ? 'is-collapsed' : ''}`}
+                onClick={() => setIsSidebarOpen((prev) => !prev)}
+                title={isSidebarOpen ? "Thu gọn danh mục" : "Mở danh mục"}
+                aria-label={isSidebarOpen ? "Thu gọn danh mục" : "Mở danh mục"}
+              >
+                {isSidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />}
+              </button>
+
+              {activeTab === 'vocab' && (
                 <span>
                   Tìm thấy <strong>{filteredVocabulary.length}</strong> thuật ngữ
                   {selectedCategory !== 'all' &&
                     ` • Lĩnh vực: ${MATH_CATEGORIES.find((c) => c.id === selectedCategory)?.name}`}
                   {showOnlySaved && ' • Danh sách đã lưu'}
                 </span>
-                {(searchQuery || selectedCategory !== 'all' || showOnlySaved) && (
-                  <button
-                    type="button"
-                    className="matheng-reset-filter-btn"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedCategory('all');
-                      setShowOnlySaved(false);
-                      setDisplayLimit(60);
-                    }}
-                  >
-                    Đặt lại bộ lọc
-                  </button>
-                )}
-              </>
-            )}
+              )}
 
-            {activeTab === 'symbols' && (
-              <>
+              {activeTab === 'symbols' && (
                 <span>
                   Hiển thị <strong>{filteredSymbols.length}</strong> phép toán & kí hiệu
                   {selectedSymbolCat !== 'all' &&
                     ` • Nhóm: ${MATH_SYMBOL_CATEGORIES.find((c) => c.id === selectedSymbolCat)?.name}`}
                 </span>
-                {(searchQuery || selectedSymbolCat !== 'all') && (
-                  <button
-                    type="button"
-                    className="matheng-reset-filter-btn"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedSymbolCat('all');
-                    }}
-                  >
-                    Đặt lại bộ lọc
-                  </button>
-                )}
-              </>
-            )}
+              )}
 
-            {activeTab === 'classroom' && (
-              <>
+              {activeTab === 'classroom' && (
                 <span>
                   Hiển thị <strong>{filteredPhrases.length}</strong> câu khẩu lệnh
                   {selectedPhraseCat !== 'all' &&
@@ -910,26 +893,56 @@ const MathEng = () => {
                   {selectedRole !== 'all' &&
                     ` • Đối tượng: ${selectedRole === 'Teacher' ? 'Giáo viên' : 'Học sinh'}`}
                 </span>
-                {(searchQuery || selectedPhraseCat !== 'all' || selectedRole !== 'all') && (
-                  <button
-                    type="button"
-                    className="matheng-reset-filter-btn"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedPhraseCat('all');
-                      setSelectedRole('all');
-                    }}
-                  >
-                    Đặt lại bộ lọc
-                  </button>
-                )}
-              </>
+              )}
+
+              {activeTab === 'flashcard' && (
+                <span>
+                  Thẻ số <strong>{cardIndex + 1}</strong> / {activeFlashcardList.length} • Nhấn phím cách [Space] hoặc bấm vào thẻ để lật
+                </span>
+              )}
+            </div>
+
+            {/* Reset Filter Buttons on Right */}
+            {activeTab === 'vocab' && (searchQuery || selectedCategory !== 'all' || showOnlySaved) && (
+              <button
+                type="button"
+                className="matheng-reset-filter-btn"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('all');
+                  setShowOnlySaved(false);
+                  setDisplayLimit(60);
+                }}
+              >
+                Đặt lại bộ lọc
+              </button>
             )}
 
-            {activeTab === 'flashcard' && (
-              <span>
-                Thẻ số <strong>{cardIndex + 1}</strong> / {activeFlashcardList.length} • Nhấn phím cách [Space] hoặc bấm vào thẻ để lật
-              </span>
+            {activeTab === 'symbols' && (searchQuery || selectedSymbolCat !== 'all') && (
+              <button
+                type="button"
+                className="matheng-reset-filter-btn"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedSymbolCat('all');
+                }}
+              >
+                Đặt lại bộ lọc
+              </button>
+            )}
+
+            {activeTab === 'classroom' && (searchQuery || selectedPhraseCat !== 'all' || selectedRole !== 'all') && (
+              <button
+                type="button"
+                className="matheng-reset-filter-btn"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedPhraseCat('all');
+                  setSelectedRole('all');
+                }}
+              >
+                Đặt lại bộ lọc
+              </button>
             )}
           </div>
 

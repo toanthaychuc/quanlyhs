@@ -43,6 +43,104 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.2s ease,
+              border-width 0.2s ease;
+}
+
+@media (min-width: 769px) {
+  .formulas-sidebar.collapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    margin-right: -1.5rem !important;
+    opacity: 0 !important;
+    border-width: 0 !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .formulas-sidebar.collapsed {
+    display: none !important;
+  }
+}
+
+/* Category Sidebar Toggle Button (Matching Học Liệu Tương Tác) */
+.category-toggle-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--surface-color, #ffffff);
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .category-toggle-btn {
+  background: var(--card-bg, #1e293b);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary, #94a3b8);
+}
+
+.category-toggle-btn:hover {
+  border-color: var(--primary-color, #4f46e5);
+  color: var(--primary-color, #4f46e5);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.15);
+}
+
+.category-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.category-toggle-btn.is-collapsed {
+  border-color: var(--primary-color, #4f46e5);
+  color: var(--primary-color, #4f46e5);
+  background: rgba(79, 70, 229, 0.08);
+}
+
+[data-theme="dark"] .category-toggle-btn.is-collapsed {
+  background: rgba(79, 70, 229, 0.2);
+}
+
+.formula-main-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+}
+
+.formula-main-header .formula-main-title {
+  margin: 0;
+  padding: 0;
+  border-bottom: none;
+  font-size: 1.5rem;
+}
+
+.sidebar-collapse-chevron {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-title-container:hover .sidebar-collapse-chevron {
+  color: var(--primary-color);
+  transform: translateX(-2px);
 }
 
 .sidebar-title-container {
