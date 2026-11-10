@@ -17,15 +17,41 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 1rem;
   border-bottom: 1px solid var(--border-color, #e2e8f0);
   padding-bottom: 0.75rem;
 }
 
-.matheng-header-tabs {
-  margin-left: auto;
+.matheng-header .formulas-title-area {
   flex-shrink: 0;
+  min-width: max-content;
+}
+
+/* Neutralize Formulas.css absolute centering so search never collides with tabs */
+.matheng-header .formulas-global-search {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  transform: none !important;
+  flex: 1 1 280px;
+  max-width: 440px;
+  min-width: 180px;
+  margin: 0 auto !important;
+  z-index: 2;
+}
+
+.matheng-header .formulas-global-search .search-input-wrapper {
+  width: 100%;
+}
+
+.matheng-header-tabs {
+  margin-left: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .matheng-tab-badge {
@@ -1102,6 +1128,31 @@
 }
 
 /* ==================== Responsive ==================== */
+/* Wrap cleanly into 2 rows when Title + Search + 4 Tabs become tight */
+@media (max-width: 1180px) {
+  .matheng-header {
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+  }
+
+  .matheng-header .formulas-title-area {
+    order: 1;
+  }
+
+  .matheng-header-tabs {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .matheng-header .formulas-global-search {
+    order: 3;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0.25rem 0 0 0 !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .matheng-sidebar {
     width: 250px;
@@ -1115,10 +1166,33 @@
     gap: 0.75rem;
   }
 
+  .matheng-header .formulas-title-area {
+    order: 1;
+  }
+
+  .matheng-header .formulas-global-search {
+    order: 2;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
   .matheng-header-tabs {
+    order: 3;
     width: 100%;
     overflow-x: auto;
     margin-left: 0;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+
+  .matheng-header-tabs .school-tab-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
   }
 
   .matheng-layout {
