@@ -199,16 +199,19 @@ const InteractiveMaterials = () => {
   }, [isFullscreen, toggleFullscreen, updateResizerPosition]);
 
   useEffect(() => {
+    let prevWidth = window.innerWidth;
     const handleResize = () => {
-      if (window.innerWidth <= 768 && !sidebarCollapsed) {
+      const currentWidth = window.innerWidth;
+      if (prevWidth > 768 && currentWidth <= 768) {
         setSidebarCollapsed(true);
-      } else if (window.innerWidth > 768 && sidebarCollapsed) {
+      } else if (prevWidth <= 768 && currentWidth > 768) {
         setSidebarCollapsed(false);
       }
+      prevWidth = currentWidth;
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [sidebarCollapsed]);
+  }, []);
 
   // Update resizer position on material change, window resize or fullscreen change
   useEffect(() => {
@@ -376,12 +379,20 @@ const InteractiveMaterials = () => {
       </div>
       
       <div className="formulas-layout">
+        {/* Mobile Backdrop when Category Sidebar is Open */}
+        {!sidebarCollapsed && (
+          <div 
+            className="interactive-mobile-backdrop"
+            onClick={() => setSidebarCollapsed(true)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* Sidebar / Menu */}
         <div
           className={`formulas-sidebar glass interactive-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}
         >
-          
-          <div style={{ width: '300px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <div className="interactive-sidebar-inner" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', width: '100%' }}>
           <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
             <div className="grade-tabs">
               {['10', '11', '12'].map(grade => (

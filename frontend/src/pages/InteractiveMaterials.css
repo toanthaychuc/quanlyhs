@@ -53,36 +53,74 @@
   }
 }
 
+.interactive-sidebar-inner {
+  width: 100%;
+}
+
 @media (max-width: 768px) {
   .interactive-page-container .formulas-layout {
     position: relative;
     overflow: hidden;
   }
   
-  .interactive-sidebar {
+  .interactive-mobile-backdrop {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100% !important;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 990;
+    animation: fadeInBackdrop 0.2s ease;
+  }
+
+  @keyframes fadeInBackdrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .interactive-sidebar {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 310px !important;
+    max-width: 85vw !important;
     height: 100% !important;
-    z-index: 50;
-    background: var(--bg-primary, #ffffff);
+    z-index: 1000 !important;
+    background: #ffffff !important;
     margin: 0 !important;
     max-height: none !important;
     transform: translateX(0);
-    border-radius: var(--radius-lg);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0 !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25) !important;
+    overflow-y: auto !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
   
   [data-theme="dark"] .interactive-sidebar {
-    background: var(--bg-secondary, #1e293b);
+    background: #1e293b !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6) !important;
   }
 
   .interactive-sidebar.collapsed {
-    transform: translateX(-100%);
-    width: 100% !important; /* Keep width so animation looks right */
-    opacity: 1; /* Hide by sliding, not fading */
+    transform: translateX(-105%) !important;
+    width: 310px !important;
+    max-width: 85vw !important;
+    opacity: 0 !important;
     pointer-events: none !important;
+    box-shadow: none !important;
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .interactive-mobile-backdrop {
+    display: none !important;
   }
 }
 
