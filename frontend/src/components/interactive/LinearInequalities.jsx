@@ -37,7 +37,7 @@ const LinearInequalities = () => {
             const ineq = inequalities[k];
             const a = parseFloat(ineq.a) || 0, b = parseFloat(ineq.b) || 0, c = parseFloat(ineq.c) || 0;
             const val = a * x + b * y;
-            if (ineq.op === '<=') {
+            if (ineq.op === '<=' || ineq.op === '<') {
               if (val > c + 1e-5) isValid = false;
             } else {
               if (val < c - 1e-5) isValid = false;
@@ -45,7 +45,12 @@ const LinearInequalities = () => {
           }
           if (isValid) {
             if (!pts.some(p => Math.abs(p.x - x) < 1e-4 && Math.abs(p.y - y) < 1e-4)) {
-              pts.push({ x, y });
+              const isStrictVertex = inequalities.some(ineq => {
+                if (ineq.op !== '<' && ineq.op !== '>') return false;
+                const a = parseFloat(ineq.a) || 0, b = parseFloat(ineq.b) || 0, c = parseFloat(ineq.c) || 0;
+                return Math.abs(a * x + b * y - c) < 1e-4;
+              });
+              pts.push({ x, y, isStrict: isStrictVertex });
             }
           }
         }
@@ -185,7 +190,7 @@ const LinearInequalities = () => {
     const p2y = py - HUGE * vy;
 
     // Invalid direction is opposite to valid direction
-    let sign = (ineq.op === '<=') ? 1 : -1;
+    let sign = (ineq.op === '<=' || ineq.op === '<') ? 1 : -1;
     
     const p3x = p2x + sign * HUGE * nx;
     const p3y = p2y + sign * HUGE * ny;
@@ -299,8 +304,10 @@ const LinearInequalities = () => {
     <div className="ineq-container">
       <div className="ineq-sidebar">
         <h3 className="ineq-title">Hệ Bất Phương Trình</h3>
+        <p className="ineq-desc">
+          Quy ước: Đường nét liền (≤, ≥) lấy bờ; đường nét đứt (&lt;, &gt;) không lấy bờ.
+        </p>
 
-        
         <div className="ineq-list">
           {inequalities.map((ineq, index) => (
             <div key={ineq.id} className="ineq-item">
@@ -326,7 +333,9 @@ const LinearInequalities = () => {
                   onChange={(e) => updateIneq(ineq.id, 'op', e.target.value)}
                   className="op-select"
                 >
+                  <option value="<">&lt;</option>
                   <option value="<=">≤</option>
+                  <option value=">">&gt;</option>
                   <option value=">=">≥</option>
                 </select>
                 <input 
@@ -461,7 +470,14 @@ const LinearInequalities = () => {
             const textWidth = textStr.length * 7.5 + 10;
             return (
               <g key={`vertex-${idx}`}>
-                <circle cx={vx} cy={vy} r="5" fill="#0f172a" />
+                <circle 
+                  cx={vx} 
+                  cy={vy} 
+                  r="5" 
+                  fill={v.isStrict ? "#ffffff" : "#0f172a"} 
+                  stroke="#0f172a" 
+                  strokeWidth={v.isStrict ? "2" : "1"} 
+                />
                 <rect x={vx + 8} y={vy - 24} width={textWidth} height="22" fill="white" rx="4" fillOpacity="0.85" stroke="#cbd5e1" strokeWidth="1" />
                 <text x={vx + 13} y={vy - 8} fill="#0f172a" fontSize="13" fontWeight="bold" fontFamily='"Latin Modern Math", "Cambria Math", serif'>
                   {textStr}
@@ -477,6 +493,7 @@ const LinearInequalities = () => {
             const endpoint = getVisibleEndpointAndAngle(ineq);
             const colors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#7c3aed'];
             const strokeColor = colors[i % colors.length];
+            const isStrict = ineq.op === '<' || ineq.op === '>';
             return (
               <g key={`line-group-${ineq.id}`}>
                 <line 
@@ -484,6 +501,7 @@ const LinearInequalities = () => {
                   x2={line.x2} y2={line.y2} 
                   stroke={strokeColor} 
                   strokeWidth="2"
+                  strokeDasharray={isStrict ? "7 5" : undefined}
                 />
                 {endpoint && (
                   <text 

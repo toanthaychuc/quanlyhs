@@ -49,7 +49,7 @@ const InteractiveMaterials = () => {
     try {
       const saved = localStorage.getItem('interactive_material_sidebar_width');
       const parsed = parseInt(saved, 10);
-      return !isNaN(parsed) && parsed >= 250 && parsed <= 850 ? parsed : 360;
+      return !isNaN(parsed) && parsed >= 350 && parsed <= 850 ? parsed : 360;
     } catch {
       return 360;
     }
@@ -62,6 +62,7 @@ const InteractiveMaterials = () => {
   const mainContentRef = useRef(null);
   const dragStartXRef = useRef(0);
   const dragStartWidthRef = useRef(360);
+  const dragSidebarLeftRef = useRef(24);
 
   // Dynamically calculate resizer bar position at the right edge of active lesson's sidebar
   const updateResizerPosition = useCallback(() => {
@@ -225,6 +226,18 @@ const InteractiveMaterials = () => {
     setIsResizingSidebar(true);
     dragStartXRef.current = e.clientX;
     dragStartWidthRef.current = materialSidebarWidth;
+
+    const container = mainContentRef.current;
+    if (container) {
+      const sidebarEl = container.querySelector(
+        '.solid-sidebar, .riemann-sidebar, .func-invest-sidebar, .space-geom-sidebar, .space-angles-sidebar, .oxyz-sidebar, .cross-section-sidebar, .conic-sidebar, .trig-sidebar, .ineq-sidebar, .quad-sidebar, .derivative-sidebar, .set-ops-controls, [class*="-sidebar"]'
+      );
+      if (sidebarEl) {
+        const containerRect = container.getBoundingClientRect();
+        const sidebarRect = sidebarEl.getBoundingClientRect();
+        dragSidebarLeftRef.current = sidebarRect.left - containerRect.left;
+      }
+    }
   };
 
   const handleResizerTouchStart = (e) => {
@@ -232,6 +245,18 @@ const InteractiveMaterials = () => {
       setIsResizingSidebar(true);
       dragStartXRef.current = e.touches[0].clientX;
       dragStartWidthRef.current = materialSidebarWidth;
+
+      const container = mainContentRef.current;
+      if (container) {
+        const sidebarEl = container.querySelector(
+          '.solid-sidebar, .riemann-sidebar, .func-invest-sidebar, .space-geom-sidebar, .space-angles-sidebar, .oxyz-sidebar, .cross-section-sidebar, .conic-sidebar, .trig-sidebar, .ineq-sidebar, .quad-sidebar, .derivative-sidebar, .set-ops-controls, [class*="-sidebar"]'
+        );
+        if (sidebarEl) {
+          const containerRect = container.getBoundingClientRect();
+          const sidebarRect = sidebarEl.getBoundingClientRect();
+          dragSidebarLeftRef.current = sidebarRect.left - containerRect.left;
+        }
+      }
     }
   };
 
@@ -255,17 +280,25 @@ const InteractiveMaterials = () => {
       if (!container) return;
 
       const containerRect = container.getBoundingClientRect();
+      const minAllowed = 350;
       const maxAllowed = Math.min(window.innerWidth - 300, Math.floor(containerRect.width * 0.75), 850);
-      const minAllowed = 250;
 
       const deltaX = clientX - dragStartXRef.current;
       const targetWidth = Math.round(dragStartWidthRef.current + deltaX);
       const clampedWidth = Math.max(minAllowed, Math.min(maxAllowed, targetWidth));
 
+      // Prevent cursor deadband when dragging past bounds
+      if (targetWidth < minAllowed) {
+        dragStartXRef.current = clientX - (minAllowed - dragStartWidthRef.current);
+      } else if (targetWidth > maxAllowed) {
+        dragStartXRef.current = clientX - (maxAllowed - dragStartWidthRef.current);
+      }
+
       setMaterialSidebarWidth(clampedWidth);
 
-      // Smooth real-time update of resizer left position while dragging
-      const currentLeft = clientX - containerRect.left;
+      // Lock resizer bar strictly to the sidebar edge (+ 8px gap)
+      // It can never penetrate the sidebar nor overshoot into the canvas!
+      const currentLeft = Math.round(dragSidebarLeftRef.current + clampedWidth + 8);
       setResizerPos(prev => ({ ...prev, left: `${currentLeft}px` }));
     };
 

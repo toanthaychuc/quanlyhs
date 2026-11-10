@@ -109,7 +109,7 @@
   .derivative-sidebar,
   .set-ops-controls {
     width: var(--interactive-sidebar-width, 360px) !important;
-    min-width: 250px !important;
+    min-width: 350px !important;
     max-width: min(80vw, 850px) !important;
     flex-shrink: 0 !important;
     box-sizing: border-box !important;

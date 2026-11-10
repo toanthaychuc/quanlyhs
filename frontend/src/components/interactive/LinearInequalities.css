@@ -5,10 +5,14 @@
 }
 
 .ineq-sidebar {
-  width: 340px;
+  width: 350px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  box-sizing: border-box;
 }
 
 .ineq-title {
@@ -32,29 +36,41 @@
 .ineq-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 6px;
   background: white;
-  padding: 10px;
+  padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .ineq-inputs {
   display: flex;
   align-items: center;
   flex: 1;
-  gap: 6px;
+  gap: 4px;
+  min-width: 0;
+}
+
+.line-label {
+  font-weight: 600;
+  color: #475569;
+  flex-shrink: 0;
+  font-size: 15px;
 }
 
 .coeff-input {
-  width: 36px;
-  padding: 4px;
+  width: 34px;
+  padding: 4px 2px;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
   text-align: center;
   outline: none;
-  font-size: 16px;
+  font-size: 15px;
+  flex-shrink: 0;
 }
 
 .coeff-input:focus {
@@ -62,23 +78,32 @@
 }
 
 .op-select {
-  padding: 4px;
+  padding: 4px 2px;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
   outline: none;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
+  background-color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.op-select:focus {
+  border-color: #3b82f6;
 }
 
 .var-label {
   font-weight: bold;
   color: #334155;
-  font-size: 16px;
+  font-size: 15px;
+  flex-shrink: 0;
 }
 
 .plus-sign {
   color: #64748b;
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 .remove-btn {
@@ -92,6 +117,8 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: 2px;
 }
 
 .remove-btn:hover {
