@@ -131,6 +131,57 @@
   --interactive-sidebar-width: 360px;
 }
 
+/* =========================================================================
+   Interactive Material Header & Main Title Spacing (All Devices: Mobile & Desktop)
+   Accommodates Category Toggle Button on left and Fullscreen Button on right
+   ========================================================================= */
+.ineq-title,
+.math-title,
+.solid-title,
+.space-geom-title,
+.func-invest-title,
+.derivative-title,
+.riemann-title,
+.trig-title,
+.trig-sidebar > h3:first-of-type,
+.set-ops-controls > h3:first-of-type,
+.space-geom-sidebar > h3:first-of-type,
+.quad-sidebar > h3:first-of-type,
+.ineq-sidebar > h3:first-of-type,
+.derivative-sidebar > h3:first-of-type,
+.func-invest-sidebar > h3:first-of-type,
+.riemann-sidebar > h3:first-of-type,
+.solid-sidebar .solid-title,
+.oxyz-sidebar > h3:first-of-type,
+.conic-sidebar .card-header h3,
+.space-angles-sidebar > h3:first-of-type,
+.cross-section-sidebar > h3:first-of-type,
+[class*="-sidebar"] > h3:first-of-type,
+[class*="-controls"] > h3:first-of-type {
+  padding-left: 44px !important;
+  padding-right: 48px !important;
+  min-height: 32px;
+  display: flex !important;
+  align-items: center !important;
+  margin-top: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* In fullscreen mode, category toggle button is hidden; reset left padding */
+.formulas-main.interactive-fullscreen-mode .ineq-title,
+.formulas-main.interactive-fullscreen-mode .math-title,
+.formulas-main.interactive-fullscreen-mode .solid-title,
+.formulas-main.interactive-fullscreen-mode .space-geom-title,
+.formulas-main.interactive-fullscreen-mode .func-invest-title,
+.formulas-main.interactive-fullscreen-mode .derivative-title,
+.formulas-main.interactive-fullscreen-mode .riemann-title,
+.formulas-main.interactive-fullscreen-mode .trig-title,
+.formulas-main.interactive-fullscreen-mode [class*="-sidebar"] > h3:first-of-type,
+.formulas-main.interactive-fullscreen-mode [class*="-controls"] > h3:first-of-type {
+  padding-left: 0 !important;
+}
+
+
 @media (min-width: 769px) {
   /* Apply customizable width to sidebar in all 14 interactive components */
   .solid-sidebar,
@@ -151,28 +202,6 @@
     max-width: min(80vw, 850px) !important;
     flex-shrink: 0 !important;
     box-sizing: border-box !important;
-  }
-
-  /* Sidebar Main Title spacing to accommodate Category Toggle Button on its left */
-  .trig-sidebar > h3:first-of-type,
-  .set-ops-controls > h3:first-of-type,
-  .space-geom-sidebar > h3:first-of-type,
-  .quad-sidebar > h3:first-of-type,
-  .ineq-sidebar > h3:first-of-type,
-  .derivative-sidebar > h3:first-of-type,
-  .func-invest-sidebar > h3:first-of-type,
-  .riemann-sidebar > h3:first-of-type,
-  .solid-sidebar .solid-title,
-  .oxyz-sidebar > h3:first-of-type,
-  .conic-sidebar .card-header h3,
-  .space-angles-sidebar > h3:first-of-type,
-  .cross-section-sidebar > h3:first-of-type,
-  [class*="-sidebar"] > h3:first-of-type,
-  [class*="-controls"] > h3:first-of-type {
-    padding-left: 42px !important;
-    min-height: 32px;
-    display: flex !important;
-    align-items: center !important;
   }
 
   /* ConicSections: Ensure visualizer flexes while sidebar respects custom width */
