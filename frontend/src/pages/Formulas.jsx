@@ -17,7 +17,22 @@ const Formulas = () => {
     const local = getLocalFormulas();
     return !(local && local.length > 0);
   });
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth > 768);
+
+  useEffect(() => {
+    let prevWidth = window.innerWidth;
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      if (prevWidth > 768 && currentWidth <= 768) {
+        setIsSidebarOpen(false);
+      } else if (prevWidth <= 768 && currentWidth > 768) {
+        setIsSidebarOpen(true);
+      }
+      prevWidth = currentWidth;
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -624,8 +639,17 @@ const Formulas = () => {
       </div>
 
       <div className="formulas-layout">
+        {/* Mobile Backdrop when Category Sidebar is Open */}
+        {isSidebarOpen && (
+          <div 
+            className="formulas-mobile-backdrop"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         <div className={`formulas-sidebar glass ${!isSidebarOpen ? 'collapsed' : ''}`}>
-          <div style={{ width: '300px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <div className="formulas-sidebar-inner" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <div 
               className="sidebar-title-container" 
               onClick={() => setIsSidebarOpen(false)}
@@ -643,7 +667,12 @@ const Formulas = () => {
                     <li 
                       key={formula.id} 
                       className={`formula-item ${activeFormulaId === formula.id ? 'active' : ''} ${dragOverId === formula.id ? 'drag-over' : ''} ${draggedId === formula.id ? 'dragging-item' : ''}`}
-                      onClick={() => setActiveFormulaId(formula.id)}
+                      onClick={() => {
+                        setActiveFormulaId(formula.id);
+                        if (window.innerWidth <= 768) {
+                          setIsSidebarOpen(false);
+                        }
+                      }}
                       draggable={isTeacher}
                       onDragStart={(e) => handleListDragStart(e, formula)}
                       onDragOver={(e) => handleListDragOver(e, formula)}

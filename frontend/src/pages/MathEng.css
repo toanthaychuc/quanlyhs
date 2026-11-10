@@ -93,6 +93,10 @@
               border-width 0.2s ease;
 }
 
+.matheng-sidebar-inner {
+  width: 100%;
+}
+
 @media (min-width: 769px) {
   .matheng-sidebar.collapsed {
     width: 0 !important;
@@ -102,6 +106,9 @@
     border-width: 0 !important;
     padding: 0 !important;
     pointer-events: none !important;
+  }
+  .matheng-mobile-backdrop {
+    display: none !important;
   }
 }
 
@@ -1218,13 +1225,66 @@
   }
 
   .matheng-layout {
-    flex-direction: column;
-    height: auto;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    min-height: calc(100vh - 220px);
+    display: flex;
+  }
+
+  .matheng-mobile-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 990;
+    animation: fadeInBackdrop 0.2s ease;
   }
 
   .matheng-sidebar {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 310px !important;
+    max-width: 85vw !important;
+    height: 100% !important;
+    max-height: none !important;
+    z-index: 1000 !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    transform: translateX(0);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0 !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25) !important;
+    overflow-y: auto !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  [data-theme="dark"] .matheng-sidebar {
+    background: #1e293b !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .matheng-sidebar.collapsed {
+    transform: translateX(-105%) !important;
+    width: 310px !important;
+    max-width: 85vw !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+    display: none !important;
+  }
+
+  .matheng-main {
     width: 100%;
-    max-height: 380px;
+    flex: 1;
+    min-height: 0;
   }
 
   .matheng-vocab-grid,

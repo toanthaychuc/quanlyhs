@@ -173,7 +173,22 @@ const selectBestBrowserVoice = (voices, preferredLang = 'en-US') => {
 const MathEng = () => {
   // Navigation Tabs: 'vocab' | 'symbols' | 'classroom' | 'flashcard'
   const [activeTab, setActiveTab] = useState('vocab');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth > 768);
+
+  useEffect(() => {
+    let prevWidth = window.innerWidth;
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      if (prevWidth > 768 && currentWidth <= 768) {
+        setIsSidebarOpen(false);
+      } else if (prevWidth <= 768 && currentWidth > 768) {
+        setIsSidebarOpen(true);
+      }
+      prevWidth = currentWidth;
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Unified Search State across all tabs
   const [searchQuery, setSearchQuery] = useState('');
@@ -599,11 +614,20 @@ const MathEng = () => {
 
       {/* Synchronized 2-Column Layout */}
       <div className="formulas-layout matheng-layout">
+        {/* Mobile Backdrop when Category Sidebar is Open */}
+        {isSidebarOpen && (
+          <div 
+            className="matheng-mobile-backdrop"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* Left Sidebar: Danh mục */}
         <div 
           className={`formulas-sidebar glass matheng-sidebar ${!isSidebarOpen ? 'collapsed' : ''}`}
         >
-          <div style={{ width: '300px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <div className="matheng-sidebar-inner" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', width: '100%' }}>
             <div 
               className="sidebar-title-container" 
               onClick={() => setIsSidebarOpen(false)}
@@ -633,6 +657,7 @@ const MathEng = () => {
                         setSelectedCategory(cat.id);
                         setShowOnlySaved(false);
                         setDisplayLimit(60);
+                        if (window.innerWidth <= 768) setIsSidebarOpen(false);
                       }}
                       title={cat.desc}
                     >
@@ -651,6 +676,7 @@ const MathEng = () => {
                   onClick={() => {
                     setShowOnlySaved(!showOnlySaved);
                     setDisplayLimit(60);
+                    if (window.innerWidth <= 768) setIsSidebarOpen(false);
                   }}
                   title="Chỉ hiển thị các từ vựng đã đánh dấu yêu thích"
                 >
@@ -678,7 +704,10 @@ const MathEng = () => {
                     <li
                       key={cat.id}
                       className={`formula-item ${isActive ? 'active' : ''}`}
-                      onClick={() => setSelectedSymbolCat(cat.id)}
+                      onClick={() => {
+                        setSelectedSymbolCat(cat.id);
+                        if (window.innerWidth <= 768) setIsSidebarOpen(false);
+                      }}
                       title={cat.desc}
                     >
                       <div className="formula-item-content">
@@ -725,7 +754,10 @@ const MathEng = () => {
                 <ul className="formulas-list">
                   <li
                     className={`formula-item ${selectedPhraseCat === 'all' ? 'active' : ''}`}
-                    onClick={() => setSelectedPhraseCat('all')}
+                    onClick={() => {
+                      setSelectedPhraseCat('all');
+                      if (window.innerWidth <= 768) setIsSidebarOpen(false);
+                    }}
                   >
                     <div className="formula-item-content">
                       <Layers size={16} className="item-icon" />
@@ -743,7 +775,10 @@ const MathEng = () => {
                       <li
                         key={cat.id}
                         className={`formula-item ${isActive ? 'active' : ''}`}
-                        onClick={() => setSelectedPhraseCat(cat.id)}
+                        onClick={() => {
+                          setSelectedPhraseCat(cat.id);
+                          if (window.innerWidth <= 768) setIsSidebarOpen(false);
+                        }}
                         title={cat.desc}
                       >
                         <div className="formula-item-content">
