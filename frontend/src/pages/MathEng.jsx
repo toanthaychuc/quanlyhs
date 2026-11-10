@@ -199,23 +199,6 @@ const MathEng = () => {
   const [displayLimit, setDisplayLimit] = useState(60);
   const contentScrollRef = useRef(null);
 
-  // Auto load more when scrolling near bottom
-  const handleScrollWrap = useCallback((e) => {
-    if (activeTab !== 'vocab') return;
-    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
-    if (displayLimit < filteredVocabulary.length) {
-      if (scrollTop + clientHeight >= scrollHeight - 350) {
-        setDisplayLimit((prev) => Math.min(prev + 60, filteredVocabulary.length));
-      }
-    }
-  }, [activeTab, displayLimit, filteredVocabulary.length]);
-
-  // Reset scroll to top when filters change
-  useEffect(() => {
-    if (contentScrollRef.current) {
-      contentScrollRef.current.scrollTop = 0;
-    }
-  }, [selectedCategory, searchQuery, activeTab, selectedSymbolCat, selectedPhraseCat]);
   const [savedTerms, setSavedTerms] = useState(() => {
     try {
       const stored = localStorage.getItem('matheng_saved_terms');
@@ -429,6 +412,24 @@ const MathEng = () => {
   const visibleVocabulary = useMemo(() => {
     return filteredVocabulary.slice(0, displayLimit);
   }, [filteredVocabulary, displayLimit]);
+
+  // Auto load more when scrolling near bottom
+  const handleScrollWrap = useCallback((e) => {
+    if (activeTab !== 'vocab') return;
+    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+    if (displayLimit < filteredVocabulary.length) {
+      if (scrollTop + clientHeight >= scrollHeight - 350) {
+        setDisplayLimit((prev) => Math.min(prev + 60, filteredVocabulary.length));
+      }
+    }
+  }, [activeTab, displayLimit, filteredVocabulary.length]);
+
+  // Reset scroll to top when filters change
+  useEffect(() => {
+    if (contentScrollRef.current) {
+      contentScrollRef.current.scrollTop = 0;
+    }
+  }, [selectedCategory, searchQuery, activeTab, selectedSymbolCat, selectedPhraseCat]);
 
   // Filter Classroom Phrases
   const filteredPhrases = useMemo(() => {

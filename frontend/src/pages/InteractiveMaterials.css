@@ -143,6 +143,9 @@
 .derivative-title,
 .riemann-title,
 .trig-title,
+.conic-title,
+.oxyz-title,
+.space-angles-title,
 .trig-sidebar > h3:first-of-type,
 .set-ops-controls > h3:first-of-type,
 .space-geom-sidebar > h3:first-of-type,
@@ -328,7 +331,7 @@
   position: absolute;
   top: 22px;
   left: 24px;
-  z-index: 30;
+  z-index: 60;
   width: 32px;
   height: 32px;
   padding: 0;
@@ -381,7 +384,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 35;
+  z-index: 60;
   width: 36px;
   height: 36px;
   padding: 0;
@@ -463,4 +466,17 @@
   top: 14px;
   right: 14px;
   z-index: 50;
+}
+
+@media (max-width: 768px) {
+  .interactive-category-title-btn {
+    top: 22px !important;
+    left: 20px !important;
+    z-index: 60 !important;
+  }
+  .interactive-fullscreen-btn {
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 60 !important;
+  }
 }

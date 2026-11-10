@@ -661,6 +661,7 @@ const SpaceAngles3D = () => {
       {/* SIDEBAR: CONTROLS, EXPLANATION, SLIDERS & QUIZ           */}
       {/* ======================================================== */}
       <div className="space-angles-sidebar">
+        <h3 className="math-title space-angles-title">Góc trong không gian</h3>
         {/* 1. TOPIC SELECTOR TABS */}
         <div className="topic-tabs">
           <button

@@ -728,6 +728,7 @@ const ConicSections = () => {
 
   return (
     <div className="conic-wrapper">
+      <h3 className="math-title conic-title">Ba đường conic</h3>
       <div className="conic-tabs">
         <button className={`conic-tab ${activeTab === 'ellipse' ? 'active' : ''}`} onClick={() => setActiveTab('ellipse')}>Elip</button>
         <button className={`conic-tab ${activeTab === 'hyperbola' ? 'active' : ''}`} onClick={() => setActiveTab('hyperbola')}>Hypebol</button>
@@ -735,6 +736,30 @@ const ConicSections = () => {
       </div>
 
       <div className="conic-container">
+        <div className="conic-sidebar">
+          <div className="card-header">
+            <h3>Điều chỉnh thông số</h3>
+            <button className={`btn-toggle-play ${isPlaying ? 'playing' : ''}`} onClick={() => setIsPlaying(!isPlaying)}>
+              {isPlaying ? 'Tạm dừng M' : 'Di chuyển M'}
+            </button>
+          </div>
+          
+          <div className="control-group">
+            <label>Tùy chọn hiển thị:</label>
+            <div className="checkbox-grid">
+              <label><input type="checkbox" checked={showVertices} onChange={e => setShowVertices(e.target.checked)} /> Hiển thị tọa độ</label>
+              {(activeTab === 'ellipse' || activeTab === 'hyperbola') && (
+                <label><input type="checkbox" checked={showBaseRect} onChange={e => setShowBaseRect(e.target.checked)} /> Hình chữ nhật cơ sở</label>
+              )}
+              <label><input type="checkbox" checked={showFocalRadii} onChange={e => setShowFocalRadii(e.target.checked)} /> Bán kính qua tiêu</label>
+              <label><input type="checkbox" checked={showEccentricity} onChange={e => setShowEccentricity(e.target.checked)} /> Tâm sai (e)</label>
+              <label><input type="checkbox" checked={showDirectrix} onChange={e => setShowDirectrix(e.target.checked)} /> Đường chuẩn (Δ)</label>
+            </div>
+          </div>
+
+          {content.sidebar}
+        </div>
+
         <div className="conic-visualizer" onWheel={handleWheel}>
           <div className="interaction-hint">
             Cuộn chuột để Thu/Phóng
@@ -763,30 +788,6 @@ const ConicSections = () => {
               <ZoomOut size={20} />
             </button>
           </div>
-        </div>
-
-        <div className="conic-sidebar">
-          <div className="card-header">
-            <h3>Điều chỉnh thông số</h3>
-            <button className={`btn-toggle-play ${isPlaying ? 'playing' : ''}`} onClick={() => setIsPlaying(!isPlaying)}>
-              {isPlaying ? 'Tạm dừng M' : 'Di chuyển M'}
-            </button>
-          </div>
-          
-          <div className="control-group">
-            <label>Tùy chọn hiển thị:</label>
-            <div className="checkbox-grid">
-              <label><input type="checkbox" checked={showVertices} onChange={e => setShowVertices(e.target.checked)} /> Hiển thị tọa độ</label>
-              {(activeTab === 'ellipse' || activeTab === 'hyperbola') && (
-                <label><input type="checkbox" checked={showBaseRect} onChange={e => setShowBaseRect(e.target.checked)} /> Hình chữ nhật cơ sở</label>
-              )}
-              <label><input type="checkbox" checked={showFocalRadii} onChange={e => setShowFocalRadii(e.target.checked)} /> Bán kính qua tiêu</label>
-              <label><input type="checkbox" checked={showEccentricity} onChange={e => setShowEccentricity(e.target.checked)} /> Tâm sai (e)</label>
-              <label><input type="checkbox" checked={showDirectrix} onChange={e => setShowDirectrix(e.target.checked)} /> Đường chuẩn (Δ)</label>
-            </div>
-          </div>
-
-          {content.sidebar}
         </div>
       </div>
     </div>

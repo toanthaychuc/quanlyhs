@@ -505,21 +505,25 @@
   .solid-revolution-container {
     flex-direction: column !important;
     overflow-y: auto;
-  }
-
-  .solid-canvas-area {
-    order: 1 !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 50 !important;
-    height: 48vh !important;
-    min-height: 320px !important;
+    height: 100%;
+    position: relative;
+    display: flex;
+    gap: 16px;
   }
 
   .solid-sidebar {
     width: 100% !important;
-    order: 2 !important;
-    padding-bottom: 80px;
+    padding: 0 !important;
+  }
+
+  .solid-canvas-area {
+    width: 100% !important;
+    height: 48vh !important;
+    min-height: 320px !important;
+    flex: none !important;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
   }
 }
 

@@ -471,6 +471,7 @@ const RelativePositionsOxyz = () => {
 
   return (
     <div className="oxyz-container">
+      <h3 className="math-title oxyz-title">Vị trí tương đối</h3>
       <div className="oxyz-object-selector">
         <div className="object-row">
           <span className="row-label">Đối tượng 1:</span>
