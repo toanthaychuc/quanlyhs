@@ -197,6 +197,25 @@ const MathEng = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showOnlySaved, setShowOnlySaved] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(60);
+  const contentScrollRef = useRef(null);
+
+  // Auto load more when scrolling near bottom
+  const handleScrollWrap = useCallback((e) => {
+    if (activeTab !== 'vocab') return;
+    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+    if (displayLimit < filteredVocabulary.length) {
+      if (scrollTop + clientHeight >= scrollHeight - 350) {
+        setDisplayLimit((prev) => Math.min(prev + 60, filteredVocabulary.length));
+      }
+    }
+  }, [activeTab, displayLimit, filteredVocabulary.length]);
+
+  // Reset scroll to top when filters change
+  useEffect(() => {
+    if (contentScrollRef.current) {
+      contentScrollRef.current.scrollTop = 0;
+    }
+  }, [selectedCategory, searchQuery, activeTab, selectedSymbolCat, selectedPhraseCat]);
   const [savedTerms, setSavedTerms] = useState(() => {
     try {
       const stored = localStorage.getItem('matheng_saved_terms');
@@ -906,6 +925,11 @@ const MathEng = () => {
               {activeTab === 'vocab' && (
                 <span>
                   Tìm thấy <strong>{filteredVocabulary.length}</strong> thuật ngữ
+                  {filteredVocabulary.length > visibleVocabulary.length ? (
+                    <span style={{ opacity: 0.85, fontWeight: 500, fontSize: '0.85em', marginLeft: '6px' }}>
+                      (Đang hiển thị {visibleVocabulary.length})
+                    </span>
+                  ) : null}
                   {selectedCategory !== 'all' &&
                     ` • Lĩnh vực: ${MATH_CATEGORIES.find((c) => c.id === selectedCategory)?.name}`}
                   {showOnlySaved && ' • Danh sách đã lưu'}
@@ -982,7 +1006,11 @@ const MathEng = () => {
           </div>
 
           {/* Main Scrollable View Area */}
-          <div className="matheng-content-scroll-wrap">
+          <div 
+            ref={contentScrollRef}
+            className="matheng-content-scroll-wrap"
+            onScroll={handleScrollWrap}
+          >
             {/* ======================= TAB 1: VOCABULARY ======================= */}
             {activeTab === 'vocab' && (
               filteredVocabulary.length > 0 ? (
@@ -1100,13 +1128,19 @@ const MathEng = () => {
                       <button
                         type="button"
                         className="matheng-load-more-btn"
-                        onClick={() => setDisplayLimit((prev) => prev + 60)}
+                        onClick={() => setDisplayLimit((prev) => Math.min(prev + 60, filteredVocabulary.length))}
                       >
                         <ChevronDown size={18} />
                         <span>
                           Xem thêm 60 thuật ngữ (Đang hiển thị {visibleVocabulary.length}/{filteredVocabulary.length})
                         </span>
                       </button>
+                    </div>
+                  )}
+
+                  {displayLimit >= filteredVocabulary.length && filteredVocabulary.length > 20 && (
+                    <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                      ✓ Đã hiển thị toàn bộ {filteredVocabulary.length} thuật ngữ
                     </div>
                   )}
                 </>
