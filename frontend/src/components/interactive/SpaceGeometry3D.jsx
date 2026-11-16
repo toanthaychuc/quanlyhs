@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Html, Line, MapControls, OrthographicCamera, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
@@ -18,7 +17,7 @@ import {
   GeoGebraIntersectIcon
 } from './GeoGebraToolbar';
 import { InteractiveEdge } from './InteractiveEdge';
-import { EdgePointModal, IntersectionModal, PerpendicularModal, PerpendicularBisectorModal
+import { EdgePointModal, IntersectionModal, PerpendicularModal, PerpendicularBisectorModal, renderFullscreenPortal
 } from './GeometryModals';
 import { CanvasInstructionBar, SELECTION_SLOT_COLORS } from './CanvasInstructionBar';
 
@@ -907,7 +906,7 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
         </span>
       </button>
 
-      {isOpen && createPortal(
+      {isOpen && renderFullscreenPortal(
         <div
           ref={menuRef}
           style={{
@@ -1110,8 +1109,7 @@ const ShapeHierarchySelect = ({ value, onChange }) => {
             </div>
           )}
 
-        </div>,
-        document.body
+        </div>
       )}
       <style>{`
         @keyframes fadeIn {
@@ -2218,7 +2216,7 @@ const Plane2DViewer = ({
     <div style={{
       position: 'fixed',
       top: 0, left: 0, right: 0, bottom: 0,
-      zIndex: 9999,
+      zIndex: 999999,
       backgroundColor: 'rgba(15, 23, 42, 0.6)',
       backdropFilter: 'blur(4px)',
       display: 'flex',
@@ -2381,7 +2379,7 @@ const Plane2DViewer = ({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  return renderFullscreenPortal(modalContent);
 };
 
 const SpaceGeometry3D = () => {

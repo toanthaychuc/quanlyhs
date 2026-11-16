@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 
-const renderPortal = (content) => {
-  if (typeof document !== 'undefined' && document.body) {
-    return createPortal(content, document.body);
-  }
-  return content;
+/**
+ * Resolve the portal target dynamically so modals and popups render inside
+ * the active fullscreen element when in native Fullscreen mode (instead of
+ * behind the fullscreen top-layer on document.body).
+ */
+export const getModalPortalTarget = () => {
+  if (typeof document === 'undefined') return null;
+  return (
+    document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.msFullscreenElement ||
+    document.body
+  );
 };
+
+export const renderFullscreenPortal = (content) => {
+  const target = getModalPortalTarget();
+  return target ? createPortal(content, target) : content;
+};
+
+const renderPortal = renderFullscreenPortal;
 
 /**
  * EdgePointModal:
