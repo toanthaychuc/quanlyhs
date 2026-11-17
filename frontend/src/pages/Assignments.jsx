@@ -4,7 +4,6 @@ import {
   BookOpen, 
   Plus, 
   Calendar, 
-  Clock, 
   CheckCircle2, 
   AlertCircle, 
   Users, 
@@ -16,7 +15,6 @@ import {
   BarChart2, 
   FileText, 
   Sparkles,
-  ArrowRight,
   School,
   X,
   Code2,
@@ -25,15 +23,9 @@ import {
   Eye,
   EyeOff,
   Edit,
-  Globe,
-  Lock,
-  Paperclip,
-  Image as ImageIcon,
-  Download,
-  ChevronRight,
-  Copy
+  Paperclip
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { getClasses } from '../services/classService';
 import { getAssignments, saveAllAssignments, deleteAssignment } from '../services/assignmentService';
@@ -48,7 +40,7 @@ const getDownloadUrl = (url, fileName) => {
     const urlObj = new URL(url);
     urlObj.searchParams.set('download', fileName);
     return urlObj.toString();
-  } catch (e) {
+  } catch {
     return url;
   }
 };
@@ -84,7 +76,7 @@ const parseLatexStringToQuestions = (rawText) => {
       
       if (firstChcIndex !== -1) {
         let clusterContext = block.substring(0, firstChcIndex).trim();
-        clusterContext = clusterContext.replace(/\\sochc\s*\{[^\}]*\}/g, '').trim();
+        clusterContext = clusterContext.replace(/\\sochc\s*\{[^}]*\}/g, '').trim();
         
         let subBlocks = [];
         while ((chcMatch = chcRegex.exec(block)) !== null) {
@@ -228,8 +220,6 @@ const parseLatexStringToQuestions = (rawText) => {
 
 const ASSIGNMENTS_STORAGE_KEY = 'edumanager_class_assignments_v3';
 
-const INITIAL_ASSIGNMENTS = [];
-
 const renderTextWithLinks = (text) => {
   if (!text) return null;
   const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -253,7 +243,6 @@ const renderTextWithLinks = (text) => {
 };
 
 const Assignments = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const { isTeacher, isStudent, currentStudentId } = useRole();
 
@@ -434,8 +423,6 @@ const Assignments = () => {
   });
 
   // Modal tạo / chỉnh sửa bài tập
-  const [showSubmissionDetail, setShowSubmissionDetail] = useState(false);
-  const [selectedSubmissions, setSelectedSubmissions] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingAssignmentId, setEditingAssignmentId] = useState(null);
   const [expandedProgressId, setExpandedProgressId] = useState(null);

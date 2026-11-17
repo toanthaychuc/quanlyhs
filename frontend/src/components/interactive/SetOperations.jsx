@@ -21,7 +21,7 @@ const compileExpression = (expr) => {
     const fn = new Function('A', 'B', 'C', `return !!(${s});`);
     fn(true, true, true); // test
     return fn;
-  } catch (err) {
+  } catch {
     return null; // Invalid expression
   }
 };

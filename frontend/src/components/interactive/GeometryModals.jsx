@@ -546,7 +546,6 @@ export const PerpendicularBisectorModal = ({
   point,
   targetLine,
   shape,
-  activeVertices,
   onSubmit,
   onClose
 }) => {

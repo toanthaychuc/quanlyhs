@@ -11,65 +11,14 @@ import {
   Square,
   Scissors
 } from 'lucide-react';
-import katex from 'katex';
-import 'katex/dist/katex.min.css';
-import 'mathlive';
+import {
+  compileExpression,
+  evalSafe,
+  findIntersections,
+  MathInput,
+  MathLatex
+} from './calculusUtils';
 import './CrossSectionSolidVolume.css';
-
-// Safe math compiler for user expressions
-const compileExpression = (expr) => {
-  if (!expr || typeof expr !== 'string' || !expr.trim()) {
-    return { f: () => 0, error: 'Chưa nhập biểu thức' };
-  }
-  try {
-    let jsExpr = expr.normalize('NFKC').toLowerCase().trim();
-    jsExpr = jsExpr.replace(/\\/g, '');
-    jsExpr = jsExpr.replace(
-      /log\s*_?\s*\(?\{?([a-zA-Z0-9.]+)\}?\)?\s*(?:\(([^)]+)\)|([a-zA-Z0-9]+))/g,
-      (match, base, arg1, arg2) => {
-        const arg = arg1 || arg2;
-        return `(Math.log(${arg})/Math.log(${base}))`;
-      }
-    );
-    jsExpr = jsExpr.replace(/frac\{([^}]+)\}\{([^}]+)\}/g, '(($1)/($2))');
-    jsExpr = jsExpr.replace(/frac\(([^)]+)\)\(([^)]+)\)/g, '(($1)/($2))');
-    jsExpr = jsExpr.replace(/\bpi\b/g, 'Math.PI');
-    jsExpr = jsExpr.replace(/\be\b/g, 'Math.E');
-    jsExpr = jsExpr.replace(/\bln\b/g, 'Math.log');
-    jsExpr = jsExpr.replace(/\bcot\b/g, '(1/Math.tan)');
-
-    const funcs = ['sin', 'cos', 'tan', 'sqrt', 'exp', 'abs'];
-    funcs.forEach((fn) => {
-      jsExpr = jsExpr.replace(new RegExp(`\\b${fn}\\b`, 'g'), `Math.${fn}`);
-    });
-
-    jsExpr = jsExpr.replace(/\^/g, '**');
-    jsExpr = jsExpr.replace(/(\d)([x])/gi, '$1*$2');
-    jsExpr = jsExpr.replace(/([x])(\()/g, '$1*$2');
-    jsExpr = jsExpr.replace(/(\))([x])/g, '$1*$2');
-    jsExpr = jsExpr.replace(/(\))(\()/g, '$1*$2');
-    jsExpr = jsExpr.replace(/(\d)(\()/g, '$1*$2');
-    jsExpr = jsExpr.replace(/(\))(\d)/g, '$1*$2');
-
-    // eslint-disable-next-line no-new-func
-    const f = new Function('x', `return ${jsExpr};`);
-    f(0.5);
-    return { f, error: null };
-  } catch {
-    return { f: () => 0, error: 'Biểu thức không hợp lệ' };
-  }
-};
-
-const evalSafe = (f, x) => {
-  if (!f) return 0;
-  try {
-    const val = f(x);
-    if (typeof val !== 'number' || isNaN(val) || !isFinite(val)) return 0;
-    return val;
-  } catch {
-    return 0;
-  }
-};
 
 // 3D projection where (x, y) is the horizontal Oxy floor and z >= 0 is vertical height UP
 const project3D = (x, y, z, pitch, yaw) => {
@@ -80,115 +29,6 @@ const project3D = (x, y, z, pitch, yaw) => {
   const v = -z1 * Math.cos(pitch) + y1 * Math.sin(pitch);
   const depth = y1 * Math.cos(pitch) + z1 * Math.sin(pitch);
   return { u, v, z: depth };
-};
-
-// Find intersection roots between f and g
-const findIntersections = (f, g, xMin = -6, xMax = 8, step = 0.04) => {
-  const roots = [];
-  const diff = (x) => {
-    try {
-      const v1 = f(x);
-      const v2 = g(x);
-      if (isNaN(v1) || isNaN(v2) || !isFinite(v1) || !isFinite(v2)) return null;
-      return v1 - v2;
-    } catch {
-      return null;
-    }
-  };
-
-  let prevX = xMin;
-  let prevD = diff(prevX);
-
-  for (let x = xMin + step; x <= xMax + 1e-5; x += step) {
-    const d = diff(x);
-    if (prevD !== null && d !== null) {
-      if (Math.abs(prevD) < 1e-7) {
-        if (!roots.some((r) => Math.abs(r - prevX) < 0.05)) {
-          roots.push(Number(prevX.toFixed(2)));
-        }
-      } else if (prevD * d < 0) {
-        let lo = prevX;
-        let hi = x;
-        for (let iter = 0; iter < 16; iter++) {
-          const mid = (lo + hi) / 2;
-          const dMid = diff(mid);
-          if (dMid === null || Math.abs(dMid) < 1e-8) {
-            lo = mid;
-            break;
-          }
-          if (prevD * dMid <= 0) hi = mid;
-          else lo = mid;
-        }
-        const root = (lo + hi) / 2;
-        if (!roots.some((r) => Math.abs(r - root) < 0.05)) {
-          roots.push(Number(root.toFixed(2)));
-        }
-      }
-    }
-    prevX = x;
-    prevD = d;
-  }
-  return roots.sort((a, b) => a - b);
-};
-
-// MathLive input wrapper
-const MathInput = ({ value, onChange, style }) => {
-  const mfRef = useRef(null);
-  const isInternalChange = useRef(false);
-
-  useEffect(() => {
-    const mf = mfRef.current;
-    if (!mf) return;
-    if (!isInternalChange.current && mf.value !== value) {
-      mf.value = value || '';
-    }
-    isInternalChange.current = false;
-  }, [value]);
-
-  useEffect(() => {
-    const mf = mfRef.current;
-    if (!mf) return;
-    const handleInput = () => {
-      isInternalChange.current = true;
-      const val = mf.value;
-      let ascii = mf.getValue('ascii-math') || '';
-      ascii = ascii.replace(/\\cdot/g, '*');
-      onChange?.(val, ascii);
-    };
-    mf.addEventListener('input', handleInput);
-    return () => mf.removeEventListener('input', handleInput);
-  }, [onChange]);
-
-  return (
-    <math-field
-      ref={mfRef}
-      style={{
-        width: '100%',
-        minHeight: '38px',
-        fontSize: '15px',
-        padding: '4px 8px',
-        backgroundColor: 'var(--surface-color, #ffffff)',
-        border: '1.5px solid var(--border-color, #e2e8f0)',
-        borderRadius: '8px',
-        color: 'var(--text-primary, #0f172a)',
-        display: 'block',
-        ...style
-      }}
-    />
-  );
-};
-
-// KaTeX renderer
-const MathLatex = ({ math, display = false, className = '', style = {} }) => {
-  const html = useMemo(() => {
-    try {
-      return katex.renderToString(math || '', { throwOnError: false, displayMode: display });
-    } catch {
-      return math || '';
-    }
-  }, [math, display]);
-
-  return <span className={className} style={style} dangerouslySetInnerHTML={{ __html: html }} />;
 };
 
 const formatCoeffLatex = (val) => {
@@ -484,8 +324,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'none'
+    wedgeAngleDeg: 45
   },
   {
     id: 'steinmetz_bicylinder',
@@ -499,8 +338,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'bicylinder'
+    wedgeAngleDeg: 45
   },
   {
     id: 'cylindrical_wedge',
@@ -514,8 +352,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'cylinder'
+    wedgeAngleDeg: 45
   },
   {
     id: 'circle_rect_2r2',
@@ -529,8 +366,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'none'
+    wedgeAngleDeg: 45
   },
   {
     id: 'parabola_equilateral',
@@ -544,8 +380,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'none'
+    wedgeAngleDeg: 45
   },
   {
     id: 'parabola_arch_solid',
@@ -559,8 +394,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.75,
-    wedgeAngleDeg: 45,
-    ghostType: 'none'
+    wedgeAngleDeg: 45
   },
   {
     id: 'ellipse_semicircle',
@@ -574,8 +408,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'none'
+    wedgeAngleDeg: 45
   },
   {
     id: 'two_curves_square',
@@ -589,8 +422,7 @@ const PRESETS = [
     latexG: 'x^2',
     exprG: 'x^2',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'none'
+    wedgeAngleDeg: 45
   },
   {
     id: 'hyperbolic_waist_rect',
@@ -604,8 +436,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'none'
+    wedgeAngleDeg: 45
   },
   {
     id: 'sin_right_triangle',
@@ -619,8 +450,7 @@ const PRESETS = [
     latexG: '0',
     exprG: '0',
     rectRatio: 0.5,
-    wedgeAngleDeg: 45,
-    ghostType: 'none'
+    wedgeAngleDeg: 45
   }
 ];
 
@@ -642,13 +472,6 @@ const CrossSectionSolidVolume = () => {
   // Interactive slicing plane position x0 in [a, b]
   const [sliceProgress, setSliceProgress] = useState(0.42); // 0..1 across [a, b]
   const [isPlayingSlice, setIsPlayingSlice] = useState(false);
-
-  // Default visualization settings: 3D wireframe only
-  const extrudeToSlice = false;
-  const showRiemannSlices = false;
-  const riemannCount = 12;
-  const showGhostGuide = false;
-  const showWireframe = true;
 
   // Viewport states
   const [viewMode, setViewMode] = useState('3d'); // '3d' | '2d'
@@ -1075,93 +898,11 @@ const CrossSectionSolidVolume = () => {
       });
     }
 
-    // 2. Optional Ghost Cylinder / Bicylinder Guide for Steinmetz & Wedge presets
-    const activePreset = PRESETS.find((p) => p.id === selectedPresetId);
-    if (showGhostGuide && activePreset && activePreset.ghostType !== 'none') {
-      const R = 2;
-      const cylSteps = 24;
-      if (activePreset.ghostType === 'cylinder') {
-        // Vertical cylinder x^2 + y^2 = R^2, z in [0, R*tan(alpha)]
-        const hMax = R * Math.tan((wedgeAngleDeg * Math.PI) / 180);
-        for (let j = 0; j < cylSteps; j++) {
-          const t1 = (j / cylSteps) * 2 * Math.PI;
-          const t2 = ((j + 1) / cylSteps) * 2 * Math.PI;
-          const c1 = project3D(R * Math.cos(t1), R * Math.sin(t1), 0, camera.pitch, camera.yaw);
-          const c2 = project3D(R * Math.cos(t2), R * Math.sin(t2), 0, camera.pitch, camera.yaw);
-          const c3 = project3D(R * Math.cos(t2), R * Math.sin(t2), hMax, camera.pitch, camera.yaw);
-          const c4 = project3D(R * Math.cos(t1), R * Math.sin(t1), hMax, camera.pitch, camera.yaw);
-          polygons.push({
-            type: 'ghost-quad',
-            z: (c1.z + c2.z + c3.z + c4.z) / 4,
-            pts: [c1, c2, c3, c4]
-          });
-        }
-      } else if (activePreset.ghostType === 'bicylinder') {
-        // Two perpendicular cylinders of radius R along Oy and Oz
-        const len = 2.8;
-        for (let j = 0; j < cylSteps; j++) {
-          const t1 = (j / cylSteps) * Math.PI; // upper half z >= 0
-          const t2 = ((j + 1) / cylSteps) * Math.PI;
-          const g1 = project3D(R * Math.cos(t1), -len, R * Math.sin(t1), camera.pitch, camera.yaw);
-          const g2 = project3D(R * Math.cos(t2), -len, R * Math.sin(t2), camera.pitch, camera.yaw);
-          const g3 = project3D(R * Math.cos(t2), len, R * Math.sin(t2), camera.pitch, camera.yaw);
-          const g4 = project3D(R * Math.cos(t1), len, R * Math.sin(t1), camera.pitch, camera.yaw);
-          polygons.push({
-            type: 'ghost-quad',
-            z: (g1.z + g2.z + g3.z + g4.z) / 4,
-            pts: [g1, g2, g3, g4]
-          });
-        }
-      }
-    }
+    // 2. Smooth 3D Extruded Solid Surface
+    const xSpan = maxX - minX;
 
-    // 3. Discrete 3D Riemann Slabs Mode OR Smooth Extruded Solid Surface
-    const effectiveMaxX = extrudeToSlice ? x0 : maxX;
-    const xSpan = effectiveMaxX - minX;
-
-    if (showRiemannSlices && xSpan > 1e-5) {
-      const N = Math.max(2, riemannCount);
-      const stepX = (maxX - minX) / N;
-      for (let i = 0; i < N; i++) {
-        const xa = minX + i * stepX;
-        const xb = xa + stepX * 0.88; // slight gap so slabs are visually distinct
-        if (extrudeToSlice && xa > x0) break;
-        const xm = (xa + xb) / 2;
-        const [yl, yh] = getChordBoundsAtX(xm);
-        if (yh - yl < 1e-4) continue;
-
-        const prof = buildSectionProfilePoints(sectionType, yl, yh, shapeParams, 14);
-        const frontFace = prof.map((p) => project3D(xa, p.y, p.z, camera.pitch, camera.yaw));
-        const backFace = prof.map((p) => project3D(xb, p.y, p.z, camera.pitch, camera.yaw));
-
-        const avgZFront = frontFace.reduce((s, p) => s + p.z, 0) / frontFace.length;
-        const avgZBack = backFace.reduce((s, p) => s + p.z, 0) / backFace.length;
-
-        polygons.push({
-          type: 'riemann-cap',
-          z: avgZFront,
-          pts: frontFace
-        });
-        polygons.push({
-          type: 'riemann-cap',
-          z: avgZBack,
-          pts: backFace
-        });
-
-        for (let j = 0; j < prof.length - 1; j++) {
-          const q1 = frontFace[j];
-          const q2 = backFace[j];
-          const q3 = backFace[j + 1];
-          const q4 = frontFace[j + 1];
-          polygons.push({
-            type: 'riemann-side',
-            z: (q1.z + q2.z + q3.z + q4.z) / 4,
-            pts: [q1, q2, q3, q4]
-          });
-        }
-      }
-    } else if (xSpan > 1e-5) {
-      // Smooth 3D solid mesh from minX to effectiveMaxX
+    if (xSpan > 1e-5) {
+      // Smooth 3D solid mesh from minX to maxX
       const xSteps = 34;
       const dx = xSpan / xSteps;
       const profSteps = 18;
@@ -1205,8 +946,8 @@ const CrossSectionSolidVolume = () => {
         }
       }
 
-      // End caps at minX and effectiveMaxX
-      [minX, effectiveMaxX].forEach((capX) => {
+      // End caps at minX and maxX
+      [minX, maxX].forEach((capX) => {
         const [yl, yh] = getChordBoundsAtX(capX);
         if (yh - yl > 1e-3) {
           const prof = buildSectionProfilePoints(sectionType, yl, yh, shapeParams, profSteps);
@@ -1221,7 +962,7 @@ const CrossSectionSolidVolume = () => {
       });
     }
 
-    // 4. Highlighted Golden Cross-Section Slice S(x0) + Cutting Plane Frame (P)
+    // 3. Highlighted Golden Cross-Section Slice S(x0) + Cutting Plane Frame (P)
     const [yl0, yh0] = getChordBoundsAtX(x0);
     const prof0 = buildSectionProfilePoints(sectionType, yl0, yh0, shapeParams, 24);
     const slicePts3D = prof0.map((p) => project3D(x0, p.y, p.z, camera.pitch, camera.yaw));
@@ -1283,38 +1024,18 @@ const CrossSectionSolidVolume = () => {
         ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
         ctx.lineWidth = 0.8;
         ctx.stroke();
-      } else if (poly.type === 'ghost-quad') {
-        ctx.fillStyle = 'rgba(148, 163, 184, 0.06)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
-        ctx.lineWidth = 0.7;
-        ctx.stroke();
       } else if (poly.type === 'solid-shell') {
         const light = Math.floor(38 + poly.brightness * 28);
         ctx.fillStyle = `hsla(196, 85%, ${light}%, 0.62)`;
         ctx.fill();
-        if (showWireframe) {
-          ctx.strokeStyle = 'rgba(186, 230, 253, 0.28)';
-          ctx.lineWidth = 0.7;
-          ctx.stroke();
-        }
+        ctx.strokeStyle = 'rgba(186, 230, 253, 0.28)';
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
       } else if (poly.type === 'end-cap') {
         ctx.fillStyle = 'rgba(14, 165, 233, 0.38)';
         ctx.fill();
         ctx.strokeStyle = 'rgba(125, 211, 252, 0.65)';
         ctx.lineWidth = 1.2;
-        ctx.stroke();
-      } else if (poly.type === 'riemann-cap') {
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.55)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(254, 243, 199, 0.75)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      } else if (poly.type === 'riemann-side') {
-        ctx.fillStyle = 'rgba(217, 119, 6, 0.48)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(254, 243, 199, 0.4)';
-        ctx.lineWidth = 0.7;
         ctx.stroke();
       } else if (poly.type === 'cutting-plane') {
         ctx.save();
@@ -1371,13 +1092,6 @@ const CrossSectionSolidVolume = () => {
     getChordBoundsAtX,
     sectionType,
     shapeParams,
-    extrudeToSlice,
-    showRiemannSlices,
-    riemannCount,
-    showGhostGuide,
-    showWireframe,
-    selectedPresetId,
-    wedgeAngleDeg,
     canvasDims
   ]);
 

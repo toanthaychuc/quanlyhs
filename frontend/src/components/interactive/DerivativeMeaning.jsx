@@ -40,13 +40,6 @@ const DerivativeMeaning = () => {
     };
   };
 
-  const toMath = (px, py) => {
-    return {
-      x: (px - cx) / scale,
-      y: (cy - py) / scale
-    };
-  };
-
   const f = (x) => 0.5 * x * x - 2;
   const df = (x) => x;
 

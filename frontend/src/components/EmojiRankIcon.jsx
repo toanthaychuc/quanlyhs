@@ -5,7 +5,6 @@ const EmojiRankIcon = ({ rank, size = 32, style = {}, className = "" }) => {
   
   // Scale everything relative to the size prop
   const fontSize = size * 0.6;
-  const accessorySize = size * 0.35;
   
   return (
     <div 

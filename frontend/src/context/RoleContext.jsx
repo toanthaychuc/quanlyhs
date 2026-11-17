@@ -29,7 +29,7 @@ export const RoleProvider = ({ children }) => {
         return TEACHER_EMAIL;
       }
       return 'hocsinh@school.edu.vn';
-    } catch (_) {
+    } catch {
       return 'hocsinh@school.edu.vn';
     }
   });
@@ -46,7 +46,7 @@ export const RoleProvider = ({ children }) => {
         return savedRole || 'teacher';
       }
       return 'student';
-    } catch (_) {
+    } catch {
       return 'student';
     }
   });
@@ -58,8 +58,35 @@ export const RoleProvider = ({ children }) => {
         return '';
       }
       return localStorage.getItem('edumanager_current_student_id') || '';
-    } catch (_) {
+    } catch {
       return '';
+    }
+  });
+
+  // Trạng thái đã vượt qua màn hình Chào mừng (Slide Landing) hay chưa
+  const [hasEnteredApp, setHasEnteredApp] = useState(() => {
+    if (isRoomUrl) {
+      return true;
+    }
+    return localStorage.getItem('edumanager_has_entered') === 'true';
+  });
+
+  // Chế độ khách (Học mà không cần đăng nhập)
+  const [isGuestMode, setIsGuestMode] = useState(() => {
+    try {
+      const savedRole = localStorage.getItem('edumanager_user_role');
+      const savedStudentId = localStorage.getItem('edumanager_current_student_id');
+      const hasRealStudent = savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com' && String(savedStudentId).trim() !== '';
+      // Nếu là giáo viên hoặc đã có học sinh chính thức đăng nhập -> Tuyệt đối không phải khách
+      if (savedRole === 'teacher' || hasRealStudent) {
+        return false;
+      }
+      if (isRoomUrl) {
+        return true;
+      }
+      return true; // Mặc định chưa đăng nhập là khách
+    } catch {
+      return true;
     }
   });
 
@@ -112,33 +139,6 @@ export const RoleProvider = ({ children }) => {
     return true;
   };
 
-  // Trạng thái đã vượt qua màn hình Chào mừng (Slide Landing) hay chưa
-  const [hasEnteredApp, setHasEnteredApp] = useState(() => {
-    if (isRoomUrl) {
-      return true;
-    }
-    return localStorage.getItem('edumanager_has_entered') === 'true';
-  });
-
-  // Chế độ khách (Học mà không cần đăng nhập)
-  const [isGuestMode, setIsGuestMode] = useState(() => {
-    try {
-      const savedRole = localStorage.getItem('edumanager_user_role');
-      const savedStudentId = localStorage.getItem('edumanager_current_student_id');
-      const hasRealStudent = savedStudentId && savedStudentId !== 'khach_tudolamde@gmail.com' && String(savedStudentId).trim() !== '';
-      // Nếu là giáo viên hoặc đã có học sinh chính thức đăng nhập -> Tuyệt đối không phải khách
-      if (savedRole === 'teacher' || hasRealStudent) {
-        return false;
-      }
-      if (isRoomUrl) {
-        return true;
-      }
-      return true; // Mặc định chưa đăng nhập là khách
-    } catch (_) {
-      return true;
-    }
-  });
-
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.href.includes('room=')) {
       setHasEnteredApp(true);
@@ -176,7 +176,7 @@ export const RoleProvider = ({ children }) => {
   };
 
   // Hàm học sinh chọn danh tính từ danh sách lớp
-  const selectEnrolledStudent = (studentId, classId) => {
+  const selectEnrolledStudent = (studentId) => {
     setIsGuestMode(false);
     setCurrentStudentId(studentId);
     const email = `${studentId.toLowerCase()}@school.edu.vn`;

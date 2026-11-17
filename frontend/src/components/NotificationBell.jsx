@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, MessageSquare, AlertCircle, X, Trash2, CheckSquare, FileText, Target } from 'lucide-react';
+import { BookOpen, MessageSquare, X, Trash2, CheckSquare, FileText, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { getClasses } from '../services/classService';

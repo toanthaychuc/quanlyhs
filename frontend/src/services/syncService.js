@@ -91,7 +91,7 @@ export async function pushAllLocalDataToCloud() {
     if (rawGuest) {
       try {
         await saveSetting('teacher_guest_allowed_paths', JSON.parse(rawGuest));
-      } catch (_) {}
+      } catch {}
     }
 
     return { success: true, results };

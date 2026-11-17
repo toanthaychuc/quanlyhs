@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { 
-  GraduationCap, Clock, HelpCircle, CheckCircle, XCircle, X,
-  Award, Play, RotateCcw, ArrowLeft, ArrowRight, Plus, 
+  Clock, HelpCircle, CheckCircle, X,
+  Award, Play, RotateCcw, ArrowLeft, Plus, 
   Trash2, Edit, Save, FileText, Check, AlertTriangle, Sparkles, 
-  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, Upload, Target, Zap, FileCode, Eye, EyeOff, CheckSquare2, CheckSquare,
-  QrCode, ShieldAlert, Users, UserCheck, AlertCircle
+  BookOpen, Flag, ChevronDown, ChevronRight, Search, Calendar, Upload, FileCode, Eye, EyeOff, CheckSquare,
+  QrCode, ShieldAlert, UserCheck, AlertCircle
 } from 'lucide-react';
 import { Download as I_Download, ArrowDownToLine as I_ArrowDownToLine } from 'lucide';
 import AnimatedIcon from '../components/AnimatedIcon';
@@ -13,7 +13,7 @@ import { useRole } from '../context/RoleContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MathView from '../components/MathView';
 import OnlineExamModal from '../components/OnlineExamModal';
-import { stripLatexComments, normalizeLatexString, extractBracedBlocks, parseImminiBlock, cleanQuestionObj } from '../utils/latexUtils';
+import { stripLatexComments, extractBracedBlocks, parseImminiBlock, cleanQuestionObj } from '../utils/latexUtils';
 import { GRADE_10_CURRICULUM } from '../data/grade10Curriculum';
 import { GRADE_11_CURRICULUM } from '../data/grade11Curriculum';
 import { GRADE_12_CURRICULUM } from '../data/grade12Curriculum';
@@ -24,9 +24,8 @@ import {
   getStudentAnswerForQuestion, calculateExamScore, regradeExamSessions,
   updateGamification, getGamification,
   saveUnfinishedExam, getUnfinishedExam, clearUnfinishedExam,
-  createExamRoom, getExamRoom, closeExamRoom, deleteExamRoom,
-  getActiveRoomsByExamId, getAllExamRooms, submitRoomExamSession,
-  hasStudentSubmittedRoom, getExamRoomSubmissions
+  getExamRoom, getAllExamRooms, submitRoomExamSession,
+  hasStudentSubmittedRoom
 } from '../services/examService';
 import { parseUserBadges, encodeUserBadges } from '../utils/badgeUtils';
 
@@ -167,7 +166,7 @@ const parseLatexStringToQuestions = (rawText, existingQuestions = []) => {
     
     if (firstChcIndex !== -1) {
       let clusterContext = block.substring(0, firstChcIndex).trim();
-      clusterContext = clusterContext.replace(/\\sochc\s*\{[^\}]*\}/g, '').trim();
+      clusterContext = clusterContext.replace(/\\sochc\s*\{[^}]*\}/g, '').trim();
       
       let subBlocks = [];
       while ((chcMatch = chcRegex.exec(block)) !== null) {
@@ -375,9 +374,9 @@ const Exams = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Xác định khối của học sinh hiện tại nếu đang ở chế độ Student
-  const [studentGradeKey, setStudentGradeKey] = useState(null);
+  const [activeGradeFilter, setActiveGradeFilter] = useState('grade-12');
 
+  // Xác định khối của học sinh hiện tại nếu đang ở chế độ Student
   useEffect(() => {
     if (isStudent) {
       const saved = localStorage.getItem('edumanager_classes_data_v2') || localStorage.getItem('edumanager_classes_data');
@@ -388,7 +387,6 @@ const Exams = () => {
             const found = cls.students?.find(s => s.id === currentStudentId);
             if (found) {
               const gradeKey = `grade-${cls.grade || '10'}`;
-              setStudentGradeKey(gradeKey);
               setActiveGradeFilter(gradeKey);
               break;
             }
@@ -397,12 +395,9 @@ const Exams = () => {
           console.error(e);
         }
       }
-    } else {
-      setStudentGradeKey(null);
     }
   }, [isStudent, currentStudentId]);
 
-  const [activeGradeFilter, setActiveGradeFilter] = useState('grade-12');
   const [searchLessonQuery, setSearchLessonQuery] = useState('');
   const [expandedChapters, setExpandedChapters] = useState({});
   const texFileInputRef = useRef(null);
@@ -611,7 +606,6 @@ const Exams = () => {
   // Trạng thái làm bài thi
   const [currentExam, setCurrentExam] = useState(null);
   const [examMode, setExamMode] = useState('list'); // 'list' | 'taking' | 'result'
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
   const [flaggedQuestions, setFlaggedQuestions] = useState({});
   const [timeLeft, setTimeLeft] = useState(0);
@@ -676,7 +670,6 @@ const Exams = () => {
   const [selectedExamForModal, setSelectedExamForModal] = useState(null);
   const [activeRoomsMap, setActiveRoomsMap] = useState({});
   const [currentRoom, setCurrentRoom] = useState(null);
-  const [urlRoomId, setUrlRoomId] = useState(null);
   const [urlRoomData, setUrlRoomData] = useState(null);
   const [isLoadingUrlRoom, setIsLoadingUrlRoom] = useState(false);
   const [urlRoomError, setUrlRoomError] = useState(null);
@@ -706,7 +699,7 @@ const Exams = () => {
           }
         }
       }
-    } catch (_) {}
+    } catch {}
     return {
       id: String(currentStudentId),
       name: String(currentStudentId),
@@ -787,7 +780,6 @@ const Exams = () => {
 
     const rId = extractRoomParam();
     if (rId) {
-      setUrlRoomId(rId);
       setIsLoadingUrlRoom(true);
       setUrlRoomError(null);
       getExamRoom(rId).then(room => {
@@ -821,7 +813,6 @@ const Exams = () => {
         setUrlRoomData(null);
       });
     } else {
-      setUrlRoomId(null);
       setUrlRoomData(null);
       setIsLoadingUrlRoom(false);
       setUrlRoomError(null);
@@ -979,7 +970,6 @@ const Exams = () => {
 
     setCurrentRoom(room);
     setCurrentExam(examWithTikz);
-    setCurrentQuestionIndex(0);
     setUserAnswers({});
     setFlaggedQuestions({});
     setTimeLeft((room.duration || 45) * 60);
@@ -998,7 +988,7 @@ const Exams = () => {
         if (!document.fullscreenElement) {
           document.documentElement.requestFullscreen().catch(() => {});
         }
-      } catch (_) {}
+      } catch {}
     }
   };
 
@@ -1228,7 +1218,6 @@ const Exams = () => {
         if (entry.examId === exam.id) {
           if (window.confirm('Bạn có tiến trình làm dở cho đề thi này. Bạn muốn TIẾP TỤC làm (OK) hay LÀM LẠI TỪ ĐẦU (Cancel)?')) {
             setCurrentExam(exam);
-            setCurrentQuestionIndex(0);
             setUserAnswers(entry.answers || {});
             setFlaggedQuestions(entry.flagged || {});
             setTimeLeft(entry.timeLeft || (exam.duration * 60));
@@ -1250,7 +1239,6 @@ const Exams = () => {
     }
 
     setCurrentExam(exam);
-    setCurrentQuestionIndex(0);
     setUserAnswers({});
     setFlaggedQuestions({});
     setTimeLeft(exam.duration * 60);
@@ -1353,7 +1341,7 @@ const Exams = () => {
           const normUser = (userPick === true || userPick === 'T' || userPick === 'true' || userPick === 'Đúng')
             ? 'T'
             : ((userPick === false || userPick === 'F' || userPick === 'false' || userPick === 'Sai') ? 'F' : userPick);
-          const expected = Boolean(opt.isCorrectTrue) ? 'T' : 'F';
+          const expected = opt.isCorrectTrue ? 'T' : 'F';
           if (normUser === expected) subCorrect += 1;
         });
 
@@ -1822,7 +1810,7 @@ const Exams = () => {
         }
         return stats;
       });
-    } catch (err) {
+    } catch {
       alert('Có lỗi xảy ra khi xóa. Vui lòng thử lại.');
     }
   };
@@ -2049,13 +2037,6 @@ const Exams = () => {
       const timeB = parseInt(b.id.split('_')[1]) || 0;
       return timeA - timeB;
     });
-  };
-
-  const getCurriculumStatText = () => {
-    if (activeGradeFilter === 'grade-10') return '9 Chương • 27 Bài học • 5 Kỳ thi định kỳ';
-    if (activeGradeFilter === 'grade-11') return '9 Chương • 33 Bài học • 5 Kỳ thi định kỳ';
-    if (activeGradeFilter === 'grade-12') return '6 Chương • 19 Bài học • 4 Kỳ thi định kỳ';
-    return 'Kho đề thi';
   };
 
   // Helper trả về nhãn loại câu hỏi
@@ -2313,10 +2294,6 @@ const Exams = () => {
 
   // ===================== RENDER: GIAO DIỆN LÀM BÀI THI =====================
   if (examMode === 'taking' && currentExam) {
-    const q = currentExam.questions[currentQuestionIndex];
-    const isFlagged = !!flaggedQuestions[q.id];
-    const currentAnswer = userAnswers[q.id];
-
     return (
       <div className="exam-taking-view">
 

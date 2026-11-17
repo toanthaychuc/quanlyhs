@@ -159,10 +159,6 @@
   min-height: 45vh; /* Ensure canvas has height on mobile */
 }
 
-.math-text {
-
-}
-
 @media (max-width: 768px) {
   .ineq-container {
     flex-direction: column !important;

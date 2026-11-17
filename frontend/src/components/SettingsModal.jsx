@@ -42,7 +42,7 @@ export const DEFAULT_LATEX_PREAMBLE = `\\usepackage{amsmath,amssymb}
 \\usetikzlibrary{calc,intersections,angles,quotes,patterns,positioning,arrows,arrows.meta,decorations.pathreplacing,decorations.markings,shapes.geometric,math}`;
 
 const SettingsModal = ({ isOpen, onClose }) => {
-  const { isTeacherAccount, isTeacher } = useRole();
+  const { isTeacher } = useRole();
 
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'cloud' | 'latex' | 'ai'
   const [fontScale, setFontScale] = useState(100);
@@ -78,7 +78,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
             } else {
               setGuestAllowed(['/exams', '/documents', '/forum']);
             }
-          } catch (e) {
+          } catch {
             setGuestAllowed(['/exams', '/documents', '/forum']);
           }
         } else {

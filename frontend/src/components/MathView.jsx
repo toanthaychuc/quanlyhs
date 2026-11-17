@@ -1,7 +1,7 @@
 import React from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { normalizeLatexString, extractBracedBlocks, parseImminiBlock, replaceMacroWithBraces } from '../utils/latexUtils';
+import { normalizeLatexString } from '../utils/latexUtils';
 import { parseTikzToSvgData, getSmoothSvgPath } from '../utils/tikzParser';
 import { getTikzHash } from '../utils/tikzCacheUtils';
 
@@ -956,7 +956,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
           if (cachedSvgs) {
             let map = cachedSvgs;
             if (typeof map === 'string') {
-              try { map = JSON.parse(map); } catch (e) { map = null; }
+              try { map = JSON.parse(map); } catch { map = null; }
             }
             if (map && typeof map === 'object') {
               precompiledSvg = map[hash] || map[rawCode] || map[seg.value] || null;
@@ -1092,7 +1092,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
 
         const rawContent = seg.value;
         const parts = [];
-        const mathRegex = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{((?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array)\*?)\}(?:\[.*?\])?[\s\S]*?\\end\{\2\}|\$[^\$]+?\$|\\\([\s\S]*?\\\))/g;
+        const mathRegex = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{((?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array)\*?)\}(?:\[.*?\])?[\s\S]*?\\end\{\2\}|\$[^$]+?\$|\\\([\s\S]*?\\\))/g;
         let lastMathIdx = 0;
         let mathMatch;
 
@@ -1182,7 +1182,7 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
                     className={part.isBlock ? 'katex-block-display' : 'katex-inline-display'}
                   />
                 );
-              } catch (e) {
+              } catch {
                 return (
                   <span key={pIdx} className="katex-error-tooltip" style={{ position: 'relative', display: 'inline-block' }}>
                     <code style={{ color: '#ef4444', backgroundColor: '#fee2e2', padding: '0.2rem 0.4rem', borderRadius: '4px' }}>
@@ -1199,156 +1199,6 @@ const RenderMathSegment = ({ rawText = '', className = '', isNormalized = false,
         );
       })}
     </span>
-  );
-};
-
-const TkzTabViewer = ({ tikzCode }) => {
-  const uniqueId = React.useMemo(() => Math.random().toString(36).substring(2, 9), []);
-  const initMatch = (tikzCode || '').match(/\\tkzTabInit(?:\[[^\]]*\])?\s*\{([^}]+)\}\s*\{([^}]+)\}/);
-  if (!initMatch) return null;
-
-  const rows = initMatch[1].split(',').map(s => s.split('/')[0].trim());
-  const xVals = initMatch[2].split(',').map(s => s.trim());
-
-  const lineMatch = (tikzCode || '').match(/\\tkzTabLine\s*\{([^}]+)\}/);
-  const signs = lineMatch ? lineMatch[1].split(',').map(s => s.trim()) : [];
-
-  const varMatch = (tikzCode || '').match(/\\tkzTabVar\s*\{([^}]+)\}/);
-  const vars = varMatch ? varMatch[1].split(',').map(s => s.trim()) : [];
-
-  const n = xVals.length;
-  const colCount = 2 * n - 1;
-
-  const points = vars.map((v, i) => {
-    let [pos, val1, val2] = v.split('/').map(s => s?.trim());
-    let leftPos = pos || '';
-    let rightPos = pos || '';
-    if (pos && pos.includes('D')) {
-      const parts = pos.split('D');
-      leftPos = parts[0] || '';
-      rightPos = parts[1] || '';
-    }
-    return { index: i, leftPos, rightPos, val1, val2 };
-  });
-
-  return (
-    <div className="tkz-tab-container" style={{ overflowX: 'auto', margin: '14px 0', fontFamily: 'system-ui', width: '100%' }}>
-      <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '380px', border: '1.5px solid #1e293b' }}>
-        <tbody>
-          <tr>
-            <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center', width: '80px' }}>
-              <RenderMathSegment rawText={rows[0]} />
-            </td>
-            {Array.from({ length: colCount }).map((_, i) => (
-              <td key={`x-${i}`} style={{ borderBottom: '1.5px solid #1e293b', padding: '12px 4px', textAlign: 'center' }}>
-                {i % 2 === 0 ? <RenderMathSegment rawText={xVals[Math.floor(i / 2)]} /> : null}
-              </td>
-            ))}
-          </tr>
-
-          {rows.length > 1 && (
-            <tr>
-              <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center' }}>
-                <RenderMathSegment rawText={rows[1]} />
-              </td>
-              {Array.from({ length: colCount }).map((_, i) => {
-                let content = signs[i] || '';
-                if (content === '0') content = '0';
-                if (content === 'd') content = '||';
-                if (content === 'h') content = '';
-
-                return (
-                  <td key={`s-${i}`} style={{ borderBottom: '1.5px solid #1e293b', padding: '12px 4px', textAlign: 'center' }}>
-                    {content === '||' ? (
-                      <div style={{ borderLeft: '1px solid #1e293b', borderRight: '1px solid #1e293b', height: '24px', width: '4px', margin: '0 auto' }} />
-                    ) : (
-                      <RenderMathSegment rawText={content} />
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
-          )}
-
-          {rows.length > 2 && (
-            <tr>
-              <td style={{ border: '1px solid #1e293b', borderRight: '1.5px solid #1e293b', padding: '12px 8px', textAlign: 'center' }}>
-                <RenderMathSegment rawText={rows[2]} />
-              </td>
-              {Array.from({ length: colCount }).map((_, i) => {
-                if (i % 2 !== 0) {
-                  const leftVar = points[Math.floor(i / 2)];
-                  const rightVar = points[Math.ceil(i / 2)];
-                  if (!leftVar || !rightVar) return <td key={`v-${i}`} />;
-
-                  const isUp = (leftVar.rightPos === '-' && rightVar.leftPos === '+') || (leftVar.rightPos === '-' && rightVar.leftPos === 'R') || (leftVar.rightPos === 'R' && rightVar.leftPos === '+');
-                  const isDown = (leftVar.rightPos === '+' && rightVar.leftPos === '-') || (leftVar.rightPos === '+' && rightVar.leftPos === 'R') || (leftVar.rightPos === 'R' && rightVar.leftPos === '-');
-
-                  return (
-                    <td key={`v-${i}`} style={{ position: 'relative', minWidth: '60px', height: '110px', padding: 0 }}>
-                      {(isUp || isDown) && (
-                        <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible' }}>
-                          <defs>
-                            <marker id={`arrow-${uniqueId}-${i}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-                              <path d="M 0 1 L 9 5 L 0 9 z" fill="#1e293b" />
-                            </marker>
-                          </defs>
-                          <line
-                            x1="10%" y1={isUp ? "85%" : "15%"}
-                            x2="90%" y2={isUp ? "15%" : "85%"}
-                            stroke="#1e293b" strokeWidth="1.2"
-                            markerEnd={`url(#arrow-${uniqueId}-${i})`}
-                          />
-                        </svg>
-                      )}
-                    </td>
-                  );
-                } else {
-                  const pt = points[Math.floor(i / 2)];
-                  if (!pt) return <td key={`v-${i}`} />;
-                  const isDoubleBar = pt.leftPos.includes('D') || pt.rightPos.includes('D');
-
-                  return (
-                    <td key={`v-${i}`} style={{ position: 'relative', width: '40px', height: '110px', padding: 0 }}>
-                      {isDoubleBar && (
-                        <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '4px', transform: 'translateX(-50%)', borderLeft: '1px solid #1e293b', borderRight: '1px solid #1e293b' }} />
-                      )}
-
-                      {pt.val1 && (
-                        <div style={{
-                          position: 'absolute',
-                          right: isDoubleBar ? '50%' : 'auto',
-                          left: isDoubleBar ? 'auto' : '50%',
-                          marginRight: isDoubleBar ? '6px' : '0',
-                          transform: isDoubleBar ? 'none' : 'translateX(-50%)',
-                          top: pt.leftPos === '+' ? '12px' : 'auto',
-                          bottom: pt.leftPos === '-' ? '12px' : 'auto',
-                          marginTop: (pt.leftPos !== '+' && pt.leftPos !== '-' && !isDoubleBar) ? '40px' : 0
-                        }}>
-                          <RenderMathSegment rawText={pt.val1} />
-                        </div>
-                      )}
-
-                      {(pt.val2) && (
-                        <div style={{
-                          position: 'absolute',
-                          left: '50%',
-                          marginLeft: '6px',
-                          top: pt.rightPos === '+' ? '12px' : 'auto',
-                          bottom: pt.rightPos === '-' ? '12px' : 'auto'
-                        }}>
-                          <RenderMathSegment rawText={pt.val2} />
-                        </div>
-                      )}
-                    </td>
-                  );
-                }
-              })}
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
   );
 };
 

@@ -105,33 +105,9 @@ export const parseTikzToSvgData = (rawTikzCode) => {
 
         const result = Function(`return (${jsExpr});`)();
         return typeof result === 'number' && !isNaN(result) ? result : null;
-      } catch (err) {
+      } catch {
         return null;
       }
-    };
-
-    const resolveVal = (valStr) => {
-      if (!valStr) return 0;
-      valStr = String(valStr).trim();
-      if (valStr.startsWith('\\')) {
-        const varName = valStr.slice(1);
-        if (defs[varName] !== undefined) return defs[varName];
-      }
-      if (defs[valStr] !== undefined) return defs[valStr];
-      const cleanStr = valStr.replace(/[^\d.-]/g, '');
-      const parsed = parseFloat(cleanStr);
-      return isNaN(parsed) ? 0 : parsed;
-    };
-
-    const getLineIntersection = (p1, p2, p3, p4) => {
-      if (!p1 || !p2 || !p3 || !p4) return { x: 0, y: 0 };
-      const denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
-      if (Math.abs(denom) < 1e-6) return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
-      const t = ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) / denom;
-      return {
-        x: p1.x + t * (p2.x - p1.x),
-        y: p1.y + t * (p2.y - p1.y)
-      };
     };
 
     // 2. BÓC TÁCH ĐỒ THỊ HÀM SỐ DẠNG TOẠ ĐỘ: \draw plot[...] coordinates {(-3.5,-1)(-1,4)...};

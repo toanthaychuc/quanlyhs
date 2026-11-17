@@ -8,7 +8,7 @@ export const getDailyReviewState = (studentId) => {
     if (!raw) return null;
     const data = JSON.parse(raw);
     return data[studentId] || null;
-  } catch (err) {
+  } catch {
     return null;
   }
 };

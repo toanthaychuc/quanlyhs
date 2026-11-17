@@ -340,7 +340,7 @@ export function calculateExamScore(exam, answers) {
           ? 'T'
           : ((userPick === false || userPick === 'F' || userPick === 'false' || userPick === 'Sai') ? 'F' : userPick);
 
-        const expected = Boolean(opt.isCorrectTrue) ? 'T' : 'F';
+        const expected = opt.isCorrectTrue ? 'T' : 'F';
         if (normUser === expected) {
           subCorrect += 1;
         }
@@ -748,7 +748,7 @@ export function saveUnfinishedExam(studentId, examId, { answers, flagged, timeLe
     const map = raw ? JSON.parse(raw) : {};
     map[studentId] = { examId, answers, flagged, timeLeft, savedAt: Date.now() };
     localStorage.setItem(UNFINISHED_KEY, JSON.stringify(map));
-  } catch (_) {}
+  } catch {}
 }
 
 export function getUnfinishedExam(studentId) {
@@ -756,7 +756,7 @@ export function getUnfinishedExam(studentId) {
     const raw = localStorage.getItem(UNFINISHED_KEY);
     if (!raw) return null;
     return JSON.parse(raw)[studentId] || null;
-  } catch (_) {
+  } catch {
     return null;
   }
 }
@@ -768,7 +768,7 @@ export function clearUnfinishedExam(studentId) {
     const map = JSON.parse(raw);
     delete map[studentId];
     localStorage.setItem(UNFINISHED_KEY, JSON.stringify(map));
-  } catch (_) {}
+  } catch {}
 }
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
@@ -820,7 +820,7 @@ function getExamsFromLocal() {
   try {
     const raw = localStorage.getItem(EXAMS_KEY);
     if (raw) return JSON.parse(raw);
-  } catch (_) {}
+  } catch {}
   return [];
 }
 
@@ -831,7 +831,7 @@ function updateLocalExam(exam) {
     if (idx >= 0) exams[idx] = exam;
     else exams.unshift(exam);
     localStorage.setItem(EXAMS_KEY, JSON.stringify(exams));
-  } catch (_) {}
+  } catch {}
 }
 
 function saveExamToLocal(exam) {
@@ -843,7 +843,7 @@ function saveExamToLocal(exam) {
     else exams.unshift(saved);
     localStorage.setItem(EXAMS_KEY, JSON.stringify(exams));
     return saved;
-  } catch (_) {
+  } catch {
     return exam;
   }
 }
@@ -852,7 +852,7 @@ function deleteExamFromLocal(examId) {
   try {
     const exams = getExamsFromLocal().filter(e => e.id !== examId);
     localStorage.setItem(EXAMS_KEY, JSON.stringify(exams));
-  } catch (_) {}
+  } catch {}
 }
 
 function saveSessionToLocal({ examId, studentId, score, correctCount, totalQuestions, answers, flagged, timeSpent }) {
@@ -871,7 +871,7 @@ function saveSessionToLocal({ examId, studentId, score, correctCount, totalQuest
       completedAt: new Date().toISOString(),
     });
     localStorage.setItem(HISTORY_KEY, JSON.stringify(prev));
-  } catch (_) {}
+  } catch {}
 }
 
 function getStudentHistoryFromLocal(studentId) {
@@ -886,7 +886,7 @@ function getStudentHistoryFromLocal(studentId) {
     });
     
     return studentHistory;
-  } catch (_) {
+  } catch {
     return {};
   }
 }
@@ -919,7 +919,7 @@ function getAllExamSessionsFromLocal() {
     });
     
     return history;
-  } catch (_) {
+  } catch {
     return {};
   }
 }
@@ -930,7 +930,7 @@ function getRoomsFromLocal() {
   try {
     const raw = localStorage.getItem(ROOMS_KEY);
     if (raw) return JSON.parse(raw);
-  } catch (_) {}
+  } catch {}
   return [];
 }
 
@@ -942,7 +942,7 @@ function saveRoomToLocal(room) {
     else rooms.unshift(room);
     localStorage.setItem(ROOMS_KEY, JSON.stringify(rooms));
     return room;
-  } catch (_) {
+  } catch {
     return room;
   }
 }
@@ -951,7 +951,7 @@ function deleteRoomFromLocal(roomId) {
   try {
     const rooms = getRoomsFromLocal().filter(r => r.id !== roomId);
     localStorage.setItem(ROOMS_KEY, JSON.stringify(rooms));
-  } catch (_) {}
+  } catch {}
 }
 
 export async function createExamRoom(roomData) {
@@ -991,7 +991,7 @@ export async function createExamRoom(roomData) {
         exam_data: room.exam_data,
         created_at: room.created_at
       }, { onConflict: 'id' });
-    } catch (_) {}
+    } catch {}
 
     // 2. Đồng thời lưu vào system_settings (bảng luôn sẵn có trong database)
     // Giúp tab ẩn danh và mọi thiết bị học sinh truy cập được phòng thi ngay lập tức
@@ -1031,7 +1031,7 @@ export async function getExamRoom(roomId) {
         saveRoomToLocal(merged);
         return merged;
       }
-    } catch (_) {}
+    } catch {}
 
     // 1b. Thử từ system_settings (key: exam_room_${roomId})
     try {
@@ -1081,14 +1081,14 @@ export async function closeExamRoom(roomId) {
         status: 'closed',
         cached_svgs: null
       }).eq('id', roomId);
-    } catch (_) {}
+    } catch {}
 
     try {
       await supabase.from('system_settings').upsert({
         key: `exam_room_${roomId}`,
         value: room
       }, { onConflict: 'key' });
-    } catch (_) {}
+    } catch {}
   }
 
   return true;
@@ -1097,9 +1097,9 @@ export async function closeExamRoom(roomId) {
 export async function deleteExamRoom(roomId) {
   deleteRoomFromLocal(roomId);
   if (isSupabaseReady()) {
-    try { await supabase.from('exam_rooms').delete().eq('id', roomId); } catch (_) {}
-    try { await supabase.from('system_settings').delete().eq('key', `exam_room_${roomId}`); } catch (_) {}
-    try { await supabase.from('system_settings').delete().eq('key', `exam_subs_${roomId}`); } catch (_) {}
+    try { await supabase.from('exam_rooms').delete().eq('id', roomId); } catch {}
+    try { await supabase.from('system_settings').delete().eq('key', `exam_room_${roomId}`); } catch {}
+    try { await supabase.from('system_settings').delete().eq('key', `exam_subs_${roomId}`); } catch {}
   }
   return true;
 }
@@ -1123,7 +1123,7 @@ export async function getAllExamRooms() {
     if (!error && Array.isArray(data) && data.length > 0) {
       remoteRooms = data;
     }
-  } catch (_) {}
+  } catch {}
 
   // 2. Thử system_settings
   if (remoteRooms.length === 0) {
@@ -1135,7 +1135,7 @@ export async function getAllExamRooms() {
       if (!error && Array.isArray(data)) {
         remoteRooms = data.map(d => d.value).filter(Boolean);
       }
-    } catch (_) {}
+    } catch {}
   }
 
   // 3. Tự động đồng bộ các phòng local chưa có trên remote lên system_settings
@@ -1146,7 +1146,7 @@ export async function getAllExamRooms() {
           key: `exam_room_${lr.id}`,
           value: lr
         }, { onConflict: 'key' });
-      } catch (_) {}
+      } catch {}
       remoteRooms.push(lr);
     }
   }
@@ -1188,7 +1188,7 @@ export async function hasStudentSubmittedRoom(roomId, studentIdentifier) {
       );
       if (found) return true;
     }
-  } catch (_) {}
+  } catch {}
 
   // Kiểm tra qua Supabase system_settings & exam_sessions
   if (isSupabaseReady()) {
@@ -1201,7 +1201,7 @@ export async function hasStudentSubmittedRoom(roomId, studentIdentifier) {
         );
         if (found) return true;
       }
-    } catch (_) {}
+    } catch {}
 
     try {
       const { data, error } = await supabase
@@ -1212,7 +1212,7 @@ export async function hasStudentSubmittedRoom(roomId, studentIdentifier) {
         .limit(1);
 
       if (!error && data && data.length > 0) return true;
-    } catch (_) {}
+    } catch {}
   }
 
   return false;
@@ -1276,7 +1276,7 @@ export async function submitRoomExamSession({
             key: `exam_room_${roomId}`,
             value: room
           }, { onConflict: 'key' });
-        } catch (_) {}
+        } catch {}
       }
     }
   } catch (err) {
@@ -1302,7 +1302,7 @@ export async function submitRoomExamSession({
       const subs = Array.isArray(data?.value) ? data.value : [];
       subs.unshift(sessionItem);
       await supabase.from('system_settings').upsert({ key: `exam_subs_${roomId}`, value: subs }, { onConflict: 'key' });
-    } catch (_) {}
+    } catch {}
 
     try {
       await supabase.from('exam_sessions').insert({
@@ -1331,7 +1331,7 @@ export async function getExamRoomSubmissions(roomId) {
   try {
     const all = JSON.parse(localStorage.getItem(ROOM_SUBMISSIONS_KEY) || '{}');
     localSubs = all[roomId] || [];
-  } catch (_) {}
+  } catch {}
 
   if (isSupabaseReady()) {
     try {
@@ -1343,7 +1343,7 @@ export async function getExamRoomSubmissions(roomId) {
         const merged = Array.from(map.values()).sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
         return merged;
       }
-    } catch (_) {}
+    } catch {}
   }
 
   return localSubs;

@@ -94,7 +94,7 @@ class ErrorBoundary extends React.Component {
                     const keys = await caches.keys();
                     await Promise.all(keys.map(k => caches.delete(k)));
                   }
-                } catch (_) {}
+                } catch {}
                 // 3. Chuyển hướng với cache-bust để trình duyệt bỏ qua mọi cache cũ
                 window.location.replace('/?_cb=' + Date.now() + '#/');
               }}
@@ -126,7 +126,7 @@ class ErrorBoundary extends React.Component {
                     const keys = await caches.keys();
                     await Promise.all(keys.map(k => caches.delete(k)));
                   }
-                } catch (_) {}
+                } catch {}
                 window.location.replace('/?_cb=' + Date.now() + '#/');
               }}
               style={{

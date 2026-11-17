@@ -7,23 +7,12 @@ import {
   Users, 
   BookOpen, 
   GraduationCap, 
-  FileText, 
-  MessageSquare,
-  Award,
-  ClipboardList,
   LogOut,
-  ShieldCheck,
-  User,
   Mail,
   LogIn,
   Lock,
-  CheckCircle2,
   Settings,
   X,
-  Smartphone,
-  Sun,
-  Moon,
-  Shield,
   Menu,
   ChevronLeft,
   ChevronRight,
@@ -39,7 +28,6 @@ import {
   MessageSquare as I_MessageSquare, MessageSquareCheck as I_MessageSquareCheck,
   Star as I_Star, StarCheck as I_StarCheck,
   Shield as I_Shield, ShieldCheck as I_ShieldCheck,
-  Sliders as I_Sliders, Settings as I_Settings,
   Smartphone as I_Smartphone, Tablet as I_Tablet,
   GraduationCap as I_GraduationCap, UserCheck as I_UserCheck,
   Menu as I_Menu, X as I_X,
@@ -51,7 +39,6 @@ import { useRole, TEACHER_EMAIL } from '../context/RoleContext';
 import WelcomeLandingModal from '../components/WelcomeLandingModal';
 import SettingsModal from '../components/SettingsModal';
 import MobileReviewModal from '../components/MobileReviewModal';
-import StudentName from '../components/StudentName';
 import NotificationBell from '../components/NotificationBell';
 import { ThemeToggleIcon } from '../components/ThemeToggleIcon';
 import AnimatedIcon from '../components/AnimatedIcon';
@@ -126,14 +113,11 @@ const MainLayout = () => {
     isStudent, 
     currentUserEmail, 
     isTeacherAccount, 
-    isGuestMode,
     hasEnteredApp,
     setHasEnteredApp,
-    openWelcomeModal,
     loginWithEmail, 
     logout,
-    currentStudentId, 
-    setCurrentStudentId 
+    currentStudentId
   } = useRole();
 
   // Quản lý quyền truy cập cho chế độ Khách (đọc cấu hình giáo viên hoặc mặc định)
@@ -334,14 +318,12 @@ const MainLayout = () => {
   // Đảm bảo classesData luôn là mảng an toàn
   const safeClassesData = Array.isArray(classesData) ? classesData : [];
 
-  // Tìm học sinh hiện tại và lớp của học sinh đó
+  // Tìm học sinh hiện tại
   let currentStudent = null;
-  let currentStudentClass = null;
   for (const cls of safeClassesData) {
     const found = cls.students?.find(s => s.id === currentStudentId);
     if (found) {
       currentStudent = found;
-      currentStudentClass = cls;
       break;
     }
   }
@@ -364,11 +346,6 @@ const MainLayout = () => {
     window.addEventListener('avatar_updated', handleAvatarUpdate);
     return () => window.removeEventListener('avatar_updated', handleAvatarUpdate);
   }, [isTeacher, currentStudent]);
-
-  // Danh sách tất cả học sinh để giáo viên/người dùng có thể giả lập chọn học sinh khác nhau
-  const allStudentsWithClass = safeClassesData.flatMap(cls => 
-    (cls.students || []).map(s => ({ ...s, className: cls.name, school: cls.school }))
-  );
 
   const navItems = [
     { path: '/', iconDefault: I_LayoutDashboard, iconHover: I_LayoutGrid, label: 'Dashboard' },

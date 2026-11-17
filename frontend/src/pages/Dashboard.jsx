@@ -9,16 +9,11 @@ import {
   GraduationCap, 
   FileText, 
   Award, 
-  ChevronRight, 
   Play, 
-  RotateCcw, 
   Bell, 
-  Pin, 
   BarChart2, 
   Compass, 
-  Sparkles,
   Flame,
-  Calendar,
   Layers,
   ArrowUpRight,
   Plus,
@@ -27,8 +22,6 @@ import {
   X,
   Medal,
   Users,
-  EyeOff,
-  RefreshCw,
   Wand2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -43,8 +36,7 @@ import { GRADE_12_CURRICULUM } from '../data/grade12Curriculum';
 import DailyReview from '../components/DailyReview';
 import { getClasses } from '../services/classService';
 import { getExams, getStudentHistory, getGamification } from '../services/examService';
-import { getNotices, saveNotice, deleteNotice } from '../services/noticeService';
-import { getSetting, saveSetting } from '../services/settingService';
+import { getNotices, saveNotice, saveAllNotices, deleteNotice } from '../services/noticeService';
 import { calculateRank } from '../utils/rankUtils';
 import { computeStudentAnalytics, getWeakTopics } from '../utils/analyticsUtils';
 import { BADGES_CONFIG, parseUserBadges } from '../utils/badgeUtils';
@@ -166,7 +158,7 @@ const Dashboard = () => {
           targetClass: 'ALL'
         }
       ];
-    } catch (e) {
+    } catch {
       return [];
     }
   });
@@ -196,9 +188,7 @@ const Dashboard = () => {
     
     if (noticeSaveTimeoutRef.current) clearTimeout(noticeSaveTimeoutRef.current);
     noticeSaveTimeoutRef.current = setTimeout(() => {
-      import('../services/noticeService').then(({ saveAllNotices }) => {
-        saveAllNotices(notices);
-      });
+      saveAllNotices(notices);
     }, 1500);
 
     return () => {
@@ -365,12 +355,6 @@ const Dashboard = () => {
     setShowAvatarModal(false);
     window.dispatchEvent(new Event('avatar_updated'));
   };
-
-  // Mục tiêu điểm thi mong muốn của học sinh
-  const [targetScore, setTargetScore] = useState(() => {
-    return localStorage.getItem('edumanager_target_score') || '8.5';
-  });
-
 
   // Tính toán % tiến độ thực tế theo từng chương an toàn
   const validCurriculum = Array.isArray(currentCurriculum) ? currentCurriculum : GRADE_12_CURRICULUM;
@@ -541,12 +525,6 @@ const Dashboard = () => {
     }));
 
   const scoreHistory = actualScoreHistory;
-
-  const currentAverageScore = scoreHistory.length > 0 
-    ? (scoreHistory.reduce((sum, r) => sum + r.score, 0) / scoreHistory.length).toFixed(1)
-    : '0.0';
-
-  const targetGap = (parseFloat(targetScore) - parseFloat(currentAverageScore)).toFixed(1);
 
   let trendText = '';
   let trendClass = '';

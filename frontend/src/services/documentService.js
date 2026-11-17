@@ -124,7 +124,7 @@ function getLocalDocuments() {
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (_) {
+  } catch {
     return [];
   }
 }
@@ -136,12 +136,12 @@ function saveLocalDocument(doc) {
     if (idx >= 0) list[idx] = doc;
     else list.unshift(doc);
     localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
-  } catch (_) {}
+  } catch {}
 }
 
 function deleteLocalDocument(id) {
   try {
     const list = getLocalDocuments().filter(d => d.id !== id);
     localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
-  } catch (_) {}
+  } catch {}
 }

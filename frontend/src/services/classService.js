@@ -108,7 +108,7 @@ function getClassesFromLocal() {
         return parsed.map(c => ({ ...c, teacher: 'Thầy Lê Công Chức' }));
       }
     }
-  } catch (_) {}
+  } catch {}
   return [];
 }
 
@@ -230,7 +230,7 @@ function saveClassToLocal(cls) {
     if (idx >= 0) classes[idx] = cls;
     else classes.push(cls);
     localStorage.setItem(LOCAL_KEY, JSON.stringify(classes));
-  } catch (_) {}
+  } catch {}
 }
 
 function deleteClassFromLocal(classId) {
@@ -239,5 +239,5 @@ function deleteClassFromLocal(classId) {
     if (!raw) return;
     const classes = JSON.parse(raw).filter(c => c.id !== classId);
     localStorage.setItem(LOCAL_KEY, JSON.stringify(classes));
-  } catch (_) {}
+  } catch {}
 }

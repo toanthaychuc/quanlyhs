@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Book, 
   Users,
   UserRound,
   Plus, 
@@ -21,7 +20,6 @@ import {
   UserX,
   ChevronLeft,
   ChevronRight,
-  FolderPlus,
   Wand2
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
@@ -89,9 +87,6 @@ const Classes = () => {
     }
     return [];
   });
-
-  // Tab active: classes, docs, homework, ranks (Mobile)
-  const [activeTab, setActiveTab] = useState('classes');
 
   const [isCloudSynced, setIsCloudSynced] = useState(false);
 

@@ -12,7 +12,7 @@ const isSupabaseReady = () =>
 function getNoticesFromLocal() {
   try {
     return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
-  } catch (_) {
+  } catch {
     return [];
   }
 }
@@ -23,9 +23,7 @@ export async function getNotices(forceSync = false) {
     if (local && local.length > 0) return local;
   }
   if (!isSupabaseReady()) {
-    try {
-      return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
-    } catch (_) { return []; }
+    return getNoticesFromLocal();
   }
 
   try {
@@ -36,7 +34,7 @@ export async function getNotices(forceSync = false) {
     if (error) throw error;
     const notices = (data || []).map(r => {
       let extra = {};
-      try { extra = JSON.parse(r.type); } catch (e) {}
+      try { extra = JSON.parse(r.type); } catch {}
       return {
         id: r.id,
         title: r.title,
@@ -53,7 +51,7 @@ export async function getNotices(forceSync = false) {
     return notices;
   } catch (err) {
     console.error('[noticeService] getNotices error:', err);
-    try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'); } catch (_) { return []; }
+    return getNoticesFromLocal();
   }
 }
 
@@ -156,12 +154,12 @@ function saveNoticeToLocal(notice) {
     else notices.unshift(saved);
     localStorage.setItem(LOCAL_KEY, JSON.stringify(notices));
     return { success: true, notice: saved };
-  } catch (_) { return { success: false }; }
+  } catch { return { success: false }; }
 }
 
 function deleteNoticeFromLocal(noticeId) {
   try {
     const notices = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]').filter(n => n.id !== noticeId);
     localStorage.setItem(LOCAL_KEY, JSON.stringify(notices));
-  } catch (_) {}
+  } catch {}
 }

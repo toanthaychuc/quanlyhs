@@ -23,7 +23,7 @@ export const getLocalFormulas = () => {
   try {
     const raw = localStorage.getItem(LOCAL_FORMULAS_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (_) {
+  } catch {
     return [];
   }
 };
@@ -31,7 +31,7 @@ export const getLocalFormulas = () => {
 export const saveLocalFormulas = (list) => {
   try {
     // Strip cached_svgs from local cache to avoid exceeding localStorage quota
-    const lightList = (list || []).map(({ cached_svgs, ...rest }) => rest);
+    const lightList = (list || []).map(({ cached_svgs: _cachedSvgs, ...rest }) => rest);
     localStorage.setItem(LOCAL_FORMULAS_KEY, JSON.stringify(lightList));
   } catch (err) {
     console.warn('[formulaService] Could not save to localStorage:', err);
@@ -94,7 +94,7 @@ export const addFormula = async (formula) => {
 
     if (error) {
       if (error.message && error.message.includes('cached_svgs')) {
-        const { cached_svgs, ...rest } = formula;
+        const { cached_svgs: _cachedSvgs, ...rest } = formula;
         const fallbackRes = await supabase
           .from('formulas')
           .insert([rest])
@@ -121,7 +121,7 @@ export const updateFormula = async (id, updates) => {
 
     if (error) {
       if (error.message && error.message.includes('cached_svgs')) {
-        const { cached_svgs, ...rest } = updates;
+        const { cached_svgs: _cachedSvgs, ...rest } = updates;
         const fallbackRes = await supabase
           .from('formulas')
           .update({ ...rest, updated_at: new Date().toISOString() })

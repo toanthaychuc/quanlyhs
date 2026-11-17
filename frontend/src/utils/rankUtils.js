@@ -1,7 +1,3 @@
-const getIconUrl = (filename) => {
-  return `${import.meta.env.BASE_URL}ranks/${filename}`;
-};
-
 export const RANKS = [
   { id: 'rank1', name: 'Trứng Cú Nhỏ', minXP: 0, color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.2)', image: '/ranks/rank_1_egg.jpg' },
   { id: 'rank2', name: 'Cú Chập Chững', minXP: 500, color: '#fca5a5', bg: 'rgba(252, 165, 165, 0.2)', image: '/ranks/rank_2_baby.jpg' },

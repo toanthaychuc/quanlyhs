@@ -5,17 +5,13 @@ import {
   ShieldCheck, 
   GraduationCap, 
   LogIn, 
-  ArrowRight, 
   Sparkles, 
   X, 
   AlertCircle,
-  User,
-  School,
   CheckCircle2,
   KeyRound,
   Eye,
   EyeOff,
-  Lock,
   RefreshCw,
   Trash2
 } from 'lucide-react';
@@ -25,12 +21,10 @@ import './WelcomeLandingModal.css';
 const WelcomeLandingModal = ({ isOpen, onClose, classesData = [] }) => {
   const navigate = useNavigate();
   const { 
-    currentUserEmail, 
     loginWithEmail, 
     loginAsGuest, 
     selectEnrolledStudent,
     hasTeacherPassword,
-    teacherPassword,
     setTeacherPassword,
     changeTeacherPassword,
     removeTeacherPassword

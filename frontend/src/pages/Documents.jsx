@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plus, X, Link as LinkIcon, Image as ImageIcon, Book, Edit, Trash2, 
   Upload, Clipboard, Check, Folder, Bookmark, GraduationCap, BookOpen, ExternalLink,
-  Lock, Eye, RefreshCw
+  RefreshCw
 } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { getDocuments, saveAllDocuments, deleteDocument, saveDocument } from '../services/documentService';

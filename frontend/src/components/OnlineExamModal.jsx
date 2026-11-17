@@ -16,15 +16,12 @@ import {
 } from '../utils/tikzCacheUtils';
 
 export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = null, onRoomUpdated, onReviewSubmission }) {
-  if (!isOpen || !exam) return null;
-
   const [activeRoom, setActiveRoom] = useState(initialRoom || null);
-  const [isLoadingActive, setIsLoadingActive] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Form State
-  const [roomTitle, setRoomTitle] = useState(`${exam.title || 'Đề kiểm tra'} - Thi trực tuyến`);
-  const [duration, setDuration] = useState(exam.duration || 45);
+  const [roomTitle, setRoomTitle] = useState(`${exam?.title || 'Đề kiểm tra'} - Thi trực tuyến`);
+  const [duration, setDuration] = useState(exam?.duration || 45);
   const [shuffleQuestions, setShuffleQuestions] = useState(true);
   const [shuffleAnswers, setShuffleAnswers] = useState(true);
   const [maxViolations, setMaxViolations] = useState(1); // 1 lần cảnh báo, lần 2 nộp
@@ -54,10 +51,9 @@ export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = n
         try {
           const subs = await getExamRoomSubmissions(initialRoom.id);
           if (isMounted) setSubmissions(Array.isArray(subs) ? subs : []);
-        } catch (_) {}
+        } catch {}
       }
 
-      setIsLoadingActive(true);
       try {
         const rooms = await getActiveRoomsByExamId(exam.id);
         if (isMounted) {
@@ -72,8 +68,6 @@ export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = n
         }
       } catch (err) {
         console.error('Lỗi khi tải phòng thi:', err);
-      } finally {
-        if (isMounted) setIsLoadingActive(false);
       }
     }
 
@@ -95,11 +89,13 @@ export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = n
         if (Array.isArray(subs)) {
           setSubmissions(subs);
         }
-      } catch (_) {}
+      } catch {}
     }, 4000);
 
     return () => clearInterval(interval);
   }, [isOpen, activeRoom]);
+
+  if (!isOpen || !exam) return null;
 
   // Sinh đường link thi
   const getExamLink = (roomId) => {
@@ -230,7 +226,7 @@ export default function OnlineExamModal({ isOpen, onClose, exam, initialRoom = n
     ];
 
     const cleanTitle = (activeRoom?.exam_title || exam?.title || 'Thi_Truc_Tuyen')
-      .replace(/[\/\\?%*:|"<>]/g, '_')
+      .replace(/[/\\?%*:|"<>]/g, '_')
       .replace(/\s+/g, '_');
     const dateStr = new Date().toISOString().slice(0, 10);
     const fileName = `BangDiem_${cleanTitle}_${dateStr}.xlsx`;

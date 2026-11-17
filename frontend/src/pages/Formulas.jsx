@@ -432,7 +432,7 @@ const Formulas = () => {
       const formula = formulasWithTikz[i];
       try {
         const cached_svgs = await buildFormulaCachedSvgs(formula.content, formula.cached_svgs || {});
-        const updated = await updateFormula(formula.id, { cached_svgs });
+        await updateFormula(formula.id, { cached_svgs });
         const idx = updatedFormulas.findIndex(f => f.id === formula.id);
         if (idx !== -1) {
           updatedFormulas[idx] = { ...updatedFormulas[idx], cached_svgs };

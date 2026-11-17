@@ -24,15 +24,15 @@ export const GRADE_10_CURRICULUM = [
           },
           {
             id: 'q_g10_1_2',
-            content: 'Mệnh đề phủ định của mệnh đề $P: \"\\forall x \\in \\mathbb{R}, x^2 + 1 > 0\"$ là:',
+            content: 'Mệnh đề phủ định của mệnh đề $P: "\\forall x \\in \\mathbb{R}, x^2 + 1 > 0"$ là:',
             options: [
-              { key: 'A', text: '$\\overline{P}: \"\\exists x \\in \\mathbb{R}, x^2 + 1 \\le 0\"$' },
-              { key: 'B', text: '$\\overline{P}: \"\\forall x \\in \\mathbb{R}, x^2 + 1 \\le 0\"$' },
-              { key: 'C', text: '$\\overline{P}: \"\\exists x \\in \\mathbb{R}, x^2 + 1 < 0\"$' },
-              { key: 'D', text: '$\\overline{P}: \"\\forall x \\in \\mathbb{R}, x^2 + 1 < 0\"$' }
+              { key: 'A', text: '$\\overline{P}: "\\exists x \\in \\mathbb{R}, x^2 + 1 \\le 0"$' },
+              { key: 'B', text: '$\\overline{P}: "\\forall x \\in \\mathbb{R}, x^2 + 1 \\le 0"$' },
+              { key: 'C', text: '$\\overline{P}: "\\exists x \\in \\mathbb{R}, x^2 + 1 < 0"$' },
+              { key: 'D', text: '$\\overline{P}: "\\forall x \\in \\mathbb{R}, x^2 + 1 < 0"$' }
             ],
             correctAnswer: 'A',
-            explanation: 'Phủ định của $\\forall$ là $\\exists$, phủ định của $>$ là $\\le$. Do đó $\\overline{P}: \"\\exists x \\in \\mathbb{R}, x^2 + 1 \\le 0\"$.'
+            explanation: 'Phủ định của $\\forall$ là $\\exists$, phủ định của $>$ là $\\le$. Do đó $\\overline{P}: "\\exists x \\in \\mathbb{R}, x^2 + 1 \\le 0"$.'
           }
         ]
       },

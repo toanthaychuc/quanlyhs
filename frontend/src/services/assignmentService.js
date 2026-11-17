@@ -120,7 +120,7 @@ function getLocalAssignments() {
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (_) {
+  } catch {
     return [];
   }
 }
@@ -132,12 +132,12 @@ function saveLocalAssignment(asg) {
     if (idx >= 0) list[idx] = asg;
     else list.unshift(asg);
     localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
-  } catch (_) {}
+  } catch {}
 }
 
 function deleteLocalAssignment(id) {
   try {
     const list = getLocalAssignments().filter(a => a.id !== id);
     localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
-  } catch (_) {}
+  } catch {}
 }

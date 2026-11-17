@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Html, Line, MapControls, OrthographicCamera, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, Html, Line } from '@react-three/drei';
 import * as THREE from 'three';
 import { useRole } from '../../context/RoleContext';
 import { getSetting, saveSetting } from '../../services/settingService';
@@ -2201,39 +2201,6 @@ const PlaneMesh = ({ vertices, selected, color = '#3b82f6', opacity = 0.35, bord
   );
 };
 
-const IntersectionLine = ({ point, dir }) => {
-  const pts = useMemo(() => {
-    if (!point || !dir) return null;
-    return [
-      new THREE.Vector3().copy(point).add(dir.clone().multiplyScalar(10)),
-      new THREE.Vector3().copy(point).add(dir.clone().multiplyScalar(-10))
-    ];
-  }, [point, dir]);
-
-  if (!pts) return null;
-  return <Line points={pts} color="#8b5cf6" lineWidth={4} />;
-};
-
-const SelectedLine = ({ vertices, v1, v2 }) => {
-  const p1 = vertices[v1];
-  const p2 = vertices[v2];
-  
-  const extendedPts = useMemo(() => {
-    const dir = new THREE.Vector3().subVectors(p2, p1).normalize();
-    return [
-      new THREE.Vector3().copy(p1).add(dir.clone().multiplyScalar(10)),
-      new THREE.Vector3().copy(p1).add(dir.clone().multiplyScalar(-10))
-    ];
-  }, [p1, p2]);
-
-  return (
-    <group>
-      <Line points={[p1, p2]} color="#ef4444" lineWidth={4} />
-      <Line points={extendedPts} color="#ef4444" lineWidth={1} dashed dashSize={0.2} gapSize={0.2} />
-    </group>
-  );
-};
-
 const IntersectionPoint = ({ point }) => {
   if (!point) return null;
   return (
@@ -2594,21 +2561,6 @@ const CustomConnectionLine = ({ p1, p2, shape, useDashed, isExternalLine }) => {
       />
     </group>
   );
-};
-
-const formatRatio = (ratio, startLabel = 'A', endLabel = 'B') => {
-  if (typeof ratio !== 'number' || isNaN(ratio)) return '';
-  const edgeStr = startLabel && endLabel ? ` ${startLabel}${endLabel}` : '';
-  if (Math.abs(ratio - 0.5) < 0.015) return `1/2${edgeStr} (Trung điểm)`;
-  if (Math.abs(ratio - (-1)) < 0.015) return `${startLabel} là t.đ ${endLabel ? `M${endLabel}` : 'đoạn'}`;
-  if (Math.abs(ratio - 2) < 0.015) return `${endLabel} là t.đ ${startLabel ? `${startLabel}M` : 'đoạn'}`;
-  if (Math.abs(ratio - 1 / 3) < 0.015) return `1/3${edgeStr}`;
-  if (Math.abs(ratio - 2 / 3) < 0.015) return `2/3${edgeStr}`;
-  if (Math.abs(ratio - 0.25) < 0.015) return `1/4${edgeStr}`;
-  if (Math.abs(ratio - 0.75) < 0.015) return `3/4${edgeStr}`;
-  if (ratio < 0) return `k = ${ratio}${edgeStr} (Tia đối)`;
-  if (ratio > 1) return `k = ${ratio}${edgeStr} (Kéo dài)`;
-  return `${Math.round(ratio * 100)}%${edgeStr}`;
 };
 
 const formatRatioBadge = (ratio, startLabel, endLabel) => {
@@ -3422,8 +3374,7 @@ const PerpendicularGeometry3D = () => {
   const controlsRef = useRef(null);
 
   const [selectedShape, setSelectedShape] = useState('quad_sa_parallelogram');
-  const [mode, setMode] = useState('planes'); // 'planes' | 'line_plane'
-  const [useDashed, setUseDashed] = useState(true);
+  const useDashed = true;
   const [view2DPlane, setView2DPlane] = useState(null);
 
   // States for point editing
@@ -3757,10 +3708,6 @@ const PerpendicularGeometry3D = () => {
     });
   };
 
-  const handleVertexDrag = (label, newPos) => {
-    updatePointCoord(label, newPos.x, newPos.y, newPos.z);
-  };
-
   const updateMathCoord = (label, mathX, mathY, mathZ) => {
     updatePointCoord(label, mathX, mathZ - 1, mathY);
   };
@@ -4091,10 +4038,6 @@ const PerpendicularGeometry3D = () => {
     return ['O', 'I', 'K', 'J', 'E', 'F', 'H', 'G'].find(l => !activeLabels.includes(l)) || 'O';
   }, [intersectionModal, activeLabels]);
 
-  const suggestedMidpointLabel = useMemo(() => {
-    return ['M', 'N', 'P', 'Q', 'I', 'J', 'K', 'E', 'F', 'H'].find(l => !activeLabels.includes(l)) || 'M';
-  }, [activeLabels]);
-
   const suggestedPerpLabelComputed = useMemo(() => {
     return ['H', 'K', 'I', 'J', 'E', 'F', 'M', 'N'].find(l => !activeLabels.includes(l)) || 'H';
   }, [activeLabels]);
@@ -4347,7 +4290,7 @@ const PerpendicularGeometry3D = () => {
       }
       return;
     }
-  }, [activeTool, activeSelectionSlot, pickedPoints, pickedLine, createDirectParallelLine, createDirectPerpBisector, showToast]);
+  }, [activeTool, activeSelectionSlot, pickedPoints, pickedLine, createDirectParallelLine, showToast]);
 
   const handleCanvasEdgeClick = useCallback((edge) => {
     if (activeTool === 'point_on_edge') {
@@ -4404,7 +4347,7 @@ const PerpendicularGeometry3D = () => {
       });
       return;
     }
-  }, [activeTool, pickedPoints, activeVertices, createDirectParallelLine, showToast]);
+  }, [activeTool, pickedPoints, activeVertices, createDirectParallelLine]);
 
   const handleEdgePointModalSubmit = ({ edge, label, ratio }) => {
     const p1 = activeVertices[edge[0]];
@@ -4557,50 +4500,6 @@ const PerpendicularGeometry3D = () => {
     if (pl) return pl.pts;
     return s.toUpperCase().split('');
   };
-
-  const toggleLineSelection = (index, pts) => {
-    setSelections(prev => {
-      const newSels = [...prev];
-      const same = newSels[index].length === 2 && pts.every(p => newSels[index].includes(p));
-      newSels[index] = same ? [] : [...pts];
-      return newSels;
-    });
-  };
-
-  const toggleVertex = (list, setList, max, v) => {
-    if (list.includes(v)) {
-      setList(list.filter(x => x !== v));
-    } else {
-      if (list.length < max) {
-        setList([...list, v]);
-      } else {
-        setList([...list.slice(0, max - 1), v]);
-      }
-    }
-  };
-
-  const isCoplanarWith = (list, v) => {
-    const [a, b, c] = list.slice(0, 3).map(k => activeVertices[k]);
-    const p = activeVertices[v];
-    if (!a || !b || !c || !p) return false;
-    const normal = new THREE.Vector3().crossVectors(
-      new THREE.Vector3().subVectors(b, a),
-      new THREE.Vector3().subVectors(c, a)
-    );
-    if (normal.length() < 1e-6) return false;
-    return Math.abs(normal.normalize().dot(new THREE.Vector3().subVectors(p, a))) < 0.05;
-  };
-
-  const togglePlaneVertex = (list, setList, v) => {
-    if (list.includes(v)) {
-      setList(list.filter(x => x !== v));
-    } else if (list.length < 3 || isCoplanarWith(list, v)) {
-      setList([...list, v]);
-    } else {
-      setList([...list.slice(0, 2), v]);
-    }
-  };
-
 
   const getHint = () => {
     const activeSels = selections.filter(s => s.length >= 2);

@@ -62,7 +62,7 @@ function getLocalSetting(key, defaultValue) {
   try {
     const raw = localStorage.getItem(`edumanager_setting_${key}`);
     return raw ? JSON.parse(raw) : defaultValue;
-  } catch (_) {
+  } catch {
     return defaultValue;
   }
 }
@@ -70,5 +70,5 @@ function getLocalSetting(key, defaultValue) {
 function saveLocalSetting(key, value) {
   try {
     localStorage.setItem(`edumanager_setting_${key}`, JSON.stringify(value));
-  } catch (_) {}
+  } catch {}
 }

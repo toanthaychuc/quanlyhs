@@ -186,7 +186,6 @@
 .math-table {
   width: 100%;
   border-collapse: collapse;
-
   font-size: 15px;
   border: 1px solid #cbd5e1;
 }
@@ -209,10 +208,6 @@
   background: #f8fafc;
   width: 50px;
   font-weight: bold;
-}
-
-.math-text-normal {
-
 }
 
 @media (max-width: 768px) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Target, Trophy, Flame, Zap, ArrowUp, Star } from 'lucide-react';
+import { Shield, Trophy, ArrowUp, Star } from 'lucide-react';
 import { useRole } from '../context/RoleContext';
 import { RANKS, calculateRank } from '../utils/rankUtils';
 import { BADGES_CONFIG, parseUserBadges } from '../utils/badgeUtils';
@@ -154,7 +154,7 @@ const MyRank = () => {
           <div className="card roadmap-card">
             <h3><ArrowUp size={18} color="var(--primary-color)" /> Lộ Trình Thăng Hạng</h3>
             <div className="roadmap-list">
-              {RANKS.map((rank, index) => {
+              {RANKS.map((rank) => {
                 const isCurrent = currentRank.id === rank.id;
                 const isPassed = gamification.xp >= rank.minXP;
                 

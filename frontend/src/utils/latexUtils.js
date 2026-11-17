@@ -245,43 +245,6 @@ export const replaceTwoArgMacro = (text, macroName, transformFn) => {
   return result;
 };
 
-
-// Chuẩn hóa một khối công thức toán học KaTeX
-const cleanMathContent = (content) => {
-  if (!content) return '';
-  let math = content
-    .replace(/\$/g, '') // Khử mọi dấu $ lồng nhau
-    .replace(/\\vv\s*\{([A-Za-z0-9_]{2,})\}/g, '\\overrightarrow{$1}')
-    .replace(/\\vv\s*\{([A-Za-z0-9_])\}/g, '\\vec{$1}')
-    .replace(/\\vv\s+([A-Za-z]{2,})\b/g, '\\overrightarrow{$1}')
-    .replace(/\\vv\s+([A-Za-z])\b/g, '\\vec{$1}')
-    .replace(/\\varparallel\b/g, '\\parallel')
-    .replace(/\\goc\s*\{([^}]+)\}/g, '\\widehat{$1}')
-    .replace(/\\degree/g, '^\\circ');
-
-  // Đảm bảo văn bản tiếng Việt bên trong công thức được bao trong \text{...}
-  const vietnamesePhrases = [
-    'cùng hướng với',
-    'ngược hướng với',
-    'cùng phương với',
-    'vuông góc với',
-    'song song với',
-    'thỏa mãn',
-    'thoả mãn',
-    'với mọi',
-    'đúng',
-    'sai'
-  ];
-
-  vietnamesePhrases.forEach(phrase => {
-    const escaped = phrase.replace(/\s+/g, '\\s+');
-    const regex = new RegExp(`(?<!\\\\text\\s*\\{[^}]*)(${escaped})(?![^{]*\\})`, 'gi');
-    math = math.replace(regex, ' \\text{$1} ');
-  });
-
-  return math.trim();
-};
-
 export const extractBalancedTabulars = (text) => {
   const beginRegex = /\\begin\{(tabular\*?|xtabular\*?|longtable\*?)\}/gi;
   const blocks = [];
@@ -721,7 +684,7 @@ export const normalizeLatexString = (str = '') => {
 
   // Temporarily replace math blocks with placeholders to protect internal LaTeX syntax (like \\ inside array/cases/matrix)
   const mathBlocks = [];
-  text = text.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{((?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array)\*?)\}(?:\[.*?\])?[\s\S]*?\\end\{\2\}|\$[^\$]+?\$|\\\([\s\S]*?\\\))/g, (match) => {
+  text = text.replace(/(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{((?:aligned|eqnarray|align|equation|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|array)\*?)\}(?:\[.*?\])?[\s\S]*?\\end\{\2\}|\$[^$]+?\$|\\\([\s\S]*?\\\))/g, (match) => {
     mathBlocks.push(match);
     return `__MATH_BLOCK_PLACEHOLDER_${mathBlocks.length - 1}__`;
   });
