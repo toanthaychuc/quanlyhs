@@ -15,6 +15,7 @@ import CrossSection3D from '../components/interactive/CrossSection3D';
 import SpaceGeometry3D from '../components/interactive/SpaceGeometry3D';
 import PerpendicularGeometry3D from '../components/interactive/PerpendicularGeometry3D';
 import SpaceAngles3D from '../components/interactive/SpaceAngles3D';
+import CrossSectionSolidVolume from '../components/interactive/CrossSectionSolidVolume';
 
 const MATERIALS_DATA = {
   '10': [
@@ -35,6 +36,7 @@ const MATERIALS_DATA = {
     { id: 'func-graph', title: 'Khảo sát hàm số', chapter: 'Khảo sát đồ thị' },
     { id: 'riemann-sum', title: 'Diện tích hình phẳng', chapter: 'Nguyên hàm & Tích phân' },
     { id: 'solid-revolution', title: 'Thể tích tròn xoay', chapter: 'Nguyên hàm & Tích phân' },
+    { id: 'cross-section-solid-volume', title: 'Thể tích cắt bởi mặt phẳng', chapter: 'Nguyên hàm & Tích phân' },
     { id: 'oxyz-relative-positions', title: 'Vị trí tương đối', chapter: 'Hình học Oxyz' }
   ]
 };
@@ -345,6 +347,8 @@ const InteractiveMaterials = () => {
         return <RiemannSum />;
       case 'solid-revolution':
         return <SolidOfRevolution />;
+      case 'cross-section-solid-volume':
+        return <CrossSectionSolidVolume />;
       case 'oxyz-relative-positions':
         return <RelativePositionsOxyz />;
       case 'conic-sections':

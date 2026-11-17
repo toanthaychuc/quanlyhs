@@ -323,6 +323,30 @@ html {
   font-family: inherit;
   font-style: normal;
 }
+/* MathLive theme-aware selection & highlight colors (prevents OS dark-mode dark highlight in Light Mode) */
+math-field {
+  color-scheme: light;
+  --hue: 212;
+  --caret-color: #2563eb;
+  --selection-color: #0f172a;
+  --selection-background-color: #bfdbfe;
+  --contains-highlight-color: #0284c7;
+  --contains-highlight-background-color: #eff6ff;
+  --highlight-text: rgba(37, 99, 235, 0.14);
+  --text-highlight-background-color: rgba(37, 99, 235, 0.14);
+}
+
+[data-theme='dark'] math-field {
+  color-scheme: dark;
+  --caret-color: #38bdf8;
+  --selection-color: #ffffff;
+  --selection-background-color: #2563eb;
+  --contains-highlight-color: #38bdf8;
+  --contains-highlight-background-color: rgba(56, 189, 248, 0.18);
+  --highlight-text: rgba(56, 189, 248, 0.25);
+  --text-highlight-background-color: rgba(56, 189, 248, 0.25);
+}
+
 /* Hide MathLive internal buttons */
 math-field::part(virtual-keyboard-toggle) {
   display: none;

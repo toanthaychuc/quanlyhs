@@ -138,6 +138,7 @@
 .ineq-title,
 .math-title,
 .solid-title,
+.csv-title,
 .space-geom-title,
 .func-invest-title,
 .derivative-title,
@@ -174,6 +175,7 @@
 .formulas-main.interactive-fullscreen-mode .ineq-title,
 .formulas-main.interactive-fullscreen-mode .math-title,
 .formulas-main.interactive-fullscreen-mode .solid-title,
+.formulas-main.interactive-fullscreen-mode .csv-title,
 .formulas-main.interactive-fullscreen-mode .space-geom-title,
 .formulas-main.interactive-fullscreen-mode .func-invest-title,
 .formulas-main.interactive-fullscreen-mode .derivative-title,
@@ -188,6 +190,7 @@
 @media (min-width: 769px) {
   /* Apply customizable width to sidebar in all 14 interactive components */
   .solid-sidebar,
+  .csv-sidebar,
   .riemann-sidebar,
   .func-invest-sidebar,
   .space-geom-sidebar,
